@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Previsão do Tempo</title>
+<link rel="manifest" href="manifest.json" />
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+    text-align: center;
+    max-width: 400px;
+    margin: auto;
+  }
+  h1 {
+    color: #333;
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  #forecast {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    min-height: 150px;
+  }
+  .card {
+    background: white;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    width: 90px;
+    text-align: center;
+    font-size: 14px;
+  }
+  .card img {
+    width: 50px;
+    height: 50px;
+  }
+  .dia-semana {
+    font-size: 12px;
+    color: #666;
+    text-transform: capitalize;
+    margin-top: -8px;
+    margin-bottom: 6px;
+  }
+  #cityInputContainer {
+    margin-top: 20px;
+  }
+  #cityInput {
+    padding: 6px;
+    font-size: 14px;
+    width: 180px;
+  }
+  #searchBtn {
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  #message {
+    color: red;
+    margin-top: 10px;
+    min-height: 20px;
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Previsão do Tempo</h1>
+
+<div id="forecast">Detectando sua localização...</div>
+
+<div id="cityInputContainer">
+  <p>Informe sua cidade para buscar a previsão:</p>
+  <form id="cityForm">
+    <input type="text" id="cityInput" placeholder="Digite sua cidade" autocomplete="off" autofocus />
+    <button type="submit" id="searchBtn">Buscar</button>
+  </form>
+  <p id="message"></p>
+</div>
+
+<script src="popup.js"></script>
+
+<script>
+// Registra service worker para cache offline
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').then(registration => {
+      console.log('Service Worker registrado com sucesso:', registration.scope);
+    }).catch(err => {
+      console.log('Falha no registro do Service Worker:', err);
+    });
+  });
+}
+</script>
+
+</body>
+</html>
