@@ -4,53 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Clima</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 1rem;
-      background: #eef2f3;
-      color: #333;
-    }
-    form {
-      margin-bottom: 1rem;
-    }
-    input[type="text"] {
-      padding: 0.5rem;
-      font-size: 1rem;
-      width: 250px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 0.55rem 1rem;
-      font-size: 1rem;
-      margin-left: 0.5rem;
-      border: none;
-      border-radius: 4px;
-      background-color: #007acc;
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #005fa3;
-    }
-    #weather .card {
-      background: white;
-      padding: 1rem;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      max-width: 320px;
-    }
-    #weather img {
-      display: block;
-      margin: 0 auto;
-    }
-    #weather p {
-      margin: 0.3rem 0;
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -61,87 +15,6 @@
 
   <div id="weather"></div>
 
-  <script>
-    const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-
-    const weatherDiv = document.getElementById('weather');
-    const searchForm = document.getElementById('searchForm');
-    const cityInput = document.getElementById('city');
-
-    searchForm.addEventListener('submit', event => {
-      event.preventDefault();
-      const city = cityInput.value.trim();
-      if (city) {
-        fetchWeatherByCity(city);
-      }
-    });
-
-    function showError(message) {
-      weatherDiv.innerHTML = `<p style="color: #ff4d4d; font-weight: 600;">${message}</p>`;
-    }
-
-    function createCardCurrent(data) {
-      return `
-        <div class="card">
-          <h2>${data.name}</h2>
-          <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" />
-          <p style="text-transform: capitalize;">${data.weather[0].description}</p>
-          <p>Temperatura: ${data.main.temp.toFixed(1)} °C</p>
-          <p>Min: ${data.main.temp_min.toFixed(1)} °C</p>
-          <p>Max: ${data.main.temp_max.toFixed(1)} °C</p>
-          <p>Umidade: ${data.main.humidity}%</p>
-          <p>Vento: ${data.wind.speed} m/s</p>
-        </div>
-      `;
-    }
-
-    async function fetchWeatherByCity(city) {
-      weatherDiv.innerHTML = '<p>Carregando...</p>';
-      try {
-        const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!res.ok) throw new Error('Cidade não encontrada');
-        const data = await res.json();
-        if (!data.weather) throw new Error('Previsão não disponível');
-        weatherDiv.innerHTML = createCardCurrent(data);
-        document.title = `Clima - ${data.name}`;
-        cityInput.focus();
-      } catch (error) {
-        showError(error.message);
-        cityInput.focus();
-      }
-    }
-
-    async function fetchWeatherByCoords(lat, lon) {
-      weatherDiv.innerHTML = '<p>Carregando previsão local...</p>';
-      try {
-        const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
-        if (!res.ok) throw new Error('Não foi possível obter a previsão local');
-        const data = await res.json();
-        if (!data.weather) throw new Error('Previsão não disponível');
-        weatherDiv.innerHTML = createCardCurrent(data);
-        document.title = `Clima - ${data.name}`;
-      } catch (error) {
-        showError(error.message);
-      }
-    }
-
-    function init() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude);
-          },
-          err => {
-            showError('Não foi possível obter sua localização. Por favor, pesquise uma cidade.');
-          }
-        );
-      } else {
-        showError('Geolocalização não suportada. Por favor, pesquise uma cidade.');
-      }
-    }
-
-    init();
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
