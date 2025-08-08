@@ -1,10 +1,11 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const weatherDiv = document.getElementById('weather');
-const searchBtn = document.getElementById('searchBtn');
+const searchForm = document.getElementById('searchForm');
 const cityInput = document.getElementById('city');
 
-searchBtn.addEventListener('click', () => {
+searchForm.addEventListener('submit', event => {
+  event.preventDefault();
   const city = cityInput.value.trim();
   if (city) {
     fetchWeatherByCity(city);
@@ -12,7 +13,7 @@ searchBtn.addEventListener('click', () => {
 });
 
 function showError(message) {
-  weatherDiv.innerHTML = `<p style="color: red;">${message}</p>`;
+  weatherDiv.innerHTML = `<p style="color: #ffb3b3; font-weight: 600;">${message}</p>`;
 }
 
 function createCardCurrent(data) {
@@ -20,7 +21,7 @@ function createCardCurrent(data) {
     <div class="card">
       <h2>${data.name}</h2>
       <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="${data.weather[0].description}" />
-      <p style="text-transform: capitalize;">${data.weather[0].description}</p>
+      <p>${data.weather[0].description}</p>
       <p>Temperatura: ${data.main.temp.toFixed(1)} °C</p>
       <p>Min: ${data.main.temp_min.toFixed(1)} °C</p>
       <p>Max: ${data.main.temp_max.toFixed(1)} °C</p>
@@ -39,8 +40,10 @@ async function fetchWeatherByCity(city) {
     if (!data.weather) throw new Error('Previsão não disponível');
     weatherDiv.innerHTML = createCardCurrent(data);
     document.title = `Clima - ${data.name}`;
+    cityInput.focus();
   } catch (error) {
     showError(error.message);
+    cityInput.focus();
   }
 }
 
