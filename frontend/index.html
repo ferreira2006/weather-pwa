@@ -76,7 +76,7 @@
       width: 120px;
       height: 120px;
       margin-bottom: 1rem;
-      pointer-events: none; /* para não atrapalhar clique */
+      pointer-events: none;
     }
   </style>
 </head>
@@ -105,20 +105,18 @@
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
-    // Inicializa animação padrão (ex: nuvem carregando)
     let animation = lottie.loadAnimation({
       container: lottieContainer,
       renderer: 'svg',
       loop: true,
       autoplay: true,
-      path: 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json' // animação nuvem
+      path: 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json' // animação nuvem padrão
     });
 
-    // Função para exibir o clima e trocar animação conforme condição
     function exibirClima(data) {
       const cityName = data.name;
       const temperature = data.main.temp.toFixed(1);
-      const condition = data.weather[0].main.toLowerCase(); // sol, chuva, nuvem, etc
+      const condition = data.weather[0].main.toLowerCase();
 
       weatherDiv.innerHTML = `
         <h2>Clima em ${cityName}</h2>
@@ -128,24 +126,23 @@
 
       document.title = `Clima em ${cityName}`;
 
-      // Trocar animação dependendo do tempo
       let animPath;
 
       if (condition.includes('cloud')) {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json'; // nuvem
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // nuvem
       } else if (condition.includes('rain') || condition.includes('drizzle')) {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_jmgekfqg.json'; // chuva
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_x62chJ.json'; // chuva
       } else if (condition.includes('clear') || condition.includes('sun')) {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_9wpyhdzo.json'; // sol
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_jtbfg2nb.json'; // sol
       } else if (condition.includes('snow')) {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_sfmkh3mv.json'; // neve
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_gM9aR8.json'; // neve
       } else if (condition.includes('thunderstorm')) {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_nh6ywz5d.json'; // trovão
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_YXD37q.json'; // trovão
       } else {
-        animPath = 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json'; // padrão nuvem
+        animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // padrão nuvem
       }
 
-      animation.destroy(); // para animação antiga
+      animation.destroy();
       animation = lottie.loadAnimation({
         container: lottieContainer,
         renderer: 'svg',
@@ -155,15 +152,13 @@
       });
     }
 
-    // Função para mostrar mensagem simples (ex: buscando, erro)
     function mostrarMensagem(msg) {
       animation.destroy();
-      lottieContainer.innerHTML = ''; // limpa animação
+      lottieContainer.innerHTML = '';
       weatherDiv.textContent = msg;
       document.title = 'Previsão do Tempo';
     }
 
-    // Busca clima pelo nome da cidade
     async function buscarClimaPorCidade(city) {
       mostrarMensagem("Buscando clima...");
       try {
@@ -177,7 +172,6 @@
       }
     }
 
-    // Busca clima pela lat/lon
     async function buscarClimaPorCoords(lat, lon) {
       mostrarMensagem("Buscando clima...");
       try {
@@ -191,7 +185,6 @@
       }
     }
 
-    // Form submit: busca por cidade digitada
     searchForm.addEventListener('submit', e => {
       e.preventDefault();
       const city = cityInput.value.trim();
@@ -202,7 +195,6 @@
       buscarClimaPorCidade(city);
     });
 
-    // Ao carregar a página, tenta pegar a localização
     window.onload = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
