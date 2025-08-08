@@ -8,6 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
+console.log('API_KEY está definida?', API_KEY ? 'Sim' : 'Não');
+
 if (!API_KEY) {
   console.error("⚠️ API_KEY não definida. Verifique seu .env ou variável no Render.");
   process.exit(1);
