@@ -2,7 +2,7 @@ const btnLocate = document.getElementById('btn-locate');
 const weatherInfo = document.getElementById('weather-info');
 const errorMsg = document.getElementById('error-msg');
 
-const BACKEND_URL = 'https://weather-pwa-zkmc.onrender.com/weather-pwa';
+const BACKEND_URL = 'https://weather-pwa-zkmc.onrender.com/weather';
 
 btnLocate.addEventListener('click', () => {
   errorMsg.textContent = '';
