@@ -1,4 +1,3 @@
-// backend/server.js
 require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
@@ -8,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
-console.log('API_KEY está definida?', API_KEY ? 'Sim' : 'Não');
+console.log("API_KEY está definida?", API_KEY ? "Sim" : "Não");
 
 if (!API_KEY) {
   console.error("⚠️ API_KEY não definida. Verifique seu .env ou variável no Render.");
@@ -34,7 +33,6 @@ app.get('/weather', async (req, res) => {
     const data = await response.json();
 
     if (response.status !== 200) {
-      // Retorna erro do OpenWeather (ex: 401, 404)
       return res.status(response.status).json({ error: data.message || 'Erro na API do OpenWeather' });
     }
 
