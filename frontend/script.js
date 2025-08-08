@@ -1,4 +1,4 @@
-const backendUrl = "https://SEU_BACKEND_NO_RENDER.onrender.com/weather";
+const backendUrl = "https://weather-backend-hh3w.onrender.com";
 
 document.getElementById("searchBtn").addEventListener("click", async () => {
     const city = document.getElementById("city").value.trim();
