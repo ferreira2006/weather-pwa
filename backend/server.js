@@ -8,30 +8,42 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
+if (!API_KEY) {
+  console.error("⚠️ API_KEY não definida. Verifique seu .env ou variável no Render.");
+  process.exit(1);
+}
+
 app.use(cors());
 
-// Rota para buscar dados do clima
 app.get('/weather', async (req, res) => {
-    const { lat, lon, city } = req.query;
-    let url = '';
+  const { lat, lon, city } = req.query;
 
-    if (lat && lon) {
-        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
-    } else if (city) {
-        url = `https://api.openweathermap.org/data/2.5/weather?q=${city},BR&appid=${API_KEY}&units=metric&lang=pt_br`;
-    } else {
-        return res.status(400).json({ error: 'Parâmetros inválidos' });
+  let url;
+  if (lat && lon) {
+    url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  } else if (city) {
+    url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  } else {
+    return res.status(400).json({ error: 'Parâmetros inválidos. Use lat+lon ou city.' });
+  }
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      // Retorna erro do OpenWeather (ex: 401, 404)
+      return res.status(response.status).json({ error: data.message || 'Erro na API do OpenWeather' });
     }
 
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: 'Erro ao buscar dados do clima' });
-    }
+    res.json(data);
+
+  } catch (error) {
+    console.error("Erro no servidor:", error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
