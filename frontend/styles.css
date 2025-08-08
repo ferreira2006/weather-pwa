@@ -1,78 +1,54 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #2e7d32, #81c784);
-  color: #f0f8f5;
-  margin: 1rem;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
-form {
-  margin-bottom: 1.5rem;
-  display: flex;
-  gap: 0.6rem;
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-input[type="text"] {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 30px;
-  width: 250px;
-  outline: none;
-  transition: box-shadow 0.3s ease;
+.search-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
-input[type="text"]:focus {
-  box-shadow: 0 0 10px #a5d6a7;
+.search-box input {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    flex: 1;
+    outline: none;
 }
 
-button {
-  padding: 0.6rem 1.4rem;
-  font-size: 1rem;
-  background: #388e3c;
-  border: none;
-  border-radius: 30px;
-  color: #e8f5e9;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.search-box button {
+    background: #ff9800;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
 }
 
-button:hover {
-  background: #2e7d32;
+.weather-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
-#weather {
-  width: 320px;
+#weather-icon {
+    margin: 20px 0;
 }
 
-#weather .card {
-  background: linear-gradient(135deg, #66bb6a, #388e3c);
-  padding: 1.5rem;
-  border-radius: 20px;
-  box-shadow: 0 8px 15px rgba(46, 125, 50, 0.5);
-  color: white;
-  text-align: center;
-  user-select: none;
-}
-
-#weather .card h2 {
-  margin-bottom: 0.6rem;
-  font-weight: 700;
-  font-size: 1.8rem;
-}
-
-#weather .card img {
-  margin: 0.5rem 0;
-  width: 100px;
-  height: 100px;
-}
-
-#weather .card p {
-  margin: 0.3rem 0;
-  font-size: 1.1rem;
-  text-transform: capitalize;
+h2, h3, p {
+    margin: 5px 0;
 }
