@@ -6,8 +6,9 @@
   <title>Previsão do Tempo</title>
 
   <!-- CDN correta do Weather Icons Animated -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weather-icons-animated@2.0.1/dist/weather-icons-animated.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weather-icons-animated@2.0.1/dist/weather-icons-animated.min.css" />
 
+  <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -127,6 +128,23 @@
       return 'wi-day-cloudy'; // padrão
     }
 
+    function exibirClima(data) {
+      const city = data.name;
+      const temperature = data.main.temp.toFixed(1); // temperatura em °C
+      const condition = data.weather[0].description;
+
+      const iconClass = getWeatherIcon(condition);
+
+      weatherDiv.innerHTML = `
+        <i class="wi ${iconClass} weather-icon"></i>
+        <h2>Clima em ${city}</h2>
+        <p>Temperatura: ${temperature} °C</p>
+        <p>Condição: ${condition}</p>
+      `;
+
+      document.title = `Clima em ${city}`;
+    }
+
     searchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -140,21 +158,10 @@
 
       try {
         const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!response.ok) {
-          throw new Error(`Erro na requisição: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
         const data = await response.json();
 
-        const iconClass = getWeatherIcon(data.condition);
-
-        weatherDiv.innerHTML = `
-          <i class="wi ${iconClass} weather-icon"></i>
-          <h2>Clima em ${data.city}</h2>
-          <p>Temperatura: ${data.temperature} °C</p>
-          <p>Condição: ${data.condition}</p>
-        `;
-
-        document.title = `Clima em ${data.city}`;
+        exibirClima(data);
 
       } catch (error) {
         weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
