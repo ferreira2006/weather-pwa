@@ -7,24 +7,25 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
     return;
   }
 
-  document.getElementById("weather").textContent = "Carregando...";
+  const weatherDiv = document.getElementById("weather");
+  weatherDiv.textContent = "Carregando...";
 
   try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`)
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
     const data = await res.json();
 
     if (!data || data.cod !== 200) {
-      document.getElementById("weather").textContent = data?.error || "Cidade não encontrada.";
+      weatherDiv.textContent = data?.error || "Cidade não encontrada.";
       return;
     }
 
-    document.getElementById("weather").innerHTML = `
+    weatherDiv.innerHTML = `
       <h2>${data.name} - ${data.sys.country}</h2>
       <p>🌡️ Temperatura: ${data.main.temp}°C</p>
       <p>${data.weather[0].description}</p>
     `;
   } catch (error) {
-    document.getElementById("weather").textContent = "Erro ao buscar dados do clima.";
+    weatherDiv.textContent = "Erro ao buscar dados do clima.";
     console.error(error);
   }
 });
