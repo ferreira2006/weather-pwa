@@ -116,31 +116,23 @@
     function exibirClima(data) {
       const cityName = data.name;
       const temperature = data.main.temp.toFixed(1);
-      const condition = data.weather[0].main.toLowerCase();
+      
+    const condition = data.weather[0].main.toLowerCase();
+const description = data.weather[0].description.toLowerCase();
 
-      weatherDiv.innerHTML = `
-        <h2>Clima em ${cityName}</h2>
-        <p>Temperatura: ${temperature} °C</p>
-        <p>Condição: ${data.weather[0].description}</p>
-      `;
-
-      document.title = `Clima em ${cityName}`;
-
-      let animPath;
-
-      if (condition.includes('cloud')) {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // nuvem
-      } else if (condition.includes('rain') || condition.includes('drizzle')) {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_x62chJ.json'; // chuva
-      } else if (condition.includes('clear') || condition.includes('sun')) {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_jtbfg2nb.json'; // sol
-      } else if (condition.includes('snow')) {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_gM9aR8.json'; // neve
-      } else if (condition.includes('thunderstorm')) {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_YXD37q.json'; // trovão
-      } else {
-        animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // padrão nuvem
-      }
+if (condition.includes('cloud') || description.includes('nublado') || description.includes('nuvem')) {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // nuvem
+} else if (condition.includes('rain') || condition.includes('drizzle') || description.includes('chuva')) {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_x62chJ.json'; // chuva
+} else if (condition.includes('clear') || condition.includes('sun') || description.includes('limpo')) {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_jtbfg2nb.json'; // sol
+} else if (condition.includes('snow') || description.includes('neve')) {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_gM9aR8.json'; // neve
+} else if (condition.includes('thunderstorm') || description.includes('trovoada') || description.includes('trovão')) {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_YXD37q.json'; // trovão
+} else {
+  animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // padrão nuvem
+}
 
       animation.destroy();
       animation = lottie.loadAnimation({
