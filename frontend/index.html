@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Previsão do Tempo</title>
 
-  <!-- CDN do Weather Icons Animated -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons-wind.min.css" />
+  <!-- CDN correta do Weather Icons Animated -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weather-icons-animated@2.0.1/dist/weather-icons-animated.min.css" />
+
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -87,7 +87,7 @@
       color: #fff;
     }
 
-    /* Para algumas condições que não devem girar */
+    /* Para ícones que não devem girar */
     .no-spin {
       animation: none !important;
     }
@@ -116,7 +116,6 @@
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
-    // Função para mapear condição para ícone
     function getWeatherIcon(condition) {
       const c = condition.toLowerCase();
       if (c.includes('sol') || c.includes('clear') || c.includes('céu limpo')) return 'wi-day-sunny no-spin';
@@ -166,4 +165,4 @@
   </script>
 
 </body>
-  </html>
+</html>
