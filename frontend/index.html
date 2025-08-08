@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Previsão do Tempo</title>
-  <style>
-    /* CSS simples e moderno */
 
+  <!-- CDN do Weather Icons Animated -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons-wind.min.css" />
+  <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -71,12 +73,29 @@
       text-align: center;
       font-size: 1.2rem;
       user-select: none;
-      min-height: 120px;
+      min-height: 140px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+      gap: 1rem;
     }
 
+    .weather-icon {
+      font-size: 64px;
+      animation: spin 4s linear infinite;
+      color: #fff;
+    }
+
+    /* Para algumas condições que não devem girar */
+    .no-spin {
+      animation: none !important;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
   </style>
 </head>
 <body>
@@ -97,6 +116,19 @@
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
+    // Função para mapear condição para ícone
+    function getWeatherIcon(condition) {
+      const c = condition.toLowerCase();
+      if (c.includes('sol') || c.includes('clear') || c.includes('céu limpo')) return 'wi-day-sunny no-spin';
+      if (c.includes('nuvem') || c.includes('cloud')) return 'wi-cloud';
+      if (c.includes('chuva') || c.includes('rain')) return 'wi-rain';
+      if (c.includes('tempestade') || c.includes('storm')) return 'wi-thunderstorm';
+      if (c.includes('neve') || c.includes('snow')) return 'wi-snow';
+      if (c.includes('névoa') || c.includes('fog') || c.includes('neblina')) return 'wi-fog no-spin';
+      if (c.includes('vento') || c.includes('wind')) return 'wi-strong-wind';
+      return 'wi-day-cloudy'; // padrão
+    }
+
     searchForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -115,7 +147,10 @@
         }
         const data = await response.json();
 
+        const iconClass = getWeatherIcon(data.condition);
+
         weatherDiv.innerHTML = `
+          <i class="wi ${iconClass} weather-icon"></i>
           <h2>Clima em ${data.city}</h2>
           <p>Temperatura: ${data.temperature} °C</p>
           <p>Condição: ${data.condition}</p>
@@ -131,4 +166,4 @@
   </script>
 
 </body>
-</html>
+  </html>
