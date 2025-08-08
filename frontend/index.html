@@ -65,10 +65,18 @@
       text-align: center;
       font-size: 1.2rem;
       user-select: none;
-      min-height: 120px;
+      min-height: 180px; /* aumentado para caber animação */
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center;
+    }
+
+    #lottie-container {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 1rem;
+      pointer-events: none; /* para não atrapalhar clique */
     }
   </style>
 </head>
@@ -81,55 +89,104 @@
     <button type="submit" id="searchBtn">Buscar</button>
   </form>
 
-  <div id="weather">Buscando clima da sua localização...</div>
+  <div id="weather">
+    <div id="lottie-container"></div>
+    <div id="weather-text">Buscando clima da sua localização...</div>
+  </div>
+
+  <!-- Biblioteca Lottie Web -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.1/lottie.min.js"></script>
 
   <script>
     const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-    const weatherDiv = document.getElementById('weather');
+    const weatherDiv = document.getElementById('weather-text');
+    const lottieContainer = document.getElementById('lottie-container');
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
-    // Função para exibir o clima
+    // Inicializa animação padrão (ex: nuvem carregando)
+    let animation = lottie.loadAnimation({
+      container: lottieContainer,
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json' // animação nuvem
+    });
+
+    // Função para exibir o clima e trocar animação conforme condição
     function exibirClima(data) {
       const cityName = data.name;
       const temperature = data.main.temp.toFixed(1);
-      const condition = data.weather[0].description;
+      const condition = data.weather[0].main.toLowerCase(); // sol, chuva, nuvem, etc
 
       weatherDiv.innerHTML = `
         <h2>Clima em ${cityName}</h2>
         <p>Temperatura: ${temperature} °C</p>
-        <p>Condição: ${condition}</p>
+        <p>Condição: ${data.weather[0].description}</p>
       `;
 
       document.title = `Clima em ${cityName}`;
+
+      // Trocar animação dependendo do tempo
+      let animPath;
+
+      if (condition.includes('cloud')) {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json'; // nuvem
+      } else if (condition.includes('rain') || condition.includes('drizzle')) {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_jmgekfqg.json'; // chuva
+      } else if (condition.includes('clear') || condition.includes('sun')) {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_9wpyhdzo.json'; // sol
+      } else if (condition.includes('snow')) {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_sfmkh3mv.json'; // neve
+      } else if (condition.includes('thunderstorm')) {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_nh6ywz5d.json'; // trovão
+      } else {
+        animPath = 'https://assets7.lottiefiles.com/packages/lf20_kyu7xb1v.json'; // padrão nuvem
+      }
+
+      animation.destroy(); // para animação antiga
+      animation = lottie.loadAnimation({
+        container: lottieContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: animPath
+      });
+    }
+
+    // Função para mostrar mensagem simples (ex: buscando, erro)
+    function mostrarMensagem(msg) {
+      animation.destroy();
+      lottieContainer.innerHTML = ''; // limpa animação
+      weatherDiv.textContent = msg;
+      document.title = 'Previsão do Tempo';
     }
 
     // Busca clima pelo nome da cidade
     async function buscarClimaPorCidade(city) {
-      weatherDiv.textContent = "Buscando clima...";
+      mostrarMensagem("Buscando clima...");
       try {
         const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
         if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
         const data = await response.json();
         exibirClima(data);
       } catch (error) {
-        weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
+        mostrarMensagem("Erro ao buscar o clima. Tente novamente.");
         console.error(error);
       }
     }
 
-    // Busca clima pela lat/lon, se o backend aceitar (se não aceitar, podemos fazer reverse geocode no frontend)
+    // Busca clima pela lat/lon
     async function buscarClimaPorCoords(lat, lon) {
-      weatherDiv.textContent = "Buscando clima...";
+      mostrarMensagem("Buscando clima...");
       try {
-        // Ajuste a URL conforme seu backend, aqui mando lat e lon
         const response = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
         if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
         const data = await response.json();
         exibirClima(data);
       } catch (error) {
-        weatherDiv.textContent = "Erro ao buscar o clima da localização. Por favor, digite a cidade.";
+        mostrarMensagem("Erro ao buscar o clima da localização. Por favor, digite a cidade.");
         console.error(error);
       }
     }
@@ -139,7 +196,7 @@
       e.preventDefault();
       const city = cityInput.value.trim();
       if (!city) {
-        weatherDiv.textContent = "Por favor, insira o nome de uma cidade.";
+        mostrarMensagem("Por favor, insira o nome de uma cidade.");
         return;
       }
       buscarClimaPorCidade(city);
@@ -154,16 +211,16 @@
             buscarClimaPorCoords(latitude, longitude);
           },
           error => {
-            weatherDiv.textContent = "Não foi possível obter sua localização. Por favor, digite a cidade.";
+            mostrarMensagem("Não foi possível obter sua localização. Por favor, digite a cidade.");
             cityInput.focus();
           }
         );
       } else {
-        weatherDiv.textContent = "Geolocalização não suportada. Por favor, digite a cidade.";
+        mostrarMensagem("Geolocalização não suportada. Por favor, digite a cidade.");
         cityInput.focus();
       }
     };
   </script>
 
 </body>
-  </html>
+</html>
