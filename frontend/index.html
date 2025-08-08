@@ -1,20 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Clima</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Previsão do Tempo</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+    <div class="container">
+        <h1>Previsão do Tempo</h1>
 
-  <form id="searchForm">
-    <input id="city" type="text" placeholder="Digite uma cidade" required autocomplete="off" />
-    <button type="submit">Pesquisar</button>
-  </form>
+        <!-- Caixa de busca -->
+        <div class="search-box">
+            <input type="text" id="searchBox" placeholder="Digite a cidade..." />
+            <button id="searchBtn">Buscar</button>
+        </div>
 
-  <div id="weather"></div>
+        <!-- Card de clima -->
+        <div class="weather-card">
+            <h2 id="city">Cidade</h2>
+            <canvas id="weather-icon" width="128" height="128"></canvas>
+            <h3 id="temp">--°C</h3>
+            <p id="description">Descrição</p>
+        </div>
+    </div>
 
-  <script src="app.js"></script>
+    <!-- Skycons animados -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.js"></script>
+    <!-- Seu JS -->
+    <script src="app.js"></script>
 </body>
-</html>
+                           </html>
