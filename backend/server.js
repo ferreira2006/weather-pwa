@@ -1,29 +1,32 @@
-import express from 'express';
-import cors from 'cors';
-import fetch from 'node-fetch';
+const express = require("express");
+const axios = require("axios");
+const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-const API_KEY = process.env.OPENWEATHERAPIKEY; // sua chave API aqui
-
 app.use(cors());
 
-app.get('/weather', async (req, res) => {
-  const { lat, lon } = req.query;
-  if (!lat || !lon) return res.status(400).json({ error: 'Lat e Lon são obrigatórios' });
+const PORT = process.env.PORT || 3000;
 
-  try {
-    const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}&lang=pt_br`
-    );
-    if (!response.ok) throw new Error('Erro ao buscar dados da API');
+app.get("/weather", async (req, res) => {
+    try {
+        const { lat, lon } = req.query;
 
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+        if (!lat || !lon) {
+            return res.status(400).json({ error: "Latitude e longitude são obrigatórios" });
+        }
+
+        const response = await axios.get(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${process.env.API_KEY}&units=metric&lang=pt_br`
+        );
+
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ error: "Erro ao buscar dados do clima" });
+    }
 });
 
-app.listen(PORT, () => console.log(`Backend rodando na porta ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
+
