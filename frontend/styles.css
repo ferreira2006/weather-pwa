@@ -1,101 +1,78 @@
-/* Reset básico */
-* {
-  box-sizing: border-box;
-}
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  margin: 0;
+  background: linear-gradient(135deg, #4b0082, #7b3fbf);
+  color: #eee;
+  margin: 1rem;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  padding: 20px;
-}
-
-.container {
-  background: rgba(255, 255, 255, 0.1);
-  padding: 30px 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-}
-
-h1 {
-  margin-bottom: 25px;
-  font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 form {
+  margin-bottom: 1.5rem;
   display: flex;
-  margin-bottom: 30px;
-  gap: 10px;
+  gap: 0.6rem;
 }
 
 input[type="text"] {
-  flex-grow: 1;
-  padding: 12px 15px;
-  font-size: 16px;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 30px;
+  width: 250px;
   outline: none;
   transition: box-shadow 0.3s ease;
 }
 
 input[type="text"]:focus {
-  box-shadow: 0 0 8px 2px #fff;
-  background-color: #fff;
-  color: #333;
+  box-shadow: 0 0 10px #b285ff;
 }
 
 button {
-  background-color: #6c63ff;
-  color: white;
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  background: #9b59b6;
   border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 30px;
+  color: #fff;
   font-weight: 600;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 8px rgba(108, 99, 255, 0.6);
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #5848c2;
-  box-shadow: 0 6px 15px rgba(88, 72, 194, 0.8);
+  background: #7e3fbf;
 }
 
 #weather {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 25px 20px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  width: 320px;
 }
 
-.card {
+#weather .card {
+  background: linear-gradient(135deg, #7e3fbf, #b285ff);
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 15px rgba(131, 61, 180, 0.5);
+  color: white;
   text-align: center;
+  user-select: none;
 }
 
-.card h2 {
-  font-size: 2.4rem;
-  margin-bottom: 10px;
-  text-shadow: 0 1px 5px rgba(0,0,0,0.4);
+#weather .card h2 {
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  font-size: 1.8rem;
 }
 
-.card img {
-  width: 120px;
-  height: 120px;
-  margin-bottom: 15px;
+#weather .card img {
+  margin: 0.5rem 0;
+  width: 100px;
+  height: 100px;
 }
 
-.card p {
+#weather .card p {
+  margin: 0.3rem 0;
   font-size: 1.1rem;
-  margin: 6px 0;
   text-transform: capitalize;
 }
