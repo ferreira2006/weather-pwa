@@ -24,7 +24,7 @@ async function fetchWeather(city) {
     // Atualiza título com nome da cidade
     titulo.textContent = `Previsão do Tempo - ${data.city.name}`;
 
-    const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 3);
+    const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
     forecastContainer.innerHTML = '';
 
     previsoesDiarias.forEach(item => {
@@ -69,16 +69,16 @@ if (navigator.geolocation) {
         cityInput.value = cityName; // preenche o input para o usuário
       } catch (e) {
         console.error(e);
-        message.textContent = 'Erro ao detectar cidade pela localização. Use o campo abaixo.';
+        message.textContent = 'Erro ao detectar cidade pela localização. Use o campo acima.';
       }
     },
     (error) => {
       console.warn('Permissão negada ou erro na geolocalização:', error);
-      message.textContent = 'Permissão negada para localização. Use o campo abaixo.';
+      message.textContent = 'Permissão negada para localização. Use o campo acima.';
     }
   );
 } else {
-  message.textContent = 'Navegador não suporta geolocalização. Use o campo abaixo.';
+  message.textContent = 'Navegador não suporta geolocalização. Use o campo acima.';
 }
 
 // Form submit para busca via Enter ou clique no botão
