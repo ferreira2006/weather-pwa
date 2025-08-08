@@ -10,7 +10,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
   document.getElementById("weather").textContent = "Carregando...";
 
   try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`)
     const data = await res.json();
 
     if (!data || data.cod !== 200) {
