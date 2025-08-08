@@ -1,77 +1,39 @@
-const apiKey = "SUA_API_KEY_AQUI"; // substitua pela sua chave da OpenWeather
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-const searchBox = document.getElementById("searchBox");
-const searchBtn = document.getElementById("searchBtn");
-const cityElement = document.getElementById("city");
-const tempElement = document.getElementById("temp");
-const descElement = document.getElementById("description");
-const weatherIconCanvas = document.getElementById("weather-icon");
+const weatherDiv = document.getElementById('weather');
+const searchForm = document.getElementById('searchForm');
+const cityInput = document.getElementById('cityInput');
 
-// Mapeamento de códigos OpenWeather para Skycons
-function mapIconCodeToSkycon(code) {
-    const map = {
-        "01d": "CLEAR_DAY",
-        "01n": "CLEAR_NIGHT",
-        "02d": "PARTLY_CLOUDY_DAY",
-        "02n": "PARTLY_CLOUDY_NIGHT",
-        "03d": "CLOUDY",
-        "03n": "CLOUDY",
-        "04d": "CLOUDY",
-        "04n": "CLOUDY",
-        "09d": "RAIN",
-        "09n": "RAIN",
-        "10d": "RAIN",
-        "10n": "RAIN",
-        "11d": "SLEET",
-        "11n": "SLEET",
-        "13d": "SNOW",
-        "13n": "SNOW",
-        "50d": "FOG",
-        "50n": "FOG"
-    };
-    return map[code] || "CLOUDY";
-}
+searchForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-// Define ícone animado no canvas
-function setWeatherIcon(iconCode) {
-    const skycons = new Skycons({ "color": "white" });
-    const iconType = mapIconCodeToSkycon(iconCode);
-    skycons.add(weatherIconCanvas, Skycons[iconType]);
-    skycons.play();
-}
+  const city = cityInput.value.trim();
+  if (!city) {
+    weatherDiv.textContent = "Por favor, insira o nome de uma cidade.";
+    return;
+  }
 
-// Busca e exibe o clima
-async function getWeather(city) {
-    try {
-        const response = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=pt_br`
-        );
-        if (!response.ok) throw new Error("Cidade não encontrada");
+  weatherDiv.textContent = "Buscando clima...";
 
-        const data = await response.json();
-
-        // Atualiza informações
-        cityElement.textContent = `${data.name}, ${data.sys.country}`;
-        tempElement.textContent = `${Math.round(data.main.temp)}°C`;
-        descElement.textContent = data.weather[0].description;
-
-        // Atualiza ícone animado com base no código da API
-        setWeatherIcon(data.weather[0].icon);
-
-    } catch (error) {
-        cityElement.textContent = "Erro";
-        tempElement.textContent = "";
-        descElement.textContent = error.message;
+  try {
+    const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status}`);
     }
-}
+    const data = await response.json();
 
-// Eventos de busca
-searchBtn.addEventListener("click", () => {
-    getWeather(searchBox.value);
-});
-searchBox.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") getWeather(searchBox.value);
-});
+    // Exibir dados do clima
+    weatherDiv.innerHTML = `
+      <h2>Clima em ${data.city}</h2>
+      <p>Temperatura: ${data.temperature} °C</p>
+      <p>Condição: ${data.condition}</p>
+    `;
+    
+    // Atualizar título da página com nome da cidade
+    document.title = `Clima em ${data.city}`;
 
-// Busca inicial padrão
-getWeather("São Paulo");
+  } catch (error) {
+    weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
+    console.error(error);
+  }
+});
