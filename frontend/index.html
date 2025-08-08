@@ -1,33 +1,39 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Previsão do Tempo</title>
-    <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-    <div class="container">
-        <h1>Previsão do Tempo</h1>
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-        <!-- Caixa de busca -->
-        <div class="search-box">
-            <input type="text" id="searchBox" placeholder="Digite a cidade..." />
-            <button id="searchBtn">Buscar</button>
-        </div>
+const weatherDiv = document.getElementById('weather');
+const searchForm = document.getElementById('searchForm');
+const cityInput = document.getElementById('cityInput');
 
-        <!-- Card de clima -->
-        <div class="weather-card">
-            <h2 id="city">Cidade</h2>
-            <canvas id="weather-icon" width="128" height="128"></canvas>
-            <h3 id="temp">--°C</h3>
-            <p id="description">Descrição</p>
-        </div>
-    </div>
+searchForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    <!-- Skycons animados -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.js"></script>
-    <!-- Seu JS -->
-    <script src="app.js"></script>
-</body>
-                           </html>
+  const city = cityInput.value.trim();
+  if (!city) {
+    weatherDiv.textContent = "Por favor, insira o nome de uma cidade.";
+    return;
+  }
+
+  weatherDiv.textContent = "Buscando clima...";
+
+  try {
+    const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    if (!response.ok) {
+      throw new Error(`Erro na requisição: ${response.status}`);
+    }
+    const data = await response.json();
+
+    // Exibir dados do clima
+    weatherDiv.innerHTML = `
+      <h2>Clima em ${data.city}</h2>
+      <p>Temperatura: ${data.temperature} °C</p>
+      <p>Condição: ${data.condition}</p>
+    `;
+    
+    // Atualizar título da página com nome da cidade
+    document.title = `Clima em ${data.city}`;
+
+  } catch (error) {
+    weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
+    console.error(error);
+  }
+});
