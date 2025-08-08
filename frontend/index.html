@@ -81,7 +81,7 @@
     <button type="submit" id="searchBtn">Buscar</button>
   </form>
 
-  <div id="weather">Informe uma cidade para ver a previsão.</div>
+  <div id="weather">Buscando clima da sua localização...</div>
 
   <script>
     const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
@@ -90,47 +90,80 @@
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
-    searchForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    // Função para exibir o clima
+    function exibirClima(data) {
+      const cityName = data.name;
+      const temperature = data.main.temp.toFixed(1);
+      const condition = data.weather[0].description;
 
+      weatherDiv.innerHTML = `
+        <h2>Clima em ${cityName}</h2>
+        <p>Temperatura: ${temperature} °C</p>
+        <p>Condição: ${condition}</p>
+      `;
+
+      document.title = `Clima em ${cityName}`;
+    }
+
+    // Busca clima pelo nome da cidade
+    async function buscarClimaPorCidade(city) {
+      weatherDiv.textContent = "Buscando clima...";
+      try {
+        const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+        const data = await response.json();
+        exibirClima(data);
+      } catch (error) {
+        weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
+        console.error(error);
+      }
+    }
+
+    // Busca clima pela lat/lon, se o backend aceitar (se não aceitar, podemos fazer reverse geocode no frontend)
+    async function buscarClimaPorCoords(lat, lon) {
+      weatherDiv.textContent = "Buscando clima...";
+      try {
+        // Ajuste a URL conforme seu backend, aqui mando lat e lon
+        const response = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
+        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+        const data = await response.json();
+        exibirClima(data);
+      } catch (error) {
+        weatherDiv.textContent = "Erro ao buscar o clima da localização. Por favor, digite a cidade.";
+        console.error(error);
+      }
+    }
+
+    // Form submit: busca por cidade digitada
+    searchForm.addEventListener('submit', e => {
+      e.preventDefault();
       const city = cityInput.value.trim();
       if (!city) {
         weatherDiv.textContent = "Por favor, insira o nome de uma cidade.";
         return;
       }
-
-      weatherDiv.textContent = "Buscando clima...";
-
-      try {
-        const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!response.ok) {
-          throw new Error(`Erro na requisição: ${response.status}`);
-        }
-        const data = await response.json();
-
-        // Ajuste para extrair do JSON conforme o backend retorna
-        const cityName = data.name;
-        const temperature = data.main.temp.toFixed(1);
-        const condition = data.weather[0].description;
-
-        weatherDiv.innerHTML = `
-          <h2>Clima em ${cityName}</h2>
-          <p>Temperatura: ${temperature} °C</p>
-          <p>Condição: ${condition}</p>
-        `;
-
-        document.title = `Clima em ${cityName}`;
-      } catch (error) {
-        weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
-        console.error(error);
-      }
+      buscarClimaPorCidade(city);
     });
 
-    // Colocar foco no input ao carregar
+    // Ao carregar a página, tenta pegar a localização
     window.onload = () => {
-      cityInput.focus();
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const { latitude, longitude } = position.coords;
+            buscarClimaPorCoords(latitude, longitude);
+          },
+          error => {
+            weatherDiv.textContent = "Não foi possível obter sua localização. Por favor, digite a cidade.";
+            cityInput.focus();
+          }
+        );
+      } else {
+        weatherDiv.textContent = "Geolocalização não suportada. Por favor, digite a cidade.";
+        cityInput.focus();
+      }
     };
   </script>
 
 </body>
-</html>
+  </html>
