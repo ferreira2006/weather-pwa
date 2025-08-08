@@ -4,27 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Previsão do Tempo</title>
-
-  <!-- CDN correta do Weather Icons Animated -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/weather-icons-animated@2.0.1/dist/weather-icons-animated.min.css" />
-
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      min-height: 100vh;
       margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       padding: 2rem 1rem;
-      color: #fff;
+      color: white;
     }
 
     h1 {
       margin-bottom: 1rem;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     form {
@@ -49,18 +42,17 @@
     }
 
     button {
-      background: #8e44ad;
+      background-color: #8e44ad;
       border: none;
       padding: 0 1.5rem;
       border-radius: 8px;
-      color: #fff;
+      color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
     button:hover {
-      background: #732d91;
+      background-color: #732d91;
     }
 
     #weather {
@@ -73,28 +65,10 @@
       text-align: center;
       font-size: 1.2rem;
       user-select: none;
-      min-height: 140px;
+      min-height: 120px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .weather-icon {
-      font-size: 64px;
-      animation: spin 4s linear infinite;
-      color: #fff;
-    }
-
-    /* Para ícones que não devem girar */
-    .no-spin {
-      animation: none !important;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
     }
   </style>
 </head>
@@ -116,37 +90,8 @@
     const searchForm = document.getElementById('searchForm');
     const cityInput = document.getElementById('cityInput');
 
-    function getWeatherIcon(condition) {
-      const c = condition.toLowerCase();
-      if (c.includes('sol') || c.includes('clear') || c.includes('céu limpo')) return 'wi-day-sunny no-spin';
-      if (c.includes('nuvem') || c.includes('cloud')) return 'wi-cloud';
-      if (c.includes('chuva') || c.includes('rain')) return 'wi-rain';
-      if (c.includes('tempestade') || c.includes('storm')) return 'wi-thunderstorm';
-      if (c.includes('neve') || c.includes('snow')) return 'wi-snow';
-      if (c.includes('névoa') || c.includes('fog') || c.includes('neblina')) return 'wi-fog no-spin';
-      if (c.includes('vento') || c.includes('wind')) return 'wi-strong-wind';
-      return 'wi-day-cloudy'; // padrão
-    }
-
-    function exibirClima(data) {
-      const city = data.name;
-      const temperature = data.main.temp.toFixed(1); // temperatura em °C
-      const condition = data.weather[0].description;
-
-      const iconClass = getWeatherIcon(condition);
-
-      weatherDiv.innerHTML = `
-        <i class="wi ${iconClass} weather-icon"></i>
-        <h2>Clima em ${city}</h2>
-        <p>Temperatura: ${temperature} °C</p>
-        <p>Condição: ${condition}</p>
-      `;
-
-      document.title = `Clima em ${city}`;
-    }
-
-    searchForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    searchForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
       const city = cityInput.value.trim();
       if (!city) {
@@ -158,16 +103,33 @@
 
       try {
         const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Erro na requisição: ${response.status}`);
+        }
         const data = await response.json();
 
-        exibirClima(data);
+        // Ajuste para extrair do JSON conforme o backend retorna
+        const cityName = data.name;
+        const temperature = data.main.temp.toFixed(1);
+        const condition = data.weather[0].description;
 
+        weatherDiv.innerHTML = `
+          <h2>Clima em ${cityName}</h2>
+          <p>Temperatura: ${temperature} °C</p>
+          <p>Condição: ${condition}</p>
+        `;
+
+        document.title = `Clima em ${cityName}`;
       } catch (error) {
         weatherDiv.textContent = "Erro ao buscar o clima. Tente novamente.";
         console.error(error);
       }
     });
+
+    // Colocar foco no input ao carregar
+    window.onload = () => {
+      cityInput.focus();
+    };
   </script>
 
 </body>
