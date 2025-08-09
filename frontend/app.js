@@ -58,10 +58,10 @@ function displayWeather(data) {
   tempEl.textContent = Math.round(data.main.temp) + "°C";
   descEl.textContent = data.weather[0].description;
   detailsEl.innerHTML = `
-    Vento: ${data.wind.speed} m/s<br/>
-    Umidade: ${data.main.humidity}%<br/>
-    Pressão: ${data.main.pressure} hPa<br/>
-    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>
+   <-- Vento: ${data.wind.speed} m/s<br/> -->
+   <-- Umidade: ${data.main.humidity}%<br/> -->
+   <--  Pressão: ${data.main.pressure} hPa<br/> -->
+   <--  Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/> -->
     Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
     Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
   `;
