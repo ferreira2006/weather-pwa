@@ -57,14 +57,15 @@ function displayWeather(data) {
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = Math.round(data.main.temp) + "°C";
   descEl.textContent = data.weather[0].description;
-  detailsEl.innerHTML = `
-   // Vento: ${data.wind.speed} m/s<br/> 
-   // Umidade: ${data.main.humidity}%<br/> 
-   // Pressão: ${data.main.pressure} hPa<br/> 
-   // Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/> 
-    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
-    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
-  `;
+  
+  const vento = `Vento: ${data.wind.speed} m/s`;
+  const umidade = `Umidade: ${data.main.humidity}%`;
+  const pressao = `Pressão: ${data.main.pressure} hPa`;
+  const visibilidade = `Visibilidade: ${(data.visibility / 1000).toFixed(1)} km`;
+  const nascersol = `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}`;
+  const porsol = `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
+
+  detailsEl.innerHTML = `nascersol+</br>+porsol`;
 
   updateIcon(data.weather[0].main);
   setDynamicBackground(data.weather[0].main);
