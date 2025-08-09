@@ -19,7 +19,7 @@
   </header>
 
   <main>
-    <div id="search-box">
+    <div id="search-box" style="position: relative;">
       <input
         list="city-suggestions"
         type="text"
@@ -48,6 +48,10 @@
         <option value="São José do Cedro"></option>
         <option value="São Miguel do Oeste"></option>
       </datalist>
+
+      <!-- Lista de histórico -->
+      <div id="history-list" class="history-list" role="listbox" aria-label="Histórico de cidades pesquisadas"></div>
+
       <button id="search-btn" type="button">Buscar</button>
     </div>
 
