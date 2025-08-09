@@ -19,6 +19,7 @@ function formatTime(timestamp, timezone) {
 }
 
 function displayWeather(data) {
+  setDynamicBackground(data.weather[0].main);
   errorMessageDiv.style.display = "none";
   weatherDiv.style.display = "block";
 
@@ -97,6 +98,32 @@ function fetchByCoords(lat, lon) {
       searchBtn.disabled = false;
     });
 }
+
+// Altere o fundo conforme o clima atual
+function setDynamicBackground(mainWeather) {
+  const body = document.body;
+  switch(mainWeather.toLowerCase()) {
+    case 'clear':
+      body.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'; // céu azul
+      break;
+    case 'clouds':
+      body.style.background = 'linear-gradient(135deg, #757f9a 0%, #d7dde8 100%)'; // cinza claro
+      break;
+    case 'rain':
+    case 'drizzle':
+      body.style.background = 'linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%)'; // azul chuva
+      break;
+    case 'thunderstorm':
+      body.style.background = 'linear-gradient(135deg, #141e30 0%, #243b55 100%)'; // escuro, temp.
+      break;
+    case 'snow':
+      body.style.background = 'linear-gradient(135deg, #e6dada 0%, #274046 100%)'; // frio
+      break;
+    default:
+      body.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+  }
+}
+
 
 // Ao carregar a página tenta pegar a localização do usuário
 window.onload = () => {
