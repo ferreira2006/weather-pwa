@@ -114,6 +114,8 @@ async function fetchWeather(city) {
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
     displayWeather(data);
+    // Salva a última cidade pesquisada
+    localStorage.setItem("lastCity", city);
   } catch (err) {
     showError(err.message);
   } finally {
@@ -174,17 +176,15 @@ themeToggle.addEventListener("click", () => {
   }
 });
 
-// Seleciona o conteúdo do input ao focar para facilitar edição
-cityInput.addEventListener("focus", () => {
-  cityInput.select();
-});
-
-
-// Ao carregar tenta pegar localização do usuário e aplica tema salvo
+// Ao carregar, aplica tema salvo e carrega última cidade ou localização atual
 window.onload = () => {
   applySavedTheme();
 
-  if (navigator.geolocation) {
+  const lastCity = localStorage.getItem("lastCity");
+  if (lastCity) {
+    cityInput.value = lastCity;
+    fetchWeather(lastCity);
+  } else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
       () => {}
