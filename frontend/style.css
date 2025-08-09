@@ -265,4 +265,32 @@ button#search-btn:disabled {
   .desc {
     font-size: 1.2rem;
   }
+
+  .spinner {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.spinner > span {
+  margin-left: 10px;
+}
+
+/* Spinner circular */
+.spinner::before {
+  content: "";
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+
 }
