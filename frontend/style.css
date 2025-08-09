@@ -126,7 +126,7 @@ input[type="text"]::placeholder {
   opacity: 1;
 }
 
-/* Aqui está a correção para o foco: fundo branco e texto preto para contraste */
+/* Correção para o foco: fundo branco e texto preto para melhor contraste */
 input[type="text"]:focus {
   box-shadow: 0 0 8px var(--button-bg);
   border-color: var(--input-border-focus);
@@ -183,4 +183,138 @@ input[type="text"]:focus {
   transition: background 0.75s ease;
 }
 
-/* restante do seu CSS continua igual */
+.weather-icon {
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  justify-self: center;
+  transition: background-image 0.5s ease;
+}
+
+.weather-icon.clear {
+  background-image: url('../icons/wi-day-sunny.svg');
+  animation: rotateSlow 120s linear infinite;
+}
+
+.weather-icon.clouds {
+  background-image: url('../icons/wi-cloudy.svg');
+  animation: floatClouds 20s ease-in-out infinite;
+}
+
+.weather-icon.rain {
+  background-image: url('../icons/wi-rain.svg');
+  animation: rainAnim 3s linear infinite;
+}
+
+.weather-icon.thunderstorm {
+  background-image: url('../icons/wi-thunderstorm.svg');
+  animation: thunderAnim 2s ease-in-out infinite alternate;
+}
+
+.weather-icon.snow {
+  background-image: url('../icons/wi-snow.svg');
+  animation: snowAnim 15s linear infinite;
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes floatClouds {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes rainAnim {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+@keyframes thunderAnim {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5); }
+}
+
+@keyframes snowAnim {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 100%; }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.temp {
+  font-size: 4rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.desc {
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  margin: 5px 0 15px 0;
+  font-style: italic;
+  color: inherit;
+}
+
+.details {
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: inherit;
+}
+
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1.2s linear infinite;
+  display: none;
+  z-index: 10;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+#error-message {
+  margin-top: 20px;
+  max-width: 600px;
+  background-color: #5c0000;
+  color: #ffbaba;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 700;
+  width: 100%;
+  text-align: center;
+  user-select: none;
+}
+
+@media (max-width: 600px) {
+  #weather {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .weather-icon {
+    margin-bottom: 15px;
+    justify-self: center;
+  }
+  .temp {
+    font-size: 3rem;
+  }
+  .desc {
+    font-size: 1.2rem;
+  }
+}
