@@ -15,32 +15,28 @@
 
   <main>
     <div id="search-box">
-      
-   <!--    <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" /> -->
-      
-    <input list="city-suggestions" id="city-input" ... />
-    <datalist id="city-suggestions">
-      <option value="Anchieta">
-      <option value="Bandeirante">
-      <option value="Barra Bonita">
-      <option value="Belmonte">
-      <option value="Descanso">
-      <option value="Dionísio Cerqueira">
-      <option value="Guaraciaba">
-      <option value="Guarujá do Sul">
-      <option value="Iporã do Oeste">
-      <option value="Itapiranga">
-      <option value="Mondaí">
-      <option value="Palma Sola">
-      <option value="Paraíso">
-      <option value="Princesa">
-      <option value="Santa Helena">
-      <option value="São João do Oeste">
-      <option value="São José do Cedro">
-      <option value="São Miguel do Oeste">
-  <!-- Adicione mais -->
-  </datalist>
-      
+      <input list="city-suggestions" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
+      <datalist id="city-suggestions">
+        <option value="Anchieta">
+        <option value="Bandeirante">
+        <option value="Barra Bonita">
+        <option value="Belmonte">
+        <option value="Descanso">
+        <option value="Dionísio Cerqueira">
+        <option value="Guaraciaba">
+        <option value="Guarujá do Sul">
+        <option value="Iporã do Oeste">
+        <option value="Itapiranga">
+        <option value="Mondaí">
+        <option value="Palma Sola">
+        <option value="Paraíso">
+        <option value="Princesa">
+        <option value="Santa Helena">
+        <option value="São João do Oeste">
+        <option value="São José do Cedro">
+        <option value="São Miguel do Oeste">
+        <!-- Adicione mais -->
+      </datalist>
       <button id="search-btn">Buscar</button>
     </div>
 
@@ -50,16 +46,28 @@
         <h2 id="city-name"></h2>
         <div class="temp" id="temp"></div>
         <div class="desc" id="desc"></div>
-        <div class="details" id="details"></div>
-      </div>
-      <div id="airdetails"></div>
-        <div id="air-quality" style="padding:8px; border-radius:5px; margin-top:5px; color:white;">
-        Carregando qualidade do ar...
+        <div class="details" id="details">
+          <!-- Populado dinamicamente pelo app.js -->
+          <!-- Exemplo:
+              Vento: 3.5 m/s<br/>
+              Sensação térmica: 22.1°C<br/>
+              Umidade: 60%<br/>
+              Pressão: 1013 hPa<br/>
+              Visibilidade: 10 km<br/>
+              Nascer do sol: 06:12<br/>
+              Pôr do sol: 18:42
+          -->
         </div>
-      <div id="spinner" class="spinner" style="display:none;" aria-label="Carregando">
-          <span id="spinner-text" style="margin-left: 10px; font-weight: bold; color: white;">Carregando...</span>
       </div>
 
+      <div id="airdetails"></div>
+      <div id="air-quality" style="padding:8px; border-radius:5px; margin-top:5px; color:white;">
+        Carregando qualidade do ar...
+      </div>
+
+      <div id="spinner" class="spinner" style="display:none;" aria-label="Carregando">
+        <span id="spinner-text" style="margin-left: 10px; font-weight: bold; color: white;">Carregando...</span>
+      </div>
     </div>
 
     <div id="error-message" style="display:none;" role="alert"></div>
