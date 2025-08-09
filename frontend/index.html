@@ -10,7 +10,12 @@
 
   <header>
     <h1>Clima Atual</h1>
-    <button id="theme-toggle" aria-label="Alternar tema">Modo Escuro</button>
+    <button
+      id="theme-toggle"
+      aria-label="Alternar tema"
+      aria-pressed="false"
+      type="button"
+    >Modo Escuro</button>
   </header>
 
   <main>
@@ -42,12 +47,17 @@
         <option value="São João do Oeste"></option>
         <option value="São José do Cedro"></option>
         <option value="São Miguel do Oeste"></option>
-        <!-- Pode adicionar mais cidades aqui -->
       </datalist>
-      <button id="search-btn">Buscar</button>
+      <button id="search-btn" type="button">Buscar</button>
     </div>
 
-    <div id="weather" style="display:none;" role="region" aria-live="polite" aria-atomic="true">
+    <div
+      id="weather"
+      style="display:none;"
+      role="region"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
       <div class="info">
         <h2 id="city-name"></h2>
