@@ -175,10 +175,10 @@
     descEl.textContent = data.weather[0].description;
 
     detailsEl.innerHTML = `
-      Vento: ${data.wind.speed} m/s<br/>
-      Umidade: ${data.main.humidity}%<br/>
-      Pressão: ${data.main.pressure} hPa<br/>
-      Visibilidade: ${data.visibility / 1000} km<br/>
+    <!--  Vento: ${data.wind.speed} m/s<br/> -->
+    <!--  Umidade: ${data.main.humidity}%<br/> -->
+    <!--  Pressão: ${data.main.pressure} hPa<br/> -->
+    <!--  Visibilidade: ${data.visibility / 1000} km<br/> -->
       Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
       Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
     `;
