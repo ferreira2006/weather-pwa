@@ -52,6 +52,11 @@ button:focus {
   outline: none;
   box-shadow: 0 0 8px #ffb74d;
 }
+input:focus {
+  outline: none;
+  box-shadow: 0 0 6px #00f2fe;
+  border: 1px solid #00f2fe;
+}
 #weather {
   display: grid;
   grid-template-columns: 100px 1fr;
