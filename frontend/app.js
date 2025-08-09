@@ -176,4 +176,12 @@ themeToggle.addEventListener("click", () => {
 
 // Ao carregar tenta pegar localização do usuário e aplica tema salvo
 window.onload = () => {
-  apply
+  applySavedTheme();
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => {}
+    );
+  }
+};
