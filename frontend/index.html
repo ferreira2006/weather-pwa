@@ -15,7 +15,35 @@
 
   <main>
     <div id="search-box">
-      <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
+      <input
+        list="city-suggestions"
+        type="text"
+        id="city-input"
+        placeholder="Digite a cidade"
+        aria-label="Digite a cidade"
+        autocomplete="off"
+      />
+      <datalist id="city-suggestions">
+        <option value="Anchieta"></option>
+        <option value="Bandeirante"></option>
+        <option value="Barra Bonita"></option>
+        <option value="Belmonte"></option>
+        <option value="Descanso"></option>
+        <option value="Dionísio Cerqueira"></option>
+        <option value="Guaraciaba"></option>
+        <option value="Guarujá do Sul"></option>
+        <option value="Iporã do Oeste"></option>
+        <option value="Itapiranga"></option>
+        <option value="Mondaí"></option>
+        <option value="Palma Sola"></option>
+        <option value="Paraíso"></option>
+        <option value="Princesa"></option>
+        <option value="Santa Helena"></option>
+        <option value="São João do Oeste"></option>
+        <option value="São José do Cedro"></option>
+        <option value="São Miguel do Oeste"></option>
+        <!-- Pode adicionar mais cidades aqui -->
+      </datalist>
       <button id="search-btn">Buscar</button>
     </div>
 
