@@ -176,6 +176,11 @@ themeToggle.addEventListener("click", () => {
   }
 });
 
+// Seleciona o conteúdo do input ao focar para facilitar edição
+cityInput.addEventListener("focus", () => {
+  cityInput.select();
+});
+
 // Ao carregar, aplica tema salvo e carrega última cidade ou localização atual
 window.onload = () => {
   applySavedTheme();
