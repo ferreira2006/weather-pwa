@@ -112,4 +112,62 @@ async function fetchByCoords(lat, lon) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
   errorMessageDiv.style.display = "none";
-  weatherDiv.style.display
+  weatherDiv.style.display = "none";
+
+  try {
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
+    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+    const data = await res.json();
+    displayWeather(data);
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    cityInput.focus();
+  }
+}
+
+// Eventos para busca
+searchBtn.addEventListener("click", () => {
+  const city = cityInput.value.trim();
+  if (city) fetchWeather(city);
+});
+
+cityInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const city = cityInput.value.trim();
+    if (city) fetchWeather(city);
+  }
+});
+
+// Toggle tema claro/escuro
+themeToggle.addEventListener("click", () => {
+  const isDark = document.body.classList.toggle("dark");
+  document.body.classList.toggle("light", !isDark);
+
+  themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
+  themeToggle.setAttribute("aria-pressed", isDark);
+
+  if (weatherDiv.style.display !== "none") {
+    const mainWeather = descEl.textContent.split(" ")[0];
+    setDynamicBackground(mainWeather);
+  }
+});
+
+// Ao carregar tenta pegar localização do usuário
+window.onload = () => {
+  cityInput.focus();
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        fetchByCoords(pos.coords.latitude, pos.coords.longitude);
+      },
+      () => {
+        fetchWeather("São Miguel do Oeste");
+      }
+    );
+  } else {
+    fetchWeather("São Miguel do Oeste");
+  }
+};
