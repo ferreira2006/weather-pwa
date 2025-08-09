@@ -98,7 +98,11 @@ async function fetchWeather(city) {
 
 searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (city) fetchWeather(city);
+  if (city) {
+    fetchWeather(city);
+    cityInput.focus();
+    cityInput.select();
+  }
 });
 
 cityInput.addEventListener("keypress", (e) => {
