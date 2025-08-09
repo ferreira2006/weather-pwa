@@ -159,5 +159,22 @@ input:focus {
   width: 80px;
   height: 80px;
 }
+  
+:root {
+  --bg-gradient-light: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --bg-gradient-dark: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  --text-color-light: white;
+  --text-color-dark: #ddd;
+}
+
+body.light {
+  background: var(--bg-gradient-light);
+  color: var(--text-color-light);
+}
+
+body.dark {
+  background: var(--bg-gradient-dark);
+  color: var(--text-color-dark);
+}
 
 }
