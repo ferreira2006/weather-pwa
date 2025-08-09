@@ -113,7 +113,7 @@ async function fetchByCoords(lat, lon) {
   spinner.style.display = "block";
   errorMessageDiv.style.display = "none";
   weatherDiv.style.display = "none";
-
+}
   try {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
