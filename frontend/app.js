@@ -64,8 +64,8 @@ function displayWeather(data) {
   const visibilidade = `Visibilidade: ${(data.visibility / 1000).toFixed(1)} km`;
   const nascersol = `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}`;
   const porsol = `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
-
-  detailsEl.innerHTML = nascersol + `<br/>` + porsol;
+  const sensacao = `Sensação térmica: ${data.main.feels_like.toFixed(1)}° `;
+  detailsEl.innerHTML = sensacao + `<br/>`+ nascersol + `<br/>` + porsol;
 
   updateIcon(data.weather[0].main);
   setDynamicBackground(data.weather[0].main);
@@ -84,7 +84,6 @@ function showError(message) {
 async function fetchWeather(city) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
-//  spinner.textContent = "Carregando...";
   errorMessageDiv.style.display = "none";
 
   try {
