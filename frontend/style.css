@@ -164,16 +164,16 @@ button#search-btn:disabled {
 }
 
 .weather-icon.rain {
-  background-image: url('icons/rain.svg');
+  background-image: url('icons/wi-rain.svg');
   animation: rainAnim 2s linear infinite;
 }
 
 .weather-icon.thunderstorm {
-  background-image: url('icons/thunder.svg');
+  background-image: url('icons/wi-thunderstorm.svg');
 }
 
 .weather-icon.snow {
-  background-image: url('icons/snow.svg');
+  background-image: url('icons/wi-snow.svg');
   animation: snowAnim 10s linear infinite;
 }
 
