@@ -15,7 +15,17 @@
 
   <main>
     <div id="search-box">
-      <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
+      
+   <!--    <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" /> -->
+      
+      <input list="city-suggestions" id="city-input" ... />
+      <datalist id="city-suggestions">
+      <option value="São Paulo">
+      <option value="Rio de Janeiro">
+      <option value="Belo Horizonte">
+  <!-- Adicione mais -->
+</datalist>
+      
       <button id="search-btn">Buscar</button>
     </div>
 
