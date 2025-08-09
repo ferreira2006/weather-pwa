@@ -129,6 +129,21 @@ function updateIcon(mainWeather) {
   iconDiv.className = 'weather-icon ' + mainWeather.toLowerCase();
 }
 
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('click', () => {
+  if(document.body.classList.contains('dark')) {
+    document.body.classList.remove('dark');
+    document.body.classList.add('light');
+    themeToggle.textContent = 'Modo Escuro';
+  } else {
+    document.body.classList.remove('light');
+    document.body.classList.add('dark');
+    themeToggle.textContent = 'Modo Claro';
+  }
+});
+
+// Inicialize o tema (pode salvar em localStorage também)
+document.body.classList.add('light');
 
 // Ao carregar a página tenta pegar a localização do usuário
 window.onload = () => {
