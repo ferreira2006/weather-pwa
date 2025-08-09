@@ -12,9 +12,6 @@ const detailsEl = document.getElementById("details");
 const spinner = document.getElementById("spinner");
 const errorMessageDiv = document.getElementById("error-message");
 const themeToggle = document.getElementById("theme-toggle");
-const historyList = document.getElementById("history-list");
-
-const MAX_HISTORY = 5;
 
 // Aplica tema salvo ou padrão "light"
 function applySavedTheme() {
@@ -104,68 +101,20 @@ function showError(message) {
   cityInput.focus();
 }
 
-// Histórico: pega array do localStorage
-function getHistory() {
-  const history = localStorage.getItem("cityHistory");
-  return history ? JSON.parse(history) : [];
-}
-
-// Histórico: salva cidade no localStorage, sem repetição, limite MAX_HISTORY
-function saveHistory(city) {
-  let history = getHistory();
-  history = history.filter(c => c.toLowerCase() !== city.toLowerCase());
-  history.unshift(city);
-  if (history.length > MAX_HISTORY) history.pop();
-  localStorage.setItem("cityHistory", JSON.stringify(history));
-}
-
-// Renderiza a lista do histórico
-function renderHistory() {
-  const history = getHistory();
-
-  if (history.length === 0) {
-    historyList.style.display = "none";
-    return;
-  }
-
-  historyList.innerHTML = history
-    .map(city => `<div tabindex="0" class="history-list-item">${city}</div>`)
-    .join("");
-  historyList.style.display = "block";
-
-  Array.from(historyList.children).forEach(item => {
-    item.addEventListener("click", () => {
-      cityInput.value = item.textContent;
-      fetchWeather(item.textContent);
-      historyList.style.display = "none";
-      cityInput.focus();
-    });
-    item.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        item.click();
-      }
-    });
-  });
-}
-
-// Busca clima e atualiza UI
+// Busca o clima pela cidade
 async function fetchWeather(city) {
   if (!city) return;
 
   searchBtn.disabled = true;
   spinner.style.display = "block";
   errorMessageDiv.style.display = "none";
-  historyList.style.display = "none";
 
   try {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
     displayWeather(data);
-
-    saveHistory(city);
-    renderHistory();
+    // Salva a última cidade pesquisada
     localStorage.setItem("lastCity", city);
   } catch (err) {
     showError(err.message);
@@ -176,4 +125,74 @@ async function fetchWeather(city) {
   }
 }
 
-// Alterna tema claro
+// Busca pelo clima por coordenadas
+async function fetchByCoords(lat, lon) {
+  searchBtn.disabled = true;
+  spinner.style.display = "block";
+  errorMessageDiv.style.display = "none";
+  weatherDiv.style.display = "none";
+
+  try {
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
+    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+    const data = await res.json();
+    displayWeather(data);
+  } catch (err) {
+    showError(err.message);
+  } finally {
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    cityInput.focus();
+  }
+}
+
+// Eventos para busca
+searchBtn.addEventListener("click", () => {
+  const city = cityInput.value.trim();
+  if (city) fetchWeather(city);
+});
+
+cityInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const city = cityInput.value.trim();
+    if (city) fetchWeather(city);
+  }
+});
+
+// Toggle tema claro/escuro
+themeToggle.addEventListener("click", () => {
+  const isDark = document.body.classList.toggle("dark");
+  document.body.classList.toggle("light", !isDark);
+
+  themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
+  themeToggle.setAttribute("aria-pressed", isDark);
+
+  // Salva a preferência no localStorage
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+
+  if (weatherDiv.style.display !== "none") {
+    const mainWeather = descEl.textContent.split(" ")[0];
+    setDynamicBackground(mainWeather);
+  }
+});
+
+// Seleciona o conteúdo do input ao focar para facilitar edição
+cityInput.addEventListener("focus", () => {
+  cityInput.select();
+});
+
+// Ao carregar, aplica tema salvo e carrega última cidade ou localização atual
+window.onload = () => {
+  applySavedTheme();
+
+  const lastCity = localStorage.getItem("lastCity");
+  if (lastCity) {
+    cityInput.value = lastCity;
+    fetchWeather(lastCity);
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => {}
+    );
+  }
+};
