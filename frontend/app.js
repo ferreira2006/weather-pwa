@@ -1,26 +1,26 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const weatherDiv = document.getElementById("weather");
-const searchForm = document.getElementById("search-form");
-const cityInput = document.getElementById("city");
+const cityInput = document.getElementById("city-input");
+const searchBtn = document.getElementById("search-btn");
 const spinner = document.getElementById("spinner");
-const messageDiv = document.getElementById("message");
-const favoritesList = document.getElementById("favorites");
+const statusMessage = document.getElementById("status-message");
+const favoritesList = document.getElementById("favorites-list");
 
 let currentCity = null;
 
-// Função para mostrar mensagens
+// Mostrar mensagem de status (info, erro etc.)
 function showMessage(msg, type = "info") {
-  messageDiv.textContent = msg;
-  messageDiv.className = type;
+  statusMessage.textContent = msg;
+  statusMessage.className = type;
 }
 
-// Função para mostrar spinner
+// Mostrar/ocultar spinner
 function toggleSpinner(show) {
   spinner.style.display = show ? "block" : "none";
 }
 
-// Função para formatar hora
+// Formatar hora com fuso horário
 function formatTime(unix, timezone) {
   const date = new Date((unix + timezone) * 1000);
   return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -42,30 +42,33 @@ async function fetchWeather(city) {
     showMessage("");
   } catch (err) {
     showMessage(`Ops! ${err.message}. Tente outro nome ou verifique a ortografia.`, "error");
+    weatherDiv.style.display = "none";
   } finally {
     toggleSpinner(false);
   }
 }
 
-// Renderizar o clima
+// Renderizar dados do clima
 function renderWeather(data) {
-  const detailsEl = document.createElement("div");
+  document.getElementById("city-name").textContent = data.name;
+  document.getElementById("temp").textContent = `${data.main.temp}°C`;
+  document.getElementById("desc").textContent = data.weather[0].description;
 
-  // Comentários explicando cada dado
-  detailsEl.innerHTML = `
-    Vento: ${data.wind.speed} m/s<br/> <!-- Velocidade do vento -->
-    Umidade: ${data.main.humidity}%<br/> <!-- Umidade relativa do ar -->
-    Pressão: ${data.main.pressure} hPa<br/> <!-- Pressão atmosférica -->
-    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/> <!-- Distância visível -->
-    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/> <!-- Horário do nascer do sol -->
-    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)} <!-- Horário do pôr do sol -->
+  document.getElementById("details").innerHTML = `
+    Vento: ${data.wind.speed} m/s<br/>
+    Umidade: ${data.main.humidity}%<br/>
+    Pressão: ${data.main.pressure} hPa<br/>
+    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>
+    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
+    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
   `;
 
-  weatherDiv.innerHTML = `
-    <h2>${data.name} - ${data.weather[0].description}</h2>
-    <p>Temperatura: ${data.main.temp}°C</p>
-  `;
-  weatherDiv.appendChild(detailsEl);
+  // Atualizar ícone (se houver caminho para ícones locais)
+  const iconCode = data.weather[0].icon;
+  const iconDiv = document.getElementById("icon");
+  iconDiv.innerHTML = `<img src="./icons/${iconCode}.png" alt="${data.weather[0].description}" />`;
+
+  weatherDiv.style.display = "block";
 }
 
 // Salvar cidade favorita
@@ -78,7 +81,7 @@ function saveFavorite(city) {
   }
 }
 
-// Renderizar favoritos
+// Renderizar lista de favoritos
 function renderFavorites() {
   favoritesList.innerHTML = "";
   let favs = JSON.parse(localStorage.getItem("favorites")) || [];
@@ -95,17 +98,16 @@ setInterval(() => {
   if (currentCity) fetchWeather(currentCity);
 }, 5 * 60 * 1000);
 
-// Evento de busca
-searchForm.addEventListener("submit", e => {
-  e.preventDefault();
+// Evento de clique no botão "Buscar"
+searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
   if (city) {
     fetchWeather(city);
     saveFavorite(city);
-    cityInput.focus(); // Auto foco para nova pesquisa
+    cityInput.focus();
     cityInput.select();
   }
 });
 
-// Inicializa
+// Inicializar lista de favoritos ao carregar
 renderFavorites();
