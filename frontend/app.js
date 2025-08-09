@@ -80,6 +80,7 @@ function showError(message) {
 async function fetchWeather(city) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
+  spinner.textContent = "Carregando...";
   errorMessageDiv.style.display = "none";
 
   try {
@@ -111,6 +112,7 @@ cityInput.addEventListener("keypress", (e) => {
 function fetchByCoords(lat, lon) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
+  spinner.textContent = "Carregando...";
   errorMessageDiv.style.display = "none";
   weatherDiv.style.display = "none";
 
