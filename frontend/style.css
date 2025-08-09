@@ -107,6 +107,7 @@ main {
   justify-content: center;
   margin-bottom: 20px;
   width: 100%;
+  position: relative; /* importante para o histórico dropdown */
 }
 
 input[type="text"] {
@@ -300,6 +301,37 @@ input[type="text"]:focus {
   width: 100%;
   text-align: center;
   user-select: none;
+}
+
+/* Estilos do histórico */
+.history-list {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  margin-top: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  font-size: 1rem;
+  display: none;
+  position: absolute;
+  top: 48px; /* abaixo do input */
+  left: 0;
+  z-index: 100;
+}
+
+.history-list-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.history-list-item:hover,
+.history-list-item:focus {
+  background-color: var(--button-bg);
+  color: white;
+  outline: none;
 }
 
 @media (max-width: 600px) {
