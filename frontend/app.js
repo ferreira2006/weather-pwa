@@ -66,7 +66,7 @@ function renderWeather(data) {
   // Atualizar ícone (se houver caminho para ícones locais)
   const iconCode = data.weather[0].icon;
   const iconDiv = document.getElementById("icon");
-  iconDiv.innerHTML = `<img src="./icons/${iconCode}.png" alt="${data.weather[0].description}" />`;
+  iconDiv.innerHTML = `<img src="../icons/${iconCode}.png" alt="${data.weather[0].description}" />`;
 
   weatherDiv.style.display = "block";
 }
