@@ -15,39 +15,9 @@
 
   <main>
     <div id="search-box">
-      <input 
-        list="city-suggestions" 
-        id="city-input" 
-        placeholder="Digite a cidade" 
-        aria-label="Digite a cidade" 
-        autofocus
-      />
-      <datalist id="city-suggestions">
-        <option value="Anchieta">
-        <option value="Bandeirante">
-        <option value="Barra Bonita">
-        <option value="Belmonte">
-        <option value="Descanso">
-        <option value="Dionísio Cerqueira">
-        <option value="Guaraciaba">
-        <option value="Guarujá do Sul">
-        <option value="Iporã do Oeste">
-        <option value="Itapiranga">
-        <option value="Mondaí">
-        <option value="Palma Sola">
-        <option value="Paraíso">
-        <option value="Princesa">
-        <option value="Santa Helena">
-        <option value="São João do Oeste">
-        <option value="São José do Cedro">
-        <option value="São Miguel do Oeste">
-        <!-- Adicione mais -->
-      </datalist>
+      <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
       <button id="search-btn">Buscar</button>
     </div>
-
-    <!-- Mensagem de status para carregamento e erros -->
-    <div id="status-message" aria-live="polite" style="margin-top:8px;"></div>
 
     <div id="weather" style="display:none;" role="region" aria-live="polite" aria-atomic="true">
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
@@ -57,5 +27,12 @@
         <div class="desc" id="desc"></div>
         <div class="details" id="details"></div>
       </div>
-      <div id="airdetails"></div>
-      <div id="air-quality" style="padding:8px; border-radius:5px; margin-top:5px; co
+      <div id="spinner" class="spinner" aria-label="Carregando"></div>
+    </div>
+
+    <div id="error-message" style="display:none;" role="alert"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
