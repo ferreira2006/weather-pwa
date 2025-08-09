@@ -218,7 +218,7 @@ button#search-btn:disabled {
   line-height: 1.6;
   color: inherit;
 }
-
+/*
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -231,7 +231,7 @@ button#search-btn:disabled {
   animation: spin 1s linear infinite;
   display: none;
 }
-
+*/
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
