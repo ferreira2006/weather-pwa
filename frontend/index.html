@@ -6,28 +6,33 @@
   <title>Clima Atual</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body class="light">
 
-  <h1>Clima Atual</h1>
+  <header>
+    <h1>Clima Atual</h1>
+    <button id="theme-toggle" aria-label="Alternar tema">Modo Escuro</button>
+  </header>
 
-  <button id="theme-toggle">Modo Escuro</button>
-  
-  <div id="search-box">
-    <input type="text" id="city-input" placeholder="Digite a cidade" />
-    <button id="search-btn">Buscar</button>
-  </div>
+  <main>
+    <div id="search-box">
+      <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
+      <button id="search-btn">Buscar</button>
+    </div>
 
-  <div id="weather" style="display:none;">
-    <h2 id="city-name"></h2>
-    <img id="icon" src="" alt="Ícone do clima" />
-    <div class="temp" id="temp"></div>
-    <div class="desc" id="desc"></div>
-    <div class="details" id="details"></div>
-    <div id="spinner" class="spinner" style="display:none;"></div>
-  </div>
+    <div id="weather" style="display:none;" role="region" aria-live="polite" aria-atomic="true">
+      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div class="info">
+        <h2 id="city-name"></h2>
+        <div class="temp" id="temp"></div>
+        <div class="desc" id="desc"></div>
+        <div class="details" id="details"></div>
+      </div>
+      <div id="spinner" class="spinner" style="display:none;" aria-label="Carregando"></div>
+    </div>
 
-  <div id="error-message" style="display:none;"></div>
+    <div id="error-message" style="display:none;" role="alert"></div>
+  </main>
 
-<script src="app.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
