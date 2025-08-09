@@ -1,4 +1,4 @@
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather-backend";
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 
 const weatherDiv = document.getElementById("weather");
