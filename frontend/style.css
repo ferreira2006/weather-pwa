@@ -11,7 +11,7 @@
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
-  --text-color-light: #fff;
+  --text-color-light: #000000;
   --text-color-dark: #ddd;
 
   --button-bg: #ff9800;
@@ -153,7 +153,6 @@ button#search-btn:disabled {
   transition: background-image 0.5s ease;
 }
 
-/* Ícones simples como background-image local (você pode colocar na pasta icons) */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 60s linear infinite;
@@ -177,7 +176,6 @@ button#search-btn:disabled {
   animation: snowAnim 10s linear infinite;
 }
 
-/* Animações simples */
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -219,7 +217,6 @@ button#search-btn:disabled {
   color: inherit;
 }
 
-/*
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -232,7 +229,6 @@ button#search-btn:disabled {
   animation: spin 1s linear infinite;
   display: none;
 }
-*/
 
 @keyframes spin {
   to { transform: rotate(360deg); }
@@ -250,8 +246,6 @@ button#search-btn:disabled {
   text-align: center;
 }
 
-/* Responsividade */
-
 @media (max-width: 600px) {
   #weather {
     grid-template-columns: 1fr;
@@ -267,32 +261,4 @@ button#search-btn:disabled {
   .desc {
     font-size: 1.2rem;
   }
-
-  .spinner {
-  display: flex;
-  align-items: center;
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  color: white;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-.spinner > span {
-  margin-left: 10px;
-}
-
-/* Spinner circular */
-.spinner::before {
-  content: "";
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  display: inline-block;
-}
-
 }
