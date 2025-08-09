@@ -4,207 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Previsão do Tempo</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      color: white;
-    }
-
-    h1 {
-      margin-bottom: 1rem;
-    }
-
-    form {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    input[type="text"] {
-      flex-grow: 1;
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      outline: none;
-    }
-
-    input[type="text"]:focus {
-      box-shadow: 0 0 8px #d1c4fc;
-    }
-
-    button {
-      background-color: #8e44ad;
-      border: none;
-      padding: 0 1.5rem;
-      border-radius: 8px;
-      color: white;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #732d91;
-    }
-
-    #weather {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 1.5rem 2rem;
-      border-radius: 15px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-      text-align: center;
-      font-size: 1.2rem;
-      user-select: none;
-      min-height: 180px; /* aumentado para caber animação */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #lottie-container {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 1rem;
-      pointer-events: none;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header>
+    <h1>Previsão do Tempo</h1>
+    <form id="searchForm">
+      <input type="text" id="cityInput" placeholder="Digite uma cidade" />
+      <button type="submit">Buscar</button>
+    </form>
+  </header>
 
-  <h1>Previsão do Tempo</h1>
+  <main id="forecastContainer">
+    <!-- Cards da previsão -->
+  </main>
 
-  <form id="searchForm" autocomplete="off">
-    <input type="text" id="cityInput" placeholder="Digite o nome da cidade" required autofocus />
-    <button type="submit" id="searchBtn">Buscar</button>
-  </form>
-
-  <div id="weather">
-    <div id="lottie-container"></div>
-    <div id="weather-text">Buscando clima da sua localização...</div>
-  </div>
-
-  <!-- Biblioteca Lottie Web -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.1/lottie.min.js"></script>
-
-  <script>
-    const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-
-    const weatherDiv = document.getElementById('weather-text');
-    const lottieContainer = document.getElementById('lottie-container');
-    const searchForm = document.getElementById('searchForm');
-    const cityInput = document.getElementById('cityInput');
-
-    let animation = lottie.loadAnimation({
-      container: lottieContainer,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      path: 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json' // animação nuvem padrão
-    });
-
-    function exibirClima(data) {
-      const cityName = data.name;
-      const temperature = data.main.temp.toFixed(1);
-      
-    const condition = data.weather[0].main.toLowerCase();
-const description = data.weather[0].description.toLowerCase();
-
-if (condition.includes('cloud') || description.includes('nublado') || description.includes('nuvem')) {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // nuvem
-} else if (condition.includes('rain') || condition.includes('drizzle') || description.includes('chuva')) {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_x62chJ.json'; // chuva
-} else if (condition.includes('clear') || condition.includes('sun') || description.includes('limpo')) {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_jtbfg2nb.json'; // sol
-} else if (condition.includes('snow') || description.includes('neve')) {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_gM9aR8.json'; // neve
-} else if (condition.includes('thunderstorm') || description.includes('trovoada') || description.includes('trovão')) {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_YXD37q.json'; // trovão
-} else {
-  animPath = 'https://assets3.lottiefiles.com/packages/lf20_HpFqiS.json'; // padrão nuvem
-}
-
-      animation.destroy();
-      animation = lottie.loadAnimation({
-        container: lottieContainer,
-        renderer: 'svg',
-        loop: true,
-        autoplay: true,
-        path: animPath
-      });
-    }
-
-    function mostrarMensagem(msg) {
-      animation.destroy();
-      lottieContainer.innerHTML = '';
-      weatherDiv.textContent = msg;
-      document.title = 'Previsão do Tempo';
-    }
-
-    async function buscarClimaPorCidade(city) {
-      mostrarMensagem("Buscando clima...");
-      try {
-        const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
-        const data = await response.json();
-        exibirClima(data);
-      } catch (error) {
-        mostrarMensagem("Erro ao buscar o clima. Tente novamente.");
-        console.error(error);
-      }
-    }
-
-    async function buscarClimaPorCoords(lat, lon) {
-      mostrarMensagem("Buscando clima...");
-      try {
-        const response = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
-        if (!response.ok) throw new Error(`Erro na requisição: ${response.status}`);
-        const data = await response.json();
-        exibirClima(data);
-      } catch (error) {
-        mostrarMensagem("Erro ao buscar o clima da localização. Por favor, digite a cidade.");
-        console.error(error);
-      }
-    }
-
-    searchForm.addEventListener('submit', e => {
-      e.preventDefault();
-      const city = cityInput.value.trim();
-      if (!city) {
-        mostrarMensagem("Por favor, insira o nome de uma cidade.");
-        return;
-      }
-      buscarClimaPorCidade(city);
-    });
-
-    window.onload = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          position => {
-            const { latitude, longitude } = position.coords;
-            buscarClimaPorCoords(latitude, longitude);
-          },
-          error => {
-            mostrarMensagem("Não foi possível obter sua localização. Por favor, digite a cidade.");
-            cityInput.focus();
-          }
-        );
-      } else {
-        mostrarMensagem("Geolocalização não suportada. Por favor, digite a cidade.");
-        cityInput.focus();
-      }
-    };
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
