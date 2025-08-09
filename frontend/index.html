@@ -11,20 +11,30 @@
       color: white;
       text-align: center;
       margin: 0; padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
     }
     h1 {
       margin-bottom: 10px;
     }
     #search-box {
       margin-bottom: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     input {
       padding: 10px;
       font-size: 16px;
       border-radius: 8px;
       border: none;
-      width: 200px;
+      width: 220px;
       outline: none;
+      max-width: 100%;
     }
     button {
       padding: 10px 15px;
@@ -34,17 +44,28 @@
       color: white;
       font-size: 16px;
       cursor: pointer;
+      min-width: 100px;
+      transition: background-color 0.3s;
+    }
+    button:disabled {
+      background-color: #ffa733;
+      cursor: not-allowed;
     }
     #weather {
       background: rgba(255 255 255 / 0.15);
       border-radius: 12px;
       padding: 20px;
       max-width: 320px;
+      width: 90vw;
       margin: 0 auto;
       box-shadow: 0 4px 8px rgb(0 0 0 / 0.2);
+      text-align: center;
+      position: relative;
+      min-height: 350px;
     }
     #weather img {
       width: 80px;
+      margin-bottom: 10px;
     }
     .temp {
       font-size: 48px;
@@ -57,6 +78,48 @@
     }
     .details {
       font-size: 16px;
+      line-height: 1.5;
+    }
+    #error-message {
+      color: #ffbaba;
+      background-color: #5c0000;
+      border-radius: 8px;
+      padding: 10px;
+      margin-top: 20px;
+      max-width: 320px;
+      width: 90vw;
+      font-weight: bold;
+    }
+    /* Spinner */
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-top: 5px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto 0;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsividade */
+    @media (max-width: 400px) {
+      .temp {
+        font-size: 36px;
+      }
+      .desc {
+        font-size: 18px;
+      }
+      button {
+        min-width: 80px;
+        font-size: 14px;
+        padding: 8px 12px;
+      }
+      input {
+        width: 150px;
+      }
     }
   </style>
 </head>
@@ -75,7 +138,10 @@
     <div class="temp" id="temp"></div>
     <div class="desc" id="desc"></div>
     <div class="details" id="details"></div>
+    <div id="spinner" class="spinner" style="display:none;"></div>
   </div>
+
+  <div id="error-message" style="display:none;"></div>
 
 <script>
   const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
@@ -89,29 +155,56 @@
   const tempEl = document.getElementById("temp");
   const descEl = document.getElementById("desc");
   const detailsEl = document.getElementById("details");
+  const spinner = document.getElementById("spinner");
+  const errorMessageDiv = document.getElementById("error-message");
+
+  function formatTime(timestamp, timezone) {
+    // timezone em segundos, converte para ms
+    const date = new Date((timestamp + timezone) * 1000);
+    return date.toUTCString().match(/(\d{2}:\d{2}:\d{2})/)[0];
+  }
 
   function displayWeather(data) {
-    cityNameEl.textContent = data.name + ", " + data.sys.country;
+    errorMessageDiv.style.display = "none";
+    weatherDiv.style.display = "block";
+
+    cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     iconEl.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
     iconEl.alt = data.weather[0].description;
     tempEl.textContent = Math.round(data.main.temp) + "°C";
     descEl.textContent = data.weather[0].description;
+
     detailsEl.innerHTML = `
       Vento: ${data.wind.speed} m/s<br/>
-      Umidade: ${data.main.humidity}%
+      Umidade: ${data.main.humidity}%<br/>
+      Pressão: ${data.main.pressure} hPa<br/>
+      Visibilidade: ${data.visibility / 1000} km<br/>
+      Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
+      Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
     `;
-    weatherDiv.style.display = "block";
+  }
+
+  function showError(message) {
+    weatherDiv.style.display = "none";
+    errorMessageDiv.textContent = message;
+    errorMessageDiv.style.display = "block";
   }
 
   async function fetchWeather(city) {
+    searchBtn.disabled = true;
+    spinner.style.display = "block";
+    errorMessageDiv.style.display = "none";
+
     try {
       const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
       if (!res.ok) throw new Error("Cidade não encontrada");
       const data = await res.json();
       displayWeather(data);
     } catch (err) {
-      alert(err.message);
-      weatherDiv.style.display = "none";
+      showError(err.message);
+    } finally {
+      spinner.style.display = "none";
+      searchBtn.disabled = false;
     }
   }
 
@@ -127,8 +220,47 @@
     }
   });
 
-  // Mostrar clima inicial de São Miguel do Oeste
-  fetchWeather("São Miguel do Oeste");
+  // Geolocalização para clima da cidade atual
+  function fetchByCoords(lat, lon) {
+    searchBtn.disabled = true;
+    spinner.style.display = "block";
+    errorMessageDiv.style.display = "none";
+    weatherDiv.style.display = "none";
+
+    fetch(`${backendUrl}?lat=${lat}&lon=${lon}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+        return res.json();
+      })
+      .then(data => {
+        displayWeather(data);
+      })
+      .catch(err => {
+        showError(err.message);
+      })
+      .finally(() => {
+        spinner.style.display = "none";
+        searchBtn.disabled = false;
+      });
+  }
+
+  // Ao carregar a página tenta pegar a localização do usuário
+  window.onload = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          fetchByCoords(pos.coords.latitude, pos.coords.longitude);
+        },
+        err => {
+          // Se falhar ou negar permissão, mostra clima padrão
+          fetchWeather("São Miguel do Oeste");
+        }
+      );
+    } else {
+      // Navegador não suporta geolocalização
+      fetchWeather("São Miguel do Oeste");
+    }
+  };
 </script>
 
 </body>
