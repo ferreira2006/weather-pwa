@@ -40,7 +40,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.75s ease, color 0.75s ease; /* suaviza transições */
+  transition: background 0.75s ease, color 0.75s ease;
 }
 
 header {
@@ -169,7 +169,6 @@ button#search-btn:disabled {
   transition: background-image 0.5s ease;
 }
 
-/* Ícones animados mais suaves */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 120s linear infinite;
@@ -278,10 +277,6 @@ button#search-btn:disabled {
   width: 100%;
   text-align: center;
   user-select: none;
-}
-
-#city-input::-webkit-calendar-picker-indicator {
-  display: none;
 }
 
 @media (max-width: 600px) {
