@@ -1,5 +1,4 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-
 const cityInput = document.getElementById("city-input");
 const searchBtn = document.getElementById("search-btn");
 
@@ -12,6 +11,10 @@ const detailsEl = document.getElementById("details");
 const spinner = document.getElementById("spinner");
 const errorMessageDiv = document.getElementById("error-message");
 const themeToggle = document.getElementById("theme-toggle");
+const loadingText = document.getElementById("loading-text"); // Novo para feedback
+
+// Sugestões de cidades
+const suggestionsList = document.getElementById("suggestions");
 
 function formatTime(timestamp, timezone) {
   const date = new Date((timestamp + timezone) * 1000);
@@ -21,7 +24,6 @@ function formatTime(timestamp, timezone) {
 function setDynamicBackground(mainWeather) {
   const body = document.body;
   const theme = body.classList.contains('dark') ? 'dark' : 'light';
-
   const gradients = {
     light: {
       clear: 'var(--bg-gradient-light-clear)',
@@ -40,14 +42,12 @@ function setDynamicBackground(mainWeather) {
       snow: 'var(--bg-gradient-dark-snow)',
     }
   };
-
   const grad = gradients[theme][mainWeather.toLowerCase()] || gradients[theme].clear;
   body.style.background = grad;
 }
 
 function updateIcon(mainWeather) {
-  const weatherClass = mainWeather.toLowerCase();
-  iconEl.className = 'weather-icon ' + weatherClass;
+  iconEl.className = 'weather-icon ' + mainWeather.toLowerCase();
 }
 
 function displayWeather(data) {
@@ -57,15 +57,16 @@ function displayWeather(data) {
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = Math.round(data.main.temp) + "°C";
   descEl.textContent = data.weather[0].description;
-  
+
+  const sensacao = `Sensação térmica: ${data.main.feels_like.toFixed(1)}°`;
   const vento = `Vento: ${data.wind.speed} m/s`;
   const umidade = `Umidade: ${data.main.humidity}%`;
   const pressao = `Pressão: ${data.main.pressure} hPa`;
   const visibilidade = `Visibilidade: ${(data.visibility / 1000).toFixed(1)} km`;
   const nascersol = `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}`;
   const porsol = `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
-  const sensacao = `Sensação térmica: ${data.main.feels_like.toFixed(1)}° `;
-  detailsEl.innerHTML = sensacao + `<br/>`+ nascersol + `<br/>` + porsol;
+
+  detailsEl.innerHTML = `${sensacao}<br/>${vento}<br/>${umidade}<br/>${pressao}<br/>${visibilidade}<br/>${nascersol}<br/>${porsol}`;
 
   updateIcon(data.weather[0].main);
   setDynamicBackground(data.weather[0].main);
@@ -84,6 +85,7 @@ function showError(message) {
 async function fetchWeather(city) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
+  loadingText.style.display = "inline";
   errorMessageDiv.style.display = "none";
 
   try {
@@ -91,151 +93,19 @@ async function fetchWeather(city) {
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
     displayWeather(data);
-  // Depois de exibir clima, chama a função de AQI
-  getAirQuality(data.coord.lat, data.coord.lon);
-    
+    saveFavorite(data.name);
+    getAirQuality(data.coord.lat, data.coord.lon);
   } catch (err) {
     showError(err.message);
   } finally {
     spinner.style.display = "none";
+    loadingText.style.display = "none";
     searchBtn.disabled = false;
+    cityInput.focus();
+    cityInput.select();
   }
 }
 
 searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (city) {
-    fetchWeather(city);
-    cityInput.focus();
-    cityInput.select();
-  }
-});
-
-cityInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    const city = cityInput.value.trim();
-    if (city) fetchWeather(city);
-  }
-});
-
-// Geolocalização para clima da cidade atual
-function fetchByCoords(lat, lon) {
-  searchBtn.disabled = true;
-  spinner.style.display = "block";
-//  spinner.textContent = "Carregando...";
-  errorMessageDiv.style.display = "none";
-  weatherDiv.style.display = "none";
-
-  fetch(`${backendUrl}?lat=${lat}&lon=${lon}`)
-    .then(res => {
-      if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
-      return res.json();
-    })
-    .then(data => {
-      displayWeather(data);
-    })
-    .catch(err => {
-      showError(err.message);
-    })
-    .finally(() => {
-      spinner.style.display = "none";
-      searchBtn.disabled = false;
-    });
-}
-
-function saveFavorite(city) {
-  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-  if (!favs.includes(city)) {
-    favs.push(city);
-    localStorage.setItem("favorites", JSON.stringify(favs));
-  }
-}
-
-function loadFavorites() {
-  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-  // renderize na UI os botões para cada favorito
-}
-
-// Tema toggle
-themeToggle.addEventListener('click', () => {
-  if(document.body.classList.contains('dark')) {
-    document.body.classList.remove('dark');
-    document.body.classList.add('light');
-    themeToggle.textContent = 'Modo Escuro';
-  } else {
-    document.body.classList.remove('light');
-    document.body.classList.add('dark');
-    themeToggle.textContent = 'Modo Claro';
-  }
-  // Atualiza o fundo conforme tema e clima atual
-  if(weatherDiv.style.display !== "none") {
-    const mainWeather = descEl.textContent.split(' ')[0]; // tenta pegar palavra chave
-    setDynamicBackground(mainWeather);
-  }
-});
-
-// Ao carregar a página tenta pegar a localização do usuário
-window.onload = () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        fetchByCoords(pos.coords.latitude, pos.coords.longitude);
-      },
-      err => {
-        fetchWeather("São Miguel do Oeste");
-      }
-    );
-  } else {
-    fetchWeather("São Miguel do Oeste");
-  }
-};
-
-// Atualizar a cidade atual a cada X minutos
-setInterval(() => {
-  if(weatherDiv.style.display !== "none") {
-    const city = cityNameEl.textContent.split(',')[0];
-    if(city) fetchWeather(city);
-  }
-}, 10 * 60 * 1000); // 10 minutos
-
-function getAirQuality(lat, lon) {
-  const aqiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
-
-  fetch(aqiUrl)
-    .then(res => res.json())
-    .then(aqiData => {
-      const aqi = aqiData.list[0].main.aqi;
-      const description = getAqiDescription(aqi);
-
-      // Cria/atualiza o elemento de qualidade do ar
-      const aqiEl = document.getElementById('air-quality');
-      if (aqiEl) {
-        aqiEl.innerHTML = `Qualidade do Ar: <strong>${description}</strong>`;
-        aqiEl.style.backgroundColor = getAqiColor(aqi);
-      }
-    })
-    .catch(err => console.error('Erro ao buscar AQI:', err));
-}
-
-function getAqiDescription(aqi) {
-  switch (aqi) {
-    case 1: return 'Boa';
-    case 2: return 'Razoável';
-    case 3: return 'Moderada';
-    case 4: return 'Ruim';
-    case 5: return 'Muito Ruim';
-    default: return 'Desconhecida';
-  }
-}
-
-function getAqiColor(aqi) {
-  switch (aqi) {
-    case 1: return '#4caf50'; // verde
-    case 2: return '#cddc39'; // verde-amarelado
-    case 3: return '#ffeb3b'; // amarelo
-    case 4: return '#ff9800'; // laranja
-    case 5: return '#f44336'; // vermelho
-    default: return '#9e9e9e'; // cinza
-  }
-}
-
+  if (city) fetchWeather(city
