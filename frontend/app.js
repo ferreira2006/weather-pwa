@@ -217,3 +217,25 @@ function getAirQuality(lat, lon) {
     .catch(err => console.error('Erro ao buscar AQI:', err));
 }
 
+function getAqiDescription(aqi) {
+  switch (aqi) {
+    case 1: return 'Boa';
+    case 2: return 'Razoável';
+    case 3: return 'Moderada';
+    case 4: return 'Ruim';
+    case 5: return 'Muito Ruim';
+    default: return 'Desconhecida';
+  }
+}
+
+function getAqiColor(aqi) {
+  switch (aqi) {
+    case 1: return '#4caf50'; // verde
+    case 2: return '#cddc39'; // verde-amarelado
+    case 3: return '#ffeb3b'; // amarelo
+    case 4: return '#ff9800'; // laranja
+    case 5: return '#f44336'; // vermelho
+    default: return '#9e9e9e'; // cinza
+  }
+}
+
