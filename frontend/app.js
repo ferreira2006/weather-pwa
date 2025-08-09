@@ -65,7 +65,7 @@ function displayWeather(data) {
   const nascersol = `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}`;
   const porsol = `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
 
-  detailsEl.innerHTML = `nascersol+</br>+porsol`;
+  detailsEl.innerHTML = nascersol + </br> + porsol;
 
   updateIcon(data.weather[0].main);
   setDynamicBackground(data.weather[0].main);
