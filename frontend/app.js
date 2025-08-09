@@ -124,6 +124,11 @@ function setDynamicBackground(mainWeather) {
   }
 }
 
+function updateIcon(mainWeather) {
+  const iconDiv = document.getElementById('icon');
+  iconDiv.className = 'weather-icon ' + mainWeather.toLowerCase();
+}
+
 
 // Ao carregar a página tenta pegar a localização do usuário
 window.onload = () => {
