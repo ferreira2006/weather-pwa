@@ -1,6 +1,5 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-
 const weatherDiv = document.getElementById("weather");
 const searchForm = document.getElementById("searchForm");
 const cityInput = document.getElementById("cityInput");
