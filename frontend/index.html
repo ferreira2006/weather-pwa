@@ -19,51 +19,44 @@
   </header>
 
   <main>
-    <form id="search-form" role="search" aria-label="Busca de cidade">
-      <div id="search-box">
-        <input
-          list="city-suggestions"
-          type="search"
-          id="city-input"
-          name="city"
-          placeholder="Digite a cidade"
-          aria-label="Digite a cidade"
-          autocomplete="off"
-          required
-          spellcheck="false"
-          inputmode="text"
-        />
-        <datalist id="city-suggestions">
-          <option value="Anchieta"></option>
-          <option value="Bandeirante"></option>
-          <option value="Barra Bonita"></option>
-          <option value="Belmonte"></option>
-          <option value="Descanso"></option>
-          <option value="Dionísio Cerqueira"></option>
-          <option value="Guaraciaba"></option>
-          <option value="Guarujá do Sul"></option>
-          <option value="Iporã do Oeste"></option>
-          <option value="Itapiranga"></option>
-          <option value="Mondaí"></option>
-          <option value="Palma Sola"></option>
-          <option value="Paraíso"></option>
-          <option value="Princesa"></option>
-          <option value="Santa Helena"></option>
-          <option value="São João do Oeste"></option>
-          <option value="São José do Cedro"></option>
-          <option value="São Miguel do Oeste"></option>
-        </datalist>
-        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade">Buscar</button>
-      </div>
-    </form>
+    <div id="search-box">
+      <input
+        list="city-suggestions"
+        type="text"
+        id="city-input"
+        placeholder="Digite a cidade"
+        aria-label="Digite a cidade"
+        autocomplete="off"
+      />
+      <datalist id="city-suggestions">
+        <option value="Anchieta"></option>
+        <option value="Bandeirante"></option>
+        <option value="Barra Bonita"></option>
+        <option value="Belmonte"></option>
+        <option value="Descanso"></option>
+        <option value="Dionísio Cerqueira"></option>
+        <option value="Guaraciaba"></option>
+        <option value="Guarujá do Sul"></option>
+        <option value="Iporã do Oeste"></option>
+        <option value="Itapiranga"></option>
+        <option value="Mondaí"></option>
+        <option value="Palma Sola"></option>
+        <option value="Paraíso"></option>
+        <option value="Princesa"></option>
+        <option value="Santa Helena"></option>
+        <option value="São João do Oeste"></option>
+        <option value="São José do Cedro"></option>
+        <option value="São Miguel do Oeste"></option>
+      </datalist>
+      <button id="search-btn" type="button">Buscar</button>
+    </div>
 
-    <section
+    <div
       id="weather"
       style="display:none;"
       role="region"
       aria-live="polite"
       aria-atomic="true"
-      tabindex="-1"
     >
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
       <div class="info">
@@ -72,10 +65,10 @@
         <div class="desc" id="desc"></div>
         <div class="details" id="details"></div>
       </div>
-      <div id="spinner" class="spinner" aria-label="Carregando" role="status" aria-live="polite"></div>
-    </section>
+      <div id="spinner" class="spinner" aria-label="Carregando"></div>
+    </div>
 
-    <div id="error-message" style="display:none;" role="alert" tabindex="0"></div>
+    <div id="error-message" style="display:none;" role="alert"></div>
   </main>
 
   <script src="app.js"></script>
