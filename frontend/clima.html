@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Clima Atual</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+      text-align: center;
+      margin: 0; padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #search-box {
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      width: 200px;
+      outline: none;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff9800;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #weather {
+      background: rgba(255 255 255 / 0.15);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 320px;
+      margin: 0 auto;
+      box-shadow: 0 4px 8px rgb(0 0 0 / 0.2);
+    }
+    #weather img {
+      width: 80px;
+    }
+    .temp {
+      font-size: 48px;
+      margin: 10px 0;
+    }
+    .desc {
+      font-size: 22px;
+      margin-bottom: 10px;
+      text-transform: capitalize;
+    }
+    .details {
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Clima Atual</h1>
+
+  <div id="search-box">
+    <input type="text" id="city-input" placeholder="Digite a cidade" />
+    <button id="search-btn">Buscar</button>
+  </div>
+
+  <div id="weather" style="display:none;">
+    <h2 id="city-name"></h2>
+    <img id="icon" src="" alt="Ícone do clima" />
+    <div class="temp" id="temp"></div>
+    <div class="desc" id="desc"></div>
+    <div class="details" id="details"></div>
+  </div>
+
+<script>
+  const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+
+  const cityInput = document.getElementById("city-input");
+  const searchBtn = document.getElementById("search-btn");
+
+  const weatherDiv = document.getElementById("weather");
+  const cityNameEl = document.getElementById("city-name");
+  const iconEl = document.getElementById("icon");
+  const tempEl = document.getElementById("temp");
+  const descEl = document.getElementById("desc");
+  const detailsEl = document.getElementById("details");
+
+  function displayWeather(data) {
+    cityNameEl.textContent = data.name + ", " + data.sys.country;
+    iconEl.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    iconEl.alt = data.weather[0].description;
+    tempEl.textContent = Math.round(data.main.temp) + "°C";
+    descEl.textContent = data.weather[0].description;
+    detailsEl.innerHTML = `
+      Vento: ${data.wind.speed} m/s<br/>
+      Umidade: ${data.main.humidity}%
+    `;
+    weatherDiv.style.display = "block";
+  }
+
+  async function fetchWeather(city) {
+    try {
+      const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+      if (!res.ok) throw new Error("Cidade não encontrada");
+      const data = await res.json();
+      displayWeather(data);
+    } catch (err) {
+      alert(err.message);
+      weatherDiv.style.display = "none";
+    }
+  }
+
+  searchBtn.addEventListener("click", () => {
+    const city = cityInput.value.trim();
+    if (city) fetchWeather(city);
+  });
+
+  cityInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      const city = cityInput.value.trim();
+      if (city) fetchWeather(city);
+    }
+  });
+
+  // Mostrar clima inicial de São Miguel do Oeste
+  fetchWeather("São Miguel do Oeste");
+</script>
+
+</body>
+</html>
