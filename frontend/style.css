@@ -144,6 +144,15 @@ button#search-btn:disabled {
   cursor: not-allowed;
 }
 
+/* Foco visível acessível para botões e inputs */
+button:focus,
+input[type="text"]:focus {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 2px;
+  /* Mantém a transição suave caso queira */
+  transition: outline-color 0.3s ease;
+}
+
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
