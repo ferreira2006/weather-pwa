@@ -141,6 +141,19 @@ function fetchByCoords(lat, lon) {
     });
 }
 
+function saveFavorite(city) {
+  let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  if (!favs.includes(city)) {
+    favs.push(city);
+    localStorage.setItem("favorites", JSON.stringify(favs));
+  }
+}
+
+function loadFavorites() {
+  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  // renderize na UI os botões para cada favorito
+}
+
 // Tema toggle
 themeToggle.addEventListener('click', () => {
   if(document.body.classList.contains('dark')) {
