@@ -1,113 +1,171 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-const weatherDiv = document.getElementById("weather");
 const cityInput = document.getElementById("city-input");
 const searchBtn = document.getElementById("search-btn");
+
+const weatherDiv = document.getElementById("weather");
+const cityNameEl = document.getElementById("city-name");
+const iconEl = document.getElementById("icon");
+const tempEl = document.getElementById("temp");
+const descEl = document.getElementById("desc");
+const detailsEl = document.getElementById("details");
 const spinner = document.getElementById("spinner");
-const statusMessage = document.getElementById("status-message");
-const favoritesList = document.getElementById("favorites-list");
+const errorMessageDiv = document.getElementById("error-message");
+const themeToggle = document.getElementById("theme-toggle");
 
-let currentCity = null;
-
-// Mostrar mensagem de status (info, erro etc.)
-function showMessage(msg, type = "info") {
-  statusMessage.textContent = msg;
-  statusMessage.className = type;
+// Formata horário do UNIX timestamp + timezone
+function formatTime(timestamp, timezone) {
+  const date = new Date((timestamp + timezone) * 1000);
+  return date.toUTCString().match(/(\d{2}:\d{2}:\d{2})/)[0];
 }
 
-// Mostrar/ocultar spinner
-function toggleSpinner(show) {
-  spinner.style.display = show ? "block" : "none";
+// Atualiza o background conforme clima e tema
+function setDynamicBackground(mainWeather) {
+  const body = document.body;
+  const theme = body.classList.contains('dark') ? 'dark' : 'light';
+
+  const gradients = {
+    light: {
+      clear: 'var(--bg-gradient-light-clear)',
+      clouds: 'var(--bg-gradient-light-clouds)',
+      rain: 'var(--bg-gradient-light-rain)',
+      drizzle: 'var(--bg-gradient-light-rain)',
+      thunderstorm: 'var(--bg-gradient-light-thunderstorm)',
+      snow: 'var(--bg-gradient-light-snow)',
+    },
+    dark: {
+      clear: 'var(--bg-gradient-dark-clear)',
+      clouds: 'var(--bg-gradient-dark-clouds)',
+      rain: 'var(--bg-gradient-dark-rain)',
+      drizzle: 'var(--bg-gradient-dark-rain)',
+      thunderstorm: 'var(--bg-gradient-dark-thunderstorm)',
+      snow: 'var(--bg-gradient-dark-snow)',
+    }
+  };
+
+  const grad = gradients[theme][mainWeather.toLowerCase()] || gradients[theme].clear;
+  body.style.background = grad;
 }
 
-// Formatar hora com fuso horário
-function formatTime(unix, timezone) {
-  const date = new Date((unix + timezone) * 1000);
-  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+// Atualiza o ícone do clima
+function updateIcon(mainWeather) {
+  const weatherClass = mainWeather.toLowerCase();
+  iconEl.className = 'weather-icon ' + weatherClass;
 }
 
-// Buscar clima
+// Exibe o clima na tela
+function displayWeather(data) {
+  errorMessageDiv.style.display = "none";
+  weatherDiv.style.display = "grid";
+
+  cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+  tempEl.textContent = Math.round(data.main.temp) + "°C";
+  descEl.textContent = data.weather[0].description;
+
+  detailsEl.innerHTML =
+    `Vento: ${data.wind.speed} m/s<br/>` +
+    `Umidade: ${data.main.humidity}%<br/>` +
+    `Pressão: ${data.main.pressure} hPa<br/>` +
+    `Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>` +
+    `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>` +
+    `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
+
+  updateIcon(data.weather[0].main);
+  setDynamicBackground(data.weather[0].main);
+}
+
+// Exibe mensagem de erro
+function showError(message) {
+  weatherDiv.style.display = "none";
+  errorMessageDiv.textContent = message;
+  errorMessageDiv.style.display = "block";
+}
+
+// Busca o clima pela cidade
 async function fetchWeather(city) {
-  toggleSpinner(true);
-  showMessage("Carregando...");
+  searchBtn.disabled = true;
+  spinner.style.display = "block";
+  errorMessageDiv.style.display = "none";
 
   try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=5`);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
     if (!res.ok) throw new Error("Cidade não encontrada");
-
     const data = await res.json();
-    currentCity = city;
-
-    renderWeather(data);
-    showMessage("");
+    displayWeather(data);
   } catch (err) {
-    showMessage(`Ops! ${err.message}. Tente outro nome ou verifique a ortografia.`, "error");
-    weatherDiv.style.display = "none";
+    showError(err.message);
   } finally {
-    toggleSpinner(false);
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
   }
 }
 
-// Renderizar dados do clima
-function renderWeather(data) {
-  document.getElementById("city-name").textContent = data.name;
-  document.getElementById("temp").textContent = `${data.main.temp}°C`;
-  document.getElementById("desc").textContent = data.weather[0].description;
-
-  document.getElementById("details").innerHTML = `
-    Vento: ${data.wind.speed} m/s<br/>
-    Umidade: ${data.main.humidity}%<br/>
-    Pressão: ${data.main.pressure} hPa<br/>
-    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>
-    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
-    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
-  `;
-
-  // Atualizar ícone (se houver caminho para ícones locais)
-  const iconCode = data.weather[0].icon;
-  const iconDiv = document.getElementById("icon");
-  iconDiv.innerHTML = `<img src="../icons/${iconCode}.png" alt="${data.weather[0].description}" />`;
-
-  weatherDiv.style.display = "block";
-}
-
-// Salvar cidade favorita
-function saveFavorite(city) {
-  let favs = JSON.parse(localStorage.getItem("favorites")) || [];
-  if (!favs.includes(city)) {
-    favs.push(city);
-    localStorage.setItem("favorites", JSON.stringify(favs));
-    renderFavorites();
-  }
-}
-
-// Renderizar lista de favoritos
-function renderFavorites() {
-  favoritesList.innerHTML = "";
-  let favs = JSON.parse(localStorage.getItem("favorites")) || [];
-  favs.forEach(city => {
-    const btn = document.createElement("button");
-    btn.textContent = city;
-    btn.onclick = () => fetchWeather(city);
-    favoritesList.appendChild(btn);
-  });
-}
-
-// Atualização automática a cada 5 minutos
-setInterval(() => {
-  if (currentCity) fetchWeather(currentCity);
-}, 5 * 60 * 1000);
-
-// Evento de clique no botão "Buscar"
+// Eventos para busca
 searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (city) {
-    fetchWeather(city);
-    saveFavorite(city);
-    cityInput.focus();
-    cityInput.select();
+  if (city) fetchWeather(city);
+});
+
+cityInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const city = cityInput.value.trim();
+    if (city) fetchWeather(city);
   }
 });
 
-// Inicializar lista de favoritos ao carregar
-renderFavorites();
+// Toggle tema claro/escuro
+themeToggle.addEventListener('click', () => {
+  if(document.body.classList.contains('dark')) {
+    document.body.classList.remove('dark');
+    document.body.classList.add('light');
+    themeToggle.textContent = 'Modo Escuro';
+  } else {
+    document.body.classList.remove('light');
+    document.body.classList.add('dark');
+    themeToggle.textContent = 'Modo Claro';
+  }
+  if(weatherDiv.style.display !== "none") {
+    const mainWeather = descEl.textContent.split(' ')[0];
+    setDynamicBackground(mainWeather);
+  }
+});
+
+// Ao carregar tenta pegar localização do usuário
+window.onload = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        fetchByCoords(pos.coords.latitude, pos.coords.longitude);
+      },
+      () => {
+        fetchWeather("São Miguel do Oeste");
+      }
+    );
+  } else {
+    fetchWeather("São Miguel do Oeste");
+  }
+};
+
+// Busca pelo clima por coordenadas
+function fetchByCoords(lat, lon) {
+  searchBtn.disabled = true;
+  spinner.style.display = "block";
+  errorMessageDiv.style.display = "none";
+  weatherDiv.style.display = "none";
+
+  fetch(`${backendUrl}?lat=${lat}&lon=${lon}`)
+    .then(res => {
+      if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+      return res.json();
+    })
+    .then(data => {
+      displayWeather(data);
+    })
+    .catch(err => {
+      showError(err.message);
+    })
+    .finally(() => {
+      spinner.style.display = "none";
+      searchBtn.disabled = false;
+    });
+}
