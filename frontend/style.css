@@ -1,5 +1,3 @@
-/* Seu CSS completo enviado por você */
-
 :root {
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
@@ -11,12 +9,17 @@
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+
   --text-color-light: #000000;
   --text-color-dark: #ddd;
+
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
+
+  --input-bg: rgba(255 255 255 / 0.9);
+  --input-border-focus: var(--button-bg);
 }
 
 body.light {
@@ -37,7 +40,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.5s ease, color 0.5s ease;
+  transition: background 0.75s ease, color 0.75s ease; /* suaviza transições */
 }
 
 header {
@@ -59,17 +62,20 @@ h1 {
   background: transparent;
   border: 2px solid currentColor;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 8px 16px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   color: inherit;
+  user-select: none;
 }
 
-#theme-toggle:hover {
+#theme-toggle:hover,
+#theme-toggle:focus {
   background-color: var(--button-bg);
   color: white;
   border-color: var(--button-bg);
+  outline: none;
 }
 
 main {
@@ -92,34 +98,45 @@ main {
 input[type="text"] {
   flex: 1;
   min-width: 150px;
-  padding: 10px;
+  padding: 12px 15px;
   font-size: 1rem;
   border-radius: 8px;
-  border: none;
+  border: 1px solid transparent;
   outline: none;
+  background-color: var(--input-bg);
   transition: box-shadow 0.3s, border-color 0.3s;
+  color: inherit;
+}
+
+input[type="text"]::placeholder {
+  color: #666;
+  opacity: 1;
 }
 
 input[type="text"]:focus {
-  box-shadow: 0 0 6px var(--button-bg);
-  border: 1px solid var(--button-bg);
+  box-shadow: 0 0 8px var(--button-bg);
+  border-color: var(--input-border-focus);
+  background-color: #fff;
 }
 
 button#search-btn {
-  padding: 10px 15px;
+  padding: 12px 20px;
   border: none;
   border-radius: 8px;
   background-color: var(--button-bg);
   color: white;
   font-size: 1rem;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 110px;
   transition: background-color 0.3s, box-shadow 0.3s;
+  user-select: none;
 }
 
-button#search-btn:hover:not(:disabled) {
+button#search-btn:hover:not(:disabled),
+button#search-btn:focus:not(:disabled) {
   background-color: var(--button-bg-hover);
-  box-shadow: 0 0 8px var(--button-shadow-hover);
+  box-shadow: 0 0 12px var(--button-shadow-hover);
+  outline: none;
 }
 
 button#search-btn:disabled {
@@ -133,14 +150,14 @@ button#search-btn:disabled {
   padding: 20px;
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 0.2);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.25);
   display: grid;
   grid-template-columns: 100px 1fr;
   grid-gap: 20px;
   align-items: center;
   position: relative;
-  min-height: 250px;
-  transition: background 0.5s ease;
+  min-height: 260px;
+  transition: background 0.75s ease;
 }
 
 .weather-icon {
@@ -152,27 +169,30 @@ button#search-btn:disabled {
   transition: background-image 0.5s ease;
 }
 
+/* Ícones animados mais suaves */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
-  animation: rotateSlow 60s linear infinite;
+  animation: rotateSlow 120s linear infinite;
 }
 
 .weather-icon.clouds {
   background-image: url('../icons/wi-cloudy.svg');
+  animation: floatClouds 20s ease-in-out infinite;
 }
 
 .weather-icon.rain {
   background-image: url('../icons/wi-rain.svg');
-  animation: rainAnim 2s linear infinite;
+  animation: rainAnim 3s linear infinite;
 }
 
 .weather-icon.thunderstorm {
   background-image: url('../icons/wi-thunderstorm.svg');
+  animation: thunderAnim 2s ease-in-out infinite alternate;
 }
 
 .weather-icon.snow {
   background-image: url('../icons/wi-snow.svg');
-  animation: snowAnim 10s linear infinite;
+  animation: snowAnim 15s linear infinite;
 }
 
 @keyframes rotateSlow {
@@ -180,9 +200,19 @@ button#search-btn:disabled {
   to { transform: rotate(360deg); }
 }
 
+@keyframes floatClouds {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
 @keyframes rainAnim {
   0% { background-position: 0 0; }
   100% { background-position: 0 100%; }
+}
+
+@keyframes thunderAnim {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5); }
 }
 
 @keyframes snowAnim {
@@ -200,6 +230,7 @@ button#search-btn:disabled {
   font-size: 4rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1;
 }
 
 .desc {
@@ -207,6 +238,8 @@ button#search-btn:disabled {
   font-weight: 500;
   text-transform: capitalize;
   margin: 5px 0 15px 0;
+  font-style: italic;
+  color: inherit;
 }
 
 .details {
@@ -225,8 +258,9 @@ button#search-btn:disabled {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
+  animation: spin 1.2s linear infinite;
   display: none;
+  z-index: 10;
 }
 
 @keyframes spin {
@@ -238,11 +272,16 @@ button#search-btn:disabled {
   max-width: 600px;
   background-color: #5c0000;
   color: #ffbaba;
-  padding: 10px;
+  padding: 14px;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: 700;
   width: 100%;
   text-align: center;
+  user-select: none;
+}
+
+#city-input::-webkit-calendar-picker-indicator {
+  display: none;
 }
 
 @media (max-width: 600px) {
