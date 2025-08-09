@@ -91,6 +91,9 @@ async function fetchWeather(city) {
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
     displayWeather(data);
+  // Depois de exibir clima, chama a função de AQI
+  getAirQuality(data.coord.lat, data.coord.lon);
+    
   } catch (err) {
     showError(err.message);
   } finally {
@@ -194,3 +197,23 @@ setInterval(() => {
     if(city) fetchWeather(city);
   }
 }, 10 * 60 * 1000); // 10 minutos
+
+function getAirQuality(lat, lon) {
+  const aqiUrl = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+
+  fetch(aqiUrl)
+    .then(res => res.json())
+    .then(aqiData => {
+      const aqi = aqiData.list[0].main.aqi;
+      const description = getAqiDescription(aqi);
+
+      // Cria/atualiza o elemento de qualidade do ar
+      const aqiEl = document.getElementById('air-quality');
+      if (aqiEl) {
+        aqiEl.innerHTML = `Qualidade do Ar: <strong>${description}</strong>`;
+        aqiEl.style.backgroundColor = getAqiColor(aqi);
+      }
+    })
+    .catch(err => console.error('Erro ao buscar AQI:', err));
+}
+
