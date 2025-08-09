@@ -187,3 +187,11 @@ window.onload = () => {
     fetchWeather("São Miguel do Oeste");
   }
 };
+
+// Atualizar a cidade atual a cada X minutos
+setInterval(() => {
+  if(weatherDiv.style.display !== "none") {
+    const city = cityNameEl.textContent.split(',')[0];
+    if(city) fetchWeather(city);
+  }
+}, 10 * 60 * 1000); // 10 minutos
