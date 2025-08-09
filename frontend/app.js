@@ -72,9 +72,13 @@ function displayWeather(data) {
 }
 
 function showError(message) {
-  weatherDiv.style.display = "none";
-  errorMessageDiv.textContent = message;
+  let userMessage = "Ops! Não encontramos essa cidade. Tente outro nome ou verifique a ortografia.";
+  if (message.toLowerCase().includes("network")) {
+    userMessage = "Problema de conexão. Verifique sua internet e tente novamente.";
+  }
+  errorMessageDiv.textContent = userMessage;
   errorMessageDiv.style.display = "block";
+  weatherDiv.style.display = "none";
 }
 
 async function fetchWeather(city) {
