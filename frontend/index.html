@@ -15,7 +15,13 @@
 
   <main>
     <div id="search-box">
-      <input list="city-suggestions" id="city-input" placeholder="Digite a cidade" aria-label="Digite a cidade" />
+      <input 
+        list="city-suggestions" 
+        id="city-input" 
+        placeholder="Digite a cidade" 
+        aria-label="Digite a cidade" 
+        autofocus
+      />
       <datalist id="city-suggestions">
         <option value="Anchieta">
         <option value="Bandeirante">
@@ -40,39 +46,16 @@
       <button id="search-btn">Buscar</button>
     </div>
 
+    <!-- Mensagem de status para carregamento e erros -->
+    <div id="status-message" aria-live="polite" style="margin-top:8px;"></div>
+
     <div id="weather" style="display:none;" role="region" aria-live="polite" aria-atomic="true">
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
       <div class="info">
         <h2 id="city-name"></h2>
         <div class="temp" id="temp"></div>
         <div class="desc" id="desc"></div>
-        <div class="details" id="details">
-          <!-- Populado dinamicamente pelo app.js -->
-          <!-- Exemplo:
-              Vento: 3.5 m/s<br/>
-              Sensação térmica: 22.1°C<br/>
-              Umidade: 60%<br/>
-              Pressão: 1013 hPa<br/>
-              Visibilidade: 10 km<br/>
-              Nascer do sol: 06:12<br/>
-              Pôr do sol: 18:42
-          -->
-        </div>
+        <div class="details" id="details"></div>
       </div>
-
       <div id="airdetails"></div>
-      <div id="air-quality" style="padding:8px; border-radius:5px; margin-top:5px; color:white;">
-        Carregando qualidade do ar...
-      </div>
-
-      <div id="spinner" class="spinner" style="display:none;" aria-label="Carregando">
-        <span id="spinner-text" style="margin-left: 10px; font-weight: bold; color: white;">Carregando...</span>
-      </div>
-    </div>
-
-    <div id="error-message" style="display:none;" role="alert"></div>
-  </main>
-
-  <script src="app.js"></script>
-</body>
-</html>
+      <div id="air-quality" style="padding:8px; border-radius:5px; margin-top:5px; co
