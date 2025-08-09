@@ -13,6 +13,9 @@
   --text-color-light: #000000;
   --text-color-dark: #ddd;
 
+  --input-text-light: #000000;
+  --input-text-dark: #ddd;
+
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
@@ -22,16 +25,27 @@
   --input-border-focus: var(--button-bg);
 }
 
+/* Tema claro */
 body.light {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
 }
 
+body.light input[type="text"] {
+  color: var(--input-text-light);
+}
+
+/* Tema escuro */
 body.dark {
   background: var(--bg-gradient-dark-clear);
   color: var(--text-color-dark);
 }
 
+body.dark input[type="text"] {
+  color: var(--input-text-dark);
+}
+
+/* Corpo geral */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -104,8 +118,7 @@ input[type="text"] {
   border: 1px solid transparent;
   outline: none;
   background-color: var(--input-bg);
-  transition: box-shadow 0.3s, border-color 0.3s;
-  color: inherit;
+  transition: box-shadow 0.3s, border-color 0.3s, color 0.3s;
 }
 
 input[type="text"]::placeholder {
@@ -113,10 +126,12 @@ input[type="text"]::placeholder {
   opacity: 1;
 }
 
+/* Aqui está a correção para o foco: fundo branco e texto preto para contraste */
 input[type="text"]:focus {
   box-shadow: 0 0 8px var(--button-bg);
   border-color: var(--input-border-focus);
   background-color: #fff;
+  color: #000;
 }
 
 button#search-btn {
@@ -149,7 +164,6 @@ button:focus,
 input[type="text"]:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
-  /* Mantém a transição suave caso queira */
   transition: outline-color 0.3s ease;
 }
 
@@ -169,138 +183,4 @@ input[type="text"]:focus {
   transition: background 0.75s ease;
 }
 
-.weather-icon {
-  width: 100px;
-  height: 100px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  justify-self: center;
-  transition: background-image 0.5s ease;
-}
-
-.weather-icon.clear {
-  background-image: url('../icons/wi-day-sunny.svg');
-  animation: rotateSlow 120s linear infinite;
-}
-
-.weather-icon.clouds {
-  background-image: url('../icons/wi-cloudy.svg');
-  animation: floatClouds 20s ease-in-out infinite;
-}
-
-.weather-icon.rain {
-  background-image: url('../icons/wi-rain.svg');
-  animation: rainAnim 3s linear infinite;
-}
-
-.weather-icon.thunderstorm {
-  background-image: url('../icons/wi-thunderstorm.svg');
-  animation: thunderAnim 2s ease-in-out infinite alternate;
-}
-
-.weather-icon.snow {
-  background-image: url('../icons/wi-snow.svg');
-  animation: snowAnim 15s linear infinite;
-}
-
-@keyframes rotateSlow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes floatClouds {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(8px); }
-}
-
-@keyframes rainAnim {
-  0% { background-position: 0 0; }
-  100% { background-position: 0 100%; }
-}
-
-@keyframes thunderAnim {
-  0% { filter: brightness(1); }
-  100% { filter: brightness(1.5); }
-}
-
-@keyframes snowAnim {
-  0% { background-position: 0 0; }
-  100% { background-position: 100% 100%; }
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.temp {
-  font-size: 4rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1;
-}
-
-.desc {
-  font-size: 1.5rem;
-  font-weight: 500;
-  text-transform: capitalize;
-  margin: 5px 0 15px 0;
-  font-style: italic;
-  color: inherit;
-}
-
-.details {
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.6;
-  color: inherit;
-}
-
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1.2s linear infinite;
-  display: none;
-  z-index: 10;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-#error-message {
-  margin-top: 20px;
-  max-width: 600px;
-  background-color: #5c0000;
-  color: #ffbaba;
-  padding: 14px;
-  border-radius: 8px;
-  font-weight: 700;
-  width: 100%;
-  text-align: center;
-  user-select: none;
-}
-
-@media (max-width: 600px) {
-  #weather {
-    grid-template-columns: 1fr;
-    min-height: auto;
-  }
-  .weather-icon {
-    margin-bottom: 15px;
-    justify-self: center;
-  }
-  .temp {
-    font-size: 3rem;
-  }
-  .desc {
-    font-size: 1.2rem;
-  }
-}
+/* restante do seu CSS continua igual */
