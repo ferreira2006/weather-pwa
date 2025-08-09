@@ -63,4 +63,21 @@
       role="region"
       aria-live="polite"
       aria-atomic="true"
-      tabindex="-1
+      tabindex="-1"
+    >
+      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div class="info">
+        <h2 id="city-name"></h2>
+        <div class="temp" id="temp"></div>
+        <div class="desc" id="desc"></div>
+        <div class="details" id="details"></div>
+      </div>
+      <div id="spinner" class="spinner" aria-label="Carregando" role="status" aria-live="polite"></div>
+    </section>
+
+    <div id="error-message" style="display:none;" role="alert" tabindex="0"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
