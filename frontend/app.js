@@ -1,46 +1,35 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-const forecastContainer = document.getElementById("forecastContainer");
+
+const weatherDiv = document.getElementById("weather");
 const searchForm = document.getElementById("searchForm");
 const cityInput = document.getElementById("cityInput");
 
-async function getWeather(city = "São Miguel do Oeste") {
-  try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    if (!res.ok) throw new Error("Erro ao buscar dados");
-    const data = await res.json();
-    displayForecast(data);
-  } catch (error) {
-    forecastContainer.innerHTML = `<p>Erro: ${error.message}</p>`;
-  }
-}
-
-function displayForecast(data) {
-  if (!data.forecast || !data.forecast.length) {
-    forecastContainer.innerHTML = "<p>Nenhuma previsão disponível</p>";
-    return;
-  }
-
-  forecastContainer.innerHTML = data.forecast
-    .slice(0, 5)
-    .map(day => `
-      <div class="card">
-        <h3>${day.date}</h3>
-        <img src="https://openweathermap.org/img/wn/${day.icon}@2x.png" alt="${day.description}">
-        <p>${day.description}</p>
-        <p>🌡️ ${day.temp}°C</p>
-        <p>💨 ${day.wind} km/h</p>
-      </div>
-    `)
-    .join("");
-}
-
-searchForm.addEventListener("submit", (e) => {
+searchForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const city = cityInput.value.trim();
-  if (city) {
-    getWeather(city);
-    cityInput.value = "";
+  if (!city) return;
+
+  weatherDiv.innerHTML = "<p>Carregando...</p>";
+
+  try {
+    const response = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=5`);
+    if (!response.ok) throw new Error("Cidade não encontrada");
+
+    const data = await response.json();
+
+    // Monta o card com as informações básicas
+    weatherDiv.innerHTML = `
+      <h2>Clima em ${data.name}, ${data.sys.country}</h2>
+      <p><strong>Temperatura:</strong> ${data.main.temp.toFixed(1)} °C</p>
+      <p><strong>Sensação térmica:</strong> ${data.main.feels_like.toFixed(1)} °C</p>
+      <p><strong>Descrição:</strong> ${data.weather[0].description}</p>
+      <p><strong>Umidade:</strong> ${data.main.humidity}%</p>
+    `;
+
+    // Atualiza título da página com o nome da cidade
+    document.title = `Clima em ${data.name}`;
+
+  } catch (error) {
+    weatherDiv.innerHTML = `<p>Erro: ${error.message}</p>`;
   }
 });
-
-getWeather(); // Carrega São Miguel do Oeste ao abrir
