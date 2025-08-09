@@ -155,25 +155,25 @@ button#search-btn:disabled {
 
 /* Ícones simples como background-image local (você pode colocar na pasta icons) */
 .weather-icon.clear {
-  background-image: url('icons/wi-day-sunny.svg');
+  background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 60s linear infinite;
 }
 
 .weather-icon.clouds {
-  background-image: url('icons/wi-cloudy.svg');
+  background-image: url('../icons/wi-cloudy.svg');
 }
 
 .weather-icon.rain {
-  background-image: url('icons/wi-rain.svg');
+  background-image: url('../icons/wi-rain.svg');
   animation: rainAnim 2s linear infinite;
 }
 
 .weather-icon.thunderstorm {
-  background-image: url('icons/wi-thunderstorm.svg');
+  background-image: url('../icons/wi-thunderstorm.svg');
 }
 
 .weather-icon.snow {
-  background-image: url('icons/wi-snow.svg');
+  background-image: url('../icons/wi-snow.svg');
   animation: snowAnim 10s linear infinite;
 }
 
