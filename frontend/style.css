@@ -1,19 +1,18 @@
+/* Seu CSS completo enviado por você */
+
 :root {
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
   --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
-
   --text-color-light: #000000;
   --text-color-dark: #ddd;
-
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
