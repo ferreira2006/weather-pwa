@@ -22,25 +22,25 @@ function formatTime(timestamp, timezone) {
 // Atualiza o background conforme clima e tema
 function setDynamicBackground(mainWeather) {
   const body = document.body;
-  const theme = body.classList.contains('dark') ? 'dark' : 'light';
+  const theme = body.classList.contains("dark") ? "dark" : "light";
 
   const gradients = {
     light: {
-      clear: 'var(--bg-gradient-light-clear)',
-      clouds: 'var(--bg-gradient-light-clouds)',
-      rain: 'var(--bg-gradient-light-rain)',
-      drizzle: 'var(--bg-gradient-light-rain)',
-      thunderstorm: 'var(--bg-gradient-light-thunderstorm)',
-      snow: 'var(--bg-gradient-light-snow)',
+      clear: "var(--bg-gradient-light-clear)",
+      clouds: "var(--bg-gradient-light-clouds)",
+      rain: "var(--bg-gradient-light-rain)",
+      drizzle: "var(--bg-gradient-light-rain)",
+      thunderstorm: "var(--bg-gradient-light-thunderstorm)",
+      snow: "var(--bg-gradient-light-snow)",
     },
     dark: {
-      clear: 'var(--bg-gradient-dark-clear)',
-      clouds: 'var(--bg-gradient-dark-clouds)',
-      rain: 'var(--bg-gradient-dark-rain)',
-      drizzle: 'var(--bg-gradient-dark-rain)',
-      thunderstorm: 'var(--bg-gradient-dark-thunderstorm)',
-      snow: 'var(--bg-gradient-dark-snow)',
-    }
+      clear: "var(--bg-gradient-dark-clear)",
+      clouds: "var(--bg-gradient-dark-clouds)",
+      rain: "var(--bg-gradient-dark-rain)",
+      drizzle: "var(--bg-gradient-dark-rain)",
+      thunderstorm: "var(--bg-gradient-dark-thunderstorm)",
+      snow: "var(--bg-gradient-dark-snow)",
+    },
   };
 
   const grad = gradients[theme][mainWeather.toLowerCase()] || gradients[theme].clear;
@@ -50,25 +50,27 @@ function setDynamicBackground(mainWeather) {
 // Atualiza o ícone do clima
 function updateIcon(mainWeather) {
   const weatherClass = mainWeather.toLowerCase();
-  iconEl.className = 'weather-icon ' + weatherClass;
+  iconEl.className = "weather-icon " + weatherClass;
 }
 
 // Exibe o clima na tela
 function displayWeather(data) {
   errorMessageDiv.style.display = "none";
   weatherDiv.style.display = "grid";
+  weatherDiv.focus();
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = Math.round(data.main.temp) + "°C";
   descEl.textContent = data.weather[0].description;
 
-  detailsEl.innerHTML =
-    `Vento: ${data.wind.speed} m/s<br/>` +
-    `Umidade: ${data.main.humidity}%<br/>` +
-    `Pressão: ${data.main.pressure} hPa<br/>` +
-    `Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>` +
-    `Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>` +
-    `Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}`;
+  detailsEl.innerHTML = `
+    Vento: ${data.wind.speed} m/s<br/>
+    Umidade: ${data.main.humidity}%<br/>
+    Pressão: ${data.main.pressure} hPa<br/>
+    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>
+    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
+    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
+  `;
 
   updateIcon(data.weather[0].main);
   setDynamicBackground(data.weather[0].main);
@@ -79,11 +81,14 @@ function showError(message) {
   weatherDiv.style.display = "none";
   errorMessageDiv.textContent = message;
   errorMessageDiv.style.display = "block";
+  errorMessageDiv.focus();
   cityInput.focus();
 }
 
 // Busca o clima pela cidade
 async function fetchWeather(city) {
+  if (!city) return;
+
   searchBtn.disabled = true;
   spinner.style.display = "block";
   errorMessageDiv.style.display = "none";
@@ -103,70 +108,8 @@ async function fetchWeather(city) {
 }
 
 // Busca pelo clima por coordenadas
-function fetchByCoords(lat, lon) {
+async function fetchByCoords(lat, lon) {
   searchBtn.disabled = true;
   spinner.style.display = "block";
   errorMessageDiv.style.display = "none";
-  weatherDiv.style.display = "none";
-
-  fetch(`${backendUrl}?lat=${lat}&lon=${lon}`)
-    .then(res => {
-      if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
-      return res.json();
-    })
-    .then(data => {
-      displayWeather(data);
-    })
-    .catch(err => {
-      showError(err.message);
-    })
-    .finally(() => {
-      spinner.style.display = "none";
-      searchBtn.disabled = false;
-      cityInput.focus();
-    });
-}
-
-// Eventos para busca
-searchBtn.addEventListener("click", () => {
-  const city = cityInput.value.trim();
-  if (city) fetchWeather(city);
-});
-
-cityInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    const city = cityInput.value.trim();
-    if (city) fetchWeather(city);
-  }
-});
-
-// Toggle tema claro/escuro
-themeToggle.addEventListener('click', () => {
-  const isDark = document.body.classList.toggle('dark');
-  document.body.classList.toggle('light', !isDark);
-
-  themeToggle.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
-  themeToggle.setAttribute('aria-pressed', isDark);
-
-  if(weatherDiv.style.display !== "none") {
-    const mainWeather = descEl.textContent.split(' ')[0];
-    setDynamicBackground(mainWeather);
-  }
-});
-
-// Ao carregar tenta pegar localização do usuário
-window.onload = () => {
-  cityInput.focus();
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        fetchByCoords(pos.coords.latitude, pos.coords.longitude);
-      },
-      () => {
-        fetchWeather("São Miguel do Oeste");
-      }
-    );
-  } else {
-    fetchWeather("São Miguel do Oeste");
-  }
-};
+  weatherDiv.style.display
