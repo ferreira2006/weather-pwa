@@ -139,6 +139,32 @@ async function fetchWeather(city) {
   }
 }
 
+// Busca o clima por coordenadas (geolocalização)
+async function fetchByCoords(lat, lon) {
+  spinner.style.display = "block";
+  searchBtn.disabled = true;
+  favBtn.disabled = true;
+  errorMessageDiv.style.display = "none";
+
+  try {
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
+    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+    const data = await res.json();
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    favBtn.disabled = false;
+
+    showWeather(data);
+    saveHistory(data.name);
+    renderHistory();
+  } catch (err) {
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    favBtn.disabled = false;
+    showError(err.message);
+  }
+}
+
 // Histórico em localStorage
 function getHistory() {
   const history = JSON.parse(localStorage.getItem("weatherHistory")) || [];
@@ -273,7 +299,26 @@ themeToggle.addEventListener("click", () => {
   }
 });
 
-// Inicialização
-applySavedTheme();
-renderHistory();
-renderFavorites();
+// Inicialização com fallback para geolocalização e cidade padrão
+window.onload = () => {
+  applySavedTheme();
+  renderHistory();
+  renderFavorites();
+
+  const lastCity = localStorage.getItem("lastCity");
+
+  if (lastCity) {
+    handleCitySelect(lastCity);
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        // Usuário negou ou erro - carrega cidade padrão
+        handleCitySelect("São Miguel do Oeste");
+      }
+    );
+  } else {
+    // Sem geolocalização suportada - carrega cidade padrão
+    handleCitySelect("São Miguel do Oeste");
+  }
+};
