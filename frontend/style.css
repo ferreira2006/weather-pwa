@@ -110,6 +110,12 @@ body.light input[type="text"]:focus {
   color: #000;
 }
 
+/* Placeholder tema claro */
+body.light input[type="text"]::placeholder {
+  color: #666;
+  opacity: 1;
+}
+
 /* Tema escuro */
 body.dark {
   color: var(--text-color-dark);
@@ -124,6 +130,11 @@ body.dark input[type="text"] {
 body.dark input[type="text"]:focus {
   background-color: rgba(255 255 255 / 0.15);
   color: var(--input-text-dark);
+}
+
+/* Placeholder tema escuro */
+body.dark input[type="text"]::placeholder {
+  color: rgba(255 255 255 / 0.6);
 }
 
 /* Header */
@@ -152,6 +163,8 @@ h1 {
   transition: background-color 0.3s, color 0.3s;
   color: inherit;
   user-select: none;
+  min-width: 110px;
+  min-height: 40px;
 }
 
 #theme-toggle:hover,
@@ -190,11 +203,7 @@ input[type="text"] {
   border-radius: 8px;
   outline: none;
   transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
-}
-
-input[type="text"]::placeholder {
-  color: #666;
-  opacity: 1;
+  min-height: 40px;
 }
 
 input[type="text"]:focus {
@@ -213,6 +222,7 @@ button#fav-btn {
   font-size: 1rem;
   cursor: pointer;
   min-width: 110px;
+  min-height: 40px;
   transition: background-color 0.3s, box-shadow 0.3s;
   user-select: none;
 }
@@ -231,9 +241,34 @@ button#search-btn:disabled {
   cursor: not-allowed;
 }
 
-/* Foco acessível */
+/* Botão remover favorito */
+.remove-fav-btn {
+  margin-left: 8px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  min-width: 30px;
+  min-height: 30px;
+  user-select: none;
+  transition: color 0.3s;
+}
+
+.remove-fav-btn:hover,
+.remove-fav-btn:focus {
+  color: var(--button-bg-hover);
+  outline: none;
+}
+
+/* Foco acessível para botões e itens */
 button:focus,
-input[type="text"]:focus {
+input[type="text"]:focus,
+#history-list li:focus,
+#favorites-list li:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
@@ -258,6 +293,11 @@ input[type="text"]:focus {
   margin-bottom: 30px;
 }
 
+#weather:focus {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 4px;
+}
+
 body.dark #weather {
   background: rgba(255 255 255 / 0.1);
   box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
@@ -273,6 +313,7 @@ body.dark #weather {
   transition: background-image 0.5s ease;
 }
 
+/* Animações */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 120s linear infinite;
@@ -323,6 +364,44 @@ body.dark #weather {
   100% { background-position: 100% 100%; }
 }
 
+/* Redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon {
+    animation: none !important;
+  }
+}
+
+/* Overlay leve no spinner */
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1.2s linear infinite;
+  display: none;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Spinner com overlay no card */
+#weather.loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255 255 255 / 0.3);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+  z-index: 5;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Info texto do clima */
 .info {
   display: flex;
@@ -351,25 +430,6 @@ body.dark #weather {
   font-weight: 400;
   line-height: 1.6;
   color: inherit;
-}
-
-/* Spinner */
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1.2s linear infinite;
-  display: none;
-  z-index: 10;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* Mensagem de erro */
@@ -441,6 +501,11 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
+  min-width: 48px;  /* Alvo mínimo */
+  min-height: 40px; /* Alvo mínimo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #history-list li:hover,
