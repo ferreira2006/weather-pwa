@@ -272,15 +272,41 @@ function removeFavorite(city) {
 function renderFavorites() {
   const favorites = getFavorites();
   favoritesListEl.innerHTML = "";
+
   favorites.forEach((city) => {
     const li = document.createElement("li");
     li.tabIndex = 0;
-    li.textContent = city;
 
-    // Clique simples busca o clima
-    li.addEventListener("click", () => handleCitySelect(city));
+    // Span para nome da cidade (busca ao clicar)
+    const citySpan = document.createElement("span");
+    citySpan.textContent = city;
+    citySpan.style.cursor = "pointer";
+    citySpan.title = "Clique para buscar";
+    citySpan.addEventListener("click", () => handleCitySelect(city));
 
-    // Clique com Shift remove dos favoritos
+    // Botão de remover favorito
+    const removeBtn = document.createElement("button");
+    removeBtn.textContent = "×";
+    removeBtn.title = "Remover dos favoritos";
+    removeBtn.style.marginLeft = "8px";
+    removeBtn.style.cursor = "pointer";
+    removeBtn.style.background = "transparent";
+    removeBtn.style.border = "none";
+    removeBtn.style.color = "inherit";
+    removeBtn.style.fontWeight = "bold";
+    removeBtn.style.fontSize = "1.2rem";
+    removeBtn.style.lineHeight = "1";
+    removeBtn.style.padding = "0";
+
+    removeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      removeFavorite(city);
+    });
+
+    li.appendChild(citySpan);
+    li.appendChild(removeBtn);
+
+    // Remoção via teclado (Shift+Enter, Delete, Backspace)
     li.addEventListener("keydown", (e) => {
       if ((e.key === "Delete" || e.key === "Backspace") || (e.key === "Enter" && e.shiftKey)) {
         e.preventDefault();
@@ -288,11 +314,11 @@ function renderFavorites() {
       }
     });
 
-    // Info extra: shift+enter remove favorito
     li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
 
     favoritesListEl.appendChild(li);
   });
+
   updateThemeColors();
 }
 
