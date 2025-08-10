@@ -266,7 +266,10 @@ function renderFavorites() {
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
-    removeBtn.title = "Remover dos favoritos";
+    removeBtn.title = `Remover ${city} dos favoritos`;
+    removeBtn.setAttribute("role", "button");
+    removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
+    removeBtn.setAttribute("tabindex", "0");
     Object.assign(removeBtn.style, {
       marginLeft: "8px",
       cursor: "pointer",
@@ -276,7 +279,8 @@ function renderFavorites() {
       fontWeight: "bold",
       fontSize: "1.2rem",
       lineHeight: "1",
-      padding: "0"
+      padding: "0",
+      outlineOffset: "2px",
     });
 
     removeBtn.addEventListener("click", e => {
