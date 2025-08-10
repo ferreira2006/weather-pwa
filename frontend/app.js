@@ -19,8 +19,6 @@ const favoritesListEl = document.getElementById("favorites-list");
 
 const maxHistoryItems = 5;
 
-let debounceTimeout = null;
-
 // --- BACKGROUND DINÂMICO POR CLIMA ---
 function setDynamicBackground(mainWeather) {
   const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
@@ -115,7 +113,6 @@ function showWeather(data) {
     Vento: ${data.wind.speed} m/s
   `;
 
-  // Atualiza ícone e background
   const mainWeather = data.weather[0].main.toLowerCase();
   iconEl.className = "weather-icon"; // limpa classes
   if (mainWeather.includes("clear")) iconEl.classList.add("clear");
@@ -318,13 +315,7 @@ cityInput.addEventListener("keydown", e => {
   }
 });
 
-cityInput.addEventListener("input", () => {
-  clearTimeout(debounceTimeout);
-  debounceTimeout = setTimeout(() => {
-    const city = cityInput.value.trim();
-    if (city) handleCitySelect(city);
-  }, 500);
-});
+// removido debounce do input!
 
 favBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
