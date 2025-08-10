@@ -233,12 +233,13 @@ function saveFavorites(favorites) {
 function addFavorite(city) {
   let favorites = getFavorites();
   if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
-    alert(`"${city}" já está nos favoritos.`);
+    showToast(`"${city}" já está nos favoritos.`);
     return;
   }
   favorites.push(city);
   saveFavorites(favorites);
   renderFavorites();
+  showToast(`"${city}" adicionado aos favoritos!`);
 }
 
 function removeFavorite(city) {
@@ -246,6 +247,7 @@ function removeFavorite(city) {
   favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
   saveFavorites(favorites);
   renderFavorites();
+  showToast(`"${city}" removido dos favoritos.`);
 }
 
 // --- FAVORITOS ---
