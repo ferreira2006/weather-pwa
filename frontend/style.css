@@ -14,16 +14,14 @@
   --text-color-dark: #ddd;
 
   --input-text-light: #000000;
-  --input-text-dark: #cfd8dc;
-
-  --input-bg-light: rgba(255 255 255 / 0.9);
-  --input-bg-dark: rgba(255 255 255 / 0.1);
+  --input-text-dark: #37474f;
 
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
 
+  --input-bg: rgba(255 255 255 / 0.9);
   --input-border-focus: var(--button-bg);
 }
 
@@ -35,13 +33,6 @@ body.light {
 
 body.light input[type="text"] {
   color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-  border: 1px solid transparent;
-}
-
-body.light input[type="text"]:focus {
-  background-color: #fff;
-  color: #000;
 }
 
 /* Tema escuro */
@@ -51,13 +42,6 @@ body.dark {
 }
 
 body.dark input[type="text"] {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
-  border: 1px solid transparent;
-}
-
-body.dark input[type="text"]:focus {
-  background-color: rgba(255 255 255 / 0.15);
   color: var(--input-text-dark);
 }
 
@@ -131,8 +115,10 @@ input[type="text"] {
   padding: 12px 15px;
   font-size: 1rem;
   border-radius: 8px;
+  border: 1px solid transparent;
   outline: none;
-  transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
+  background-color: var(--input-bg);
+  transition: box-shadow 0.3s, border-color 0.3s, color 0.3s;
 }
 
 input[type="text"]::placeholder {
@@ -143,6 +129,8 @@ input[type="text"]::placeholder {
 input[type="text"]:focus {
   box-shadow: 0 0 8px var(--button-bg);
   border-color: var(--input-border-focus);
+  background-color: #fff;
+  color: #000;
 }
 
 button#search-btn,
@@ -193,13 +181,7 @@ input[type="text"]:focus {
   align-items: center;
   position: relative;
   min-height: 260px;
-  transition: background 0.75s ease, color 0.75s ease;
-  color: inherit;
-}
-
-body.dark #weather {
-  background: rgba(255 255 255 / 0.1);
-  box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
+  transition: background 0.75s ease;
 }
 
 .weather-icon {
@@ -319,16 +301,10 @@ body.dark #weather {
   width: 100%;
   text-align: center;
   user-select: none;
-  transition: background-color 0.3s, color 0.3s;
 }
 
-body.dark #error-message {
-  background-color: #8b0000;
-  color: #ffc4c4;
-}
-
-#history-section,
-#favorites-section {
+/* Estilo do histórico */
+#history-section {
   width: 100%;
   max-width: 600px;
   margin-bottom: 20px;
@@ -337,24 +313,15 @@ body.dark #error-message {
   padding: 10px 20px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
   color: inherit;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.dark #history-section,
-body.dark #favorites-section {
-  background: rgba(255 255 255 / 0.1);
-  box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
-}
-
-#history-section h3,
-#favorites-section h3 {
+#history-section h3 {
   margin: 0 0 10px 0;
   font-weight: 600;
   font-size: 1.2rem;
 }
 
-#history-list,
-#favorites-list {
+#history-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -363,8 +330,7 @@ body.dark #favorites-section {
   gap: 10px;
 }
 
-#history-list li,
-#favorites-list li {
+#history-list li {
   background: var(--button-bg);
   color: white;
   padding: 6px 12px;
@@ -375,7 +341,48 @@ body.dark #favorites-section {
 }
 
 #history-list li:hover,
-#history-list li:focus,
+#history-list li:focus {
+  background-color: var(--button-bg-hover);
+  outline: none;
+}
+
+/* Estilo da seção de favoritos */
+#favorites-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  background: rgba(255 255 255 / 0.15);
+  border-radius: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  color: inherit;
+}
+
+#favorites-section h3 {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+#favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#favorites-list li {
+  background: var(--button-bg);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
 #favorites-list li:hover,
 #favorites-list li:focus {
   background-color: var(--button-bg-hover);
