@@ -269,27 +269,27 @@ body.dark #weather {
 }
 
 .weather-icon.clear {
-  background-image: url('icons/wi-day-sunny.svg');
+  background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 120s linear infinite;
 }
 
 .weather-icon.clouds {
-  background-image: url('icons/wi-cloudy.svg');
+  background-image: url('../icons/wi-cloudy.svg');
   animation: floatClouds 20s ease-in-out infinite;
 }
 
 .weather-icon.rain {
-  background-image: url('icons/wi-rain.svg');
+  background-image: url('../icons/wi-rain.svg');
   animation: rainAnim 3s linear infinite;
 }
 
 .weather-icon.thunderstorm {
-  background-image: url('icons/wi-thunderstorm.svg');
+  background-image: url('../icons/wi-thunderstorm.svg');
   animation: thunderAnim 2s ease-in-out infinite alternate;
 }
 
 .weather-icon.snow {
-  background-image: url('icons/wi-snow.svg');
+  background-image: url('../icons/wi-snow.svg');
   animation: snowAnim 15s linear infinite;
 }
 
