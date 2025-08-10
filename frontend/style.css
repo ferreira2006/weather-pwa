@@ -133,7 +133,8 @@ input[type="text"]:focus {
   color: #000;
 }
 
-button#search-btn {
+button#search-btn,
+button#fav-btn {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
@@ -147,7 +148,9 @@ button#search-btn {
 }
 
 button#search-btn:hover:not(:disabled),
-button#search-btn:focus:not(:disabled) {
+button#search-btn:focus:not(:disabled),
+button#fav-btn:hover,
+button#fav-btn:focus {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
@@ -339,6 +342,49 @@ input[type="text"]:focus {
 
 #history-list li:hover,
 #history-list li:focus {
+  background-color: var(--button-bg-hover);
+  outline: none;
+}
+
+/* Estilo da seção de favoritos */
+#favorites-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+  background: rgba(255 255 255 / 0.15);
+  border-radius: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  color: inherit;
+}
+
+#favorites-section h3 {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+#favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#favorites-list li {
+  background: var(--button-bg);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
+#favorites-list li:hover,
+#favorites-list li:focus {
   background-color: var(--button-bg-hover);
   outline: none;
 }
