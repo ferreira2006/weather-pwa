@@ -163,7 +163,7 @@ async function fetchWeather(city) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    favBtn.disabled = false;
+    updateFavBtnState();
   }
 }
 
@@ -185,7 +185,7 @@ async function fetchByCoords(lat, lon) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    favBtn.disabled = false;
+    updateFavBtnState();
   }
 }
 
@@ -250,7 +250,6 @@ function removeFavorite(city) {
   showToast(`"${city}" removido dos favoritos.`);
 }
 
-// --- FAVORITOS ---
 function renderFavorites() {
   const favorites = getFavorites();
   favoritesListEl.innerHTML = "";
@@ -259,14 +258,12 @@ function renderFavorites() {
     const li = document.createElement("li");
     li.tabIndex = 0;
 
-    // Span com o nome da cidade (clicável para buscar)
     const citySpan = document.createElement("span");
     citySpan.textContent = city;
     citySpan.style.cursor = "pointer";
     citySpan.title = "Clique para buscar";
     citySpan.addEventListener("click", () => handleCitySelect(city));
 
-    // Botão remover favorito "×"
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
     removeBtn.title = "Remover dos favoritos";
@@ -282,13 +279,11 @@ function renderFavorites() {
       padding: "0"
     });
 
-    // Evento para remover favorito ao clicar no botão
     removeBtn.addEventListener("click", e => {
-      e.stopPropagation(); // evita disparar click no li
+      e.stopPropagation();
       removeFavorite(city);
     });
 
-    // Remove favorito via teclado: Delete, Backspace ou Shift+Enter no li
     li.addEventListener("keydown", e => {
       if (["Delete", "Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) {
         e.preventDefault();
@@ -320,6 +315,12 @@ async function handleCitySelect(city) {
   }
 }
 
+// --- Atualiza o estado do botão Favoritos ---
+function updateFavBtnState() {
+  const city = cityInput.value.trim();
+  favBtn.disabled = city === '' || searchBtn.disabled;
+}
+
 // --- EVENTOS ---
 searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
@@ -333,19 +334,11 @@ cityInput.addEventListener("keydown", e => {
   }
 });
 
-// >>>> Desabilita botão se input vazio
-favBtn.disabled = cityInput.value.trim() === "";
-
-// >>>> Atualiza o estado do botão quando o input mudar
-cityInput.addEventListener("input", () => {
-  favBtn.disabled = cityInput.value.trim() === "";
-});
-
-// removido debounce do input!
+cityInput.addEventListener("input", updateFavBtnState);
 
 favBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (!city) return; // alerta removido pois o botão já fica desabilitado
+  if (!city) return;
   addFavorite(city);
 });
 
@@ -359,6 +352,8 @@ window.onload = () => {
   applySavedTheme();
   renderHistory();
   renderFavorites();
+
+  updateFavBtnState();
 
   const lastCity = localStorage.getItem("lastCity");
 
