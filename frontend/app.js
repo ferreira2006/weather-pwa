@@ -23,22 +23,18 @@ const favoritesListEl = document.getElementById("favorites-list");
 function updateThemeColors() {
   const isDark = document.body.classList.contains("dark");
   
-  // Inputs
   cityInput.style.color = isDark ? getComputedStyle(document.documentElement).getPropertyValue('--input-text-dark') : getComputedStyle(document.documentElement).getPropertyValue('--input-text-light');
   cityInput.style.backgroundColor = isDark ? 'rgba(255 255 255 / 0.1)' : 'rgba(255 255 255 / 0.9)';
   
-  // Botão buscar
   searchBtn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
   searchBtn.style.color = isDark ? '#ddd' : '#fff';
 
-  // Histórico - itens
   const historyItems = historyListEl.querySelectorAll('li');
   historyItems.forEach(li => {
     li.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
     li.style.color = isDark ? '#ddd' : '#fff';
   });
 
-  // Favoritos (se existir)
   if (favoritesListEl) {
     const favItems = favoritesListEl.querySelectorAll('li');
     favItems.forEach(li => {
@@ -47,16 +43,24 @@ function updateThemeColors() {
     });
   }
 
-  // Detalhes do clima
   detailsEl.style.color = isDark ? '#ddd' : '#000';
 
-  // Erro
   errorMessageDiv.style.color = isDark ? '#ffbaba' : '#b00000';
   errorMessageDiv.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
 
-  // Theme toggle button (texto e borda)
   themeToggle.style.color = isDark ? '#ddd' : '#000';
   themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
+}
+
+// Atualiza texto e aria-pressed do botão de tema
+function updateThemeToggleButton() {
+  if (document.body.classList.contains("dark")) {
+    themeToggle.textContent = "Modo Claro";
+    themeToggle.setAttribute("aria-pressed", "true");
+  } else {
+    themeToggle.textContent = "Modo Escuro";
+    themeToggle.setAttribute("aria-pressed", "false");
+  }
 }
 
 // Aplica tema salvo ou padrão "light"
@@ -65,22 +69,39 @@ function applySavedTheme() {
   if (savedTheme === "dark") {
     document.body.classList.add("dark");
     document.body.classList.remove("light");
-    themeToggle.textContent = "Modo Claro";
-    themeToggle.setAttribute("aria-pressed", "true");
   } else {
     document.body.classList.add("light");
     document.body.classList.remove("dark");
-    themeToggle.textContent = "Modo Escuro";
-    themeToggle.setAttribute("aria-pressed", "false");
   }
   updateThemeColors();
+  updateThemeToggleButton();
+
   // Atualiza o background inicial de acordo com tema e clima atual
   if (weatherDiv.style.display !== "none") {
-    // Tenta pegar o clima atual para atualizar fundo
     const mainWeather = iconEl.className.replace("weather-icon", "").trim().toLowerCase();
     if (mainWeather) setDynamicBackground(mainWeather);
   } else {
-    // Sem clima, só fundo padrão
+    setDynamicBackground("clear");
+  }
+}
+
+// Alterna o tema ao clicar no botão
+function toggleTheme() {
+  if (document.body.classList.contains("light")) {
+    document.body.classList.replace("light", "dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.body.classList.replace("dark", "light");
+    localStorage.setItem("theme", "light");
+  }
+  updateThemeColors();
+  updateThemeToggleButton();
+
+  // Atualiza background conforme tema atual e clima
+  if (weatherDiv.style.display !== "none") {
+    const mainWeather = iconEl.className.replace("weather-icon", "").trim().toLowerCase();
+    if (mainWeather) setDynamicBackground(mainWeather);
+  } else {
     setDynamicBackground("clear");
   }
 }
@@ -363,20 +384,7 @@ favBtn.addEventListener("click", () => {
   addFavorite(city);
 });
 
-themeToggle.addEventListener("click", () => {
-  if (document.body.classList.contains("light")) {
-    document.body.classList.replace("light", "dark");
-    themeToggle.textContent = "Modo Claro";
-    themeToggle.setAttribute("aria-pressed", "true");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.body.classList.replace("dark", "light");
-    themeToggle.textContent = "Modo Escuro";
-    themeToggle.setAttribute("aria-pressed", "false");
-    localStorage.setItem("theme", "light");
-  }
-  updateThemeColors();
-});
+themeToggle.addEventListener("click", toggleTheme);
 
 // Seleciona todo o texto do input ao receber foco
 cityInput.addEventListener('focus', (event) => {
@@ -402,12 +410,10 @@ window.onload = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
       () => {
-        // Usuário negou ou erro - carrega cidade padrão
         handleCitySelect("São Miguel do Oeste");
       }
     );
   } else {
-    // Sem geolocalização suportada - carrega cidade padrão
     handleCitySelect("São Miguel do Oeste");
   }
 };
