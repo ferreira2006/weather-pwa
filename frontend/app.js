@@ -106,43 +106,6 @@ function toggleTheme() {
   }
 }
 
-// Formata horário do UNIX timestamp + timezone
-function formatTime(timestamp, timezone) {
-  const date = new Date((timestamp + timezone) * 1000);
-  return date.toUTCString().match(/(\d{2}:\d{2}:\d{2})/)[0];
-}
-
-// Atualiza o background conforme clima e tema
-function setDynamicBackground(mainWeather) {
-  const body = document.body;
-  const theme = body.classList.contains("dark") ? "dark" : "light";
-
-  const gradients = {
-    light: {
-      clear: "var(--bg-gradient-light-clear)",
-      clouds: "var(--bg-gradient-light-clouds)",
-      rain: "var(--bg-gradient-light-rain)",
-      drizzle: "var(--bg-gradient-light-rain)",
-      thunderstorm: "var(--bg-gradient-light-thunderstorm)",
-      snow: "var(--bg-gradient-light-snow)",
-    },
-    dark: {
-      clear: "var(--bg-gradient-dark-clear)",
-      clouds: "var(--bg-gradient-dark-clouds)",
-      rain: "var(--bg-gradient-dark-rain)",
-      drizzle: "var(--bg-gradient-dark-rain)",
-      thunderstorm: "var(--bg-gradient-dark-thunderstorm)",
-      snow: "var(--bg-gradient-dark-snow)",
-    },
-  };
-
-  const weatherKey = mainWeather.toLowerCase();
-  const gradient = gradients[theme][weatherKey] || gradients[theme].clear;
-
-  body.style.background = gradient;
-  body.style.transition = "background 0.75s ease";
-}
-
 // Exibe os dados do clima na tela
 function showWeather(data) {
   errorMessageDiv.style.display = "none";
