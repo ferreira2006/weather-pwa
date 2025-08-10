@@ -31,6 +31,7 @@
 body.light {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
+  transition: background 0.75s ease, color 0.75s ease;
 }
 
 body.light input[type="text"] {
@@ -48,6 +49,7 @@ body.light input[type="text"]:focus {
 body.dark {
   background: var(--bg-gradient-dark-clear);
   color: var(--text-color-dark);
+  transition: background 0.75s ease, color 0.75s ease;
 }
 
 body.dark input[type="text"] {
@@ -70,7 +72,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.75s ease, color 0.75s ease;
+  /* transitions já no tema */
 }
 
 header {
@@ -492,4 +494,3 @@ body,
 html {
   overflow-x: hidden;
 }
-
