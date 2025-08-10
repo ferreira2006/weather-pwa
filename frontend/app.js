@@ -35,6 +35,17 @@ function setDynamicBackground(mainWeather) {
   document.body.classList.add(`bg-${weatherKey}`);
 }
 
+const toast = document.getElementById("toast");
+
+function showToast(message, duration = 3000) {
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, duration);
+}
+
 // --- TEMAS ---
 function updateThemeColors() {
   const rootStyles = getComputedStyle(document.documentElement);
