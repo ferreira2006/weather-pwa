@@ -16,6 +16,9 @@ const themeToggle = document.getElementById("theme-toggle");
 const historyListEl = document.getElementById("history-list");
 const maxHistoryItems = 5; // Máximo de cidades no histórico
 
+const favBtn = document.getElementById("fav-btn");
+const favoritesListEl = document.getElementById("favorites-list");
+
 // Aplica tema salvo ou padrão "light"
 function applySavedTheme() {
   const savedTheme = localStorage.getItem("theme");
@@ -62,37 +65,47 @@ function setDynamicBackground(mainWeather) {
     },
   };
 
-  const grad = gradients[theme][mainWeather.toLowerCase()] || gradients[theme].clear;
-  body.style.background = grad;
+  const weatherKey = mainWeather.toLowerCase();
+  const gradient = gradients[theme][weatherKey] || gradients[theme].clear;
+
+  body.style.background = gradient;
+  body.style.transition = "background 0.75s ease";
 }
 
-// Atualiza o ícone do clima
-function updateIcon(mainWeather) {
-  const weatherClass = mainWeather.toLowerCase();
-  iconEl.className = "weather-icon " + weatherClass;
-}
-
-// Exibe o clima na tela
-function displayWeather(data) {
+// Exibe os dados do clima na tela
+function showWeather(data) {
   errorMessageDiv.style.display = "none";
-  weatherDiv.style.display = "grid";
-  weatherDiv.focus();
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
-  tempEl.textContent = Math.round(data.main.temp) + "°C";
+  tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
   descEl.textContent = data.weather[0].description;
 
+  const feelsLike = Math.round(data.main.feels_like);
+  const humidity = data.main.humidity;
+  const windSpeed = data.wind.speed;
+
   detailsEl.innerHTML = `
-    Vento: ${data.wind.speed} m/s<br/>
-    Umidade: ${data.main.humidity}%<br/>
-    Pressão: ${data.main.pressure} hPa<br/>
-    Visibilidade: ${(data.visibility / 1000).toFixed(1)} km<br/>
-    Nascer do sol: ${formatTime(data.sys.sunrise, data.timezone)}<br/>
-    Pôr do sol: ${formatTime(data.sys.sunset, data.timezone)}
+    Sensação: ${feelsLike}ºC<br/>
+    Umidade: ${humidity}%<br/>
+    Vento: ${windSpeed} m/s
   `;
 
-  updateIcon(data.weather[0].main);
-  setDynamicBackground(data.weather[0].main);
+  // Ícone
+  const mainWeather = data.weather[0].main.toLowerCase();
+
+  iconEl.className = "weather-icon"; // reset classes
+
+  if (mainWeather.includes("clear")) iconEl.classList.add("clear");
+  else if (mainWeather.includes("cloud")) iconEl.classList.add("clouds");
+  else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) iconEl.classList.add("rain");
+  else if (mainWeather.includes("thunderstorm")) iconEl.classList.add("thunderstorm");
+  else if (mainWeather.includes("snow")) iconEl.classList.add("snow");
+  else iconEl.classList.add("clear");
+
+  setDynamicBackground(mainWeather);
+
+  weatherDiv.style.display = "grid";
+  weatherDiv.focus();
 }
 
 // Exibe mensagem de erro
@@ -101,144 +114,166 @@ function showError(message) {
   errorMessageDiv.textContent = message;
   errorMessageDiv.style.display = "block";
   errorMessageDiv.focus();
-  cityInput.focus();
 }
 
-// Histórico: carrega do localStorage e exibe
-function loadHistory() {
-  const history = JSON.parse(localStorage.getItem("cityHistory")) || [];
+// Faz a busca do clima pela cidade
+async function fetchWeather(city) {
+  spinner.style.display = "block";
+  searchBtn.disabled = true;
+  favBtn.disabled = true;
+  errorMessageDiv.style.display = "none";
+
+  try {
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
+    if (!res.ok) throw new Error("Cidade não encontrada");
+    const data = await res.json();
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    favBtn.disabled = false;
+    return data;
+  } catch (err) {
+    spinner.style.display = "none";
+    searchBtn.disabled = false;
+    favBtn.disabled = false;
+    throw err;
+  }
+}
+
+// Histórico em localStorage
+function getHistory() {
+  const history = JSON.parse(localStorage.getItem("weatherHistory")) || [];
+  return history;
+}
+
+function saveHistory(city) {
+  let history = getHistory();
+  // Remove se já existir
+  history = history.filter((c) => c.toLowerCase() !== city.toLowerCase());
+  // Adiciona no topo
+  history.unshift(city);
+  if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
+  localStorage.setItem("weatherHistory", JSON.stringify(history));
+}
+
+function renderHistory() {
+  const history = getHistory();
   historyListEl.innerHTML = "";
-  history.forEach(city => {
+  history.forEach((city) => {
     const li = document.createElement("li");
     li.tabIndex = 0;
     li.textContent = city;
-    li.addEventListener("click", () => {
-      cityInput.value = city;
-      fetchWeather(city);
-    });
-    li.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
+    li.addEventListener("click", () => handleCitySelect(city));
+    li.addEventListener("keydown", e => {
+      if(e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        cityInput.value = city;
-        fetchWeather(city);
+        handleCitySelect(city);
       }
     });
     historyListEl.appendChild(li);
   });
 }
 
-// Histórico: adiciona cidade nova, evita duplicados e limita máximo
-function addToHistory(city) {
-  if (!city) return;
-  let history = JSON.parse(localStorage.getItem("cityHistory")) || [];
-
-  // Remove se já existir para reordenar
-  history = history.filter(item => item.toLowerCase() !== city.toLowerCase());
-
-  // Adiciona no início
-  history.unshift(city);
-
-  // Limita tamanho
-  if (history.length > maxHistoryItems) {
-    history = history.slice(0, maxHistoryItems);
-  }
-
-  localStorage.setItem("cityHistory", JSON.stringify(history));
-  loadHistory();
+// Favoritos em localStorage
+function getFavorites() {
+  return JSON.parse(localStorage.getItem("weatherFavorites")) || [];
 }
 
-// Busca o clima pela cidade
-async function fetchWeather(city) {
-  if (!city) return;
+function saveFavorites(favorites) {
+  localStorage.setItem("weatherFavorites", JSON.stringify(favorites));
+}
 
-  searchBtn.disabled = true;
-  spinner.style.display = "block";
-  errorMessageDiv.style.display = "none";
+function addFavorite(city) {
+  let favorites = getFavorites();
+  if (favorites.find((c) => c.toLowerCase() === city.toLowerCase())) {
+    alert(`"${city}" já está nos favoritos.`);
+    return;
+  }
+  favorites.push(city);
+  saveFavorites(favorites);
+  renderFavorites();
+}
 
+function removeFavorite(city) {
+  let favorites = getFavorites();
+  favorites = favorites.filter((c) => c.toLowerCase() !== city.toLowerCase());
+  saveFavorites(favorites);
+  renderFavorites();
+}
+
+function renderFavorites() {
+  const favorites = getFavorites();
+  favoritesListEl.innerHTML = "";
+  favorites.forEach((city) => {
+    const li = document.createElement("li");
+    li.tabIndex = 0;
+    li.textContent = city;
+
+    // Clique simples busca o clima
+    li.addEventListener("click", () => handleCitySelect(city));
+
+    // Clique com Shift remove dos favoritos
+    li.addEventListener("keydown", (e) => {
+      if ((e.key === "Delete" || e.key === "Backspace") || (e.key === "Enter" && e.shiftKey)) {
+        e.preventDefault();
+        removeFavorite(city);
+      }
+    });
+
+    // Info extra: shift+enter remove favorito
+    li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
+
+    favoritesListEl.appendChild(li);
+  });
+}
+
+// Quando seleciona uma cidade para buscar clima
+async function handleCitySelect(city) {
+  cityInput.value = city;
   try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    if (!res.ok) throw new Error("Cidade não encontrada");
-    const data = await res.json();
-    displayWeather(data);
-    addToHistory(city); // Atualiza histórico
-    localStorage.setItem("lastCity", city);
+    const data = await fetchWeather(city);
+    showWeather(data);
+    saveHistory(city);
+    renderHistory();
   } catch (err) {
-    showError(err.message);
-  } finally {
-    spinner.style.display = "none";
-    searchBtn.disabled = false;
-    cityInput.focus();
+    showError(err.message || "Erro ao buscar o clima");
   }
 }
 
-// Busca pelo clima por coordenadas
-async function fetchByCoords(lat, lon) {
-  searchBtn.disabled = true;
-  spinner.style.display = "block";
-  errorMessageDiv.style.display = "none";
-  weatherDiv.style.display = "none";
-
-  try {
-    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}`);
-    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
-    const data = await res.json();
-    displayWeather(data);
-  } catch (err) {
-    showError(err.message);
-  } finally {
-    spinner.style.display = "none";
-    searchBtn.disabled = false;
-    cityInput.focus();
-  }
-}
-
-// Eventos para busca
+// Eventos
 searchBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (city) fetchWeather(city);
+  if (!city) return;
+  handleCitySelect(city);
 });
 
-cityInput.addEventListener("keypress", (e) => {
+cityInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
-    const city = cityInput.value.trim();
-    if (city) fetchWeather(city);
+    e.preventDefault();
+    searchBtn.click();
   }
 });
 
-// Toggle tema claro/escuro
+favBtn.addEventListener("click", () => {
+  const city = cityInput.value.trim();
+  if (!city) return alert("Digite uma cidade para adicionar aos favoritos.");
+  addFavorite(city);
+});
+
 themeToggle.addEventListener("click", () => {
-  const isDark = document.body.classList.toggle("dark");
-  document.body.classList.toggle("light", !isDark);
-
-  themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
-  themeToggle.setAttribute("aria-pressed", isDark);
-
-  localStorage.setItem("theme", isDark ? "dark" : "light");
-
-  if (weatherDiv.style.display !== "none") {
-    const mainWeather = descEl.textContent.split(" ")[0];
-    setDynamicBackground(mainWeather);
+  if (document.body.classList.contains("light")) {
+    document.body.classList.replace("light", "dark");
+    themeToggle.textContent = "Modo Claro";
+    themeToggle.setAttribute("aria-pressed", "true");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.body.classList.replace("dark", "light");
+    themeToggle.textContent = "Modo Escuro";
+    themeToggle.setAttribute("aria-pressed", "false");
+    localStorage.setItem("theme", "light");
   }
 });
 
-// Seleciona o conteúdo do input ao focar para facilitar edição
-cityInput.addEventListener("focus", () => {
-  cityInput.select();
-});
-
-// Ao carregar, aplica tema salvo, carrega histórico e última cidade ou localização atual
-window.onload = () => {
-  applySavedTheme();
-  loadHistory();
-
-  const lastCity = localStorage.getItem("lastCity");
-  if (lastCity) {
-    cityInput.value = lastCity;
-    fetchWeather(lastCity);
-  } else if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => {}
-    );
-  }
-};
+// Inicialização
+applySavedTheme();
+renderHistory();
+renderFavorites();
