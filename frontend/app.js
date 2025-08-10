@@ -19,6 +19,8 @@ const maxHistoryItems = 5;
 const favBtn = document.getElementById("fav-btn");
 const favoritesListEl = document.getElementById("favorites-list");
 
+let debounceTimeout; // <-- Variável para debounce
+
 // Atualiza o background do body conforme o clima e tema
 function setDynamicBackground(mainWeather) {
   // Limpa classes antigas de background
@@ -366,6 +368,17 @@ cityInput.addEventListener("keydown", (e) => {
     e.preventDefault();
     searchBtn.click();
   }
+});
+
+// Debounce no input para busca automática 500ms após parar de digitar
+cityInput.addEventListener("input", () => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    const city = cityInput.value.trim();
+    if (city) {
+      handleCitySelect(city);
+    }
+  }, 500);
 });
 
 favBtn.addEventListener("click", () => {
