@@ -237,6 +237,7 @@ function removeFavorite(city) {
   renderFavorites();
 }
 
+// --- FAVORITOS ---
 function renderFavorites() {
   const favorites = getFavorites();
   favoritesListEl.innerHTML = "";
@@ -245,12 +246,14 @@ function renderFavorites() {
     const li = document.createElement("li");
     li.tabIndex = 0;
 
+    // Span com o nome da cidade (clicável para buscar)
     const citySpan = document.createElement("span");
     citySpan.textContent = city;
     citySpan.style.cursor = "pointer";
     citySpan.title = "Clique para buscar";
     citySpan.addEventListener("click", () => handleCitySelect(city));
 
+    // Botão remover favorito "×"
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
     removeBtn.title = "Remover dos favoritos";
@@ -265,14 +268,14 @@ function renderFavorites() {
       lineHeight: "1",
       padding: "0"
     });
+
+    // Evento para remover favorito ao clicar no botão
     removeBtn.addEventListener("click", e => {
-      e.stopPropagation();
+      e.stopPropagation(); // evita disparar click no li
       removeFavorite(city);
     });
 
-    li.appendChild(citySpan);
-    li.appendChild(removeBtn);
-
+    // Remove favorito via teclado: Delete, Backspace ou Shift+Enter no li
     li.addEventListener("keydown", e => {
       if (["Delete", "Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) {
         e.preventDefault();
@@ -282,6 +285,8 @@ function renderFavorites() {
 
     li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
 
+    li.appendChild(citySpan);
+    li.appendChild(removeBtn);
     favoritesListEl.appendChild(li);
   });
 
