@@ -35,13 +35,6 @@ body.light input[type="text"] {
   color: var(--input-text-light);
 }
 
-body.light input[type="text"]:focus {
-  background-color: #fff;
-  color: var(--input-text-light);
-  box-shadow: 0 0 8px var(--button-bg);
-  border-color: var(--input-border-focus);
-}
-
 /* Tema escuro */
 body.dark {
   background: var(--bg-gradient-dark-clear);
@@ -50,13 +43,6 @@ body.dark {
 
 body.dark input[type="text"] {
   color: var(--input-text-dark);
-}
-
-body.dark input[type="text"]:focus {
-  background-color: #444;
-  color: var(--input-text-dark);
-  box-shadow: 0 0 8px var(--button-bg);
-  border-color: var(--input-border-focus);
 }
 
 /* Corpo geral */
@@ -114,6 +100,16 @@ main {
   align-items: center;
 }
 
+/* Espaçamento entre seções no main - Favoritos, Card Clima, Histórico */
+main > section {
+  margin-bottom: 30px;
+}
+
+/* Remove margem extra do último item */
+main > section:last-child {
+  margin-bottom: 0;
+}
+
 #search-box {
   display: flex;
   gap: 10px;
@@ -133,14 +129,18 @@ input[type="text"] {
   outline: none;
   background-color: var(--input-bg);
   transition: box-shadow 0.3s, border-color 0.3s, color 0.3s;
-  pointer-events: auto;
-  user-select: text;
-  cursor: text;
 }
 
 input[type="text"]::placeholder {
   color: #666;
   opacity: 1;
+}
+
+input[type="text"]:focus {
+  box-shadow: 0 0 8px var(--button-bg);
+  border-color: var(--input-border-focus);
+  background-color: #fff;
+  color: #000;
 }
 
 button#search-btn,
@@ -178,10 +178,12 @@ input[type="text"]:focus {
   transition: outline-color 0.3s ease;
 }
 
+/* Card do clima */
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
   padding: 20px;
+  padding-bottom: 30px; /* espaço extra inferior */
   width: 100%;
   max-width: 600px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.25);
@@ -403,6 +405,7 @@ input[type="text"]:focus {
   #weather {
     grid-template-columns: 1fr;
     min-height: auto;
+    padding-bottom: 25px; /* ajuste menor no mobile */
   }
   .weather-icon {
     margin-bottom: 15px;
@@ -413,5 +416,8 @@ input[type="text"]:focus {
   }
   .desc {
     font-size: 1.2rem;
+  }
+  main > section {
+    margin-bottom: 25px;
   }
 }
