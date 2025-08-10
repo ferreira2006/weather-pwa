@@ -408,3 +408,88 @@ body.dark #favorites-section {
     padding: 10px 18px;
   }
 }
+
+/* -------- RESPONSIVIDADE E USABILIDADE MÓVEL -------- */
+
+@media (max-width: 600px) {
+
+  /* Botões Buscar e Favoritos: ocupar largura flexível, padding maior */
+  #search-box {
+    gap: 12px;
+  }
+
+  button#search-btn,
+  button#fav-btn {
+    min-width: auto;
+    flex: 1 1 45%;
+    padding: 14px 0;
+    font-size: 1.1rem;
+  }
+
+  /* Spinner: centralizar no card de clima */
+  #spinner {
+    bottom: 50%;
+    right: 50%;
+    transform: translate(50%, 50%);
+  }
+
+  /* Aumenta espaçamento vertical entre seções dentro do main */
+  main > * {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 450px) {
+  /* Empilhar a caixa de busca em coluna para melhor uso no celular */
+  #search-box {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  #search-box input[type="text"],
+  #search-box button {
+    width: 100%;
+    min-width: auto;
+    flex: none;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Histórico e Favoritos empilhados e botões maiores */
+  #history-list,
+  #favorites-list {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #history-list li,
+  #favorites-list li {
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 1.1rem;
+  }
+}
+
+/* Feedback visual ao toque */
+button:active,
+#history-list li:active,
+#favorites-list li:active {
+  filter: brightness(0.85);
+  transition: filter 0.1s;
+}
+
+/* Aumentar contraste do placeholder em mobile */
+@media (max-width: 600px) {
+  input[type="text"]::placeholder {
+    color: #444;
+  }
+}
+
+/* Evitar scroll horizontal */
+body,
+html {
+  overflow-x: hidden;
+}
+
