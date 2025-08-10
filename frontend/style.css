@@ -4,32 +4,120 @@
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
   --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
-  --text-color-light: #fff;
+  --text-color-light: #000000;
   --text-color-dark: #ddd;
+
+  --input-text-light: #000000;
+  --input-text-dark: #cfd8dc;
+
+  --input-bg-light: rgba(255 255 255 / 0.9);
+  --input-bg-dark: rgba(255 255 255 / 0.1);
 
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
+
+  --input-border-focus: var(--button-bg);
 }
 
-body.light {
+/* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
+body.light.bg-clear {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
 }
 
-body.dark {
+body.light.bg-clouds {
+  background: var(--bg-gradient-light-clouds);
+  color: var(--text-color-light);
+}
+
+body.light.bg-rain {
+  background: var(--bg-gradient-light-rain);
+  color: var(--text-color-light);
+}
+
+body.light.bg-thunderstorm {
+  background: var(--bg-gradient-light-thunderstorm);
+  color: var(--text-color-light);
+}
+
+body.light.bg-snow {
+  background: var(--bg-gradient-light-snow);
+  color: var(--text-color-light);
+}
+
+body.dark.bg-clear {
   background: var(--bg-gradient-dark-clear);
   color: var(--text-color-dark);
 }
 
+body.dark.bg-clouds {
+  background: var(--bg-gradient-dark-clouds);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-rain {
+  background: var(--bg-gradient-dark-rain);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-thunderstorm {
+  background: var(--bg-gradient-dark-thunderstorm);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-snow {
+  background: var(--bg-gradient-dark-snow);
+  color: var(--text-color-dark);
+}
+
+/* Transição suave para fundo e texto */
+body {
+  transition: background 0.75s ease, color 0.75s ease;
+}
+
+/* Tema claro base */
+body.light {
+  /* Removido background fixo para deixar controle via classes dinâmicas */
+  color: var(--text-color-light);
+}
+
+body.light input[type="text"] {
+  color: var(--input-text-light);
+  background-color: var(--input-bg-light);
+  border: 1px solid transparent;
+}
+
+body.light input[type="text"]:focus {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Tema escuro base */
+body.dark {
+  /* Removido background fixo para deixar controle via classes dinâmicas */
+  color: var(--text-color-dark);
+}
+
+body.dark input[type="text"] {
+  color: var(--input-text-dark);
+  background-color: var(--input-bg-dark);
+  border: 1px solid transparent;
+}
+
+body.dark input[type="text"]:focus {
+  background-color: rgba(255 255 255 / 0.15);
+  color: var(--input-text-dark);
+}
+
+/* Corpo geral */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -38,7 +126,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.5s ease, color 0.5s ease;
 }
 
 header {
@@ -60,17 +147,20 @@ h1 {
   background: transparent;
   border: 2px solid currentColor;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 8px 16px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s;
   color: inherit;
+  user-select: none;
 }
 
-#theme-toggle:hover {
+#theme-toggle:hover,
+#theme-toggle:focus {
   background-color: var(--button-bg);
   color: white;
   border-color: var(--button-bg);
+  outline: none;
 }
 
 main {
@@ -79,6 +169,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 25px;
 }
 
 #search-box {
@@ -86,41 +177,51 @@ main {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  margin-bottom: 20px;
+  margin-top: 20px;
   width: 100%;
 }
 
 input[type="text"] {
   flex: 1;
   min-width: 150px;
-  padding: 10px;
+  padding: 12px 15px;
   font-size: 1rem;
   border-radius: 8px;
-  border: none;
   outline: none;
-  transition: box-shadow 0.3s, border-color 0.3s;
+  transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
+}
+
+input[type="text"]::placeholder {
+  color: #666;
+  opacity: 1;
 }
 
 input[type="text"]:focus {
-  box-shadow: 0 0 6px var(--button-bg);
-  border: 1px solid var(--button-bg);
+  box-shadow: 0 0 8px var(--button-bg);
+  border-color: var(--input-border-focus);
 }
 
-button#search-btn {
-  padding: 10px 15px;
+button#search-btn,
+button#fav-btn {
+  padding: 12px 20px;
   border: none;
   border-radius: 8px;
   background-color: var(--button-bg);
   color: white;
   font-size: 1rem;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 110px;
   transition: background-color 0.3s, box-shadow 0.3s;
+  user-select: none;
 }
 
-button#search-btn:hover:not(:disabled) {
+button#search-btn:hover:not(:disabled),
+button#search-btn:focus:not(:disabled),
+button#fav-btn:hover,
+button#fav-btn:focus {
   background-color: var(--button-bg-hover);
-  box-shadow: 0 0 8px var(--button-shadow-hover);
+  box-shadow: 0 0 12px var(--button-shadow-hover);
+  outline: none;
 }
 
 button#search-btn:disabled {
@@ -128,20 +229,34 @@ button#search-btn:disabled {
   cursor: not-allowed;
 }
 
+button:focus,
+input[type="text"]:focus {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 2px;
+  transition: outline-color 0.3s ease;
+}
+
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px 30px;
   width: 100%;
   max-width: 600px;
-  box-shadow: 0 4px 8px rgb(0 0 0 / 0.2);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.25);
   display: grid;
   grid-template-columns: 100px 1fr;
-  grid-gap: 20px;
+  grid-gap: 25px;
   align-items: center;
   position: relative;
-  min-height: 250px;
-  transition: background 0.5s ease;
+  min-height: 260px;
+  transition: background 0.75s ease, color 0.75s ease;
+  color: inherit;
+  margin-bottom: 30px;
+}
+
+body.dark #weather {
+  background: rgba(255 255 255 / 0.1);
+  box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
 }
 
 .weather-icon {
@@ -153,39 +268,49 @@ button#search-btn:disabled {
   transition: background-image 0.5s ease;
 }
 
-/* Ícones simples como background-image local (você pode colocar na pasta icons) */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
-  animation: rotateSlow 60s linear infinite;
+  animation: rotateSlow 120s linear infinite;
 }
 
 .weather-icon.clouds {
   background-image: url('../icons/wi-cloudy.svg');
+  animation: floatClouds 20s ease-in-out infinite;
 }
 
 .weather-icon.rain {
   background-image: url('../icons/wi-rain.svg');
-  animation: rainAnim 2s linear infinite;
+  animation: rainAnim 3s linear infinite;
 }
 
 .weather-icon.thunderstorm {
   background-image: url('../icons/wi-thunderstorm.svg');
+  animation: thunderAnim 2s ease-in-out infinite alternate;
 }
 
 .weather-icon.snow {
   background-image: url('../icons/wi-snow.svg');
-  animation: snowAnim 10s linear infinite;
+  animation: snowAnim 15s linear infinite;
 }
 
-/* Animações simples */
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
+@keyframes floatClouds {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
 @keyframes rainAnim {
   0% { background-position: 0 0; }
   100% { background-position: 0 100%; }
+}
+
+@keyframes thunderAnim {
+  0% { filter: brightness(1); }
+  100% { filter: brightness(1.5); }
 }
 
 @keyframes snowAnim {
@@ -203,6 +328,7 @@ button#search-btn:disabled {
   font-size: 4rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1;
 }
 
 .desc {
@@ -210,6 +336,8 @@ button#search-btn:disabled {
   font-weight: 500;
   text-transform: capitalize;
   margin: 5px 0 15px 0;
+  font-style: italic;
+  color: inherit;
 }
 
 .details {
@@ -228,8 +356,9 @@ button#search-btn:disabled {
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
+  animation: spin 1.2s linear infinite;
   display: none;
+  z-index: 10;
 }
 
 @keyframes spin {
@@ -241,22 +370,85 @@ button#search-btn:disabled {
   max-width: 600px;
   background-color: #5c0000;
   color: #ffbaba;
-  padding: 10px;
+  padding: 14px;
   border-radius: 8px;
-  font-weight: bold;
+  font-weight: 700;
   width: 100%;
   text-align: center;
+  user-select: none;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Responsividade */
+body.dark #error-message {
+  background-color: #8b0000;
+  color: #ffc4c4;
+}
+
+#history-section,
+#favorites-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 30px;
+  background: rgba(255 255 255 / 0.15);
+  border-radius: 12px;
+  padding: 10px 20px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  color: inherit;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark #history-section,
+body.dark #favorites-section {
+  background: rgba(255 255 255 / 0.1);
+  box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
+}
+
+#history-section h3,
+#favorites-section h3 {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+#history-list,
+#favorites-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+#history-list li,
+#favorites-list li {
+  background: var(--button-bg);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+#history-list li:hover,
+#history-list li:focus,
+#favorites-list li:hover,
+#favorites-list li:focus {
+  background-color: var(--button-bg-hover);
+  outline: none;
+}
 
 @media (max-width: 600px) {
   #weather {
     grid-template-columns: 1fr;
     min-height: auto;
+    padding: 20px 20px;
   }
   .weather-icon {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     justify-self: center;
   }
   .temp {
@@ -264,5 +456,88 @@ button#search-btn:disabled {
   }
   .desc {
     font-size: 1.2rem;
+  }
+  #history-list li,
+  #favorites-list li {
+    font-size: 1rem;
+    padding: 10px 18px;
+  }
+}
+
+/* -------- RESPONSIVIDADE E USABILIDADE MÓVEL -------- */
+
+@media (max-width: 600px) {
+
+  /* Botões Buscar e Favoritos: ocupar largura flexível, padding maior */
+  #search-box {
+    gap: 12px;
+  }
+
+  button#search-btn,
+  button#fav-btn {
+    min-width: auto;
+    flex: 1 1 45%;
+    padding: 14px 0;
+    font-size: 1.1rem;
+  }
+
+  /* Spinner: centralizar no card de clima */
+  #spinner {
+    bottom: 50%;
+    right: 50%;
+    transform: translate(50%, 50%);
+  }
+
+  /* Aumenta espaçamento vertical entre seções dentro do main */
+  main > * {
+    margin-bottom: 30px;
+  }
+}
+
+@media (max-width: 450px) {
+  /* Empilhar a caixa de busca em coluna para melhor uso no celular */
+  #search-box {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  #search-box input[type="text"],
+  #search-box button {
+    width: 100%;
+    min-width: auto;
+    flex: none;
+  }
+}
+
+@media (max-width: 400px) {
+  /* Histórico e Favoritos empilhados e botões maiores */
+  #history-list,
+  #favorites-list {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  #history-list li,
+  #favorites-list li {
+    width: 100%;
+    text-align: center;
+    padding: 12px 0;
+    font-size: 1.1rem;
+  }
+}
+
+/* Feedback visual ao toque */
+button:active,
+#history-list li:active,
+#favorites-list li:active {
+  filter: brightness(0.85);
+  transition: filter 0.1s;
+}
+
+/* Aumentar contraste do placeholder em mobile */
+@media (max-width: 600px) {
+  input[type="text"]::placeholder {
+    color: #999;
   }
 }
