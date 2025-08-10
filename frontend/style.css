@@ -432,6 +432,11 @@ body.dark #weather {
   color: inherit;
 }
 
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* Mensagem de erro */
 #error-message {
   margin-top: 20px;
