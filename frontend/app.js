@@ -367,3 +367,11 @@ window.onload = () => {
     handleCitySelect("São Miguel do Oeste");
   }
 };
+
+const cityInput = document.getElementById('city-input');
+
+cityInput.addEventListener('focus', (event) => {
+  // Seleciona todo o texto do input ao receber foco
+  event.target.select();
+});
+
