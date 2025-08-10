@@ -19,6 +19,38 @@
   </header>
 
   <main>
+    <!-- Cidades favoritas -->
+    <section id="favorites-section" aria-label="Cidades favoritas">
+      <h3>Cidades Favoritas</h3>
+      <ul id="favorites-list"></ul>
+    </section>
+
+    <!-- Card do clima -->
+    <div
+      id="weather"
+      style="display:none;"
+      role="region"
+      aria-live="polite"
+      aria-atomic="true"
+      tabindex="0"
+    >
+      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div class="info">
+        <h2 id="city-name"></h2>
+        <div class="temp" id="temp"></div>
+        <div class="desc" id="desc"></div>
+        <div class="details" id="details"></div>
+      </div>
+      <div id="spinner" class="spinner" aria-label="Carregando"></div>
+    </div>
+
+    <!-- Histórico das últimas cidades -->
+    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
+      <h3>Últimas cidades pesquisadas</h3>
+      <ul id="history-list"></ul>
+    </section>
+
+    <!-- Busca -->
     <div id="search-box">
       <input
         list="city-suggestions"
@@ -51,38 +83,6 @@
       <button id="search-btn" type="button">Buscar</button>
       <button id="fav-btn" type="button" style="margin-left: 10px;">Adicionar aos favoritos</button>
     </div>
-
-     <div
-      id="weather"
-      style="display:none;"
-      role="region"
-      aria-live="polite"
-      aria-atomic="true"
-      tabindex="0"
-    >
-      <div id="icon" class="weather-icon" aria-hidden="true"></div>
-      <div class="info">
-        <h2 id="city-name"></h2>
-        <div class="temp" id="temp"></div>
-        <div class="desc" id="desc"></div>
-        <div class="details" id="details"></div>
-      </div>
-      <div id="spinner" class="spinner" aria-label="Carregando"></div>
-    </div>
-
-    <!-- Histórico das últimas cidades -->
-    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
-      <h3>Últimas cidades pesquisadas</h3>
-      <ul id="history-list"></ul>
-    </section>
-
-    <!-- Cidades favoritas -->
-    <section id="favorites-section" aria-label="Cidades favoritas">
-      <h3>Cidades Favoritas</h3>
-      <ul id="favorites-list"></ul>
-    </section>
-
-   
 
     <div id="error-message" style="display:none;" role="alert" tabindex="0"></div>
   </main>
