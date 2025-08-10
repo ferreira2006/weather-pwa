@@ -333,11 +333,19 @@ cityInput.addEventListener("keydown", e => {
   }
 });
 
+// >>>> Desabilita botão se input vazio
+favBtn.disabled = cityInput.value.trim() === "";
+
+// >>>> Atualiza o estado do botão quando o input mudar
+cityInput.addEventListener("input", () => {
+  favBtn.disabled = cityInput.value.trim() === "";
+});
+
 // removido debounce do input!
 
 favBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
-  if (!city) return alert("Digite uma cidade para adicionar aos favoritos.");
+  if (!city) return; // alerta removido pois o botão já fica desabilitado
   addFavorite(city);
 });
 
