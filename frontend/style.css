@@ -27,11 +27,66 @@
   --input-border-focus: var(--button-bg);
 }
 
-/* Tema claro */
-body.light {
+/* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
+body.light.bg-clear {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
+}
+
+body.light.bg-clouds {
+  background: var(--bg-gradient-light-clouds);
+  color: var(--text-color-light);
+}
+
+body.light.bg-rain {
+  background: var(--bg-gradient-light-rain);
+  color: var(--text-color-light);
+}
+
+body.light.bg-thunderstorm {
+  background: var(--bg-gradient-light-thunderstorm);
+  color: var(--text-color-light);
+}
+
+body.light.bg-snow {
+  background: var(--bg-gradient-light-snow);
+  color: var(--text-color-light);
+}
+
+body.dark.bg-clear {
+  background: var(--bg-gradient-dark-clear);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-clouds {
+  background: var(--bg-gradient-dark-clouds);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-rain {
+  background: var(--bg-gradient-dark-rain);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-thunderstorm {
+  background: var(--bg-gradient-dark-thunderstorm);
+  color: var(--text-color-dark);
+}
+
+body.dark.bg-snow {
+  background: var(--bg-gradient-dark-snow);
+  color: var(--text-color-dark);
+}
+
+/* Transição suave para fundo e texto */
+body {
   transition: background 0.75s ease, color 0.75s ease;
+}
+
+/* Tema claro base */
+body.light {
+  /* Removido background fixo para deixar controle via classes dinâmicas */
+  color: var(--text-color-light);
 }
 
 body.light input[type="text"] {
@@ -45,11 +100,10 @@ body.light input[type="text"]:focus {
   color: #000;
 }
 
-/* Tema escuro */
+/* Tema escuro base */
 body.dark {
-  background: var(--bg-gradient-dark-clear);
+  /* Removido background fixo para deixar controle via classes dinâmicas */
   color: var(--text-color-dark);
-  transition: background 0.75s ease, color 0.75s ease;
 }
 
 body.dark input[type="text"] {
@@ -72,7 +126,6 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* transitions já no tema */
 }
 
 header {
