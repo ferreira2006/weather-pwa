@@ -1,4 +1,5 @@
 :root {
+  /* Gradientes de fundo por clima e tema */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -10,20 +11,23 @@
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
+  /* Cores de texto */
   --text-color-light: #000000;
   --text-color-dark: #ddd;
 
+  /* Inputs */
   --input-text-light: #000000;
   --input-text-dark: #cfd8dc;
-
   --input-bg-light: rgba(255 255 255 / 0.9);
   --input-bg-dark: rgba(255 255 255 / 0.1);
 
+  /* Botões */
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
 
+  /* Foco */
   --input-border-focus: var(--button-bg);
 }
 
@@ -81,11 +85,17 @@ body.dark.bg-snow {
 /* Transição suave para fundo e texto */
 body {
   transition: background 0.75s ease, color 0.75s ease;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Tema claro base */
+/* Tema claro */
 body.light {
-  /* Removido background fixo para deixar controle via classes dinâmicas */
   color: var(--text-color-light);
 }
 
@@ -100,9 +110,8 @@ body.light input[type="text"]:focus {
   color: #000;
 }
 
-/* Tema escuro base */
+/* Tema escuro */
 body.dark {
-  /* Removido background fixo para deixar controle via classes dinâmicas */
   color: var(--text-color-dark);
 }
 
@@ -117,17 +126,7 @@ body.dark input[type="text"]:focus {
   color: var(--input-text-dark);
 }
 
-/* Corpo geral */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+/* Header */
 header {
   width: 100%;
   max-width: 600px;
@@ -163,6 +162,7 @@ h1 {
   outline: none;
 }
 
+/* Main */
 main {
   width: 100%;
   max-width: 600px;
@@ -172,6 +172,7 @@ main {
   gap: 25px;
 }
 
+/* Caixa de busca */
 #search-box {
   display: flex;
   gap: 10px;
@@ -201,6 +202,7 @@ input[type="text"]:focus {
   border-color: var(--input-border-focus);
 }
 
+/* Botões */
 button#search-btn,
 button#fav-btn {
   padding: 12px 20px;
@@ -229,6 +231,7 @@ button#search-btn:disabled {
   cursor: not-allowed;
 }
 
+/* Foco acessível */
 button:focus,
 input[type="text"]:focus {
   outline: 3px solid var(--button-bg);
@@ -236,6 +239,7 @@ input[type="text"]:focus {
   transition: outline-color 0.3s ease;
 }
 
+/* Card clima */
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
@@ -259,6 +263,7 @@ body.dark #weather {
   box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
 }
 
+/* Ícones clima com animações */
 .weather-icon {
   width: 100px;
   height: 100px;
@@ -318,6 +323,7 @@ body.dark #weather {
   100% { background-position: 100% 100%; }
 }
 
+/* Info texto do clima */
 .info {
   display: flex;
   flex-direction: column;
@@ -347,6 +353,7 @@ body.dark #weather {
   color: inherit;
 }
 
+/* Spinner */
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -365,6 +372,7 @@ body.dark #weather {
   to { transform: rotate(360deg); }
 }
 
+/* Mensagem de erro */
 #error-message {
   margin-top: 20px;
   max-width: 600px;
@@ -384,6 +392,7 @@ body.dark #error-message {
   color: #ffc4c4;
 }
 
+/* Seções Histórico e Favoritos */
 #history-section,
 #favorites-section {
   width: 100%;
@@ -410,6 +419,7 @@ body.dark #favorites-section {
   font-size: 1.2rem;
 }
 
+/* Listas Histórico e Favoritos */
 #history-list,
 #favorites-list {
   list-style: none;
@@ -441,6 +451,7 @@ body.dark #favorites-section {
   outline: none;
 }
 
+/* Responsividade */
 @media (max-width: 600px) {
   #weather {
     grid-template-columns: 1fr;
@@ -462,17 +473,11 @@ body.dark #favorites-section {
     font-size: 1rem;
     padding: 10px 18px;
   }
-}
 
-/* -------- RESPONSIVIDADE E USABILIDADE MÓVEL -------- */
-
-@media (max-width: 600px) {
-
-  /* Botões Buscar e Favoritos: ocupar largura flexível, padding maior */
+  /* Botões buscar e favoritos responsivos */
   #search-box {
     gap: 12px;
   }
-
   button#search-btn,
   button#fav-btn {
     min-width: auto;
@@ -481,27 +486,26 @@ body.dark #favorites-section {
     font-size: 1.1rem;
   }
 
-  /* Spinner: centralizar no card de clima */
+  /* Spinner centralizado no card */
   #spinner {
     bottom: 50%;
     right: 50%;
     transform: translate(50%, 50%);
   }
 
-  /* Aumenta espaçamento vertical entre seções dentro do main */
+  /* Espaçamento entre seções */
   main > * {
     margin-bottom: 30px;
   }
 }
 
 @media (max-width: 450px) {
-  /* Empilhar a caixa de busca em coluna para melhor uso no celular */
+  /* Caixa de busca em coluna no celular */
   #search-box {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
-
   #search-box input[type="text"],
   #search-box button {
     width: 100%;
@@ -511,13 +515,12 @@ body.dark #favorites-section {
 }
 
 @media (max-width: 400px) {
-  /* Histórico e Favoritos empilhados e botões maiores */
+  /* Histórico e favoritos empilhados */
   #history-list,
   #favorites-list {
     flex-direction: column;
     gap: 8px;
   }
-
   #history-list li,
   #favorites-list li {
     width: 100%;
@@ -535,7 +538,7 @@ button:active,
   transition: filter 0.1s;
 }
 
-/* Aumentar contraste do placeholder em mobile */
+/* Placeholder com maior contraste em mobile */
 @media (max-width: 600px) {
   input[type="text"]::placeholder {
     color: #999;
