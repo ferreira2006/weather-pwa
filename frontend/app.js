@@ -344,6 +344,16 @@ themeToggle.addEventListener("click", () => {
   updateThemeColors();
 });
 
+// Seleciona todo o texto do input ao receber foco
+cityInput.addEventListener('focus', (event) => {
+  event.target.select();
+});
+
+// Previne que o clique do mouse desfaça a seleção do texto
+cityInput.addEventListener('mouseup', (event) => {
+  event.preventDefault();
+});
+
 // Inicialização com fallback para geolocalização e cidade padrão
 window.onload = () => {
   applySavedTheme();
@@ -367,11 +377,3 @@ window.onload = () => {
     handleCitySelect("São Miguel do Oeste");
   }
 };
-
-const cityInput = document.getElementById('city-input');
-
-cityInput.addEventListener('focus', (event) => {
-  // Seleciona todo o texto do input ao receber foco
-  event.target.select();
-});
-
