@@ -3,66 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Previsão do Tempo</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Clima Atual</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="light">
+
   <header>
-    <h1>Previsão do Tempo</h1>
-    <button id="theme-toggle" aria-pressed="false" aria-label="Alternar tema">Modo Escuro</button>
+    <h1>Clima Atual</h1>
+    <button
+      id="theme-toggle"
+      aria-label="Alternar tema"
+      aria-pressed="false"
+      type="button"
+    >Modo Escuro</button>
   </header>
 
   <main>
-    <section id="search-box" aria-label="Busca de cidades">
-      <input 
-        list="cities-list" 
-        id="city-input" 
-        type="text" 
-        placeholder="Digite uma cidade" 
+    <div id="search-box">
+      <input
+        list="city-suggestions"
+        type="text"
+        id="city-input"
+        placeholder="Digite a cidade"
+        aria-label="Digite a cidade"
         autocomplete="off"
-        aria-autocomplete="list"
-        aria-controls="cities-list"
-        aria-haspopup="listbox"
-        aria-expanded="false"
       />
-      <datalist id="cities-list">
+      <datalist id="city-suggestions">
+        <option value="Anchieta"></option>
+        <option value="Bandeirante"></option>
+        <option value="Barra Bonita"></option>
+        <option value="Belmonte"></option>
+        <option value="Descanso"></option>
+        <option value="Dionísio Cerqueira"></option>
+        <option value="Guaraciaba"></option>
+        <option value="Guarujá do Sul"></option>
+        <option value="Iporã do Oeste"></option>
+        <option value="Itapiranga"></option>
+        <option value="Mondaí"></option>
+        <option value="Palma Sola"></option>
+        <option value="Paraíso"></option>
+        <option value="Princesa"></option>
+        <option value="Santa Helena"></option>
+        <option value="São João do Oeste"></option>
+        <option value="São José do Cedro"></option>
         <option value="São Miguel do Oeste"></option>
-        <option value="Porto Alegre"></option>
-        <option value="Florianópolis"></option>
-        <option value="Curitiba"></option>
-        <option value="São Paulo"></option>
-        <option value="Rio de Janeiro"></option>
-        <!-- Mais opções -->
       </datalist>
-      <button id="search-btn" aria-label="Buscar clima">Buscar</button>
-      <button id="fav-btn" aria-label="Adicionar aos favoritos">❤️ Favoritos</button>
+      <button id="search-btn" type="button">Buscar</button>
+      <button id="fav-btn" type="button" style="margin-left: 10px;">Adicionar aos favoritos</button>
+    </div>
+
+     <div
+      id="weather"
+      style="display:none;"
+      role="region"
+      aria-live="polite"
+      aria-atomic="true"
+      tabindex="0"
+    >
+      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div class="info">
+        <h2 id="city-name"></h2>
+        <div class="temp" id="temp"></div>
+        <div class="desc" id="desc"></div>
+        <div class="details" id="details"></div>
+      </div>
+      <div id="spinner" class="spinner" aria-label="Carregando"></div>
+    </div>
+
+    <!-- Histórico das últimas cidades -->
+    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
+      <h3>Últimas cidades pesquisadas</h3>
+      <ul id="history-list"></ul>
     </section>
 
-    <!-- Favoritos acima -->
+    <!-- Cidades favoritas -->
     <section id="favorites-section" aria-label="Cidades favoritas">
       <h3>Cidades Favoritas</h3>
-      <ul id="favorites-list" role="list"></ul>
+      <ul id="favorites-list"></ul>
     </section>
 
-    <!-- Card do clima -->
-    <section id="weather" tabindex="0" aria-live="polite" aria-label="Informações do clima" style="display:none;">
-      <div id="icon" class="weather-icon"></div>
-      <div class="info">
-        <h2 id="city-name">Cidade, País</h2>
-        <p class="temp" id="temp">0ºC</p>
-        <p class="desc" id="desc">Descrição</p>
-        <p class="details" id="details">Detalhes</p>
-      </div>
-      <div id="spinner" aria-hidden="true"></div>
-    </section>
+   
 
-    <div id="error-message" role="alert" tabindex="0" style="display:none;"></div>
-
-    <!-- Histórico abaixo -->
-    <section id="history-section" aria-label="Histórico de buscas">
-      <h3>Últimas cidades pesquisadas</h3>
-      <ul id="history-list" role="list"></ul>
-    </section>
+    <div id="error-message" style="display:none;" role="alert" tabindex="0"></div>
   </main>
 
   <script src="app.js"></script>
