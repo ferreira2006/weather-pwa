@@ -14,12 +14,12 @@ const errorMessageDiv = document.getElementById("error-message");
 const themeToggle = document.getElementById("theme-toggle");
 
 const historyListEl = document.getElementById("history-list");
-const maxHistoryItems = 5; // Máximo de cidades no histórico
+const maxHistoryItems = 5;
 
 const favBtn = document.getElementById("fav-btn");
 const favoritesListEl = document.getElementById("favorites-list");
 
-// Atualiza estilos que dependem do tema (cores em elementos)
+// Atualiza estilos que dependem do tema (cores e background)
 function updateThemeColors() {
   const isDark = document.body.classList.contains("dark");
   
@@ -74,6 +74,15 @@ function applySavedTheme() {
     themeToggle.setAttribute("aria-pressed", "false");
   }
   updateThemeColors();
+  // Atualiza o background inicial de acordo com tema e clima atual
+  if (weatherDiv.style.display !== "none") {
+    // Tenta pegar o clima atual para atualizar fundo
+    const mainWeather = iconEl.className.replace("weather-icon", "").trim().toLowerCase();
+    if (mainWeather) setDynamicBackground(mainWeather);
+  } else {
+    // Sem clima, só fundo padrão
+    setDynamicBackground("clear");
+  }
 }
 
 // Formata horário do UNIX timestamp + timezone
@@ -215,9 +224,7 @@ function getHistory() {
 
 function saveHistory(city) {
   let history = getHistory();
-  // Remove se já existir
   history = history.filter((c) => c.toLowerCase() !== city.toLowerCase());
-  // Adiciona no topo
   history.unshift(city);
   if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
   localStorage.setItem("weatherHistory", JSON.stringify(history));
@@ -330,6 +337,7 @@ async function handleCitySelect(city) {
     showWeather(data);
     saveHistory(city);
     renderHistory();
+    localStorage.setItem("lastCity", city);
   } catch (err) {
     showError(err.message || "Erro ao buscar o clima");
   }
