@@ -323,14 +323,6 @@ cityInput.addEventListener("keydown", (e) => {
   }
 });
 
-// Seleciona todo texto do input ao focar ou clicar
-cityInput.addEventListener("focus", () => {
-  cityInput.select();
-});
-cityInput.addEventListener("click", () => {
-  cityInput.select();
-});
-
 favBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
   if (!city) return alert("Digite uma cidade para adicionar aos favoritos.");
