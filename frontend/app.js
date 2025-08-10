@@ -19,6 +19,46 @@ const maxHistoryItems = 5; // Máximo de cidades no histórico
 const favBtn = document.getElementById("fav-btn");
 const favoritesListEl = document.getElementById("favorites-list");
 
+// Atualiza estilos que dependem do tema (cores em elementos)
+function updateThemeColors() {
+  const isDark = document.body.classList.contains("dark");
+  
+  // Inputs
+  cityInput.style.color = isDark ? getComputedStyle(document.documentElement).getPropertyValue('--input-text-dark') : getComputedStyle(document.documentElement).getPropertyValue('--input-text-light');
+  cityInput.style.backgroundColor = isDark ? 'rgba(255 255 255 / 0.1)' : 'rgba(255 255 255 / 0.9)';
+  
+  // Botão buscar
+  searchBtn.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
+  searchBtn.style.color = isDark ? '#ddd' : '#fff';
+
+  // Histórico - itens
+  const historyItems = historyListEl.querySelectorAll('li');
+  historyItems.forEach(li => {
+    li.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
+    li.style.color = isDark ? '#ddd' : '#fff';
+  });
+
+  // Favoritos (se existir)
+  if (favoritesListEl) {
+    const favItems = favoritesListEl.querySelectorAll('li');
+    favItems.forEach(li => {
+      li.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue('--button-bg').trim();
+      li.style.color = isDark ? '#ddd' : '#fff';
+    });
+  }
+
+  // Detalhes do clima
+  detailsEl.style.color = isDark ? '#ddd' : '#000';
+
+  // Erro
+  errorMessageDiv.style.color = isDark ? '#ffbaba' : '#b00000';
+  errorMessageDiv.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
+
+  // Theme toggle button (texto e borda)
+  themeToggle.style.color = isDark ? '#ddd' : '#000';
+  themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
+}
+
 // Aplica tema salvo ou padrão "light"
 function applySavedTheme() {
   const savedTheme = localStorage.getItem("theme");
@@ -33,6 +73,7 @@ function applySavedTheme() {
     themeToggle.textContent = "Modo Escuro";
     themeToggle.setAttribute("aria-pressed", "false");
   }
+  updateThemeColors();
 }
 
 // Formata horário do UNIX timestamp + timezone
@@ -103,6 +144,7 @@ function showWeather(data) {
   else iconEl.classList.add("clear");
 
   setDynamicBackground(mainWeather);
+  updateThemeColors();
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
@@ -197,6 +239,7 @@ function renderHistory() {
     });
     historyListEl.appendChild(li);
   });
+  updateThemeColors();
 }
 
 // Favoritos em localStorage
@@ -250,6 +293,7 @@ function renderFavorites() {
 
     favoritesListEl.appendChild(li);
   });
+  updateThemeColors();
 }
 
 // Quando seleciona uma cidade para buscar clima
@@ -297,6 +341,7 @@ themeToggle.addEventListener("click", () => {
     themeToggle.setAttribute("aria-pressed", "false");
     localStorage.setItem("theme", "light");
   }
+  updateThemeColors();
 });
 
 // Inicialização com fallback para geolocalização e cidade padrão
