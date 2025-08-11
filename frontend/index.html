@@ -9,7 +9,13 @@
 <body class="light bg-clear">
   <header>
     <h1>Previsão do Tempo</h1>
-    <button id="theme-toggle" aria-pressed="false" aria-label="Alternar tema para modo escuro">Modo Escuro</button>
+    <button
+      id="theme-toggle"
+      aria-pressed="false"
+      aria-label="Alternar tema para modo escuro"
+    >
+      Modo Escuro
+    </button>
   </header>
 
   <main>
@@ -22,7 +28,9 @@
         autocomplete="off"
       />
       <button id="search-btn" aria-label="Buscar clima">Buscar</button>
-      <button id="fav-btn" aria-label="Adicionar aos favoritos" disabled>❤️ Favoritos</button>
+      <button id="fav-btn" aria-label="Adicionar aos favoritos" disabled>
+        ❤️ Favoritos
+      </button>
     </section>
 
     <section
@@ -32,9 +40,12 @@
       aria-atomic="true"
       aria-relevant="additions removals"
       aria-label="Informações do clima"
+      style="display:none"
     >
       <div id="spinner" role="status" aria-live="polite" aria-label="Carregando" style="display:none;"></div>
+
       <div class="weather-icon" id="icon" aria-hidden="true"></div>
+
       <div class="info">
         <h2 id="city-name"></h2>
         <p class="temp" id="temp"></p>
@@ -48,6 +59,7 @@
       role="alert"
       aria-live="assertive"
       style="display:none;"
+      tabindex="-1"
     ></section>
 
     <section id="history-section" aria-label="Histórico de cidades buscadas">
@@ -61,7 +73,7 @@
     </section>
   </main>
 
-  <div id="toast" role="alert" aria-live="assertive"></div>
+  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <script src="script.js"></script>
 </body>
