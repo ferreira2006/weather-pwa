@@ -164,9 +164,9 @@ function showError(message) {
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
-  spinner.style.display = "block";
+spinner.style.display = "block";
   searchBtn.disabled = true;
-  favBtn.disabled = true;
+  favBtn.disabled = true;  // Desabilita no começo
   errorMessageDiv.style.display = "none";
 
   try {
@@ -175,11 +175,18 @@ async function fetchWeather(city) {
     );
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
+
+    // Se deu certo, habilita o botão de favorito
+    favBtn.disabled = false;
+
     return data;
+  } catch (err) {
+    // Em caso de erro, mantém desabilitado
+    favBtn.disabled = true;
+    throw err;
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    updateFavBtnState();
   }
 }
 
@@ -365,6 +372,15 @@ cityInput.addEventListener("keydown", (e) => {
 });
 
 cityInput.addEventListener("input", updateFavBtnState);
+
+cityInput.addEventListener("input", () => {
+  // Só ativa o botão se o input não estiver vazio e o botão não estiver desabilitado por erro
+  if (cityInput.value.trim() === "" || searchBtn.disabled) {
+    favBtn.disabled = true;
+  } else {
+    // Para ativar só se a busca foi validada, a lógica ficará no fetchWeather.
+  }
+});
 
 async function handleAddFavorite() {
   const city = cityInput.value.trim();
