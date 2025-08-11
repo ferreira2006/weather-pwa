@@ -137,6 +137,12 @@ body.dark input[type="text"]::placeholder {
   color: rgba(255 255 255 / 0.6);
 }
 
+/* Cursor para inputs desabilitados */
+input[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* Header */
 header {
   width: 100%;
@@ -245,6 +251,13 @@ button#fav-btn:disabled {
   box-shadow: none;
 }
 
+/* Margem no botão favoritos em mobile para empilhamento */
+@media (max-width: 450px) {
+  #fav-btn {
+    margin-top: 8px;
+  }
+}
+
 /* Botão remover favorito */
 .remove-fav-btn,
 #favorites-list button {
@@ -280,6 +293,13 @@ input[type="text"]:focus,
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
+}
+
+/* Realce extra no foco para itens de lista */
+#history-list li:focus,
+#favorites-list li:focus {
+  background-color: var(--button-bg-hover);
+  box-shadow: 0 0 5px var(--button-bg);
 }
 
 /* Card clima */
@@ -345,6 +365,13 @@ body.dark #weather {
 .weather-icon.snow {
   background-image: url('../icons/wi-snow.svg');
   animation: snowAnim 15s linear infinite;
+}
+
+.weather-icon.error {
+  background-image: url('../icons/wi-na.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: none;
 }
 
 @keyframes rotateSlow {
@@ -438,6 +465,19 @@ body.dark #weather {
   font-weight: 400;
   line-height: 1.6;
   color: inherit;
+}
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
 
 #toast.show {
