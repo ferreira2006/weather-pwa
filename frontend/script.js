@@ -163,7 +163,7 @@ async function fetchWeather(city) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    updateFavBtnState();
+    ();
   }
 }
 
@@ -185,7 +185,7 @@ async function fetchByCoords(lat, lon) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    updateFavBtnState();
+    ();
   }
 }
 
@@ -321,8 +321,13 @@ async function handleCitySelect(city) {
 
 // --- Atualiza o estado do botão Favoritos ---
 function updateFavBtnState() {
-  const city = cityInput.value.trim();
-  favBtn.disabled = city === '' || searchBtn.disabled;
+  const city = cityInput.value.trim().toLowerCase();
+  const favorites = getFavorites().map(c => c.toLowerCase());
+
+  const isCityInFavorites = favorites.includes(city);
+  const isCityEmpty = city === '';
+
+  favBtn.disabled = isCityEmpty || searchBtn.disabled || isCityInFavorites;
 }
 
 // --- EVENTOS ---
