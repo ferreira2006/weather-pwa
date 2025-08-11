@@ -19,7 +19,7 @@ const favoritesListEl = document.getElementById("favorites-list");
 
 const maxHistoryItems = 5;
 
-// --- FUNÇÃO DE FUNDO DINÂMICO ---
+// --- BACKGROUND DINÂMICO POR CLIMA ---
 function setDynamicBackground(mainWeather) {
   const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
   document.body.classList.remove(...classes);
@@ -40,12 +40,13 @@ const toast = document.getElementById("toast");
 function showToast(message, duration = 3000) {
   toast.textContent = message;
   toast.classList.add("show");
+
   setTimeout(() => {
     toast.classList.remove("show");
   }, duration);
 }
 
-// --- CONTROLE DE TEMA ---
+// --- TEMAS ---
 function updateThemeColors() {
   const rootStyles = getComputedStyle(document.documentElement);
   const isDark = document.body.classList.contains("dark");
@@ -99,7 +100,7 @@ function toggleTheme() {
   setDynamicBackgroundFromCurrentIcon();
 }
 
-// --- FUNÇÃO AUXILIAR DE FUNDO DINÂMICO ---
+// --- UTILITÁRIOS ---
 function setDynamicBackgroundFromCurrentIcon() {
   if (weatherDiv.style.display !== "none") {
     const mainClass = [...iconEl.classList].find(c => c !== "weather-icon");
@@ -109,7 +110,7 @@ function setDynamicBackgroundFromCurrentIcon() {
   }
 }
 
-// --- EXIBE O CLIMA ---
+// --- MOSTRAR CLIMA ---
 function showWeather(data) {
   errorMessageDiv.style.display = "none";
 
@@ -139,7 +140,7 @@ function showWeather(data) {
   weatherDiv.focus();
 }
 
-// --- EXIBE ERRO ---
+// --- ERRO ---
 function showError(message) {
   weatherDiv.style.display = "none";
   errorMessageDiv.textContent = message;
@@ -147,7 +148,7 @@ function showError(message) {
   errorMessageDiv.focus();
 }
 
-// --- BUSCA O CLIMA VIA API ---
+// --- FETCH CLIMA ---
 async function fetchWeather(city) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
@@ -304,7 +305,7 @@ function renderFavorites() {
   updateThemeColors();
 }
 
-// --- BUSCA POR CIDADE ---
+// --- AÇÃO DE BUSCAR CIDADE ---
 async function handleCitySelect(city) {
   cityInput.value = city;
   try {
@@ -318,7 +319,7 @@ async function handleCitySelect(city) {
   }
 }
 
-// --- ATUALIZA O ESTADO DO BOTÃO FAVORITOS ---
+// --- Atualiza o estado do botão Favoritos ---
 function updateFavBtnState() {
   const city = cityInput.value.trim();
   favBtn.disabled = city === '' || searchBtn.disabled;
