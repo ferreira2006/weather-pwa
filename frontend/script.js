@@ -39,10 +39,12 @@ const toast = document.getElementById("toast");
 
 function showToast(message, duration = 3000) {
   toast.textContent = message;
-  toast.classList.add("show");
+  toast.style.opacity = "1";
+  toast.style.pointerEvents = "auto";
 
   setTimeout(() => {
-    toast.classList.remove("show");
+    toast.style.opacity = "0";
+    toast.style.pointerEvents = "none";
   }, duration);
 }
 
@@ -138,6 +140,7 @@ function showWeather(data) {
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
+  spinner.hidden = true;
 }
 
 // --- ERRO ---
@@ -146,11 +149,12 @@ function showError(message) {
   errorMessageDiv.textContent = message;
   errorMessageDiv.style.display = "block";
   errorMessageDiv.focus();
+  spinner.hidden = true;
 }
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
-  spinner.style.display = "block";
+  spinner.hidden = false;
   searchBtn.disabled = true;
   favBtn.disabled = true;
   errorMessageDiv.style.display = "none";
@@ -159,16 +163,21 @@ async function fetchWeather(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
-    return data;
+    showWeather(data);
+    saveHistory(data.name);
+    renderHistory();
+    localStorage.setItem("lastCity", data.name);
+  } catch (err) {
+    showError(err.message);
   } finally {
-    spinner.style.display = "none";
+    spinner.hidden = true;
     searchBtn.disabled = false;
     updateFavBtnState();
   }
 }
 
 async function fetchByCoords(lat, lon) {
-  spinner.style.display = "block";
+  spinner.hidden = false;
   searchBtn.disabled = true;
   favBtn.disabled = true;
   errorMessageDiv.style.display = "none";
@@ -183,7 +192,7 @@ async function fetchByCoords(lat, lon) {
   } catch (err) {
     showError(err.message);
   } finally {
-    spinner.style.display = "none";
+    spinner.hidden = true;
     searchBtn.disabled = false;
     updateFavBtnState();
   }
