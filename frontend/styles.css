@@ -307,6 +307,11 @@ textarea:focus,
   overflow: hidden;
 }
 
+/* Esconder com hidden */
+#weather[hidden] {
+  display: none !important;
+}
+
 #weather:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 4px;
@@ -618,59 +623,9 @@ body.dark #favorites-section {
 
   /* Spinner centralizado no card */
   #spinner {
-    bottom: 50%;
-    right: 50%;
-    transform: translate(50%, 50%);
-  }
-
-  /* Espaçamento entre seções */
-  main > * {
-    margin-bottom: 30px;
-  }
-}
-
-@media (max-width: 450px) {
-  /* Caixa de busca em coluna no celular */
-  #search-box {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-  #search-box input[type="text"],
-  #search-box button {
-    width: 100%;
-    min-width: auto;
-    flex: none;
-  }
-}
-
-@media (max-width: 400px) {
-  /* Histórico e favoritos empilhados */
-  #history-list,
-  #favorites-list {
-    flex-direction: column;
-    gap: 8px;
-  }
-  #history-list li,
-  #favorites-list li {
-    width: 100%;
-    text-align: center;
-    padding: 12px 0;
-    font-size: 1.1rem;
-  }
-}
-
-/* Feedback visual ao toque */
-button:active,
-#history-list li:active,
-#favorites-list li:active {
-  filter: brightness(0.85);
-  transition: filter 0.1s;
-}
-
-/* Placeholder com maior contraste em mobile */
-@media (max-width: 600px) {
-  input[type="text"]::placeholder {
-    color: #999;
+    bottom: auto;
+    right: auto;
+    top: 15px;
+    left: 15px;
   }
 }
