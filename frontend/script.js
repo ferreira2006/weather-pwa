@@ -48,9 +48,12 @@ function setDynamicBackground(mainWeather) {
 const toast = document.getElementById("toast");
 
 function showToast(message, duration = 3000) {
-  toast.textContent = message;
-  toast.classList.add("show");
-  // toast deve ter no HTML: role="alert" aria-live="assertive" aria-atomic="true"
+  // Limpa primeiro para forçar leitores de tela a detectar mudança
+  toast.textContent = '';
+  setTimeout(() => {
+    toast.textContent = message;
+    toast.classList.add("show");
+  }, 100);
 
   setTimeout(() => {
     toast.classList.remove("show");
@@ -162,10 +165,14 @@ function showWeather(data) {
 function showError(message) {
   document.body.classList.add("error");
 
-  weatherError.textContent = message;
+  // Limpa primeiro para garantir que leitores de tela anunciem erro mesmo repetido
+  weatherError.textContent = '';
   weatherError.style.display = "block";
   weatherError.style.opacity = "1";
-  // weather-error deve ter role="alert" aria-live="assertive" aria-atomic="true" no HTML
+
+  setTimeout(() => {
+    weatherError.textContent = message;
+  }, 100);
 
   weatherContent.style.display = "none";
   iconEl.style.display = "none";
