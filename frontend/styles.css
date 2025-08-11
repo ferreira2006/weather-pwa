@@ -31,7 +31,7 @@
   --input-border-focus: var(--button-bg);
 }
 
-/* BACKGROUND DINÂMICO POR TEMA + CLIMA */
+/* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
 body.light.bg-clear {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
@@ -229,20 +229,16 @@ button#fav-btn {
 
 button#search-btn:hover:not(:disabled),
 button#search-btn:focus:not(:disabled),
-button#fav-btn:hover:not(:disabled),
-button#fav-btn:focus:not(:disabled) {
+button#fav-btn:hover,
+button#fav-btn:focus {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
 }
 
-/* Estilo para botões desabilitados */
-button#search-btn:disabled,
-button#fav-btn:disabled {
+button#search-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
 }
 
 /* Botão remover favorito */
@@ -256,7 +252,8 @@ button#fav-btn:disabled {
   font-size: 1.2rem;
   line-height: 1;
   padding: 0;
-  outline-offset: 2px;
+  min-width: 30px;
+  min-height: 30px;
   user-select: none;
   transition: color 0.3s;
 }
@@ -271,12 +268,10 @@ button#fav-btn:disabled {
 button:focus,
 input[type="text"]:focus,
 #history-list li:focus,
-#favorites-list li:focus,
-#favorites-list button:focus {
+#favorites-list li:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
-  box-shadow: 0 0 8px var(--button-bg);
 }
 
 /* Card clima */
@@ -387,8 +382,24 @@ body.dark #weather {
   width: 40px;
   height: 40px;
   animation: spin 1.2s linear infinite;
+  display: none;
   z-index: 10;
   pointer-events: none;
+}
+
+/* Spinner com overlay no card */
+#weather.loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255 255 255 / 0.3);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+  z-index: 5;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* Info texto do clima */
@@ -421,11 +432,6 @@ body.dark #weather {
   color: inherit;
 }
 
-#toast.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
 /* Mensagem de erro */
 #error-message {
   margin-top: 20px;
@@ -439,7 +445,6 @@ body.dark #weather {
   text-align: center;
   user-select: none;
   transition: background-color 0.3s, color 0.3s;
-  display: none;
 }
 
 body.dark #error-message {
@@ -496,8 +501,8 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
-  min-width: 48px;
-  min-height: 40px;
+  min-width: 48px;  /* Alvo mínimo */
+  min-height: 40px; /* Alvo mínimo */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -604,5 +609,3 @@ button:active,
     color: #999;
   }
 }
-
-/* Spinner mostrado pelo JS (remova display:none do CSS se existir) */
