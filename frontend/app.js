@@ -123,12 +123,10 @@ function setDynamicBackgroundFromCurrentIcon() {
 }
 
 // --- MOSTRAR CLIMA ---
-// Corrigida para não redeclarar 'state' e ler direto de data.state
 function showWeather(data) {
   errorMessageDiv.style.display = "none";
 
-  const state = data.state ? `, ${data.state}` : "";
-  cityNameEl.textContent = `${data.name}${state}, ${data.sys.country}`;
+  cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
   descEl.textContent = data.weather[0].description;
 
@@ -168,7 +166,7 @@ function showError(message) {
 async function fetchWeather(city) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
-  favBtn.disabled = true;  // desabilita no começo
+  favBtn.disabled = true;  // Desabilita no começo
   errorMessageDiv.style.display = "none";
 
   try {
@@ -178,13 +176,14 @@ async function fetchWeather(city) {
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
 
-    // Habilita o botão de favoritos só se a cidade não estiver na lista
+    // Verifica se a cidade já está nos favoritos antes de habilitar o botão
     const cityLower = data.name.toLowerCase();
     const isFavorite = getFavorites().some(fav => fav.toLowerCase() === cityLower);
     favBtn.disabled = isFavorite;
 
     return data;
   } catch (err) {
+    // Em caso de erro, mantém desabilitado
     favBtn.disabled = true;
     throw err;
   } finally {
@@ -193,7 +192,6 @@ async function fetchWeather(city) {
   }
 }
 
-// --- FETCH BY COORDS (geolocalização)
 async function fetchByCoords(lat, lon) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
@@ -205,7 +203,7 @@ async function fetchByCoords(lat, lon) {
     if (!res.ok)
       throw new Error("Não foi possível obter o clima para sua localização.");
     const data = await res.json();
-    showWeather(data); // só passa data
+    showWeather(data);
     saveHistory(data.name);
     renderHistory();
   } catch (err) {
@@ -338,12 +336,11 @@ function renderFavorites() {
 }
 
 // --- AÇÃO DE BUSCAR CIDADE ---
-// Ajustado para não passar estado separado, apenas o data
 async function handleCitySelect(city) {
   cityInput.value = city;
   try {
     const data = await fetchWeather(city);
-    showWeather(data); // passa só data
+    showWeather(data);
     saveHistory(city);
     renderHistory();
     localStorage.setItem("lastCity", city);
@@ -378,8 +375,11 @@ cityInput.addEventListener("keydown", (e) => {
 
 cityInput.addEventListener("input", () => {
   updateFavBtnState();
+  // Só ativa o botão se o input não estiver vazio e o botão não estiver desabilitado por erro
   if (cityInput.value.trim() === "" || searchBtn.disabled) {
     favBtn.disabled = true;
+  } else {
+    // Para ativar só se a busca foi validada, a lógica ficará no fetchWeather.
   }
 });
 
