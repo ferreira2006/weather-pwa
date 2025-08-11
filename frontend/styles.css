@@ -318,27 +318,36 @@ body.dark #weather {
   color: inherit;
 }
 
-/* Bloco mensagem de erro interna */
+/* Mensagem de erro interna no card de clima */
 #weather-error {
   display: none;
   grid-column: 1 / -1;
   color: #b00020;
   font-weight: 700;
   text-align: center;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(255, 0, 0, 0.1);
   min-height: 100px;
   align-self: center;
   justify-self: center;
   font-size: 1.1rem;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* Alterna visibilidade via classe no body */
-body.error #weather-content {
-  display: none;
-}
-
+/* Quando ativo, mostra o erro */
 body.error #weather-error {
   display: block;
+  opacity: 1;
+  pointer-events: auto;
+  background-color: rgba(176, 0, 32, 0.15);
+}
+
+/* Esconde o conteúdo normal do clima quando erro */
+body.error #weather-content {
+  display: none;
 }
 
 /* Ícones clima com animações */
