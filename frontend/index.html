@@ -20,39 +20,42 @@
 
   <main>
     <!-- Busca -->
-    <div id="search-box">
-      <input
-        list="city-suggestions"
-        type="text"
-        id="city-input"
-        placeholder="Digite a cidade"
-        aria-label="Digite a cidade"
-        autocomplete="off"
-      />
-      <datalist id="city-suggestions">
-        <option value="Anchieta"></option>
-        <option value="Bandeirante"></option>
-        <option value="Barra Bonita"></option>
-        <option value="Belmonte"></option>
-        <option value="Descanso"></option>
-        <option value="Dionísio Cerqueira"></option>
-        <option value="Guaraciaba"></option>
-        <option value="Guarujá do Sul"></option>
-        <option value="Iporã do Oeste"></option>
-        <option value="Itapiranga"></option>
-        <option value="Mondaí"></option>
-        <option value="Palma Sola"></option>
-        <option value="Paraíso"></option>
-        <option value="Princesa"></option>
-        <option value="Santa Helena"></option>
-        <option value="São João do Oeste"></option>
-        <option value="São José do Cedro"></option>
-        <option value="São Miguel do Oeste"></option>
-      </datalist>
-      <button id="search-btn" type="button">Buscar</button>
-      <button id="fav-btn" type="button" style="margin-left: 10px;">Adicionar aos favoritos</button>
-    </div>
-    
+    <section id="search-section" aria-label="Busca de cidades">
+      <div id="search-box">
+        <input
+          list="city-suggestions"
+          type="text"
+          id="city-input"
+          placeholder="Digite a cidade"
+          aria-label="Digite a cidade"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <datalist id="city-suggestions">
+          <option value="Anchieta"></option>
+          <option value="Bandeirante"></option>
+          <option value="Barra Bonita"></option>
+          <option value="Belmonte"></option>
+          <option value="Descanso"></option>
+          <option value="Dionísio Cerqueira"></option>
+          <option value="Guaraciaba"></option>
+          <option value="Guarujá do Sul"></option>
+          <option value="Iporã do Oeste"></option>
+          <option value="Itapiranga"></option>
+          <option value="Mondaí"></option>
+          <option value="Palma Sola"></option>
+          <option value="Paraíso"></option>
+          <option value="Princesa"></option>
+          <option value="Santa Helena"></option>
+          <option value="São João do Oeste"></option>
+          <option value="São José do Cedro"></option>
+          <option value="São Miguel do Oeste"></option>
+        </datalist>
+        <button id="search-btn" type="button" aria-label="Buscar clima da cidade">Buscar</button>
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">Adicionar aos favoritos</button>
+      </div>
+    </section>
+
     <!-- Cidades favoritas -->
     <section id="favorites-section" aria-label="Cidades favoritas">
       <h3>Cidades Favoritas</h3>
@@ -60,32 +63,34 @@
     </section>
 
     <!-- Card do clima -->
-    <div
+    <section
       id="weather"
-      style="display:none;"
       role="region"
       aria-live="polite"
       aria-atomic="true"
       tabindex="0"
+      hidden
     >
-      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div id="icon" class="weather-icon" aria-hidden="true" title="Ícone do clima atual"></div>
       <div class="info">
         <h2 id="city-name"></h2>
         <div class="temp" id="temp"></div>
         <div class="desc" id="desc"></div>
         <div class="details" id="details"></div>
       </div>
-      <div id="spinner" class="spinner" aria-label="Carregando"></div>
-    </div>
+      <div id="spinner" class="spinner" aria-label="Carregando" hidden></div>
+    </section>
 
     <!-- Histórico das últimas cidades -->
     <section id="history-section" aria-label="Histórico das cidades pesquisadas">
       <h3>Últimas cidades pesquisadas</h3>
       <ul id="history-list"></ul>
     </section>
-    
-    <div id="error-message" style="display:none;" role="alert" tabindex="0"></div>
+
+    <div id="error-message" role="alert" tabindex="0" hidden></div>
   </main>
+
+  <div id="toast" aria-live="polite" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
 
   <script src="app.js"></script>
 </body>
