@@ -425,7 +425,7 @@ window.onload = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
       (error) => {
-        showToast("Não foi possível obter sua localização. Usando localização padrão.");
+        showError("Não foi possível obter sua localização. Usando localização padrão.");
         handleCitySelect("São Miguel do Oeste");
       }
     );
