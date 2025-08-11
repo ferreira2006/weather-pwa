@@ -33,7 +33,7 @@ function setTheme(theme) {
 }
 
 function updateThemeToggleText() {
-  themeToggle.textContent = currentTheme === "light" ? "Tema Escuro" : "Tema Claro";
+  themeToggle.textContent = currentTheme === "light" ? "Modo Escuro" : "Modo Claro";
 }
 
 themeToggle.addEventListener("click", () => {
@@ -44,31 +44,34 @@ updateThemeToggleText();
 
 function showSpinner() {
   spinner.style.display = "block";
+  spinner.removeAttribute("hidden");
   weatherDiv.classList.add("loading");
 }
 
 function hideSpinner() {
   spinner.style.display = "none";
+  spinner.setAttribute("hidden", "");
   weatherDiv.classList.remove("loading");
 }
 
 function showError(message) {
   errorMessage.textContent = message;
-  errorMessage.style.display = "block";
+  errorMessage.removeAttribute("hidden");
+  // Remove visual do painel de clima
+  weatherDiv.hidden = true;
 }
 
 function hideError() {
-  errorMessage.style.display = "none";
+  errorMessage.setAttribute("hidden", "");
 }
 
-function updateBackgroundByWeather(main, theme) {
+function updateBackgroundByWeather(main) {
   const mainLower = main.toLowerCase();
   const validWeathers = ["clear", "clouds", "rain", "thunderstorm", "snow"];
   let weatherClass = validWeathers.includes(mainLower) ? mainLower : "clear";
 
   document.body.classList.remove(...validWeathers.map(w => `bg-${w}`));
   document.body.classList.add(`bg-${weatherClass}`);
-  setTheme(theme);
 }
 
 function renderWeather(data) {
@@ -81,14 +84,13 @@ function renderWeather(data) {
     Vento: ${Math.round(data.wind.speed)} m/s
   `;
 
-  // Atualiza ícone animado
   iconEl.className = "weather-icon";
   const weatherMain = data.weather[0].main.toLowerCase();
   iconEl.classList.add(weatherMain);
 
-  // Atualiza background com base no clima e tema
-  updateBackgroundByWeather(data.weather[0].main, currentTheme);
+  updateBackgroundByWeather(data.weather[0].main);
 
+  weatherDiv.hidden = false; // Mostrar o card clima
   hideSpinner();
   hideError();
 }
@@ -111,6 +113,7 @@ function saveFavorite(city) {
     favorites.push(city);
     localStorage.setItem("favorites", JSON.stringify(favorites));
     renderFavorites();
+    showToast(`Adicionado "${city}" aos favoritos.`);
   }
 }
 
@@ -119,6 +122,7 @@ function removeFavorite(city) {
   favorites = favorites.filter(fav => fav !== city);
   localStorage.setItem("favorites", JSON.stringify(favorites));
   renderFavorites();
+  showToast(`Removido "${city}" dos favoritos.`);
 }
 
 function renderHistory() {
@@ -234,3 +238,19 @@ cityInput.addEventListener("keydown", e => {
 
 renderHistory();
 renderFavorites();
+
+// Função para mostrar toast
+const toast = document.getElementById("toast");
+let toastTimeout;
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.style.opacity = "1";
+  toast.style.pointerEvents = "auto";
+
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.pointerEvents = "none";
+  }, 3000);
+}
