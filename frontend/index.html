@@ -9,23 +9,31 @@
 <body class="light bg-clear">
   <header>
     <h1>Previsão do Tempo</h1>
-    <button id="theme-toggle" aria-pressed="false">Modo Escuro</button>
+    <button id="theme-toggle" aria-pressed="false" aria-label="Alternar tema para modo escuro">Modo Escuro</button>
   </header>
 
   <main>
-    <section id="search-box">
+    <section id="search-box" role="search" aria-label="Busca por cidade">
       <input
         type="text"
         id="city-input"
         placeholder="Digite uma cidade"
         aria-label="Digite uma cidade para buscar o clima"
+        autocomplete="off"
       />
       <button id="search-btn" aria-label="Buscar clima">Buscar</button>
       <button id="fav-btn" aria-label="Adicionar aos favoritos" disabled>❤️ Favoritos</button>
     </section>
 
-    <section id="weather" tabindex="0" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
-      <div id="spinner"></div>
+    <section
+      id="weather"
+      tabindex="0"
+      aria-live="polite"
+      aria-atomic="true"
+      aria-relevant="additions removals"
+      aria-label="Informações do clima"
+    >
+      <div id="spinner" role="status" aria-live="polite" aria-label="Carregando" style="display:none;"></div>
       <div class="weather-icon" id="icon" aria-hidden="true"></div>
       <div class="info">
         <h2 id="city-name"></h2>
@@ -35,7 +43,12 @@
       </div>
     </section>
 
-    <section id="error-message" role="alert" aria-live="assertive" style="display:none;"></section>
+    <section
+      id="error-message"
+      role="alert"
+      aria-live="assertive"
+      style="display:none;"
+    ></section>
 
     <section id="history-section" aria-label="Histórico de cidades buscadas">
       <h3>Histórico</h3>
