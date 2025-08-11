@@ -126,9 +126,15 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-  errorMessageDiv.style.display = "none";
+ errorMessageDiv.style.display = "none";
 
-  cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+  // Pega estado se existir
+  const state = data.state || (data.sys && data.sys.state) || null;
+
+  // Monta nome completo com estado se houver
+  const cityWithState = state ? `${data.name}, ${state}, ${data.sys.country}` : `${data.name}, ${data.sys.country}`;
+
+  cityNameEl.textContent = cityWithState;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
   descEl.textContent = data.weather[0].description;
 
