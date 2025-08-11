@@ -50,6 +50,7 @@ const toast = document.getElementById("toast");
 function showToast(message, duration = 3000) {
   toast.textContent = message;
   toast.classList.add("show");
+  // toast deve ter no HTML: role="alert" aria-live="assertive" aria-atomic="true"
 
   setTimeout(() => {
     toast.classList.remove("show");
@@ -122,7 +123,6 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-  // Remove a classe error para mostrar o conteúdo normal
   document.body.classList.remove("error");
 
   weatherError.textContent = "";
@@ -160,12 +160,12 @@ function showWeather(data) {
 
 // --- MOSTRAR ERRO NO CARD ---
 function showError(message) {
-  // Adiciona a classe error para mostrar a mensagem e ocultar conteúdo e ícone
   document.body.classList.add("error");
 
   weatherError.textContent = message;
   weatherError.style.display = "block";
   weatherError.style.opacity = "1";
+  // weather-error deve ter role="alert" aria-live="assertive" aria-atomic="true" no HTML
 
   weatherContent.style.display = "none";
   iconEl.style.display = "none";
@@ -182,7 +182,7 @@ function showError(message) {
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
-  weatherDiv.classList.add("loading");   // ativar spinner com transição
+  weatherDiv.classList.add("loading");
   searchBtn.disabled = true;
   favBtn.disabled = true;
   weatherError.style.display = "none";
@@ -198,14 +198,14 @@ async function fetchWeather(city) {
   } catch (err) {
     showError(err.message || "Erro ao buscar o clima");
   } finally {
-    weatherDiv.classList.remove("loading"); // desativar spinner suavemente
+    weatherDiv.classList.remove("loading");
     searchBtn.disabled = false;
     updateFavBtnState();
   }
 }
 
 async function fetchByCoords(lat, lon) {
-  weatherDiv.classList.add("loading");   // ativar spinner com transição
+  weatherDiv.classList.add("loading");
   searchBtn.disabled = true;
   favBtn.disabled = true;
   weatherError.style.display = "none";
@@ -220,12 +220,11 @@ async function fetchByCoords(lat, lon) {
     localStorage.setItem("lastCity", data.name);
   } catch (err) {
     showError(err.message);
-    // Tenta localização padrão se der erro na geolocalização
     if (lat && lon) {
       handleCitySelect("São Miguel do Oeste");
     }
   } finally {
-    weatherDiv.classList.remove("loading"); // desativar spinner suavemente
+    weatherDiv.classList.remove("loading");
     searchBtn.disabled = false;
     updateFavBtnState();
   }
@@ -251,6 +250,7 @@ function renderHistory() {
     const li = document.createElement("li");
     li.tabIndex = 0;
     li.textContent = city;
+    li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
     li.addEventListener("click", () => handleCitySelect(city));
     li.addEventListener("keydown", e => {
       if (e.key === "Enter" || e.key === " ") {
@@ -302,19 +302,29 @@ function renderFavorites() {
   favorites.forEach(city => {
     const li = document.createElement("li");
     li.tabIndex = 0;
+    li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
 
+    // Span clicável como botão acessível
     const citySpan = document.createElement("span");
     citySpan.textContent = city;
     citySpan.style.cursor = "pointer";
     citySpan.title = "Clique para buscar";
+    citySpan.setAttribute("role", "button");
+    citySpan.setAttribute("tabindex", "0");
+    citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
     citySpan.addEventListener("click", () => handleCitySelect(city));
+    citySpan.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleCitySelect(city);
+      }
+    });
 
+    // Botão remover com aria-label
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
     removeBtn.title = `Remover ${city} dos favoritos`;
-    removeBtn.setAttribute("role", "button");
     removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
-    removeBtn.setAttribute("tabindex", "0");
     Object.assign(removeBtn.style, {
       marginLeft: "8px",
       cursor: "pointer",
