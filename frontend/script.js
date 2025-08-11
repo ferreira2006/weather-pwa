@@ -126,11 +126,11 @@ function showWeather(data) {
   document.body.classList.remove("error");
 
   weatherError.textContent = "";
-  weatherError.style.display = "none";
   weatherError.style.opacity = "0";
+  weatherError.hidden = true;
 
-  weatherContent.style.display = "block";
-  iconEl.style.display = "block";
+  weatherContent.hidden = false;
+  iconEl.hidden = false;
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -146,7 +146,7 @@ function showWeather(data) {
   const mainClass = data.weather[0].main.toLowerCase();
   iconEl.classList.add(mainClass);
 
-  weatherDiv.hidden = false;  // Mostra o card (removido controle direto de style.display)
+  weatherDiv.hidden = false;  // mostra o card
   weatherDiv.focus();
 
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -162,14 +162,13 @@ function showError(message) {
   document.body.classList.add("error");
 
   weatherError.textContent = message;
-  weatherError.style.display = "block";
   weatherError.style.opacity = "1";
-  // weather-error deve ter role="alert" aria-live="assertive" aria-atomic="true" no HTML
+  weatherError.hidden = false;
 
-  weatherContent.style.display = "none";
-  iconEl.style.display = "none";
+  weatherContent.hidden = true;
+  iconEl.hidden = true;
 
-  weatherDiv.hidden = false;  // Mostra o card (removido controle direto de style.display)
+  weatherDiv.hidden = false;  // mostra o card
   weatherDiv.focus();
 
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -183,7 +182,7 @@ async function fetchWeather(city) {
   weatherDiv.classList.add("loading");
   searchBtn.disabled = true;
   favBtn.disabled = true;
-  weatherError.style.display = "none";
+  weatherError.hidden = true;
 
   try {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
@@ -206,7 +205,7 @@ async function fetchByCoords(lat, lon) {
   weatherDiv.classList.add("loading");
   searchBtn.disabled = true;
   favBtn.disabled = true;
-  weatherError.style.display = "none";
+  weatherError.hidden = true;
 
   try {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
@@ -302,7 +301,6 @@ function renderFavorites() {
     li.tabIndex = 0;
     li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
 
-    // Span clicável como botão acessível
     const citySpan = document.createElement("span");
     citySpan.textContent = city;
     citySpan.style.cursor = "pointer";
@@ -318,7 +316,6 @@ function renderFavorites() {
       }
     });
 
-    // Botão remover com aria-label
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
     removeBtn.title = `Remover ${city} dos favoritos`;
@@ -376,7 +373,6 @@ function updateFavBtnState() {
   const isCityInFavorites = favorites.includes(city);
   const isCityEmpty = city === '';
 
-  // Só habilita se a cidade foi buscada com sucesso, não vazia e não estiver nos favoritos
   favBtn.disabled = !currentCityValid || isCityEmpty || searchBtn.disabled || isCityInFavorites;
 }
 
@@ -402,7 +398,6 @@ cityInput.addEventListener("keydown", e => {
   }
 });
 
-// Ao digitar algo novo, invalida a cidade válida e desabilita o botão favorito
 cityInput.addEventListener("input", () => {
   currentCityValid = false;
   updateFavBtnState();
