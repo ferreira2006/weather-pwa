@@ -123,8 +123,8 @@ function setDynamicBackgroundFromCurrentIcon() {
 }
 
 // --- MOSTRAR CLIMA ---
-// Agora recebe o estado (uf) opcional e mostra junto no título
-function showWeather(data, state = '') {
+// Corrigida para não redeclarar 'state' e ler direto de data.state
+function showWeather(data) {
   errorMessageDiv.style.display = "none";
 
   const state = data.state ? `, ${data.state}` : "";
@@ -165,7 +165,6 @@ function showError(message) {
 }
 
 // --- FETCH CLIMA ---
-// Busca os dados do clima e o estado (uf) do backend para a cidade
 async function fetchWeather(city) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
@@ -206,8 +205,7 @@ async function fetchByCoords(lat, lon) {
     if (!res.ok)
       throw new Error("Não foi possível obter o clima para sua localização.");
     const data = await res.json();
-    // Mostrar incluindo o estado retornado pelo backend
-    showWeather(data, data.state);
+    showWeather(data); // só passa data
     saveHistory(data.name);
     renderHistory();
   } catch (err) {
@@ -340,12 +338,12 @@ function renderFavorites() {
 }
 
 // --- AÇÃO DE BUSCAR CIDADE ---
-// Ajustado para passar o estado retornado no fetchWeather para showWeather
+// Ajustado para não passar estado separado, apenas o data
 async function handleCitySelect(city) {
   cityInput.value = city;
   try {
     const data = await fetchWeather(city);
-    showWeather(data, data.state); // passando o estado para exibir
+    showWeather(data); // passa só data
     saveHistory(city);
     renderHistory();
     localStorage.setItem("lastCity", city);
