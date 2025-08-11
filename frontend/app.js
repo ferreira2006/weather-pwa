@@ -128,7 +128,7 @@ function setDynamicBackgroundFromCurrentIcon() {
 function showWeather(data) {
   errorMessageDiv.style.display = "none";
 
-  cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+  cityNameEl.textContent = `${data.name}, ${data.state || ''} ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
   descEl.textContent = data.weather[0].description;
 
