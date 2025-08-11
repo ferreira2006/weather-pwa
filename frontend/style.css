@@ -433,6 +433,10 @@ body.dark #weather {
   z-index: 5;
 }
 
+#weather.loading #spinner {
+  display: block;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -554,8 +558,8 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
-  min-width: 48px;  /* Alvo mínimo */
-  min-height: 40px; /* Alvo mínimo */
+  min-width: 48px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -617,48 +621,3 @@ body.dark #favorites-section {
   }
 }
 
-@media (max-width: 450px) {
-  /* Caixa de busca em coluna no celular */
-  #search-box {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-  #search-box input[type="text"],
-  #search-box button {
-    width: 100%;
-    min-width: auto;
-    flex: none;
-  }
-}
-
-@media (max-width: 400px) {
-  /* Histórico e favoritos empilhados */
-  #history-list,
-  #favorites-list {
-    flex-direction: column;
-    gap: 8px;
-  }
-  #history-list li,
-  #favorites-list li {
-    width: 100%;
-    text-align: center;
-    padding: 12px 0;
-    font-size: 1.1rem;
-  }
-}
-
-/* Feedback visual ao toque */
-button:active,
-#history-list li:active,
-#favorites-list li:active {
-  filter: brightness(0.85);
-  transition: filter 0.1s;
-}
-
-/* Placeholder com maior contraste em mobile */
-@media (max-width: 600px) {
-  input[type="text"]::placeholder {
-    color: #999;
-  }
-}
