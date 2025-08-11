@@ -167,8 +167,10 @@ async function fetchWeather(city) {
     saveHistory(data.name);
     renderHistory();
     localStorage.setItem("lastCity", data.name);
+    return data; // Retorna os dados para o chamador
   } catch (err) {
     showError(err.message);
+    return null;
   } finally {
     spinner.hidden = true;
     searchBtn.disabled = false;
@@ -319,10 +321,11 @@ async function handleCitySelect(city) {
   cityInput.value = city;
   try {
     const data = await fetchWeather(city);
-    showWeather(data);
-    saveHistory(city);
-    renderHistory();
-    localStorage.setItem("lastCity", city);
+    if (data) {
+      saveHistory(city);
+      renderHistory();
+      localStorage.setItem("lastCity", city);
+    }
   } catch (err) {
     showError(err.message || "Erro ao buscar o clima");
   }
