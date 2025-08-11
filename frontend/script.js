@@ -164,6 +164,10 @@ function showError(message) {
   // Oculta conteúdo normal do clima
   weatherContent.style.display = "none";
 
+  // Limpa e oculta o ícone do clima
+  iconEl.className = "weather-icon"; // Remove classes anteriores
+  iconEl.style.backgroundImage = "none"; // Remove a imagem do ícone
+
   // Mostra erro interno no card
   weatherError.textContent = message;
   weatherError.style.display = "block";
