@@ -350,6 +350,10 @@ body.error #weather-content {
   display: none;
 }
 
+body.error #icon {
+  display: none;
+}
+
 /* Ícones clima com animações */
 .weather-icon {
   width: 100px;
