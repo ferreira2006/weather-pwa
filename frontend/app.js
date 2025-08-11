@@ -22,6 +22,11 @@ const maxHistoryItems = 5;
 
 let lastValidCity = null; // Guarda a última cidade válida exibida
 
+// --- Validação simples do input ---
+function isValidCityInput(city) {
+  return city.trim().length > 0;
+}
+
 // --- BACKGROUND DINÂMICO POR CLIMA ---
 function setDynamicBackground(mainWeather) {
   const classes = [
@@ -365,13 +370,22 @@ function updateFavBtnState() {
 
 // --- EVENTOS ---
 searchBtn.addEventListener("click", () => {
-  const city = cityInput.value.trim();
-  if (city) handleCitySelect(city);
+  const city = cityInput.value;
+  if (!isValidCityInput(city)) {
+    showToast("Por favor, informe uma cidade válida.");
+    return;
+  }
+  handleCitySelect(city);
 });
 
 cityInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
+    const city = cityInput.value;
+    if (!isValidCityInput(city)) {
+      showToast("Por favor, informe uma cidade válida.");
+      return;
+    }
     searchBtn.click();
   }
 });
