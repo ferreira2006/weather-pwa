@@ -31,7 +31,7 @@
   --input-border-focus: var(--button-bg);
 }
 
-/* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
+/* BACKGROUND DINÂMICO POR TEMA + CLIMA */
 body.light.bg-clear {
   background: var(--bg-gradient-light-clear);
   color: var(--text-color-light);
@@ -246,8 +246,7 @@ button#fav-btn:disabled {
 }
 
 /* Botão remover favorito */
-.remove-fav-btn,
-#favorites-list button {
+.remove-fav-btn {
   margin-left: 8px;
   cursor: pointer;
   background: transparent;
@@ -257,16 +256,13 @@ button#fav-btn:disabled {
   font-size: 1.2rem;
   line-height: 1;
   padding: 0;
-  min-width: 30px;
-  min-height: 30px;
+  outline-offset: 2px;
   user-select: none;
   transition: color 0.3s;
 }
 
 .remove-fav-btn:hover,
-.remove-fav-btn:focus,
-#favorites-list button:hover,
-#favorites-list button:focus {
+.remove-fav-btn:focus {
   color: var(--button-bg-hover);
   outline: none;
 }
@@ -280,6 +276,7 @@ input[type="text"]:focus,
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
+  box-shadow: 0 0 8px var(--button-bg);
 }
 
 /* Card clima */
@@ -390,24 +387,8 @@ body.dark #weather {
   width: 40px;
   height: 40px;
   animation: spin 1.2s linear infinite;
-  display: none;
   z-index: 10;
   pointer-events: none;
-}
-
-/* Spinner com overlay no card */
-#weather.loading::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255 255 255 / 0.3);
-  backdrop-filter: blur(3px);
-  border-radius: 12px;
-  z-index: 5;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* Info texto do clima */
@@ -623,3 +604,5 @@ button:active,
     color: #999;
   }
 }
+
+/* Spinner mostrado pelo JS (remova display:none do CSS se existir) */
