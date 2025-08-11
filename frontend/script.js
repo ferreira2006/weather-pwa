@@ -182,7 +182,7 @@ function showError(message) {
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
-  spinner.style.display = "block";
+  weatherDiv.classList.add("loading");   // ativar spinner com transição
   searchBtn.disabled = true;
   favBtn.disabled = true;
   weatherError.style.display = "none";
@@ -198,14 +198,14 @@ async function fetchWeather(city) {
   } catch (err) {
     showError(err.message || "Erro ao buscar o clima");
   } finally {
-    spinner.style.display = "none";
+    weatherDiv.classList.remove("loading"); // desativar spinner suavemente
     searchBtn.disabled = false;
     updateFavBtnState();
   }
 }
 
 async function fetchByCoords(lat, lon) {
-  spinner.style.display = "block";
+  weatherDiv.classList.add("loading");   // ativar spinner com transição
   searchBtn.disabled = true;
   favBtn.disabled = true;
   weatherError.style.display = "none";
@@ -225,7 +225,7 @@ async function fetchByCoords(lat, lon) {
       handleCitySelect("São Miguel do Oeste");
     }
   } finally {
-    spinner.style.display = "none";
+    weatherDiv.classList.remove("loading"); // desativar spinner suavemente
     searchBtn.disabled = false;
     updateFavBtnState();
   }
