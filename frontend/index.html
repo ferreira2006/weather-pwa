@@ -58,7 +58,7 @@
     <!-- Cidades favoritas -->
     <section id="favorites-section" aria-label="Cidades favoritas">
       <h3>Cidades Favoritas</h3>
-      <ul id="favorites-list"></ul>
+      <ul id="favorites-list" role="list"></ul>
     </section>
 
     <!-- Card do clima -->
@@ -79,19 +79,20 @@
         <div class="details" id="details"></div>
       </div>
 
-      <div id="weather-error" role="alert" tabindex="0"></div>
+      <div id="weather-error" role="alert" tabindex="0" aria-live="assertive" aria-atomic="true" style="display:none; color: #b00000; background-color: #ffdede; padding: 10px; border-radius: 4px;"></div>
 
-      <div id="spinner" class="spinner" aria-label="Carregando"></div>
+      <div id="spinner" class="spinner" aria-label="Carregando" style="display:none;"></div>
     </section>
 
     <!-- Histórico das últimas cidades -->
     <section id="history-section" aria-label="Histórico das cidades pesquisadas">
       <h3>Últimas cidades pesquisadas</h3>
-      <ul id="history-list"></ul>
+      <ul id="history-list" role="list"></ul>
     </section>
   </main>
 
-  <div id="toast" aria-live="polite" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
+  <div id="toast" aria-live="assertive" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
