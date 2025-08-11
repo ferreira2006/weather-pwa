@@ -48,12 +48,9 @@ function setDynamicBackground(mainWeather) {
 const toast = document.getElementById("toast");
 
 function showToast(message, duration = 3000) {
-  // Limpa primeiro para forçar leitores de tela a detectar mudança
-  toast.textContent = '';
-  setTimeout(() => {
-    toast.textContent = message;
-    toast.classList.add("show");
-  }, 100);
+  toast.textContent = message;
+  toast.classList.add("show");
+  // toast deve ter no HTML: role="alert" aria-live="assertive" aria-atomic="true"
 
   setTimeout(() => {
     toast.classList.remove("show");
@@ -149,8 +146,7 @@ function showWeather(data) {
   const mainClass = data.weather[0].main.toLowerCase();
   iconEl.classList.add(mainClass);
 
-  weatherDiv.hidden = false;
-  weatherDiv.style.display = "grid";
+  weatherDiv.hidden = false;  // Mostra o card (removido controle direto de style.display)
   weatherDiv.focus();
 
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -165,20 +161,15 @@ function showWeather(data) {
 function showError(message) {
   document.body.classList.add("error");
 
-  // Limpa primeiro para garantir que leitores de tela anunciem erro mesmo repetido
-  weatherError.textContent = '';
+  weatherError.textContent = message;
   weatherError.style.display = "block";
   weatherError.style.opacity = "1";
-
-  setTimeout(() => {
-    weatherError.textContent = message;
-  }, 100);
+  // weather-error deve ter role="alert" aria-live="assertive" aria-atomic="true" no HTML
 
   weatherContent.style.display = "none";
   iconEl.style.display = "none";
 
-  weatherDiv.hidden = false;
-  weatherDiv.style.display = "grid";
+  weatherDiv.hidden = false;  // Mostra o card (removido controle direto de style.display)
   weatherDiv.focus();
 
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
