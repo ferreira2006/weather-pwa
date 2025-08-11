@@ -458,6 +458,7 @@ body.dark #weather {
   text-align: center;
   user-select: none;
   transition: background-color 0.3s, color 0.3s;
+  display: none;
 }
 
 body.dark #error-message {
@@ -514,8 +515,8 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
-  min-width: 48px;  /* Alvo mínimo */
-  min-height: 40px; /* Alvo mínimo */
+  min-width: 48px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
