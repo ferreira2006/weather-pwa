@@ -404,7 +404,10 @@ window.onload = () => {
   } else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => handleCitySelect("São Miguel do Oeste")
+  () => {
+    showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
+    handleCitySelect("São Miguel do Oeste");
+  }
     );
   } else {
     handleCitySelect("São Miguel do Oeste");
