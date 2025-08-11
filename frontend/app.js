@@ -131,7 +131,13 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-   errorMessageDiv.style.display = "none";
+   // Remover mensagem de erro interna se existir
+  const errorInsideCard = document.getElementById("weather-error-message");
+  if (errorInsideCard) {
+    errorInsideCard.remove();
+  }
+
+  errorMessageDiv.style.display = "none";
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -159,20 +165,40 @@ function showWeather(data) {
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
-
-  // Scroll automático para o card de clima
-  weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+  weatherDiv.scrollIntoView({ behavior: "smooth" });
 }
 
 // --- ERRO ---
 function showError(message) {
-  weatherDiv.style.display = "none";
-  errorMessageDiv.textContent = message;
-  errorMessageDiv.style.display = "block";
-  errorMessageDiv.focus();
+  // Mostrar card do clima
+  weatherDiv.style.display = "grid";
+  
+  // Limpar dados do clima
+  cityNameEl.textContent = "";
+  tempEl.textContent = "";
+  descEl.textContent = "";
+  detailsEl.textContent = "";
 
-  // Scroll automático para a mensagem de erro
-  errorMessageDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Criar ou obter a div de erro interna no card
+  let errorInsideCard = document.getElementById("weather-error-message");
+  if (!errorInsideCard) {
+    errorInsideCard = document.createElement("div");
+    errorInsideCard.id = "weather-error-message";
+    errorInsideCard.style.color = "var(--button-bg)";
+    errorInsideCard.style.fontWeight = "700";
+    errorInsideCard.style.fontSize = "1.2rem";
+    errorInsideCard.style.textAlign = "center";
+    errorInsideCard.style.padding = "20px";
+    weatherDiv.appendChild(errorInsideCard);
+  }
+  errorInsideCard.textContent = message;
+
+  // Esconder spinner
+  spinner.style.display = "none";
+
+  // Focar e rolar para o card
+  weatherDiv.focus();
+  weatherDiv.scrollIntoView({ behavior: "smooth" });
 }
 
 // --- FETCH CLIMA ---
