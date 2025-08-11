@@ -424,7 +424,10 @@ window.onload = () => {
   } else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => handleCitySelect("São Miguel do Oeste")
+      (error) => {
+        showToast("Não foi possível obter sua localização. Usando localização padrão.");
+        handleCitySelect("São Miguel do Oeste");
+      }
     );
   } else {
     handleCitySelect("São Miguel do Oeste");
