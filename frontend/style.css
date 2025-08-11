@@ -246,8 +246,7 @@ button#fav-btn:disabled {
 }
 
 /* Botão remover favorito */
-.remove-fav-btn,
-#favorites-list button {
+.remove-fav-btn {
   margin-left: 8px;
   cursor: pointer;
   background: transparent;
@@ -264,9 +263,7 @@ button#fav-btn:disabled {
 }
 
 .remove-fav-btn:hover,
-.remove-fav-btn:focus,
-#favorites-list button:hover,
-#favorites-list button:focus {
+.remove-fav-btn:focus {
   color: var(--button-bg-hover);
   outline: none;
 }
@@ -275,8 +272,7 @@ button#fav-btn:disabled {
 button:focus,
 input[type="text"]:focus,
 #history-list li:focus,
-#favorites-list li:focus,
-#favorites-list button:focus {
+#favorites-list li:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
@@ -458,7 +454,6 @@ body.dark #weather {
   text-align: center;
   user-select: none;
   transition: background-color 0.3s, color 0.3s;
-  display: none;
 }
 
 body.dark #error-message {
@@ -515,8 +510,8 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
-  min-width: 48px;
-  min-height: 40px;
+  min-width: 48px;  /* Alvo mínimo */
+  min-height: 40px; /* Alvo mínimo */
   display: flex;
   align-items: center;
   justify-content: center;
