@@ -267,6 +267,9 @@ function addFavorite(city) {
 }
 
 function removeFavorite(city) {
+  const confirmed = confirm(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+  if (!confirmed) return;
+
   let favorites = getFavorites();
   favorites = favorites.filter((c) => c.toLowerCase() !== city.toLowerCase());
   saveFavorites(favorites);
