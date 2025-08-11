@@ -166,13 +166,13 @@ function showError(message) {
 
   // Limpa e oculta o ícone do clima
   iconEl.className = "weather-icon"; // Remove classes anteriores
-  iconEl.style.backgroundImage = "none"; // Remove a imagem do ícone
+  iconEl.style.backgroundImage = "none";
 
-  // Mostra erro interno no card
+  // Atualiza e mostra mensagem de erro no card
   weatherError.textContent = message;
   weatherError.style.display = "block";
 
-  // Mostra o card (não esconde o card)
+  // Mostra o card e foca nele
   weatherDiv.hidden = false;
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
