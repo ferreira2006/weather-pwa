@@ -163,7 +163,7 @@ async function fetchWeather(city) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    ();
+    updateFavBtnState();
   }
 }
 
@@ -185,7 +185,7 @@ async function fetchByCoords(lat, lon) {
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
-    ();
+    updateFavBtnState();
   }
 }
 
