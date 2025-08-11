@@ -132,25 +132,16 @@ function showWeather(data) {
     Vento: ${data.wind.speed} m/s
   `;
 
-  const mainWeather = data.weather[0].main.toLowerCase();
-  iconEl.className = "weather-icon"; // limpa classes
-  if (mainWeather.includes("clear")) iconEl.classList.add("clear");
-  else if (mainWeather.includes("cloud")) iconEl.classList.add("clouds");
-  else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) iconEl.classList.add("rain");
-  else if (mainWeather.includes("thunderstorm")) iconEl.classList.add("thunderstorm");
-  else if (mainWeather.includes("snow")) iconEl.classList.add("snow");
-  else iconEl.classList.add("clear");
-
-  setDynamicBackground(mainWeather);
-  updateThemeColors();
+  // ... seu código atual para icone e background
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
 
-  // Marca que a cidade foi buscada com sucesso e atualiza o botão favorito
+  // Scroll automático pro card de clima
+  weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
   currentCityValid = true;
   updateFavBtnState();
-}
 
 // --- ERRO ---
 function showError(message) {
@@ -159,7 +150,9 @@ function showError(message) {
   errorMessageDiv.style.display = "block";
   errorMessageDiv.focus();
 
-  // Se der erro, invalida cidade válida e atualiza botão
+  // Scroll automático para a mensagem de erro
+  errorMessageDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
   currentCityValid = false;
   updateFavBtnState();
 }
