@@ -164,7 +164,7 @@ function showError(message) {
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
-spinner.style.display = "block";
+  spinner.style.display = "block";
   searchBtn.disabled = true;
   favBtn.disabled = true;  // Desabilita no começo
   errorMessageDiv.style.display = "none";
@@ -176,8 +176,10 @@ spinner.style.display = "block";
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
 
-    // Se deu certo, habilita o botão de favorito
-    favBtn.disabled = false;
+    // Verifica se a cidade já está nos favoritos antes de habilitar o botão
+    const cityLower = data.name.toLowerCase();
+    const isFavorite = getFavorites().some(fav => fav.toLowerCase() === cityLower);
+    favBtn.disabled = isFavorite;
 
     return data;
   } catch (err) {
@@ -371,9 +373,8 @@ cityInput.addEventListener("keydown", (e) => {
   }
 });
 
-cityInput.addEventListener("input", updateFavBtnState);
-
 cityInput.addEventListener("input", () => {
+  updateFavBtnState();
   // Só ativa o botão se o input não estiver vazio e o botão não estiver desabilitado por erro
   if (cityInput.value.trim() === "" || searchBtn.disabled) {
     favBtn.disabled = true;
@@ -390,6 +391,7 @@ async function handleAddFavorite() {
     const data = await fetchWeather(city);
     if (data && data.name) {
       addFavorite(data.name);
+      updateFavBtnState();
     } else {
       showToast(`Cidade "${city}" não encontrada. Não pode adicionar aos favoritos.`);
     }
@@ -410,7 +412,6 @@ window.onload = () => {
   applySavedTheme();
   renderHistory();
   renderFavorites();
-  updateFavBtnState();
   updateFavBtnState();
 
   const lastCity = localStorage.getItem("lastCity");
