@@ -32,7 +32,7 @@ function setDynamicBackground(mainWeather) {
   else if (mainWeather.includes("thunderstorm")) weatherKey = "thunderstorm";
   else if (mainWeather.includes("snow")) weatherKey = "snow";
 
-  document.body.classList.add(`bg-${weatherKey}`);
+  document.body.classList.add(bg-${weatherKey});
 }
 
 const toast = document.getElementById("toast");
@@ -114,15 +114,15 @@ function setDynamicBackgroundFromCurrentIcon() {
 function showWeather(data) {
   errorMessageDiv.style.display = "none";
 
-  cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
-  tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
+  cityNameEl.textContent = ${data.name}, ${data.sys.country};
+  tempEl.textContent = ${Math.round(data.main.temp)}ºC;
   descEl.textContent = data.weather[0].description;
 
-  detailsEl.innerHTML = `
+  detailsEl.innerHTML = 
     Sensação: ${Math.round(data.main.feels_like)}ºC<br/>
     Umidade: ${data.main.humidity}%<br/>
     Vento: ${data.wind.speed} m/s
-  `;
+  ;
 
   const mainWeather = data.weather[0].main.toLowerCase();
   iconEl.className = "weather-icon"; // limpa classes
@@ -156,7 +156,7 @@ async function fetchWeather(city) {
   errorMessageDiv.style.display = "none";
 
   try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
+    const res = await fetch(${backendUrl}?city=${encodeURIComponent(city)}&days=1);
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
     return data;
@@ -174,7 +174,7 @@ async function fetchByCoords(lat, lon) {
   errorMessageDiv.style.display = "none";
 
   try {
-    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
+    const res = await fetch(${backendUrl}?lat=${lat}&lon=${lon}&days=1);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
     const data = await res.json();
     showWeather(data);
@@ -233,13 +233,13 @@ function saveFavorites(favorites) {
 function addFavorite(city) {
   let favorites = getFavorites();
   if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
-    showToast(`"${city}" já está nos favoritos.`);
+    showToast("${city}" já está nos favoritos.);
     return;
   }
   favorites.push(city);
   saveFavorites(favorites);
   renderFavorites();
-  showToast(`"${city}" adicionado aos favoritos!`);
+  showToast("${city}" adicionado aos favoritos!);
 }
 
 function removeFavorite(city) {
@@ -247,7 +247,7 @@ function removeFavorite(city) {
   favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
   saveFavorites(favorites);
   renderFavorites();
-  showToast(`"${city}" removido dos favoritos.`);
+  showToast("${city}" removido dos favoritos.);
 }
 
 function renderFavorites() {
@@ -266,9 +266,9 @@ function renderFavorites() {
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
-    removeBtn.title = `Remover ${city} dos favoritos`;
+    removeBtn.title = Remover ${city} dos favoritos;
     removeBtn.setAttribute("role", "button");
-    removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
+    removeBtn.setAttribute("aria-label", Remover ${city} dos favoritos);
     removeBtn.setAttribute("tabindex", "0");
     Object.assign(removeBtn.style, {
       marginLeft: "8px",
