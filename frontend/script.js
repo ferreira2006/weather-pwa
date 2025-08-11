@@ -6,13 +6,15 @@ const favBtn = document.getElementById("fav-btn");
 const themeToggle = document.getElementById("theme-toggle");
 
 const weatherDiv = document.getElementById("weather");
+const weatherContent = document.getElementById("weather-content");
+const weatherError = document.getElementById("weather-error");
+
 const cityNameEl = document.getElementById("city-name");
 const iconEl = document.getElementById("icon");
 const tempEl = document.getElementById("temp");
 const descEl = document.getElementById("desc");
 const detailsEl = document.getElementById("details");
 const spinner = document.getElementById("spinner");
-const errorMessageDiv = document.getElementById("error-message");
 
 const historyListEl = document.getElementById("history-list");
 const favoritesListEl = document.getElementById("favorites-list");
@@ -76,8 +78,8 @@ function updateThemeColors() {
 
   detailsEl.style.color = isDark ? '#ddd' : '#000';
 
-  errorMessageDiv.style.color = isDark ? '#ffbaba' : '#b00000';
-  errorMessageDiv.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
+  weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
+  weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
 
   themeToggle.style.color = isDark ? '#ddd' : '#000';
   themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
@@ -110,7 +112,7 @@ function toggleTheme() {
 
 // --- UTILITÁRIOS ---
 function setDynamicBackgroundFromCurrentIcon() {
-  if (weatherDiv.style.display !== "none") {
+  if (!weatherDiv.hidden) {
     const mainClass = [...iconEl.classList].find(c => c !== "weather-icon");
     setDynamicBackground(mainClass || "clear");
   } else {
@@ -120,7 +122,12 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-  errorMessageDiv.style.display = "none";
+  // Oculta erro interno
+  weatherError.textContent = "";
+  weatherError.style.display = "none";
+
+  // Mostra conteúdo normal
+  weatherContent.style.display = "block";
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -132,26 +139,42 @@ function showWeather(data) {
     Vento: ${data.wind.speed} m/s
   `;
 
-  // ... seu código atual para icone e background
+  // Atualizar ícone
+  iconEl.className = "weather-icon";
+  const mainClass = data.weather[0].main.toLowerCase();
+  iconEl.classList.add(mainClass);
 
+  // Mostrar o card e focar
+  weatherDiv.hidden = false;
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
 
-  // Scroll automático pro card de clima
+  // Scroll automático para o card de clima
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
   currentCityValid = true;
   updateFavBtnState();
 
-// --- ERRO ---
-function showError(message) {
-  weatherDiv.style.display = "none";
-  errorMessageDiv.textContent = message;
-  errorMessageDiv.style.display = "block";
-  errorMessageDiv.focus();
+  // Atualizar background dinâmico
+  setDynamicBackground(data.weather[0].main);
+}
 
-  // Scroll automático para a mensagem de erro
-  errorMessageDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+// --- MOSTRAR ERRO NO CARD ---
+function showError(message) {
+  // Oculta conteúdo normal do clima
+  weatherContent.style.display = "none";
+
+  // Mostra erro interno no card
+  weatherError.textContent = message;
+  weatherError.style.display = "block";
+
+  // Mostra o card (não esconde o card)
+  weatherDiv.hidden = false;
+  weatherDiv.style.display = "grid";
+  weatherDiv.focus();
+
+  // Scroll para o card de clima
+  weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
   currentCityValid = false;
   updateFavBtnState();
@@ -162,13 +185,18 @@ async function fetchWeather(city) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
   favBtn.disabled = true;
-  errorMessageDiv.style.display = "none";
+  weatherError.style.display = "none";
 
   try {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
-    return data;
+    showWeather(data);
+    saveHistory(city);
+    renderHistory();
+    localStorage.setItem("lastCity", city);
+  } catch (err) {
+    showError(err.message || "Erro ao buscar o clima");
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
@@ -180,7 +208,7 @@ async function fetchByCoords(lat, lon) {
   spinner.style.display = "block";
   searchBtn.disabled = true;
   favBtn.disabled = true;
-  errorMessageDiv.style.display = "none";
+  weatherError.style.display = "none";
 
   try {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
@@ -189,8 +217,13 @@ async function fetchByCoords(lat, lon) {
     showWeather(data);
     saveHistory(data.name);
     renderHistory();
+    localStorage.setItem("lastCity", data.name);
   } catch (err) {
     showError(err.message);
+    // Tenta localização padrão se der erro na geolocalização
+    if (lat && lon) {
+      handleCitySelect("São Miguel do Oeste");
+    }
   } finally {
     spinner.style.display = "none";
     searchBtn.disabled = false;
@@ -321,11 +354,7 @@ function renderFavorites() {
 async function handleCitySelect(city) {
   cityInput.value = city;
   try {
-    const data = await fetchWeather(city);
-    showWeather(data);
-    saveHistory(city);
-    renderHistory();
-    localStorage.setItem("lastCity", city);
+    await fetchWeather(city);
   } catch (err) {
     showError(err.message || "Erro ao buscar o clima");
   }
@@ -397,10 +426,10 @@ window.onload = () => {
   } else if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-  () => {
-    showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
-    handleCitySelect("São Miguel do Oeste");
-  }
+      () => {
+        showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
+        handleCitySelect("São Miguel do Oeste");
+      }
     );
   } else {
     handleCitySelect("São Miguel do Oeste");
