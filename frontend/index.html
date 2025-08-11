@@ -79,9 +79,9 @@
         <div class="details" id="details"></div>
       </div>
 
-      <div id="weather-error" role="alert" tabindex="0" style="display:none; padding: 1rem; border-radius: 8px; background-color: #ffdede; color: #b00000;"></div>
+      <div id="weather-error" role="alert" tabindex="0"></div>
 
-      <div id="spinner" class="spinner" aria-label="Carregando" hidden></div>
+      <div id="spinner" class="spinner" aria-label="Carregando"></div>
     </section>
 
     <!-- Histórico das últimas cidades -->
@@ -89,9 +89,6 @@
       <h3>Últimas cidades pesquisadas</h3>
       <ul id="history-list"></ul>
     </section>
-    
-    <!-- Removido o div #error-message externo pois agora usamos #weather-error interno -->
-
   </main>
 
   <div id="toast" aria-live="polite" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
