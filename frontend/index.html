@@ -70,10 +70,8 @@
       tabindex="0"
       hidden
     >
-      <!-- Ícone do clima -->
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
 
-      <!-- Conteúdo normal do clima -->
       <div id="weather-content" class="info">
         <h2 id="city-name"></h2>
         <div class="temp" id="temp"></div>
@@ -81,10 +79,8 @@
         <div class="details" id="details"></div>
       </div>
 
-      <!-- Mensagem de erro interna ao card -->
-      <div id="weather-error" role="alert" aria-live="assertive"></div>
+      <div id="weather-error" role="alert" tabindex="0" style="display:none; padding: 1rem; border-radius: 8px; background-color: #ffdede; color: #b00000;"></div>
 
-      <!-- Spinner -->
       <div id="spinner" class="spinner" aria-label="Carregando" hidden></div>
     </section>
 
@@ -93,9 +89,9 @@
       <h3>Últimas cidades pesquisadas</h3>
       <ul id="history-list"></ul>
     </section>
+    
+    <!-- Removido o div #error-message externo pois agora usamos #weather-error interno -->
 
-    <!-- Mensagem de erro externa (opcional, pode usar só a interna) -->
-    <div id="error-message" role="alert" tabindex="0" hidden></div>
   </main>
 
   <div id="toast" aria-live="polite" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
