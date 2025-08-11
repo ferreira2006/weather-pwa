@@ -51,7 +51,7 @@
           <option value="São Miguel do Oeste"></option>
         </datalist>
         <button id="search-btn" type="button" aria-label="Buscar clima da cidade">Buscar</button>
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" style="margin-left: 10px;">Adicionar aos favoritos</button>
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>Favorito</button>
       </div>
     </section>
 
@@ -73,11 +73,11 @@
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
       <div class="info">
         <h2 id="city-name"></h2>
-        <div class="temp" id="temp"></div>
-        <div class="desc" id="desc"></div>
-        <div class="details" id="details"></div>
+        <p class="temp" id="temp"></p>
+        <p class="desc" id="desc"></p>
+        <p class="details" id="details"></p>
       </div>
-      <div id="spinner" class="spinner" aria-label="Carregando" hidden></div>
+      <div id="spinner" aria-label="Carregando" hidden></div>
     </section>
 
     <!-- Histórico das últimas cidades -->
@@ -89,7 +89,29 @@
     <div id="error-message" role="alert" tabindex="0" hidden></div>
   </main>
 
-  <div id="toast" aria-live="polite" aria-atomic="true" role="alert" style="position: fixed; bottom: 20px; right: 20px; background: #333; color: #fff; padding: 12px 20px; border-radius: 8px; opacity: 0; pointer-events: none; transition: opacity 0.4s;"></div>
-  <script src="scripty.js"></script>
+  <div
+    id="toast"
+    aria-live="polite"
+    aria-atomic="true"
+    role="alert"
+    style="
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--button-bg);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      font-weight: 700;
+      user-select: none;
+      z-index: 1000;
+    "
+  ></div>
+
+  <script src="scripty.js" defer></script>
 </body>
 </html>
