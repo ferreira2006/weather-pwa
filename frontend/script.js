@@ -122,12 +122,15 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-  // Oculta erro interno
+  // Remove a classe error para mostrar o conteúdo normal
+  document.body.classList.remove("error");
+
   weatherError.textContent = "";
   weatherError.style.display = "none";
+  weatherError.style.opacity = "0";
 
-  // Mostra conteúdo normal
   weatherContent.style.display = "block";
+  iconEl.style.display = "block";
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -139,45 +142,38 @@ function showWeather(data) {
     Vento: ${data.wind.speed} m/s
   `;
 
-  // Atualizar ícone
   iconEl.className = "weather-icon";
   const mainClass = data.weather[0].main.toLowerCase();
   iconEl.classList.add(mainClass);
 
-  // Mostrar o card e focar
   weatherDiv.hidden = false;
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
 
-  // Scroll automático para o card de clima
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
   currentCityValid = true;
   updateFavBtnState();
 
-  // Atualizar background dinâmico
   setDynamicBackground(data.weather[0].main);
 }
 
 // --- MOSTRAR ERRO NO CARD ---
 function showError(message) {
-  // Oculta conteúdo normal do clima
-  weatherContent.style.display = "none";
+  // Adiciona a classe error para mostrar a mensagem e ocultar conteúdo e ícone
+  document.body.classList.add("error");
 
-  // Limpa e oculta o ícone do clima
-  iconEl.className = "weather-icon"; // Remove classes anteriores
-  iconEl.style.backgroundImage = "none";
-
-  // Atualiza e mostra mensagem de erro no card
   weatherError.textContent = message;
   weatherError.style.display = "block";
+  weatherError.style.opacity = "1";
 
-  // Mostra o card e foca nele
+  weatherContent.style.display = "none";
+  iconEl.style.display = "none";
+
   weatherDiv.hidden = false;
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
 
-  // Scroll para o card de clima
   weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
   currentCityValid = false;
