@@ -172,12 +172,15 @@ function showWeather(data) {
 function showError(message) {
   // Mostrar card do clima
   weatherDiv.style.display = "grid";
-  
+
   // Limpar dados do clima
   cityNameEl.textContent = "";
   tempEl.textContent = "";
   descEl.textContent = "";
   detailsEl.textContent = "";
+
+  // Configurar ícone para erro (exemplo: usa classe 'error' que você define no CSS)
+  iconEl.className = "weather-icon error";
 
   // Criar ou obter a div de erro interna no card
   let errorInsideCard = document.getElementById("weather-error-message");
@@ -200,6 +203,7 @@ function showError(message) {
   weatherDiv.focus();
   weatherDiv.scrollIntoView({ behavior: "smooth" });
 }
+
 
 // --- FETCH CLIMA ---
 async function fetchWeather(city) {
