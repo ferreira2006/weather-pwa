@@ -366,11 +366,23 @@ cityInput.addEventListener("keydown", (e) => {
 
 cityInput.addEventListener("input", updateFavBtnState);
 
-favBtn.addEventListener("click", () => {
+async function handleAddFavorite() {
   const city = cityInput.value.trim();
   if (!city) return;
-  addFavorite(city);
-});
+
+  try {
+    const data = await fetchWeather(city);
+    if (data && data.name) {
+      addFavorite(data.name);
+    } else {
+      showToast(`Cidade "${city}" não encontrada. Não pode adicionar aos favoritos.`);
+    }
+  } catch (error) {
+    showToast(`Erro ao buscar cidade "${city}". Não pode adicionar aos favoritos.`);
+  }
+}
+
+favBtn.addEventListener("click", handleAddFavorite);
 
 themeToggle.addEventListener("click", toggleTheme);
 
