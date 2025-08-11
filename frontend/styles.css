@@ -434,7 +434,6 @@ body.error #icon {
   height: 40px;
   animation: spin 1.2s linear infinite;
 
-  /* Removido display:none para usar opacity e transição */
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
@@ -492,30 +491,24 @@ body.error #icon {
   color: inherit;
 }
 
+#toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #333;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  user-select: none;
+  z-index: 9999;
+}
+
 #toast.show {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* Mensagem de erro externa */
-#error-message {
-  margin-top: 20px;
-  max-width: 600px;
-  background-color: #5c0000;
-  color: #ffbaba;
-  padding: 14px;
-  border-radius: 8px;
-  font-weight: 700;
-  width: 100%;
-  text-align: center;
-  user-select: none;
-  transition: background-color 0.3s, color 0.3s;
-  display: none;
-}
-
-body.dark #error-message {
-  background-color: #8b0000;
-  color: #ffc4c4;
 }
 
 /* Seções Histórico e Favoritos */
