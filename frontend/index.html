@@ -3,115 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Clima Atual</title>
+  <title>Previsão do Tempo</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="light">
-
+<body class="light bg-clear">
   <header>
-    <h1>Clima Atual</h1>
-    <button
-      id="theme-toggle"
-      aria-label="Alternar tema"
-      aria-pressed="false"
-      type="button"
-    >Modo Escuro</button>
+    <h1>Previsão do Tempo</h1>
+    <button id="theme-toggle" aria-pressed="false">Modo Escuro</button>
   </header>
 
   <main>
-    <!-- Busca -->
-    <section id="search-section" aria-label="Busca de cidades">
-      <div id="search-box">
-        <input
-          list="city-suggestions"
-          type="text"
-          id="city-input"
-          placeholder="Digite a cidade"
-          aria-label="Digite a cidade"
-          autocomplete="off"
-        />
-        <datalist id="city-suggestions">
-          <option value="Anchieta"></option>
-          <option value="Bandeirante"></option>
-          <option value="Barra Bonita"></option>
-          <option value="Belmonte"></option>
-          <option value="Descanso"></option>
-          <option value="Dionísio Cerqueira"></option>
-          <option value="Guaraciaba"></option>
-          <option value="Guarujá do Sul"></option>
-          <option value="Iporã do Oeste"></option>
-          <option value="Itapiranga"></option>
-          <option value="Mondaí"></option>
-          <option value="Palma Sola"></option>
-          <option value="Paraíso"></option>
-          <option value="Princesa"></option>
-          <option value="Santa Helena"></option>
-          <option value="São João do Oeste"></option>
-          <option value="São José do Cedro"></option>
-          <option value="São Miguel do Oeste"></option>
-        </datalist>
-        <button id="search-btn" type="button" aria-label="Buscar clima da cidade">Buscar</button>
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>Favorito</button>
-      </div>
+    <section id="search-box">
+      <input
+        type="text"
+        id="city-input"
+        placeholder="Digite uma cidade"
+        aria-label="Digite uma cidade para buscar o clima"
+      />
+      <button id="search-btn" aria-label="Buscar clima">Buscar</button>
+      <button id="fav-btn" aria-label="Adicionar aos favoritos" disabled>❤️ Favoritos</button>
     </section>
 
-    <!-- Cidades favoritas -->
-    <section id="favorites-section" aria-label="Cidades favoritas">
-      <h3>Cidades Favoritas</h3>
-      <ul id="favorites-list"></ul>
-    </section>
-
-    <!-- Card do clima -->
-    <section
-      id="weather"
-      role="region"
-      aria-live="polite"
-      aria-atomic="true"
-      tabindex="0"
-      hidden
-    >
-      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+    <section id="weather" tabindex="0" aria-live="polite" aria-atomic="true" aria-relevant="additions removals">
+      <div id="spinner"></div>
+      <div class="weather-icon" id="icon" aria-hidden="true"></div>
       <div class="info">
         <h2 id="city-name"></h2>
         <p class="temp" id="temp"></p>
         <p class="desc" id="desc"></p>
         <p class="details" id="details"></p>
       </div>
-      <div id="spinner" aria-label="Carregando" hidden></div>
     </section>
 
-    <!-- Histórico das últimas cidades -->
-    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
-      <h3>Últimas cidades pesquisadas</h3>
-      <ul id="history-list"></ul>
+    <section id="error-message" role="alert" aria-live="assertive" style="display:none;"></section>
+
+    <section id="history-section" aria-label="Histórico de cidades buscadas">
+      <h3>Histórico</h3>
+      <ul id="history-list" role="listbox" tabindex="0"></ul>
     </section>
-    
-    <div id="error-message" role="alert" tabindex="0" hidden></div>
+
+    <section id="favorites-section" aria-label="Cidades favoritas">
+      <h3>Favoritos</h3>
+      <ul id="favorites-list" role="listbox" tabindex="0"></ul>
+    </section>
   </main>
 
-  <div
-    id="toast"
-    aria-live="polite"
-    aria-atomic="true"
-    role="alert"
-    style="
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: var(--button-bg);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 12px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      font-weight: 700;
-      user-select: none;
-      z-index: 1000;
-    "
-  ></div>
+  <div id="toast" role="alert" aria-live="assertive"></div>
 
-  <script src="scripty.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
