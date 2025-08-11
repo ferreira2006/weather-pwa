@@ -19,6 +19,9 @@ const favoritesListEl = document.getElementById("favorites-list");
 
 const maxHistoryItems = 5;
 
+// Variável para controlar se a última busca foi bem-sucedida
+let currentCityValid = false;
+
 // --- BACKGROUND DINÂMICO POR CLIMA ---
 function setDynamicBackground(mainWeather) {
   const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
@@ -138,6 +141,10 @@ function showWeather(data) {
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
+
+  // Marca que a cidade foi buscada com sucesso e atualiza o botão favorito
+  currentCityValid = true;
+  updateFavBtnState();
 }
 
 // --- ERRO ---
@@ -146,6 +153,10 @@ function showError(message) {
   errorMessageDiv.textContent = message;
   errorMessageDiv.style.display = "block";
   errorMessageDiv.focus();
+
+  // Se der erro, invalida cidade válida e atualiza botão
+  currentCityValid = false;
+  updateFavBtnState();
 }
 
 // --- FETCH CLIMA ---
@@ -327,7 +338,8 @@ function updateFavBtnState() {
   const isCityInFavorites = favorites.includes(city);
   const isCityEmpty = city === '';
 
-  favBtn.disabled = isCityEmpty || searchBtn.disabled || isCityInFavorites;
+  // Só habilita se a cidade foi buscada com sucesso, não vazia e não estiver nos favoritos
+  favBtn.disabled = !currentCityValid || isCityEmpty || searchBtn.disabled || isCityInFavorites;
 }
 
 // --- EVENTOS ---
@@ -343,7 +355,11 @@ cityInput.addEventListener("keydown", e => {
   }
 });
 
-cityInput.addEventListener("input", updateFavBtnState);
+// Ao digitar algo novo, invalida a cidade válida e desabilita o botão favorito
+cityInput.addEventListener("input", () => {
+  currentCityValid = false;
+  updateFavBtnState();
+});
 
 favBtn.addEventListener("click", () => {
   const city = cityInput.value.trim();
