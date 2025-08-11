@@ -229,20 +229,25 @@ button#fav-btn {
 
 button#search-btn:hover:not(:disabled),
 button#search-btn:focus:not(:disabled),
-button#fav-btn:hover,
-button#fav-btn:focus {
+button#fav-btn:hover:not(:disabled),
+button#fav-btn:focus:not(:disabled) {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
 }
 
-button#search-btn:disabled {
+/* Estilo para botões desabilitados */
+button#search-btn:disabled,
+button#fav-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
 /* Botão remover favorito */
-.remove-fav-btn {
+.remove-fav-btn,
+#favorites-list button {
   margin-left: 8px;
   cursor: pointer;
   background: transparent;
@@ -259,7 +264,9 @@ button#search-btn:disabled {
 }
 
 .remove-fav-btn:hover,
-.remove-fav-btn:focus {
+.remove-fav-btn:focus,
+#favorites-list button:hover,
+#favorites-list button:focus {
   color: var(--button-bg-hover);
   outline: none;
 }
@@ -268,7 +275,8 @@ button#search-btn:disabled {
 button:focus,
 input[type="text"]:focus,
 #history-list li:focus,
-#favorites-list li:focus {
+#favorites-list li:focus,
+#favorites-list button:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
@@ -430,6 +438,11 @@ body.dark #weather {
   font-weight: 400;
   line-height: 1.6;
   color: inherit;
+}
+
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Mensagem de erro */
