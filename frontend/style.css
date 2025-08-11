@@ -1,5 +1,4 @@
 :root {
-  /* Gradientes de fundo por clima e tema */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -11,23 +10,20 @@
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
-  /* Cores de texto */
   --text-color-light: #000000;
   --text-color-dark: #ddd;
 
-  /* Inputs */
   --input-text-light: #000000;
   --input-text-dark: #cfd8dc;
+
   --input-bg-light: rgba(255 255 255 / 0.9);
   --input-bg-dark: rgba(255 255 255 / 0.1);
 
-  /* Botões */
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
 
-  /* Foco */
   --input-border-focus: var(--button-bg);
 }
 
@@ -85,17 +81,11 @@ body.dark.bg-snow {
 /* Transição suave para fundo e texto */
 body {
   transition: background 0.75s ease, color 0.75s ease;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-/* Tema claro */
+/* Tema claro base */
 body.light {
+  /* Removido background fixo para deixar controle via classes dinâmicas */
   color: var(--text-color-light);
 }
 
@@ -110,14 +100,9 @@ body.light input[type="text"]:focus {
   color: #000;
 }
 
-/* Placeholder tema claro */
-body.light input[type="text"]::placeholder {
-  color: #666;
-  opacity: 1;
-}
-
-/* Tema escuro */
+/* Tema escuro base */
 body.dark {
+  /* Removido background fixo para deixar controle via classes dinâmicas */
   color: var(--text-color-dark);
 }
 
@@ -132,12 +117,17 @@ body.dark input[type="text"]:focus {
   color: var(--input-text-dark);
 }
 
-/* Placeholder tema escuro */
-body.dark input[type="text"]::placeholder {
-  color: rgba(255 255 255 / 0.6);
+/* Corpo geral */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Header */
 header {
   width: 100%;
   max-width: 600px;
@@ -163,8 +153,6 @@ h1 {
   transition: background-color 0.3s, color 0.3s;
   color: inherit;
   user-select: none;
-  min-width: 110px;
-  min-height: 40px;
 }
 
 #theme-toggle:hover,
@@ -175,7 +163,6 @@ h1 {
   outline: none;
 }
 
-/* Main */
 main {
   width: 100%;
   max-width: 600px;
@@ -185,7 +172,6 @@ main {
   gap: 25px;
 }
 
-/* Caixa de busca */
 #search-box {
   display: flex;
   gap: 10px;
@@ -203,7 +189,11 @@ input[type="text"] {
   border-radius: 8px;
   outline: none;
   transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
-  min-height: 40px;
+}
+
+input[type="text"]::placeholder {
+  color: #666;
+  opacity: 1;
 }
 
 input[type="text"]:focus {
@@ -211,7 +201,6 @@ input[type="text"]:focus {
   border-color: var(--input-border-focus);
 }
 
-/* Botões */
 button#search-btn,
 button#fav-btn {
   padding: 12px 20px;
@@ -222,67 +211,31 @@ button#fav-btn {
   font-size: 1rem;
   cursor: pointer;
   min-width: 110px;
-  min-height: 40px;
   transition: background-color 0.3s, box-shadow 0.3s;
   user-select: none;
 }
 
 button#search-btn:hover:not(:disabled),
 button#search-btn:focus:not(:disabled),
-button#fav-btn:hover:not(:disabled),
-button#fav-btn:focus:not(:disabled) {
+button#fav-btn:hover,
+button#fav-btn:focus {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
 }
 
-/* Estilo para botões desabilitados */
-button#search-btn:disabled,
-button#fav-btn:disabled {
+button#search-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
 }
 
-/* Botão remover favorito */
-.remove-fav-btn,
-#favorites-list button {
-  margin-left: 8px;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-weight: bold;
-  font-size: 1.2rem;
-  line-height: 1;
-  padding: 0;
-  min-width: 30px;
-  min-height: 30px;
-  user-select: none;
-  transition: color 0.3s;
-}
-
-.remove-fav-btn:hover,
-.remove-fav-btn:focus,
-#favorites-list button:hover,
-#favorites-list button:focus {
-  color: var(--button-bg-hover);
-  outline: none;
-}
-
-/* Foco acessível para botões e itens */
 button:focus,
-input[type="text"]:focus,
-#history-list li:focus,
-#favorites-list li:focus,
-#favorites-list button:focus {
+input[type="text"]:focus {
   outline: 3px solid var(--button-bg);
   outline-offset: 2px;
   transition: outline-color 0.3s ease;
 }
 
-/* Card clima */
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
@@ -301,17 +254,11 @@ input[type="text"]:focus,
   margin-bottom: 30px;
 }
 
-#weather:focus {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 4px;
-}
-
 body.dark #weather {
   background: rgba(255 255 255 / 0.1);
   box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
 }
 
-/* Ícones clima com animações */
 .weather-icon {
   width: 100px;
   height: 100px;
@@ -321,7 +268,6 @@ body.dark #weather {
   transition: background-image 0.5s ease;
 }
 
-/* Animações */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 120s linear infinite;
@@ -372,45 +318,6 @@ body.dark #weather {
   100% { background-position: 100% 100%; }
 }
 
-/* Redução de movimento */
-@media (prefers-reduced-motion: reduce) {
-  .weather-icon {
-    animation: none !important;
-  }
-}
-
-/* Overlay leve no spinner */
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1.2s linear infinite;
-  display: none;
-  z-index: 10;
-  pointer-events: none;
-}
-
-/* Spinner com overlay no card */
-#weather.loading::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(255 255 255 / 0.3);
-  backdrop-filter: blur(3px);
-  border-radius: 12px;
-  z-index: 5;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Info texto do clima */
 .info {
   display: flex;
   flex-direction: column;
@@ -440,12 +347,24 @@ body.dark #weather {
   color: inherit;
 }
 
-#toast.show {
-  opacity: 1;
-  pointer-events: auto;
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1.2s linear infinite;
+  display: none;
+  z-index: 10;
 }
 
-/* Mensagem de erro */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 #error-message {
   margin-top: 20px;
   max-width: 600px;
@@ -458,7 +377,6 @@ body.dark #weather {
   text-align: center;
   user-select: none;
   transition: background-color 0.3s, color 0.3s;
-  display: none;
 }
 
 body.dark #error-message {
@@ -466,7 +384,6 @@ body.dark #error-message {
   color: #ffc4c4;
 }
 
-/* Seções Histórico e Favoritos */
 #history-section,
 #favorites-section {
   width: 100%;
@@ -493,7 +410,6 @@ body.dark #favorites-section {
   font-size: 1.2rem;
 }
 
-/* Listas Histórico e Favoritos */
 #history-list,
 #favorites-list {
   list-style: none;
@@ -515,11 +431,6 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
-  min-width: 48px;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #history-list li:hover,
@@ -530,7 +441,6 @@ body.dark #favorites-section {
   outline: none;
 }
 
-/* Responsividade */
 @media (max-width: 600px) {
   #weather {
     grid-template-columns: 1fr;
@@ -552,11 +462,17 @@ body.dark #favorites-section {
     font-size: 1rem;
     padding: 10px 18px;
   }
+}
 
-  /* Botões buscar e favoritos responsivos */
+/* -------- RESPONSIVIDADE E USABILIDADE MÓVEL -------- */
+
+@media (max-width: 600px) {
+
+  /* Botões Buscar e Favoritos: ocupar largura flexível, padding maior */
   #search-box {
     gap: 12px;
   }
+
   button#search-btn,
   button#fav-btn {
     min-width: auto;
@@ -565,26 +481,27 @@ body.dark #favorites-section {
     font-size: 1.1rem;
   }
 
-  /* Spinner centralizado no card */
+  /* Spinner: centralizar no card de clima */
   #spinner {
     bottom: 50%;
     right: 50%;
     transform: translate(50%, 50%);
   }
 
-  /* Espaçamento entre seções */
+  /* Aumenta espaçamento vertical entre seções dentro do main */
   main > * {
     margin-bottom: 30px;
   }
 }
 
 @media (max-width: 450px) {
-  /* Caixa de busca em coluna no celular */
+  /* Empilhar a caixa de busca em coluna para melhor uso no celular */
   #search-box {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
+
   #search-box input[type="text"],
   #search-box button {
     width: 100%;
@@ -594,12 +511,13 @@ body.dark #favorites-section {
 }
 
 @media (max-width: 400px) {
-  /* Histórico e favoritos empilhados */
+  /* Histórico e Favoritos empilhados e botões maiores */
   #history-list,
   #favorites-list {
     flex-direction: column;
     gap: 8px;
   }
+
   #history-list li,
   #favorites-list li {
     width: 100%;
@@ -617,7 +535,7 @@ button:active,
   transition: filter 0.1s;
 }
 
-/* Placeholder com maior contraste em mobile */
+/* Aumentar contraste do placeholder em mobile */
 @media (max-width: 600px) {
   input[type="text"]::placeholder {
     color: #999;
