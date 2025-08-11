@@ -422,7 +422,7 @@ body.error #icon {
   }
 }
 
-/* Spinner com overlay no card */
+/* Overlay leve no spinner */
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -434,18 +434,14 @@ body.error #icon {
   height: 40px;
   animation: spin 1.2s linear infinite;
 
+  /* Removido display:none para usar opacity e transição */
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s ease;
   z-index: 10;
 }
 
-#weather.loading #spinner {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Overlay leve no card */
+/* Spinner com overlay no card */
 #weather.loading::before {
   content: "";
   position: absolute;
@@ -454,6 +450,12 @@ body.error #icon {
   backdrop-filter: blur(3px);
   border-radius: 12px;
   z-index: 5;
+}
+
+/* Mostrar spinner com transição ao ativar loading */
+#weather.loading #spinner {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @keyframes spin {
