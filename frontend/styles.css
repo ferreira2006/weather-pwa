@@ -272,13 +272,19 @@ button#fav-btn:disabled {
 }
 
 /* Foco acessível para botões e itens */
+/* Feedback visual para foco em elementos clicáveis */
 button:focus,
-input[type="text"]:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus,
+[role="button"]:focus,
 #history-list li:focus,
 #favorites-list li:focus,
 #favorites-list button:focus {
   outline: 3px solid var(--button-bg);
-  outline-offset: 2px;
+  outline-offset: 3px;
   transition: outline-color 0.3s ease;
 }
 
