@@ -342,8 +342,13 @@ async function handleCitySelect(city) {
 
 // --- Atualiza o estado do botão Favoritos ---
 function updateFavBtnState() {
-  const city = cityInput.value.trim();
-  favBtn.disabled = city === "" || searchBtn.disabled;
+  const city = cityInput.value.trim().toLowerCase();
+  const favorites = getFavorites().map(fav => fav.toLowerCase());
+
+  favBtn.disabled = 
+    city === "" || 
+    searchBtn.disabled || 
+    favorites.includes(city);
 }
 
 // --- EVENTOS ---
@@ -377,7 +382,7 @@ window.onload = () => {
   applySavedTheme();
   renderHistory();
   renderFavorites();
-
+  updateFavBtnState();
   updateFavBtnState();
 
   const lastCity = localStorage.getItem("lastCity");
