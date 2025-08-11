@@ -367,6 +367,13 @@ body.dark #weather {
   animation: snowAnim 15s linear infinite;
 }
 
+.weather-icon.error {
+  background-image: url('../icons/wi-na.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: none;
+}
+
 @keyframes rotateSlow {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
