@@ -131,7 +131,7 @@ function setDynamicBackgroundFromCurrentIcon() {
 
 // --- MOSTRAR CLIMA ---
 function showWeather(data) {
-  errorMessageDiv.style.display = "none";
+   errorMessageDiv.style.display = "none";
 
   cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
   tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -159,6 +159,9 @@ function showWeather(data) {
 
   weatherDiv.style.display = "grid";
   weatherDiv.focus();
+
+  // Scroll automático para o card de clima
+  weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // --- ERRO ---
@@ -167,6 +170,9 @@ function showError(message) {
   errorMessageDiv.textContent = message;
   errorMessageDiv.style.display = "block";
   errorMessageDiv.focus();
+
+  // Scroll automático para a mensagem de erro
+  errorMessageDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // --- FETCH CLIMA ---
