@@ -2,7 +2,7 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const maxHistoryItems = 5;
 
-// Elementos do DOM
+// Elementos do DOM agrupados para facilitar acesso e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
   searchBtn: document.getElementById("search-btn"),
@@ -26,17 +26,20 @@ const dom = {
   toast: document.getElementById("toast"),
 };
 
-// Estado global simples
+// Estado global simples para controlar se a última busca foi válida
 let currentCityValid = false;
 
 // ===== API =====
+// Encapsula chamadas à API externa para buscar dados do clima
 const WeatherAPI = {
+  // Busca clima por nome da cidade, lança erro se cidade não encontrada
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     return res.json();
   },
 
+  // Busca clima por coordenadas geográficas, lança erro se falhar
   async fetchByCoords(lat, lon) {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
@@ -45,52 +48,63 @@ const WeatherAPI = {
 };
 
 // ===== STORAGE =====
+// Funções para interagir com o localStorage, abstraindo o armazenamento dos dados
 const Storage = {
+  // Retorna o histórico de cidades buscadas, ou array vazio se não existir
   getHistory() {
     return JSON.parse(localStorage.getItem("weatherHistory")) || [];
   },
 
+  // Salva cidade no histórico, garantindo não duplicar e limitando tamanho máximo
   saveHistory(city) {
     let history = this.getHistory();
+    // Remove duplicatas, insere nova cidade no começo
     history = history.filter(c => c.toLowerCase() !== city.toLowerCase());
     history.unshift(city);
     if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
     localStorage.setItem("weatherHistory", JSON.stringify(history));
   },
 
+  // Retorna lista de cidades favoritas, ou array vazio se não existir
   getFavorites() {
     return JSON.parse(localStorage.getItem("weatherFavorites")) || [];
   },
 
+  // Salva lista atualizada de favoritos no localStorage
   saveFavorites(favorites) {
     localStorage.setItem("weatherFavorites", JSON.stringify(favorites));
   },
 
+  // Retorna tema salvo ("light" ou "dark"), padrão "light"
   getTheme() {
     return localStorage.getItem("theme") || "light";
   },
 
+  // Salva tema atual no localStorage
   saveTheme(theme) {
     localStorage.setItem("theme", theme);
   },
 
+  // Retorna a última cidade buscada (string) ou null
   getLastCity() {
     return localStorage.getItem("lastCity");
   },
 
+  // Salva a última cidade buscada
   saveLastCity(city) {
     localStorage.setItem("lastCity", city);
   }
 };
 
 // ===== UI =====
+// Responsável pela manipulação direta da interface e seus elementos
 const UI = {
-  // Validação simples de input
+  // Validação simples para garantir que o input não está vazio
   isValidCityInput(city) {
     return city.trim().length > 0;
   },
 
-  // Toast de mensagem
+  // Mostra mensagem temporária (toast) para feedback rápido ao usuário
   showToast(message, duration = 3000) {
     const t = dom.toast;
     t.textContent = message;
@@ -98,7 +112,7 @@ const UI = {
     setTimeout(() => t.classList.remove("show"), duration);
   },
 
-  // Atualiza background dinâmico baseado no clima
+  // Atualiza o background do body baseado no tipo principal do clima
   setDynamicBackground(mainWeather) {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
@@ -114,6 +128,7 @@ const UI = {
     document.body.classList.add(`bg-${weatherKey}`);
   },
 
+  // Define background com base no ícone/classe atual do clima mostrado
   setDynamicBackgroundFromCurrentIcon() {
     if (!dom.weatherDiv.hidden) {
       const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
@@ -123,7 +138,7 @@ const UI = {
     }
   },
 
-  // Renderiza clima na interface
+  // Exibe os dados do clima na UI, atualizando todos os elementos relevantes
   showWeather(data) {
     document.body.classList.remove("error");
 
@@ -144,21 +159,27 @@ const UI = {
       Vento: ${data.wind.speed} m/s
     `;
 
+    // Atualiza classe do ícone para alterar imagem conforme clima
     dom.iconEl.className = "weather-icon";
     const mainClass = data.weather[0].main.toLowerCase();
     dom.iconEl.classList.add(mainClass);
 
+    // Torna o card de clima visível e foca nele para acessibilidade
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
 
+    // Scroll suave até o card de clima
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
+    // Marca busca atual como válida para habilitar botões relacionados
     currentCityValid = true;
     App.updateFavBtnState();
 
+    // Atualiza o background da página de acordo com o clima atual
     this.setDynamicBackground(data.weather[0].main);
   },
 
+  // Mostra mensagem de erro no card de clima, ocultando dados
   showError(message) {
     document.body.classList.add("error");
 
@@ -178,7 +199,7 @@ const UI = {
     App.updateFavBtnState();
   },
 
-  // Atualiza cores dos temas nos elementos
+  // Atualiza cores de acordo com o tema (dark/light) para vários elementos
   updateThemeColors() {
     const rootStyles = getComputedStyle(document.documentElement);
     const isDark = document.body.classList.contains("dark");
@@ -207,12 +228,14 @@ const UI = {
     dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
   },
 
+  // Atualiza o texto e aria-pressed do botão de troca de tema
   updateThemeToggleButton() {
     const isDark = document.body.classList.contains("dark");
     dom.themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
     dom.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   },
 
+  // Renderiza a lista de histórico de cidades buscadas
   renderHistory() {
     const history = Storage.getHistory();
     dom.historyListEl.innerHTML = "";
@@ -221,6 +244,8 @@ const UI = {
       li.tabIndex = 0;
       li.textContent = city;
       li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+
+      // Busca ao clicar ou ao apertar Enter / Espaço
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
@@ -228,11 +253,13 @@ const UI = {
           App.handleCitySelect(city);
         }
       });
+
       dom.historyListEl.appendChild(li);
     });
     this.updateThemeColors();
   },
 
+  // Renderiza lista de cidades favoritas, com opções para buscar e remover
   renderFavorites() {
     const favorites = Storage.getFavorites();
     dom.favoritesListEl.innerHTML = "";
@@ -242,7 +269,7 @@ const UI = {
       li.tabIndex = 0;
       li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
 
-      // Span clicável como botão acessível
+      // Span clicável para buscar cidade favorita
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
       citySpan.style.cursor = "pointer";
@@ -258,7 +285,7 @@ const UI = {
         }
       });
 
-      // Botão remover
+      // Botão para remover cidade dos favoritos
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
       removeBtn.title = `Remover ${city} dos favoritos`;
@@ -281,6 +308,7 @@ const UI = {
         App.removeFavorite(city);
       });
 
+      // Atalhos para remover (Delete, Backspace, Shift+Enter)
       li.addEventListener("keydown", e => {
         if (["Delete", "Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) {
           e.preventDefault();
@@ -298,6 +326,7 @@ const UI = {
     this.updateThemeColors();
   },
 
+  // Alterna tema dark/light e atualiza a UI e armazenamento
   toggleThemeColors() {
     const isDark = document.body.classList.contains("dark");
     if (isDark) {
@@ -314,6 +343,7 @@ const UI = {
     this.setDynamicBackgroundFromCurrentIcon();
   },
 
+  // Aplica o tema salvo ao carregar a página
   applySavedTheme() {
     const saved = Storage.getTheme();
     document.body.classList.toggle("dark", saved === "dark");
@@ -325,7 +355,9 @@ const UI = {
 };
 
 // ===== APP (Lógica e eventos) =====
+// Controla fluxo principal da aplicação, coordena API, Storage e UI
 const App = {
+  // Realiza busca do clima pela cidade e atualiza UI e histórico
   async handleCitySelect(city) {
     dom.cityInput.value = city;
     try {
@@ -340,6 +372,7 @@ const App = {
     }
   },
 
+  // Busca clima por coordenadas (usada para geolocalização)
   async fetchByCoords(lat, lon) {
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
@@ -354,6 +387,7 @@ const App = {
     }
   },
 
+  // Adiciona cidade aos favoritos, evita duplicatas e atualiza UI
   addFavorite(city) {
     let favorites = Storage.getFavorites();
     if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
@@ -367,6 +401,7 @@ const App = {
     this.updateFavBtnState();
   },
 
+  // Remove cidade dos favoritos após confirmação, atualiza UI
   removeFavorite(city) {
     const confirmed = confirm(`Tem certeza que deseja remover "${city}" dos favoritos?`);
     if (!confirmed) return;
@@ -379,6 +414,7 @@ const App = {
     this.updateFavBtnState();
   },
 
+  // Atualiza estado (habilitado/desabilitado) do botão "Adicionar Favorito"
   updateFavBtnState() {
     const city = dom.cityInput.value.trim().toLowerCase();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
@@ -386,17 +422,18 @@ const App = {
     const isCityInFavorites = favorites.includes(city);
     const isCityEmpty = city === '';
 
+    // Habilita botão só se a cidade for válida, não vazia, não nos favoritos e a busca não estiver em andamento
     dom.favBtn.disabled = !currentCityValid || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites;
   },
 
-  // Inicialização e registro de eventos
+  // Inicializa a aplicação: aplica tema, renderiza listas, registra eventos e tenta carregar dados iniciais
   init() {
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
     this.updateFavBtnState();
 
-    // Eventos
+    // Evento do botão de busca
     dom.searchBtn.addEventListener("click", () => {
       const city = dom.cityInput.value.trim();
       if (!UI.isValidCityInput(city)) {
@@ -406,6 +443,7 @@ const App = {
       this.handleCitySelect(city);
     });
 
+    // Permite buscar com Enter no input
     dom.cityInput.addEventListener("keydown", e => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -418,23 +456,27 @@ const App = {
       }
     });
 
+    // Ao digitar, invalida a última cidade válida e atualiza o estado do botão favorito
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateFavBtnState();
     });
 
+    // Botão de adicionar favorito
     dom.favBtn.addEventListener("click", () => {
       const city = dom.cityInput.value.trim();
       if (!city) return;
       this.addFavorite(city);
     });
 
+    // Botão para alternar tema
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
+    // Facilita seleção do texto no input ao focar
     dom.cityInput.addEventListener('focus', e => e.target.select());
     dom.cityInput.addEventListener('mouseup', e => e.preventDefault());
 
-    // Tentar carregar último clima salvo ou localização atual
+    // Ao carregar, tenta restaurar último clima buscado ou usar geolocalização, ou fallback para cidade padrão
     const lastCity = Storage.getLastCity();
     if (lastCity) {
       this.handleCitySelect(lastCity);
@@ -452,4 +494,5 @@ const App = {
   }
 };
 
+// Inicializa app após carregamento da página
 window.onload = () => App.init();
