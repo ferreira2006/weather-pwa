@@ -398,6 +398,7 @@ const App = {
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${city}" adicionado aos favoritos!`);
+    console.log();
     this.updateFavBtnState();
   },
 
