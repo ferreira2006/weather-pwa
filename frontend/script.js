@@ -383,16 +383,23 @@ const App = {
 
   addFavorite(city) {
     const formattedCity = capitalizeCityName(city);
-    let favorites = Storage.getFavorites();
-    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
-      return;
-    }
-    favorites.push(formattedCity);
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
-    this.updateButtonsState();
+  let favorites = Storage.getFavorites();
+
+  if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
+    UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+    return;
+  }
+
+  if (favorites.length >= 5) {
+    UI.showToast("Limite de 5 cidades favoritas atingido.");
+    return;
+  }
+
+  favorites.push(formattedCity);
+  Storage.saveFavorites(favorites);
+  UI.renderFavorites();
+  UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+  this.updateButtonsState();
   },
 
   async removeFavorite(city) {
