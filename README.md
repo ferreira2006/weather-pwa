@@ -1,59 +1,88 @@
-# App Clima Simples
+# Weather App PWA
 
-Aplicação web que exibe a previsão do tempo para a localização atual do usuário ou para uma cidade pesquisada manualmente. Usa uma API backend para obter dados do OpenWeatherMap.
-
-https://ferreira2006.github.io/weather-pwa/frontend/?
+Aplicação web progressiva para consulta de clima por cidade, com temas claro/escuro, histórico e favoritos.
 
 ---
 
 ## Funcionalidades
 
-- Busca automática do clima pela localização atual do usuário (via geolocalização).
-- Pesquisa de clima para qualquer cidade digitada no campo de busca.
-- Exibição de dados principais: temperatura atual, mínima, máxima, umidade, vento e descrição do clima.
-- Layout responsivo e estilizado com cards em tons de verde degradê.
+- Consulta do clima atual por nome da cidade ou geolocalização.
+- Exibição de dados principais: temperatura, sensação térmica, umidade, vento, descrição e ícone animado.
+- Tema claro e escuro com persistência da preferência.
+- Histórico das últimas 5 cidades buscadas.
+- Lista de cidades favoritas com possibilidade de adicionar/remover.
+- Background dinâmico com gradientes animados conforme o clima e tema.
+- Feedback visual via toasts.
+- Totalmente acessível com foco visível, navegação via teclado e labels adequados.
+- Responsivo para dispositivos móveis e desktop.
+- Spinner de carregamento durante consultas.
 
 ---
 
-## Tecnologias utilizadas
+## Tecnologias
 
-- HTML5
-- CSS3 (com design em degradê verde)
-- JavaScript (Fetch API para chamadas assíncronas)
-- API externa (backend hospedado em https://weather-backend-hh3w.onrender.com/weather)
+- HTML5 semântico
+- CSS3 com variáveis customizadas e animações
+- JavaScript moderno (ES6+), módulos e Promises
+- API externa para dados meteorológicos
+- LocalStorage para persistência local
+- Progressive Web App (PWA) pronta para instalação (opcional)
 
 ---
 
 ## Como usar
 
-1. Clone ou baixe este repositório.
-2. Abra o arquivo `index.html` no seu navegador.
-3. Ao carregar, permita o acesso à sua localização para receber a previsão local automática.
-4. Para pesquisar o clima de outra cidade, digite o nome no campo e pressione Enter ou clique em "Pesquisar".
+1. Clone este repositório:
+   ```bash
+   git clone https://github.com/ferreira2006/weather-app-pwa.git
 
----
+2. Abra o arquivo index.html em um navegador moderno.
+
+3. Digite o nome da cidade no campo de busca e clique em "Buscar" ou pressione Enter.
+
+4. Para adicionar a cidade atual aos favoritos, clique no botão "Adicionar Favorito".
+
+5. Use o botão "Modo Escuro"/"Modo Claro" para alternar o tema visual.
+
+6. Visualize o histórico e favoritos nas seções abaixo do clima.
+
+Permita acesso à geolocalização para buscar o clima da sua localização atual.
 
 ## Estrutura de arquivos
 
-- `index.html` — estrutura da página.
-- `style.css` — estilos em CSS com degradê verde.
-- `app.js` — código JavaScript que controla a lógica do app e as requisições à API.
+/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   └── app.js
+├── icons/
+│   ├── wi-day-sunny.svg
+│   ├── wi-cloudy.svg
+│   ├── wi-rain.svg
+│   ├── wi-thunderstorm.svg
+│   └── wi-snow.svg
+└── README.md
 
----
+## Contribuição
 
-## Possíveis melhorias
+Contribuições são bem-vindas! Para sugerir melhorias ou correções:
 
-- Transformar em PWA para uso offline.
-- Adicionar mais dados meteorológicos (chuva, pressão, etc).
-- Suporte a várias línguas.
-- Melhorar o layout para dispositivos móveis.
+Faça um fork deste repositório.
 
----
+Crie uma branch com a sua feature (git checkout -b minha-feature).
+
+Faça commits das suas alterações (git commit -m 'Minha feature').
+
+Faça push para sua branch (git push origin minha-feature).
+
+Abra um Pull Request.
+
+## Licença
+Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
 
 ## Contato
+Se precisar de ajuda, abra uma issue ou entre em contato via email: seu-email@exemplo.com
 
-Qualquer dúvida ou sugestão, entre em contato.
 
----
-
-Feito com 💚 por você!
+Feito com ❤️ para facilitar sua consulta do clima!
