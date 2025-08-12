@@ -29,6 +29,12 @@
 
   /* Foco */
   --input-border-focus: var(--button-bg);
+
+  /* Toast */
+  --toast-bg-light: rgba(0, 0, 0, 0.85);
+  --toast-text-light: #fff;
+  --toast-bg-dark: rgba(255, 255, 255, 0.9);
+  --toast-text-dark: #000;
 }
 
 /* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
@@ -103,6 +109,7 @@ body.light input[type="text"] {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
   border: 1px solid transparent;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 body.light input[type="text"]:focus {
@@ -125,6 +132,7 @@ body.dark input[type="text"] {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
   border: 1px solid transparent;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 body.dark input[type="text"]:focus {
@@ -593,8 +601,8 @@ body.error #icon {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--toast-bg, rgba(0, 0, 0, 0.85));
-  color: var(--toast-text, #fff);
+  background-color: var(--toast-bg-light);
+  color: var(--toast-text-light);
   padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
@@ -612,15 +620,15 @@ body.error #icon {
 }
 
 /* Tema claro */
-[data-theme="light"] #toast {
-  --toast-bg: rgba(0, 0, 0, 0.85);
-  --toast-text: #fff;
+body.light #toast {
+  background-color: var(--toast-bg-light);
+  color: var(--toast-text-light);
 }
 
 /* Tema escuro */
-[data-theme="dark"] #toast {
-  --toast-bg: rgba(255, 255, 255, 0.9);
-  --toast-text: #000;
+body.dark #toast {
+  background-color: var(--toast-bg-dark);
+  color: var(--toast-text-dark);
 }
 
 /* Seções Histórico e Favoritos */
