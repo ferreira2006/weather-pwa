@@ -410,6 +410,7 @@ const App = {
     });
 
     dom.cityInput.addEventListener("input", () => {
+      dom.cityInput.value = "";
       currentCityValid = false;
       this.updateButtonsState();
     });
