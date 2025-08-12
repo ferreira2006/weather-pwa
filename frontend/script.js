@@ -2,6 +2,41 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const maxHistoryItems = 5;
 
+// --- Multilíngue ---
+const translations = {
+  pt: {
+    invalidCity: "Por favor, informe uma cidade válida (apenas letras, espaços e hífens).",
+    cityAlreadyFavorite: '"{city}" já está nos favoritos.',
+    favoriteLimit: "Limite de 5 cidades favoritas atingido.",
+    addedFavorite: '"{city}" adicionado aos favoritos!",
+    removedFavorite: '"{city}" removido dos favoritos.",
+    confirmRemoveFavorite: 'Tem certeza que deseja remover "{city}" dos favoritos?',
+    locationError: "Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.",
+    weatherErrorDefault: "Erro ao buscar o clima",
+  },
+  en: {
+    invalidCity: "Please enter a valid city (letters, spaces, and hyphens only).",
+    cityAlreadyFavorite: '"{city}" is already in favorites.',
+    favoriteLimit: "Limit of 5 favorite cities reached.",
+    addedFavorite: '"{city}" added to favorites!",
+    removedFavorite: '"{city}" removed from favorites.",
+    confirmRemoveFavorite: 'Are you sure you want to remove "{city}" from favorites?',
+    locationError: "Could not get your location. Showing weather for São Miguel do Oeste.",
+    weatherErrorDefault: "Error fetching weather",
+  }
+};
+
+let currentLang = navigator.language.startsWith("pt") ? "pt" : "en";
+
+function t(key, params = {}) {
+  let text = translations[currentLang][key] || key;
+  Object.entries(params).forEach(([k, v]) => {
+    text = text.replace(`{${k}}`, v);
+  });
+  return text;
+}
+// --- Fim multilíngue ---
+
 // Função para capitalizar cada palavra do nome da cidade
 function capitalizeCityName(city) {
   return city
@@ -18,6 +53,7 @@ const dom = {
   searchBtn: document.getElementById("search-btn"),
   favBtn: document.getElementById("fav-btn"),
   themeToggle: document.getElementById("theme-toggle"),
+  langSelect: document.getElementById("lang-select"),
 
   weatherDiv: document.getElementById("weather"),
   weatherContent: document.getElementById("weather-content"),
@@ -43,13 +79,13 @@ let currentCityValid = false;
 const WeatherAPI = {
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
-    if (!res.ok) throw new Error("Cidade não encontrada");
+    if (!res.ok) throw new Error(t("weatherErrorDefault"));
     return res.json();
   },
 
   async fetchByCoords(lat, lon) {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
-    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+    if (!res.ok) throw new Error(t("weatherErrorDefault"));
     return res.json();
   }
 };
@@ -96,7 +132,6 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
-  // Validação aprimorada: aceita letras (com acentos), espaços e hífens apenas
   isValidCityInput(city) {
     if (!city) return false;
     const validCityRegex = /^[a-zA-Zà-úÀ-ÚçÇ\s-]+$/;
@@ -221,7 +256,7 @@ const UI = {
 
   updateThemeToggleButton() {
     const isDark = document.body.classList.contains("dark");
-    dom.themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
+    dom.themeToggle.textContent = isDark ? (currentLang === "pt" ? "Modo Claro" : "Light Mode") : (currentLang === "pt" ? "Modo Escuro" : "Dark Mode");
     dom.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   },
 
@@ -232,7 +267,7 @@ const UI = {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.textContent = city;
-      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      li.setAttribute("aria-label", (currentLang === "pt" ? "Buscar clima da cidade " : "Search weather for city ") + city);
 
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keydown", e => {
@@ -254,15 +289,15 @@ const UI = {
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
+      li.setAttribute("aria-label", (currentLang === "pt" ? "Cidade favorita " : "Favorite city ") + city + (currentLang === "pt" ? ". Pressione Enter para buscar, Delete para remover." : ". Press Enter to search, Delete to remove."));
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
       citySpan.style.cursor = "pointer";
-      citySpan.title = "Clique para buscar";
+      citySpan.title = currentLang === "pt" ? "Clique para buscar" : "Click to search";
       citySpan.setAttribute("role", "button");
       citySpan.setAttribute("tabindex", "0");
-      citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      citySpan.setAttribute("aria-label", (currentLang === "pt" ? "Buscar clima da cidade " : "Search weather for city ") + city);
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       citySpan.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
@@ -273,8 +308,8 @@ const UI = {
 
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
-      removeBtn.title = `Remover ${city} dos favoritos`;
-      removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
+      removeBtn.title = (currentLang === "pt" ? "Remover " : "Remove ") + city + (currentLang === "pt" ? " dos favoritos" : " from favorites");
+      removeBtn.setAttribute("aria-label", removeBtn.title);
       Object.assign(removeBtn.style, {
         marginLeft: "8px",
         cursor: "pointer",
@@ -300,7 +335,7 @@ const UI = {
         }
       });
 
-      li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
+      li.title = currentLang === "pt" ? "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos." : "Click to search. Press Shift+Enter or Delete to remove from favorites.";
 
       li.appendChild(citySpan);
       li.appendChild(removeBtn);
@@ -352,7 +387,7 @@ const App = {
       Storage.saveLastCity(city);
       this.updateButtonsState();
     } catch (err) {
-      UI.showError(err.message || "Erro ao buscar o clima");
+      UI.showError(err.message || t("weatherErrorDefault"));
     } finally {
       dom.weatherDiv.classList.remove("loading");
     }
@@ -372,7 +407,7 @@ const App = {
       try {
         await this.handleCitySelect("São Miguel do Oeste");
       } catch {
-        UI.showError("Não foi possível obter o clima para sua localização nem para a cidade padrão.");
+        UI.showError(t("weatherErrorDefault"));
         currentCityValid = false;
         this.updateButtonsState();
       }
@@ -386,31 +421,31 @@ const App = {
     let favorites = Storage.getFavorites();
 
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+      UI.showToast(t("cityAlreadyFavorite", { city: formattedCity }));
       return;
     }
 
     if (favorites.length >= 5) {
-      UI.showToast("Limite de 5 cidades favoritas atingido.");
+      UI.showToast(t("favoriteLimit"));
       return;
     }
 
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    UI.showToast(t("addedFavorite", { city: formattedCity }));
     this.updateButtonsState();
   },
 
   async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+    const confirmed = await showConfirmationModal(t("confirmRemoveFavorite", { city }));
     if (!confirmed) return;
 
     let favorites = Storage.getFavorites();
     favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast(`"${city}" removido dos favoritos.`);
+    UI.showToast(t("removedFavorite", { city }));
     this.updateButtonsState();
   },
 
@@ -421,19 +456,12 @@ const App = {
     const isCityEmpty = city === '';
     const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-    // botão busca ativo só se válido e não vazio
     dom.searchBtn.disabled = !isValidCity;
 
-    // botão favorito desabilitado se:
-    //  - cidade inválida
-    //  - input vazio
-    //  - cidade já nos favoritos
-    //  - ou se já tem 5 cidades favoritas
     dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
 
-    // tooltip para explicar o motivo de desabilitar o botão favorito
     if (favorites.length >= 5) {
-      dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
+      dom.favBtn.title = t("favoriteLimit");
     } else {
       dom.favBtn.title = "";
     }
@@ -451,7 +479,7 @@ const App = {
       e.preventDefault();
       const city = dom.cityInput.value.trim();
       if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida (apenas letras, espaços e hífens).");
+        UI.showToast(t("invalidCity"));
         dom.cityInput.focus();
         return;
       }
@@ -479,6 +507,17 @@ const App = {
 
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
+    // Listener para mudar idioma
+    if (dom.langSelect) {
+      dom.langSelect.value = currentLang;
+      dom.langSelect.addEventListener("change", () => {
+        currentLang = dom.langSelect.value;
+        UI.renderHistory();
+        UI.renderFavorites();
+        UI.updateThemeToggleButton();
+      });
+    }
+
     const lastCity = Storage.getLastCity();
     if (lastCity) {
       this.handleCitySelect(lastCity);
@@ -486,7 +525,7 @@ const App = {
       navigator.geolocation.getCurrentPosition(
         pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
         () => {
-          UI.showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
+          UI.showError(t("locationError"));
           this.handleCitySelect("São Miguel do Oeste");
         }
       );
