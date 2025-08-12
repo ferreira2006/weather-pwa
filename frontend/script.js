@@ -481,10 +481,6 @@ const App = {
     // Botão para alternar tema
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
-    // Facilita seleção do texto no input ao focar
-    dom.cityInput.addEventListener('focus', e => e.target.select());
-    dom.cityInput.addEventListener('mouseup', e => e.preventDefault());
-
     // Ao carregar, tenta restaurar último clima buscado ou usar geolocalização, ou fallback para cidade padrão
     const lastCity = Storage.getLastCity();
     if (lastCity) {
