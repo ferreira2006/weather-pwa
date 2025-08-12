@@ -34,11 +34,8 @@ const dom = {
   favoritesListEl: document.getElementById("favorites-list"),
 
   toast: document.getElementById("toast"),
-
-  cityListEl: document.getElementById("city-list"), // lista de cidades para autocomplete
 };
 
-// Estado global simples para controlar se a última busca foi válida
 let currentCityValid = false;
 
 // ===== API =====
@@ -64,7 +61,6 @@ const Storage = {
 
   saveHistory(city) {
     const formattedCity = capitalizeCityName(city);
-
     let history = this.getHistory();
     history = history.filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
     history.unshift(formattedCity);
@@ -125,21 +121,11 @@ const UI = {
     document.body.classList.add(`bg-${weatherKey}`);
   },
 
-  setDynamicBackgroundFromCurrentIcon() {
-    if (!dom.weatherDiv.hidden) {
-      const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
-      this.setDynamicBackground(mainClass || "clear");
-    } else {
-      this.setDynamicBackground("clear");
-    }
-  },
-
   showWeather(data) {
     document.body.classList.remove("error");
 
     dom.weatherError.textContent = "";
     dom.weatherError.style.display = "none";
-    dom.weatherError.style.opacity = "0";
 
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
@@ -160,7 +146,6 @@ const UI = {
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
@@ -174,14 +159,12 @@ const UI = {
 
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
-    dom.weatherError.style.opacity = "1";
 
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = false;
@@ -202,7 +185,7 @@ const UI = {
       btn.style.color = isDark ? '#ddd' : '#fff';
     });
 
-    [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
+    [...dom.historyListEl.children, ...dom.favoritesListEl.children].forEach(li => {
       li.style.backgroundColor = buttonBg;
       li.style.color = isDark ? '#ddd' : '#fff';
     });
@@ -420,40 +403,11 @@ const App = {
       dom.cityInput.value = "";
     });
 
-    // Atualiza botões e mostra lista ao digitar
+    // Atualiza botões ao digitar
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
-      if (dom.cityListEl) {
-        dom.cityListEl.style.display = "block";
-        // Você pode implementar filtragem aqui se desejar
-      }
     });
-
-    // Fecha lista se clicar fora do input e da lista
-    document.addEventListener("click", (e) => {
-      if (
-        e.target !== dom.cityInput &&
-        dom.cityListEl &&
-        !dom.cityListEl.contains(e.target)
-      ) {
-        dom.cityListEl.style.display = "none";
-      }
-    });
-
-    // Clique em um item da lista só preenche o input e fecha a lista, sem buscar
-    if (dom.cityListEl) {
-      dom.cityListEl.querySelectorAll("li").forEach(li => {
-        li.style.cursor = "pointer";
-        li.addEventListener("click", () => {
-          dom.cityInput.value = li.textContent;
-          dom.cityListEl.style.display = "none";
-          // NÃO chama handleCitySelect aqui para evitar busca automática
-          currentCityValid = false;
-          this.updateButtonsState();
-        });
-      });
-    }
 
     dom.searchBtn.addEventListener("click", () => {
       const city = dom.cityInput.value.trim();
@@ -462,7 +416,6 @@ const App = {
         return;
       }
       this.handleCitySelect(city);
-      if (dom.cityListEl) dom.cityListEl.style.display = "none";
     });
 
     dom.cityInput.addEventListener("keydown", e => {
@@ -474,7 +427,6 @@ const App = {
           return;
         }
         dom.searchBtn.click();
-        if (dom.cityListEl) dom.cityListEl.style.display = "none";
       }
     });
 
