@@ -467,34 +467,32 @@ const App = {
 function showConfirmationModal(message) {
   return new Promise((resolve) => {
     const modal = document.getElementById("confirm-modal");
-    const desc = modal.querySelector("#confirm-desc");
-    const yesBtn = modal.querySelector("#confirm-yes");
-    const noBtn = modal.querySelector("#confirm-no");
+    const desc = document.getElementById("confirm-modal-desc");
+    const yesBtn = document.getElementById("confirm-yes");
+    const noBtn = document.getElementById("confirm-no");
 
     desc.textContent = message;
     modal.hidden = false;
 
-    function cleanup() {
+    function cleanUp() {
       yesBtn.removeEventListener("click", onYes);
       noBtn.removeEventListener("click", onNo);
-      modal.hidden = true;
     }
 
     function onYes() {
-      cleanup();
+      cleanUp();
+      modal.hidden = true;
       resolve(true);
     }
 
     function onNo() {
-      cleanup();
+      cleanUp();
+      modal.hidden = true;
       resolve(false);
     }
 
     yesBtn.addEventListener("click", onYes);
     noBtn.addEventListener("click", onNo);
-
-    // Para acessibilidade, focar no botão "Não" inicialmente (ou no modal)
-    noBtn.focus();
   });
 }
 
