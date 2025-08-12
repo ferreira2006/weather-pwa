@@ -94,6 +94,19 @@
 
   <div id="toast"></div>
 
+  <!-- Modal de confirmação customizado -->
+<div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
+  <div class="modal-overlay"></div>
+  <div class="modal-content" role="document">
+    <h2 id="confirm-modal-title">Confirmação</h2>
+    <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
+    <div class="modal-buttons">
+      <button id="confirm-yes" type="button">Sim</button>
+      <button id="confirm-no" type="button">Não</button>
+    </div>
+  </div>
+</div>
+
   <script src="script.js"></script>
 </body>
 </html>
