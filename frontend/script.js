@@ -372,17 +372,17 @@ const App = {
     this.updateButtonsState();
   },
 
-  removeFavorite(city) {
-    const confirmed = confirm(`Tem certeza que deseja remover "${city}" dos favoritos?`);
-    if (!confirmed) return;
+  async removeFavorite(city) {
+  const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+  if (!confirmed) return;
 
-    let favorites = Storage.getFavorites();
-    favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${city}" removido dos favoritos.`);
-    this.updateButtonsState();
-  },
+  let favorites = Storage.getFavorites();
+  favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
+  Storage.saveFavorites(favorites);
+  UI.renderFavorites();
+  UI.showToast(`"${city}" removido dos favoritos.`);
+  this.updateButtonsState();
+}
 
   // Atualiza estado dos botões Buscar e Favorito
   updateButtonsState() {
