@@ -48,7 +48,6 @@ const WeatherAPI = {
 };
 
 // ===== STORAGE =====
-// Funções para interagir com o localStorage, abstraindo o armazenamento dos dados
 const Storage = {
   getHistory() {
     return JSON.parse(localStorage.getItem("weatherHistory")) || [];
@@ -349,7 +348,13 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
-      this.handleCitySelect("São Miguel do Oeste");
+      try {
+        await this.handleCitySelect("São Miguel do Oeste");
+      } catch {
+        UI.showError("Não foi possível obter o clima para sua localização nem para a cidade padrão.");
+        currentCityValid = false;
+        this.updateButtonsState();
+      }
     }
   },
 
