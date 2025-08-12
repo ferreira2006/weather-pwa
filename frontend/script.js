@@ -372,8 +372,8 @@ const App = {
     this.updateButtonsState();
   },
 
-  async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+  removeFavorite(city) {
+    const confirmed = confirm(`Tem certeza que deseja remover "${city}" dos favoritos?`);
     if (!confirmed) return;
 
     let favorites = Storage.getFavorites();
@@ -382,7 +382,7 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
-  },  // <-- Virgulinha importante aqui!
+  },
 
   // Atualiza estado dos botões Buscar e Favorito
   updateButtonsState() {
@@ -405,12 +405,9 @@ const App = {
     this.updateButtonsState();
 
     dom.cityInput.addEventListener("click", () => {
-        const city = dom.cityInput.value.trim();
-    if (!UI.isValidCityInput(city)) {
-    UI.showToast("Por favor, informe uma cidade válida.");
-    return;
-  }
-  App.handleCitySelect(city);  // usar App diretamente
+      dom.cityInput.value = "";
+      currentCityValid = false;
+      this.updateButtonsState();
     });
 
     dom.cityInput.addEventListener("input", () => {
@@ -463,38 +460,6 @@ const App = {
     }
   }
 };
-
-function showConfirmationModal(message) {
-  return new Promise((resolve) => {
-    const modal = document.getElementById("confirm-modal");
-    const desc = document.getElementById("confirm-modal-desc");
-    const yesBtn = document.getElementById("confirm-yes");
-    const noBtn = document.getElementById("confirm-no");
-
-    desc.textContent = message;
-    modal.hidden = false;
-
-    function cleanUp() {
-      yesBtn.removeEventListener("click", onYes);
-      noBtn.removeEventListener("click", onNo);
-    }
-
-    function onYes() {
-      cleanUp();
-      modal.hidden = true;
-      resolve(true);
-    }
-
-    function onNo() {
-      cleanUp();
-      modal.hidden = true;
-      resolve(false);
-    }
-
-    yesBtn.addEventListener("click", onYes);
-    noBtn.addEventListener("click", onNo);
-  });
-}
 
 // Inicializa app após carregamento da página
 window.onload = () => App.init();
