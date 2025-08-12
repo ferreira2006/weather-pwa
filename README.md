@@ -64,7 +64,7 @@ Permita acesso à geolocalização para buscar o clima da sua localização atua
 │   ├── wi-thunderstorm.svg
 │   └── wi-snow.svg
 └── README.md
-
+```
 
 ## Contribuição
 
