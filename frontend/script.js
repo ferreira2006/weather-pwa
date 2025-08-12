@@ -104,13 +104,13 @@ const UI = {
   },
 
   showToast(message, duration = 3000) {
-   const t = dom.toast;
-  t.textContent = message;
-  t.classList.remove("show");
-  void t.offsetWidth; // forçar reflow
-  t.classList.add("show");
-  dom.cityInput.focus();
-  setTimeout(() => t.classList.remove("show"), duration);
+    const t = dom.toast;
+    t.textContent = message;
+    t.classList.remove("show");
+    void t.offsetWidth; // forçar reflow
+    t.classList.add("show");
+    dom.cityInput.focus();
+    setTimeout(() => t.classList.remove("show"), duration);
   },
 
   setDynamicBackground(mainWeather) {
@@ -383,23 +383,23 @@ const App = {
 
   addFavorite(city) {
     const formattedCity = capitalizeCityName(city);
-  let favorites = Storage.getFavorites();
+    let favorites = Storage.getFavorites();
 
-  if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-    UI.showToast(`"${formattedCity}" já está nos favoritos.`);
-    return;
-  }
+    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+      return;
+    }
 
-  if (favorites.length >= 5) {
-    UI.showToast("Limite de 5 cidades favoritas atingido.");
-    return;
-  }
+    if (favorites.length >= 5) {
+      UI.showToast("Limite de 5 cidades favoritas atingido.");
+      return;
+    }
 
-  favorites.push(formattedCity);
-  Storage.saveFavorites(favorites);
-  UI.renderFavorites();
-  UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
-  this.updateButtonsState();
+    favorites.push(formattedCity);
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    this.updateButtonsState();
   },
 
   async removeFavorite(city) {
@@ -416,27 +416,28 @@ const App = {
 
   updateButtonsState() {
     const city = dom.cityInput.value.trim().toLowerCase();
-const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-const isCityInFavorites = favorites.includes(city);
-const isCityEmpty = city === '';
-const isValidCity = UI.isValidCityInput(dom.cityInput.value);
+    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+    const isCityInFavorites = favorites.includes(city);
+    const isCityEmpty = city === '';
+    const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-// botão busca ativo só se válido e não vazio
-dom.searchBtn.disabled = !isValidCity;
+    // botão busca ativo só se válido e não vazio
+    dom.searchBtn.disabled = !isValidCity;
 
-// botão favorito desabilitado se:
-//  - cidade inválida
-//  - input vazio
-//  - cidade já nos favoritos
-//  - ou se já tem 5 cidades favoritas
-dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
+    // botão favorito desabilitado se:
+    //  - cidade inválida
+    //  - input vazio
+    //  - cidade já nos favoritos
+    //  - ou se já tem 5 cidades favoritas
+    dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
 
-// tooltip para explicar o motivo de desabilitar o botão favorito
-if (favorites.length >= 5) {
-  dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
-} else {
-  dom.favBtn.title = "";
-},
+    // tooltip para explicar o motivo de desabilitar o botão favorito
+    if (favorites.length >= 5) {
+      dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
+    } else {
+      dom.favBtn.title = "";
+    }
+  },
 
   init() {
     UI.applySavedTheme();
