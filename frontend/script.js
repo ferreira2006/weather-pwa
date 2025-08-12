@@ -333,22 +333,27 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
-    const formattedCity = capitalizeCityName(city);
-    if (!formattedCity || (formattedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
-    dom.cityInput.value = formattedCity;
+    dom.weatherDiv.classList.add("loading");
     try {
-      const data = await WeatherAPI.fetchByCity(formattedCity);
+      if (!city || (city.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) {
+        return;
+      }
+      dom.cityInput.value = city;
+      const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
-      Storage.saveHistory(formattedCity);
+      Storage.saveHistory(city);
       UI.renderHistory();
-      Storage.saveLastCity(formattedCity);
+      Storage.saveLastCity(city);
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
   async fetchByCoords(lat, lon) {
+    dom.weatherDiv.classList.add("loading");
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
@@ -365,6 +370,8 @@ const App = {
         currentCityValid = false;
         this.updateButtonsState();
       }
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
