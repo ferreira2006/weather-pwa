@@ -405,9 +405,12 @@ const App = {
     this.updateButtonsState();
 
     dom.cityInput.addEventListener("click", () => {
-      dom.cityInput.value = "";
-      currentCityValid = false;
-      this.updateButtonsState();
+        const city = dom.cityInput.value.trim();
+    if (!UI.isValidCityInput(city)) {
+    UI.showToast("Por favor, informe uma cidade válida.");
+    return;
+  }
+  App.handleCitySelect(city);  // usar App diretamente
     });
 
     dom.cityInput.addEventListener("input", () => {
