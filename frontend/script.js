@@ -426,14 +426,14 @@ const App = {
     // Usar form submit para busca (melhoria de acessibilidade)
     const searchForm = document.getElementById("search-box");
     searchForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const city = dom.cityInput.value.trim();
-      if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida (apenas letras, espaços e hífens).");
-        dom.cityInput.focus();
-        return;
-      }
-      this.handleCitySelect(city);
+     e.preventDefault();
+  const city = dom.cityInput.value.trim();
+  if (!UI.isValidCityInput(city)) {
+    UI.showToast("Por favor, informe uma cidade válida.");
+    dom.cityInput.focus(); // garantir foco
+    return;
+  }
+  App.handleCitySelect(city);
     });
 
     // Limpa o input ao clicar dentro dele (evento 'click')
