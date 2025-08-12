@@ -372,17 +372,17 @@ const App = {
     this.updateButtonsState();
   },
 
-  removeFavorite(city) {
-    const confirmed = confirm(`Tem certeza que deseja remover "${city}" dos favoritos?`);
-    if (!confirmed) return;
+  async removeFavorite(city) {
+  const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+  if (!confirmed) return;
 
-    let favorites = Storage.getFavorites();
-    favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${city}" removido dos favoritos.`);
-    this.updateButtonsState();
-  },
+  let favorites = Storage.getFavorites();
+  favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
+  Storage.saveFavorites(favorites);
+  UI.renderFavorites();
+  UI.showToast(`"${city}" removido dos favoritos.`);
+  this.updateButtonsState();
+}
 
   // Atualiza estado dos botões Buscar e Favorito
   updateButtonsState() {
@@ -460,6 +460,40 @@ const App = {
     }
   }
 };
+
+function showConfirmationModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirm-modal");
+    const desc = modal.querySelector("#confirm-desc");
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
+
+    desc.textContent = message;
+    modal.hidden = false;
+
+    function cleanup() {
+      yesBtn.removeEventListener("click", onYes);
+      noBtn.removeEventListener("click", onNo);
+      modal.hidden = true;
+    }
+
+    function onYes() {
+      cleanup();
+      resolve(true);
+    }
+
+    function onNo() {
+      cleanup();
+      resolve(false);
+    }
+
+    yesBtn.addEventListener("click", onYes);
+    noBtn.addEventListener("click", onNo);
+
+    // Para acessibilidade, focar no botão "Não" inicialmente (ou no modal)
+    noBtn.focus();
+  });
+}
 
 // Inicializa app após carregamento da página
 window.onload = () => App.init();
