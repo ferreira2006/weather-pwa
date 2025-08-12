@@ -64,6 +64,7 @@ Permita acesso à geolocalização para buscar o clima da sua localização atua
 │   └── wi-snow.svg
 └── README.md
 
+
 ## Contribuição
 
 Contribuições são bem-vindas! Para sugerir melhorias ou correções:
