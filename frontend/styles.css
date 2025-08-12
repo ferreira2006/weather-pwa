@@ -502,24 +502,40 @@ body.error #icon {
   color: inherit;
 }
 
+/* Toast base */
 #toast {
   position: fixed;
   bottom: 20px;
-  right: 20px;
-  background: #333;
-  color: #fff;
-  padding: 12px 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--toast-bg, rgba(0, 0, 0, 0.85));
+  color: var(--toast-text, #fff);
+  padding: 10px 20px;
   border-radius: 8px;
+  font-size: 14px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s;
-  user-select: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
   z-index: 9999;
 }
 
+/* Estado visível */
 #toast.show {
   opacity: 1;
   pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tema claro */
+[data-theme="light"] #toast {
+  --toast-bg: rgba(0, 0, 0, 0.85);
+  --toast-text: #fff;
+}
+
+/* Tema escuro */
+[data-theme="dark"] #toast {
+  --toast-bg: rgba(255, 255, 255, 0.9);
+  --toast-text: #000;
 }
 
 /* Seções Histórico e Favoritos */
