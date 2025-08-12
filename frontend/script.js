@@ -461,89 +461,38 @@ const App = {
   }
 };
 
-/* Modal de confirmação customizado */
-#confirm-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  font-family: Arial, sans-serif;
-}
+function showConfirmationModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirm-modal");
+    const desc = modal.querySelector("#confirm-desc");
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
 
-#confirm-modal[hidden] {
-  display: none;
-}
+    desc.textContent = message;
+    modal.hidden = false;
 
-#confirm-modal .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
-  z-index: 10001;
-}
+    function cleanup() {
+      yesBtn.removeEventListener("click", onYes);
+      noBtn.removeEventListener("click", onNo);
+      modal.hidden = true;
+    }
 
-#confirm-modal .modal-content {
-  position: relative;
-  background: var(--button-bg);
-  color: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 10002;
-  text-align: center;
-}
+    function onYes() {
+      cleanup();
+      resolve(true);
+    }
 
-#confirm-modal h2 {
-  margin-top: 0;
-  font-size: 1.5rem;
-}
+    function onNo() {
+      cleanup();
+      resolve(false);
+    }
 
-#confirm-modal p {
-  margin: 20px 0;
-  font-size: 1.1rem;
-}
+    yesBtn.addEventListener("click", onYes);
+    noBtn.addEventListener("click", onNo);
 
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-#confirm-modal button {
-  min-width: 80px;
-  padding: 10px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s;
-}
-
-#confirm-modal button#confirm-yes {
-  background-color: #4caf50;
-  color: white;
-}
-
-#confirm-modal button#confirm-yes:hover,
-#confirm-modal button#confirm-yes:focus {
-  background-color: #45a045;
-  outline: none;
-}
-
-#confirm-modal button#confirm-no {
-  background-color: #f44336;
-  color: white;
-}
-
-#confirm-modal button#confirm-no:hover,
-#confirm-modal button#confirm-no:focus {
-  background-color: #d32f2f;
-  outline: none;
+    // Para acessibilidade, focar no botão "Não" inicialmente (ou no modal)
+    noBtn.focus();
+  });
 }
 
 // Inicializa app após carregamento da página
