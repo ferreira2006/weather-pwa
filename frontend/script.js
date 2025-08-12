@@ -325,6 +325,7 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
+    if (!city || city.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid) return;
     dom.cityInput.value = city;
     try {
       const data = await WeatherAPI.fetchByCity(city);
