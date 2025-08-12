@@ -429,20 +429,28 @@ const App = {
 
   // Inicializa a aplicação: aplica tema, renderiza listas, registra eventos e tenta carregar dados iniciais
   init() {
-    UI.applySavedTheme();
-    UI.renderHistory();
-    UI.renderFavorites();
-    this.updateFavBtnState();
+  UI.applySavedTheme();
+  UI.renderHistory();
+  UI.renderFavorites();
+  this.updateFavBtnState();
 
-    // Evento do botão de busca
-    dom.searchBtn.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
-      if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida.");
-        return;
-      }
-      this.handleCitySelect(city);
-    });
+  // Limpar input ao clicar dentro dele
+  dom.cityInput.addEventListener("click", () => {
+    dom.cityInput.value = "";
+    // Também invalida o currentCityValid porque agora o input está vazio
+    currentCityValid = false;
+    this.updateFavBtnState();
+  });
+
+  // Evento do botão de busca
+  dom.searchBtn.addEventListener("click", () => {
+    const city = dom.cityInput.value.trim();
+    if (!UI.isValidCityInput(city)) {
+      UI.showToast("Por favor, informe uma cidade válida.");
+      return;
+    }
+    this.handleCitySelect(city);
+  });
 
     // Permite buscar com Enter no input
     dom.cityInput.addEventListener("keydown", e => {
