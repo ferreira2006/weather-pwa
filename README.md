@@ -50,6 +50,7 @@ Permita acesso à geolocalização para buscar o clima da sua localização atua
 
 ## Estrutura de arquivos
 
+```plaintext
 /
 ├── index.html
 ├── css/
