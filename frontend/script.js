@@ -392,52 +392,59 @@ const App = {
   },
 
   init() {
-    UI.applySavedTheme();
-    UI.renderHistory();
-    UI.renderFavorites();
-    this.updateButtonsState();
+     UI.applySavedTheme();
+  UI.renderHistory();
+  UI.renderFavorites();
+  this.updateButtonsState();
 
-    // Usar form submit para busca (melhoria de acessibilidade)
-    const searchForm = document.getElementById("search-box");
-    searchForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const city = dom.cityInput.value.trim();
-      if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida.");
-        return;
-      }
-      this.handleCitySelect(city);
-    });
-
-    dom.cityInput.addEventListener("input", () => {
-      dom.cityInput.value = "";
-      currentCityValid = false;
-      this.updateButtonsState();
-    });
-
-    dom.favBtn.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
-      if (!city) return;
-      this.addFavorite(city);
-    });
-
-    dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
-
-    const lastCity = Storage.getLastCity();
-    if (lastCity) {
-      this.handleCitySelect(lastCity);
-    } else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-        () => {
-          UI.showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
-          this.handleCitySelect("São Miguel do Oeste");
-        }
-      );
-    } else {
-      this.handleCitySelect("São Miguel do Oeste");
+  // Usar form submit para busca (melhoria de acessibilidade)
+  const searchForm = document.getElementById("search-box");
+  searchForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const city = dom.cityInput.value.trim();
+    if (!UI.isValidCityInput(city)) {
+      UI.showToast("Por favor, informe uma cidade válida.");
+      return;
     }
+    this.handleCitySelect(city);
+  });
+
+  // Limpa o input ao clicar dentro dele (evento 'click')
+  dom.cityInput.addEventListener("click", () => {
+    dom.cityInput.value = "";
+    currentCityValid = false;
+    this.updateButtonsState();
+  });
+
+  // Mantém listener de input para desabilitar botões enquanto o usuário digita
+  dom.cityInput.addEventListener("input", () => {
+    currentCityValid = false;
+    this.updateButtonsState();
+  });
+
+  dom.favBtn.addEventListener("click", () => {
+    const city = dom.cityInput.value.trim();
+    if (!city) return;
+    this.addFavorite(city);
+  });
+
+  dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
+
+  const lastCity = Storage.getLastCity();
+  if (lastCity) {
+    this.handleCitySelect(lastCity);
+  } else if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+      () => {
+        UI.showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
+        this.handleCitySelect("São Miguel do Oeste");
+      }
+    );
+  } else {
+    this.handleCitySelect("São Miguel do Oeste");
   }
+}
 };
 
 function showConfirmationModal(message) {
