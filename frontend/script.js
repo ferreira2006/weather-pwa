@@ -86,6 +86,15 @@ const Storage = {
   }
 };
 
+function capitalizeCityName(city) {
+  return city
+    .toLowerCase()
+    .split(' ')
+    .filter(Boolean)
+    .map(word => word[0].toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 // ===== UI =====
 const UI = {
   isValidCityInput(city) {
@@ -359,17 +368,21 @@ const App = {
   },
 
   addFavorite(city) {
-    let favorites = Storage.getFavorites();
-    if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
-      UI.showToast(`"${city}" já está nos favoritos.`);
-      return;
-    }
-    favorites.push(city);
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${city}" adicionado aos favoritos!`);
-    console.log(`A cidade é: ${city}`);
-    this.updateButtonsState();
+    const formattedCity = capitalizeCityName(city);
+
+  let favorites = Storage.getFavorites() || [];
+
+  // Evita duplicados (comparação lowercase)
+  if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
+    UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+    return;
+  }
+
+  favorites.push(formattedCity);
+  Storage.saveFavorites(favorites);
+  UI.renderFavorites();
+  UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+  updateButtonsState(); // sua função para atualizar UI
   },
 
   async removeFavorite(city) {
