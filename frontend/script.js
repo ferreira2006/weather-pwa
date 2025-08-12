@@ -34,6 +34,8 @@ const dom = {
   favoritesListEl: document.getElementById("favorites-list"),
 
   toast: document.getElementById("toast"),
+
+  cityListEl: document.getElementById("city-list"), // lista de cidades para autocomplete
 };
 
 // Estado global simples para controlar se a última busca foi válida
@@ -413,19 +415,45 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    dom.cityInput.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
-      if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida.");
-        return;
+    // Mostra lista ao focar no input
+    dom.cityInput.addEventListener("focus", () => {
+      if (dom.cityListEl) {
+        dom.cityListEl.style.display = "block";
       }
-      App.handleCitySelect(city);
     });
 
+    // Atualiza botões e mostra lista ao digitar
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
+      if (dom.cityListEl) {
+        dom.cityListEl.style.display = "block";
+        // Opcional: aqui você pode filtrar os itens da lista para combinar com o texto digitado
+      }
     });
+
+    // Fecha lista se clicar fora do input e da lista
+    document.addEventListener("click", (e) => {
+      if (
+        e.target !== dom.cityInput &&
+        dom.cityListEl &&
+        !dom.cityListEl.contains(e.target)
+      ) {
+        dom.cityListEl.style.display = "none";
+      }
+    });
+
+    // Clique em um item da lista seleciona a cidade e busca o clima
+    if (dom.cityListEl) {
+      dom.cityListEl.querySelectorAll("li").forEach(li => {
+        li.style.cursor = "pointer";
+        li.addEventListener("click", () => {
+          dom.cityInput.value = li.textContent;
+          dom.cityListEl.style.display = "none";
+          this.handleCitySelect(li.textContent);
+        });
+      });
+    }
 
     dom.searchBtn.addEventListener("click", () => {
       const city = dom.cityInput.value.trim();
@@ -434,6 +462,7 @@ const App = {
         return;
       }
       this.handleCitySelect(city);
+      if (dom.cityListEl) dom.cityListEl.style.display = "none";
     });
 
     dom.cityInput.addEventListener("keydown", e => {
@@ -445,6 +474,7 @@ const App = {
           return;
         }
         dom.searchBtn.click();
+        if (dom.cityListEl) dom.cityListEl.style.display = "none";
       }
     });
 
