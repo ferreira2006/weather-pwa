@@ -440,6 +440,10 @@ const App = {
       const city = dom.cityInput.value.trim();
       if (!city) return;
       this.addFavorite(city);
+      dom.cityInput.value = "";
+    // Também invalida o currentCityValid porque agora o input está vazio
+    currentCityValid = false;
+    this.updateFavBtnState();
     });
 
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
