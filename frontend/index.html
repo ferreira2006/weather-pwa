@@ -80,14 +80,7 @@
         <div class="details" id="details"></div>
       </div>
 
-      <div
-        id="weather-error"
-        role="alert"
-        tabindex="0"
-        aria-live="assertive"
-        aria-atomic="true"
-        style="display:none; color: #b00000; background-color: #ffdede; padding: 10px; border-radius: 4px;"
-      ></div>
+      <div id="weather-error" role="alert" tabindex="0" aria-live="assertive" aria-atomic="true" style="display:none; color: #b00000; background-color: #ffdede; padding: 10px; border-radius: 4px;"></div>
 
       <div id="spinner" class="spinner" aria-label="Carregando" style="display:none;"></div>
     </section>
@@ -99,17 +92,10 @@
     </section>
   </main>
 
-  <div id="toast" aria-live="polite" aria-atomic="true"></div>
+  <div id="toast"></div>
 
   <!-- Modal de confirmação customizado -->
-  <div
-    id="confirm-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="confirm-modal-title"
-    aria-describedby="confirm-modal-desc"
-    hidden
-  >
+  <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
     <div class="modal-overlay"></div>
     <div class="modal-content" role="document">
       <h2 id="confirm-modal-title">Confirmação</h2>
