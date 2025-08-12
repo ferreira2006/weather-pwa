@@ -415,17 +415,18 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Mostra lista e limpa input ao focar
-dom.cityInput.addEventListener("focus", () => {
-  dom.cityInput.value = "";
-});
+    // Limpa o input ao focar
+    dom.cityInput.addEventListener("focus", () => {
+      dom.cityInput.value = "";
+    });
+
     // Atualiza botões e mostra lista ao digitar
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
       if (dom.cityListEl) {
         dom.cityListEl.style.display = "block";
-        // Opcional: aqui você pode filtrar os itens da lista para combinar com o texto digitado
+        // Você pode implementar filtragem aqui se desejar
       }
     });
 
@@ -440,14 +441,16 @@ dom.cityInput.addEventListener("focus", () => {
       }
     });
 
-    // Clique em um item da lista seleciona a cidade e busca o clima
+    // Clique em um item da lista só preenche o input e fecha a lista, sem buscar
     if (dom.cityListEl) {
       dom.cityListEl.querySelectorAll("li").forEach(li => {
         li.style.cursor = "pointer";
         li.addEventListener("click", () => {
           dom.cityInput.value = li.textContent;
           dom.cityListEl.style.display = "none";
-          this.handleCitySelect(li.textContent);
+          // NÃO chama handleCitySelect aqui para evitar busca automática
+          currentCityValid = false;
+          this.updateButtonsState();
         });
       });
     }
