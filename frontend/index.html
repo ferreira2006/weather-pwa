@@ -13,7 +13,7 @@
     <h1>Clima Atual</h1>
     <button
       id="theme-toggle"
-      aria-label="Alternar tema"
+      aria-label="Alternar tema claro/escuro"
       aria-pressed="false"
       type="button"
     >Modo Escuro</button>
@@ -22,14 +22,16 @@
   <main>
     <!-- Busca -->
     <section id="search-section" aria-label="Busca de cidades">
-      <div id="search-box">
+      <form id="search-box" role="search" aria-label="Busca de cidade">
         <input
           list="city-suggestions"
           type="text"
           id="city-input"
+          name="city"
           placeholder="Digite a cidade"
-          aria-label="Digite a cidade"
+          aria-label="Digite o nome da cidade"
           autocomplete="off"
+          required
         />
         <datalist id="city-suggestions">
           <option value="Anchieta"></option>
@@ -51,15 +53,15 @@
           <option value="São José do Cedro"></option>
           <option value="São Miguel do Oeste"></option>
         </datalist>
-        <button id="search-btn" type="button" aria-label="Buscar clima da cidade">Buscar</button>
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" style="margin-left: 10px;">Adicionar aos favoritos</button>
-      </div>
+        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>Buscar</button>
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled style="margin-left: 10px;">Adicionar aos favoritos</button>
+      </form>
     </section>
 
     <!-- Cidades favoritas -->
     <section id="favorites-section" aria-label="Cidades favoritas">
-      <h3>Cidades Favoritas</h3>
-      <ul id="favorites-list" role="list"></ul>
+      <h2>Cidades Favoritas</h2>
+      <ul id="favorites-list" role="list" tabindex="0"></ul>
     </section>
 
     <!-- Card do clima -->
@@ -68,7 +70,7 @@
       role="region"
       aria-live="polite"
       aria-atomic="true"
-      tabindex="0"
+      tabindex="-1"
       hidden
     >
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
@@ -87,17 +89,17 @@
 
     <!-- Histórico das últimas cidades -->
     <section id="history-section" aria-label="Histórico das cidades pesquisadas">
-      <h3>Últimas cidades pesquisadas</h3>
-      <ul id="history-list" role="list"></ul>
+      <h2>Últimas cidades pesquisadas</h2>
+      <ul id="history-list" role="list" tabindex="0"></ul>
     </section>
   </main>
 
-  <div id="toast"></div>
+  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <!-- Modal de confirmação customizado -->
   <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
     <div class="modal-overlay"></div>
-    <div class="modal-content" role="document">
+    <div class="modal-content" role="document" tabindex="0">
       <h2 id="confirm-modal-title">Confirmação</h2>
       <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
       <div class="modal-buttons">
