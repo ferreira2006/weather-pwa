@@ -13,6 +13,12 @@ const translations = {
     confirmRemoveFavorite: 'Tem certeza que deseja remover "{city}" dos favoritos?',
     locationError: "Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.",
     weatherErrorDefault: "Erro ao buscar o clima",
+    cityLabel: "Cidade",
+    searchButton: "Buscar",
+    favButton: "Favoritos",
+    langLabel: "Idioma",
+    toggleThemeLight: "Modo Claro",
+    toggleThemeDark: "Modo Escuro"
   },
   en: {
     invalidCity: "Please enter a valid city (letters, spaces, and hyphens only).",
@@ -23,6 +29,12 @@ const translations = {
     confirmRemoveFavorite: 'Are you sure you want to remove "{city}" from favorites?',
     locationError: "Could not get your location. Showing weather for São Miguel do Oeste.",
     weatherErrorDefault: "Error fetching weather",
+    cityLabel: "City",
+    searchButton: "Search",
+    favButton: "Favorites",
+    langLabel: "Language",
+    toggleThemeLight: "Light Mode",
+    toggleThemeDark: "Dark Mode"
   }
 };
 
@@ -35,7 +47,16 @@ function t(key, params = {}) {
   });
   return text;
 }
-// --- Fim multilíngue ---
+
+// Atualiza textos estáticos com base no idioma atual
+function updateStaticTexts() {
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[currentLang] && translations[currentLang][key]) {
+      el.textContent = translations[currentLang][key];
+    }
+  });
+}
 
 // Função para capitalizar cada palavra do nome da cidade
 function capitalizeCityName(city) {
@@ -69,7 +90,7 @@ const dom = {
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
 
-  toast: document.getElementById("toast"),
+  toast: document.getElementById("toast")
 };
 
 // Estado global simples para controlar se a última busca foi válida
@@ -256,7 +277,9 @@ const UI = {
 
   updateThemeToggleButton() {
     const isDark = document.body.classList.contains("dark");
-    dom.themeToggle.textContent = isDark ? (currentLang === "pt" ? "Modo Claro" : "Light Mode") : (currentLang === "pt" ? "Modo Escuro" : "Dark Mode");
+    dom.themeToggle.textContent = isDark
+      ? t("toggleThemeLight")
+      : t("toggleThemeDark");
     dom.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
   },
 
@@ -320,7 +343,7 @@ const UI = {
         fontSize: "1.2rem",
         lineHeight: "1",
         padding: "0",
-        outlineOffset: "2px",
+        outlineOffset: "2px"
       });
 
       removeBtn.addEventListener("click", e => {
@@ -335,7 +358,9 @@ const UI = {
         }
       });
 
-      li.title = currentLang === "pt" ? "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos." : "Click to search. Press Shift+Enter or Delete to remove from favorites.";
+      li.title = currentLang === "pt"
+        ? "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos."
+        : "Click to search. Press Shift+Enter or Delete to remove from favorites.";
 
       li.appendChild(citySpan);
       li.appendChild(removeBtn);
@@ -473,7 +498,8 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Usar form submit para busca (melhoria de acessibilidade)
+    updateStaticTexts();
+
     const searchForm = document.getElementById("search-box");
     searchForm.addEventListener("submit", e => {
       e.preventDefault();
@@ -486,14 +512,12 @@ const App = {
       this.handleCitySelect(city);
     });
 
-    // Limpa o input ao clicar dentro dele (evento 'click')
     dom.cityInput.addEventListener("click", () => {
       dom.cityInput.value = "";
       currentCityValid = false;
       this.updateButtonsState();
     });
 
-    // Mantém listener de input para desabilitar botões enquanto o usuário digita
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
@@ -507,11 +531,11 @@ const App = {
 
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
-    // Listener para mudar idioma
     if (dom.langSelect) {
       dom.langSelect.value = currentLang;
       dom.langSelect.addEventListener("change", () => {
         currentLang = dom.langSelect.value;
+        updateStaticTexts();
         UI.renderHistory();
         UI.renderFavorites();
         UI.updateThemeToggleButton();
@@ -535,38 +559,14 @@ const App = {
   }
 };
 
+// Modal de confirmação simples, retorna Promise<boolean>
 function showConfirmationModal(message) {
-  return new Promise((resolve) => {
-    const modal = document.getElementById("confirm-modal");
-    const desc = document.getElementById("confirm-modal-desc");
-    const yesBtn = document.getElementById("confirm-yes");
-    const noBtn = document.getElementById("confirm-no");
-
-    desc.textContent = message;
-    modal.hidden = false;
-    modal.focus();
-
-    function cleanUp() {
-      yesBtn.removeEventListener("click", onYes);
-      noBtn.removeEventListener("click", onNo);
-    }
-
-    function onYes() {
-      cleanUp();
-      modal.hidden = true;
-      resolve(true);
-    }
-
-    function onNo() {
-      cleanUp();
-      modal.hidden = true;
-      resolve(false);
-    }
-
-    yesBtn.addEventListener("click", onYes);
-    noBtn.addEventListener("click", onNo);
+  return new Promise(resolve => {
+    const confirmed = window.confirm(message);
+    resolve(confirmed);
   });
 }
 
-// Inicializa app após carregamento da página
-window.onload = () => App.init();
+window.addEventListener("DOMContentLoaded", () => {
+  App.init();
+});
