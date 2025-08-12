@@ -2,16 +2,6 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const maxHistoryItems = 5;
 
-// Função para capitalizar cada palavra do nome da cidade
-function capitalizeCityName(city) {
-  return city
-    .toLowerCase()
-    .split(' ')
-    .filter(word => word.length > 0)
-    .map(word => word[0].toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
 // Elementos do DOM agrupados para facilitar acesso e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -61,10 +51,9 @@ const Storage = {
   },
 
   saveHistory(city) {
-    const formattedCity = capitalizeCityName(city);
     let history = this.getHistory();
-    history = history.filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
-    history.unshift(formattedCity);
+    history = history.filter(c => c.toLowerCase() !== city.toLowerCase());
+    history.unshift(city);
     if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
     localStorage.setItem("weatherHistory", JSON.stringify(history));
   },
@@ -226,7 +215,8 @@ const UI = {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.textContent = city;
-      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      li.setAttribute("role", "button");
+      li.setAttribute("aria-label", `Buscar clima da cidade ${city}. Pressione Enter ou Espaço para ativar.`);
 
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keydown", e => {
@@ -248,7 +238,8 @@ const UI = {
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
+      li.setAttribute("role", "button");
+      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter ou Espaço para buscar, Delete ou Backspace para remover.`);
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
@@ -256,7 +247,7 @@ const UI = {
       citySpan.title = "Clique para buscar";
       citySpan.setAttribute("role", "button");
       citySpan.setAttribute("tabindex", "0");
-      citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}. Pressione Enter ou Espaço para ativar.`);
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       citySpan.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
@@ -333,15 +324,14 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
-    const formattedCity = capitalizeCityName(city);
-    if (!formattedCity || (formattedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
-    dom.cityInput.value = formattedCity;
+    if (!city || (city.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
+    dom.cityInput.value = city;
     try {
-      const data = await WeatherAPI.fetchByCity(formattedCity);
+      const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
-      Storage.saveHistory(formattedCity);
+      Storage.saveHistory(city);
       UI.renderHistory();
-      Storage.saveLastCity(formattedCity);
+      Storage.saveLastCity(city);
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
@@ -369,16 +359,15 @@ const App = {
   },
 
   addFavorite(city) {
-    const formattedCity = capitalizeCityName(city);
     let favorites = Storage.getFavorites();
-    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+    if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
+      UI.showToast(`"${city}" já está nos favoritos.`);
       return;
     }
-    favorites.push(formattedCity);
+    favorites.push(city);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    UI.showToast(`"${city}" adicionado aos favoritos!`);
     this.updateButtonsState();
   },
 
