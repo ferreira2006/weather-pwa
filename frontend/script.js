@@ -96,8 +96,11 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
+  // Validação aprimorada: aceita letras (com acentos), espaços e hífens apenas
   isValidCityInput(city) {
-    return city.trim().length > 0;
+    if (!city) return false;
+    const validCityRegex = /^[a-zA-Zà-úÀ-ÚçÇ\s-]+$/;
+    return validCityRegex.test(city.trim());
   },
 
   showToast(message, duration = 3000) {
@@ -406,8 +409,11 @@ const App = {
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const isCityInFavorites = favorites.includes(city);
     const isCityEmpty = city === '';
+    const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-    dom.searchBtn.disabled = isCityEmpty;
+    // botão busca ativo só se válido e não vazio
+    dom.searchBtn.disabled = !isValidCity;
+    // botão favorito só se válido, não vazio, e não está nos favoritos
     dom.favBtn.disabled = !currentCityValid || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites;
   },
 
@@ -423,7 +429,8 @@ const App = {
       e.preventDefault();
       const city = dom.cityInput.value.trim();
       if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida.");
+        UI.showToast("Por favor, informe uma cidade válida (apenas letras, espaços e hífens).");
+        dom.cityInput.focus();
         return;
       }
       this.handleCitySelect(city);
