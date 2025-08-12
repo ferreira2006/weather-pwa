@@ -105,9 +105,12 @@ const UI = {
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
-    t.textContent = message;
-    t.classList.add("show");
-    setTimeout(() => t.classList.remove("show"), duration);
+  t.textContent = message;
+  t.classList.remove("show");
+  void t.offsetWidth; // forçar reflow
+  t.classList.add("show");
+  dom.cityInput.focus();
+  setTimeout(() => t.classList.remove("show"), duration);
   },
 
   setDynamicBackground(mainWeather) {
