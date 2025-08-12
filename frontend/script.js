@@ -415,13 +415,13 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Mostra lista ao focar no input
-    dom.cityInput.addEventListener("focus", () => {
-      if (dom.cityListEl) {
-        dom.cityListEl.style.display = "block";
-      }
-    });
-
+    // Mostra lista e limpa input ao focar
+dom.cityInput.addEventListener("focus", () => {
+  dom.cityInput.value = "";
+  if (dom.cityListEl) {
+    dom.cityListEl.style.display = "block";
+  }
+});
     // Atualiza botões e mostra lista ao digitar
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
