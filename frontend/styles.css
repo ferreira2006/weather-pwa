@@ -631,187 +631,92 @@ body.error #icon {
   margin-bottom: 30px;
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
-  padding: 10px 20px;
+  padding: 20px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  transition: background 0.75s ease, color 0.75s ease;
+}
+
+#history-section h2,
+#favorites-section h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-weight: 700;
+  font-size: 1.5rem;
   color: inherit;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.dark #history-section,
-body.dark #favorites-section {
-  background: rgba(255 255 255 / 0.1);
-  box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
-}
-
-#history-section h3,
-#favorites-section h3 {
-  margin: 0 0 10px 0;
-  font-weight: 600;
-  font-size: 1.2rem;
-}
-
-/* Listas Histórico e Favoritos */
 #history-list,
 #favorites-list {
   list-style: none;
-  padding: 0;
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
+  padding: 0;
 }
 
 #history-list li,
 #favorites-list li {
-  background: var(--button-bg);
-  color: white;
-  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
   border-radius: 8px;
   cursor: pointer;
+  color: inherit;
+  transition: background-color 0.25s;
   user-select: none;
-  transition: background-color 0.3s;
-  font-size: 0.95rem;
-  font-weight: 600;
-  min-width: 48px;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #history-list li:hover,
-#history-list li:focus,
+#history-list li:focus-visible,
 #favorites-list li:hover,
-#favorites-list li:focus {
-  background-color: var(--button-bg-hover);
+#favorites-list li:focus-visible {
+  background-color: rgba(255 255 255 / 0.2);
+  outline: none;
+}
+
+/* Botão de remover favorito na lista */
+#favorites-list button {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s;
+  min-width: 30px;
+  min-height: 30px;
+}
+
+#favorites-list button:hover,
+#favorites-list button:focus {
+  color: var(--button-bg-hover);
   outline: none;
 }
 
 /* Responsividade */
-@media (max-width: 600px) {
+@media (max-width: 650px) {
+  body {
+    padding: 15px;
+  }
+  main {
+    max-width: 100%;
+  }
   #weather {
     grid-template-columns: 1fr;
     min-height: auto;
-    padding: 20px 20px;
   }
-  .weather-icon {
-    margin-bottom: 20px;
-    justify-self: center;
+  #weather-content {
+    grid-column: auto;
   }
-  .temp {
-    font-size: 3rem;
-  }
-  .desc {
-    font-size: 1.2rem;
-  }
-  #history-list li,
-  #favorites-list li {
-    font-size: 1rem;
-    padding: 10px 18px;
-  }
-
-  /* Botões buscar e favoritos responsivos */
   #search-box {
+    flex-direction: column;
     gap: 12px;
   }
   button#search-btn,
   button#fav-btn {
+    width: 100%;
     min-width: auto;
-    flex: 1 1 45%;
-    padding: 14px 0;
-    font-size: 1.1rem;
   }
-
-  /* Spinner centralizado no card */
-  #spinner {
-    bottom: auto;
-    right: auto;
-    top: 15px;
-    left: 15px;
-  }
-}
-
-/* Modal de confirmação customizado */
-#confirm-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  font-family: Arial, sans-serif;
-}
-
-#confirm-modal[hidden] {
-  display: none;
-}
-
-#confirm-modal .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
-  z-index: 10001;
-}
-
-#confirm-modal .modal-content {
-  position: relative;
-  background: var(--button-bg);
-  color: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 10002;
-  text-align: center;
-}
-
-#confirm-modal h2 {
-  margin-top: 0;
-  font-size: 1.5rem;
-}
-
-#confirm-modal p {
-  margin: 20px 0;
-  font-size: 1.1rem;
-}
-
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-#confirm-modal button {
-  min-width: 80px;
-  padding: 10px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s;
-}
-
-#confirm-modal button#confirm-yes {
-  background-color: #4caf50;
-  color: white;
-}
-
-#confirm-modal button#confirm-yes:hover,
-#confirm-modal button#confirm-yes:focus {
-  background-color: #45a045;
-  outline: none;
-}
-
-#confirm-modal button#confirm-no {
-  background-color: #f44336;
-  color: white;
-}
-
-#confirm-modal button#confirm-no:hover,
-#confirm-modal button#confirm-no:focus {
-  background-color: #d32f2f;
-  outline: none;
 }
