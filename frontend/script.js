@@ -418,9 +418,6 @@ const App = {
     // Mostra lista e limpa input ao focar
 dom.cityInput.addEventListener("focus", () => {
   dom.cityInput.value = "";
-  if (dom.cityListEl) {
-    dom.cityListEl.style.display = "block";
-  }
 });
     // Atualiza botões e mostra lista ao digitar
     dom.cityInput.addEventListener("input", () => {
