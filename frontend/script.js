@@ -2,16 +2,6 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
 const maxHistoryItems = 5;
 
-// Capitaliza nome da cidade (ex: "rio de janeiro" => "Rio De Janeiro")
-function capitalizeCityName(city) {
-  return city
-    .toLowerCase()
-    .split(' ')
-    .filter(Boolean)
-    .map(word => word[0].toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
 // Elementos do DOM agrupados para facilitar acesso e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -40,13 +30,16 @@ const dom = {
 let currentCityValid = false;
 
 // ===== API =====
+// Encapsula chamadas à API externa para buscar dados do clima
 const WeatherAPI = {
+  // Busca clima por nome da cidade, lança erro se cidade não encontrada
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     return res.json();
   },
 
+  // Busca clima por coordenadas geográficas, lança erro se falhar
   async fetchByCoords(lat, lon) {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
@@ -61,11 +54,9 @@ const Storage = {
   },
 
   saveHistory(city) {
-    const formattedCity = capitalizeCityName(city);
-
     let history = this.getHistory();
-    history = history.filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
-    history.unshift(formattedCity);
+    history = history.filter(c => c.toLowerCase() !== city.toLowerCase());
+    history.unshift(city);
     if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
     localStorage.setItem("weatherHistory", JSON.stringify(history));
   },
@@ -142,7 +133,7 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    dom.cityNameEl.textContent = `${capitalizeCityName(data.name)}, ${data.sys.country}`;
+    dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
 
@@ -334,15 +325,13 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
-    const formattedCity = capitalizeCityName(city);
-    dom.cityInput.value = formattedCity;
-
+    dom.cityInput.value = city;
     try {
-      const data = await WeatherAPI.fetchByCity(formattedCity);
+      const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
-      Storage.saveHistory(formattedCity);
+      Storage.saveHistory(city);
       UI.renderHistory();
-      Storage.saveLastCity(formattedCity);
+      Storage.saveLastCity(city);
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
@@ -370,18 +359,16 @@ const App = {
   },
 
   addFavorite(city) {
-    const formattedCity = capitalizeCityName(city);
     let favorites = Storage.getFavorites();
-
-    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+    if (favorites.some(c => c.toLowerCase() === city.toLowerCase())) {
+      UI.showToast(`"${city}" já está nos favoritos.`);
       return;
     }
-
-    favorites.push(formattedCity);
+    favorites.push(city);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    UI.showToast(`"${city}" adicionado aos favoritos!`);
+    console.log(`A cidade é: ${city}`);
     this.updateButtonsState();
   },
 
@@ -395,15 +382,19 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
-  },
+  },  // <-- Virgulinha importante aqui!
 
+  // Atualiza estado dos botões Buscar e Favorito
   updateButtonsState() {
     const city = dom.cityInput.value.trim().toLowerCase();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const isCityInFavorites = favorites.includes(city);
     const isCityEmpty = city === '';
 
+    // Habilita botão buscar se input não vazio
     dom.searchBtn.disabled = isCityEmpty;
+
+    // Botão favorito habilitado só se cidade válida, não vazia, não favorita e botão buscar habilitado
     dom.favBtn.disabled = !currentCityValid || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites;
   },
 
@@ -414,12 +405,12 @@ const App = {
     this.updateButtonsState();
 
     dom.cityInput.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
-      if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida.");
-        return;
-      }
-      App.handleCitySelect(city);
+        const city = dom.cityInput.value.trim();
+    if (!UI.isValidCityInput(city)) {
+    UI.showToast("Por favor, informe uma cidade válida.");
+    return;
+  }
+  App.handleCitySelect(city);  // usar App diretamente
     });
 
     dom.cityInput.addEventListener("input", () => {
