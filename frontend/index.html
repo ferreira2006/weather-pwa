@@ -11,7 +11,12 @@
 
   <header>
     <h1>Clima Atual</h1>
-    <button id="theme-toggle" aria-label="Alternar tema claro/escuro" aria-pressed="false" type="button">
+    <button
+      id="theme-toggle"
+      aria-label="Alternar tema claro/escuro"
+      aria-pressed="false"
+      type="button"
+    >
       Modo Escuro
     </button>
   </header>
@@ -20,9 +25,16 @@
     <!-- Busca -->
     <section id="search-section" aria-label="Busca de cidades">
       <form id="search-box" role="search" aria-label="Busca de cidade">
-        <input list="city-suggestions" type="text" id="city-input" name="city"
-               placeholder="Digite a cidade" aria-label="Digite o nome da cidade"
-               autocomplete="off" required />
+        <input
+          list="city-suggestions"
+          type="text"
+          id="city-input"
+          name="city"
+          placeholder="Digite a cidade"
+          aria-label="Digite o nome da cidade"
+          autocomplete="off"
+          required
+        />
         <datalist id="city-suggestions">
           <option value="Anchieta"></option>
           <option value="Bandeirante"></option>
@@ -43,8 +55,12 @@
           <option value="São José do Cedro"></option>
           <option value="São Miguel do Oeste"></option>
         </datalist>
-        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>Buscar</button>
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>Adicionar aos favoritos</button>
+        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
+          Buscar
+        </button>
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
+          Adicionar aos favoritos
+        </button>
       </form>
     </section>
 
@@ -55,15 +71,33 @@
     </section>
 
     <!-- Card do clima -->
-    <section id="weather" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
+    <section
+      id="weather"
+      role="region"
+      aria-live="polite"
+      aria-atomic="true"
+      tabindex="-1"
+      <!-- Removido o hidden -->
+    >
       <div id="icon" class="weather-icon" aria-hidden="true"></div>
+
       <div id="weather-content" class="info">
         <h2 id="city-name"></h2>
         <div class="temp" id="temp"></div>
         <div class="desc" id="desc"></div>
         <div class="details" id="details"></div>
       </div>
-      <div id="weather-error" role="alert" tabindex="0" aria-live="assertive" aria-atomic="true" hidden class="error-message"></div>
+
+      <div
+        id="weather-error"
+        role="alert"
+        tabindex="0"
+        aria-live="assertive"
+        aria-atomic="true"
+        hidden
+        class="error-message"
+      ></div>
+
       <div id="spinner" class="spinner" aria-label="Carregando"></div>
     </section>
 
@@ -77,12 +111,20 @@
   <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
   <!-- Modal de confirmação -->
-  <div id="confirm-modal" role="dialog" aria-modal="true"
-       aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
+  <div
+    id="confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-modal-title"
+    aria-describedby="confirm-modal-desc"
+    hidden
+  >
     <div class="modal-overlay"></div>
     <div class="modal-content" role="document" tabindex="0">
       <h2 id="confirm-modal-title">Confirmação</h2>
-      <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
+      <p id="confirm-modal-desc">
+        Tem certeza que deseja remover esta cidade dos favoritos?
+      </p>
       <div class="modal-buttons">
         <button id="confirm-yes" type="button">Sim</button>
         <button id="confirm-no" type="button">Não</button>
@@ -90,6 +132,6 @@
     </div>
   </div>
 
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
