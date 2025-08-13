@@ -104,12 +104,18 @@ const UI = {
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
-    t.textContent = message;
-    t.classList.remove("show");
-    void t.offsetWidth;
-    t.classList.add("show");
-    dom.cityInput.focus();
-    setTimeout(() => t.classList.remove("show"), duration);
+  t.textContent = message;
+  t.classList.remove("show");
+  void t.offsetWidth; // força reflow
+  t.classList.add("show");
+
+  // não focar automaticamente para não confundir leitores de tela
+  // dom.cityInput.focus(); // removido
+
+  // garante que leitores de tela anunciem a mensagem
+  t.setAttribute("aria-live", "polite");
+
+  setTimeout(() => t.classList.remove("show"), duration);
   },
 
   setDynamicBackground(mainWeather) {
