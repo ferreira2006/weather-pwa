@@ -425,27 +425,27 @@ const App = {
   },
 
   updateButtonsState() {
-  const city = dom.cityInput.value.trim().toLowerCase();
+  const city = dom.cityInput.value.trim();
   const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-  const isCityInFavorites = favorites.includes(city);
+  const cityLower = city.toLowerCase();
+
   const isCityEmpty = city === '';
-  const isValidCity = UI.isValidCityInput(dom.cityInput.value);
+  const isCityValid = UI.isValidCityInput(city);
 
-  // Botão busca ativo só se válido e não vazio
-  dom.searchBtn.disabled = !isValidCity;
+  // Botão Buscar
+  dom.searchBtn.disabled = !isCityValid;
 
-  // Botão favorito desabilitado se:
-  // - cidade inválida
-  // - input vazio
-  // - cidade já nos favoritos
-  // - ou se já tem 5 cidades favoritas (mas permitir se a cidade que será removida for a mesma do input)
-  const canAddFavorite = isValidCity && !isCityEmpty && !isCityInFavorites;
-  const maxFavoritesReached = favorites.length >= 5;
-  dom.favBtn.disabled = !canAddFavorite || (maxFavoritesReached && !isCityInFavorites);
+  // Botão Favorito
+  let canAddFavorite = currentCityValid && isCityValid && !isCityEmpty;
+  canAddFavorite = canAddFavorite && !favorites.includes(cityLower) && favorites.length < 5;
 
-  // Tooltip explicativo
-  if (maxFavoritesReached && !isCityInFavorites) {
+  dom.favBtn.disabled = !canAddFavorite;
+
+  // Tooltip para explicar motivo do botão favorito estar desabilitado
+  if (!canAddFavorite && favorites.length >= 5) {
     dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
+  } else if (!canAddFavorite && favorites.includes(cityLower)) {
+    dom.favBtn.title = `"${capitalizeCityName(city)}" já está nos favoritos.`;
   } else {
     dom.favBtn.title = "";
   }
