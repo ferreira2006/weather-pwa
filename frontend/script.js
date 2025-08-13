@@ -12,6 +12,16 @@ function capitalizeCityName(city) {
     .join(' ');
 }
 
+// ===== NORMALIZAÇÃO DE INPUT =====
+function normalizeCityInput(city) {
+  if (!city) return "";
+  // converte apóstrofos tipográficos para simples
+  city = city.replace(/[’‘]/g, "'");
+  // remove espaços extras no início/fim e múltiplos espaços no meio
+  city = city.trim().replace(/\s+/g, " ");
+  return city;
+}
+
 // Elementos do DOM agrupados para facilitar acesso e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -96,11 +106,12 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
-  // Validação aprimorada: aceita letras (com acentos), espaços e hífens apenas
+  // Validação aprimorada: aceita letras (com acentos), espaços, hífens e apóstrofos
   isValidCityInput(city) {
     if (!city) return false;
-    const validCityRegex = /^[a-zA-Zà-úÀ-ÚçÇ\s\-’']+$/;
-    return validCityRegex.test(city.trim());
+    const normalized = normalizeCityInput(city);
+    const validCityRegex = /^[\p{L}\s'-]+$/u;
+    return validCityRegex.test(normalized);
   },
 
   showToast(message, duration = 3000) {
@@ -163,7 +174,6 @@ const UI = {
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
@@ -184,7 +194,6 @@ const UI = {
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = false;
@@ -211,10 +220,8 @@ const UI = {
     });
 
     dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
-
     dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
     dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
-
     dom.themeToggle.style.color = isDark ? '#ddd' : '#000';
     dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
   },
@@ -339,17 +346,18 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
+    const normalizedCity = normalizeCityInput(city);
     dom.weatherDiv.classList.add("loading");
     try {
-      if (!city || (city.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) {
+      if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) {
         return;
       }
-      dom.cityInput.value = city;
-      const data = await WeatherAPI.fetchByCity(city);
+      dom.cityInput.value = normalizedCity;
+      const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
-      Storage.saveHistory(city);
+      Storage.saveHistory(normalizedCity);
       UI.renderHistory();
-      Storage.saveLastCity(city);
+      Storage.saveLastCity(normalizedCity);
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
@@ -382,7 +390,8 @@ const App = {
   },
 
   addFavorite(city) {
-    const formattedCity = capitalizeCityName(city);
+    const normalizedCity = normalizeCityInput(city);
+    const formattedCity = capitalizeCityName(normalizedCity);
     let favorites = Storage.getFavorites();
 
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
@@ -415,28 +424,16 @@ const App = {
   },
 
   updateButtonsState() {
-    const city = dom.cityInput.value.trim().toLowerCase();
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+    const city = normalizeCityInput(dom.cityInput.value).toLowerCase();
+    const favorites = Storage.getFavorites().map(c => normalizeCityInput(c).toLowerCase());
     const isCityInFavorites = favorites.includes(city);
     const isCityEmpty = city === '';
     const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-    // botão busca ativo só se válido e não vazio
     dom.searchBtn.disabled = !isValidCity;
-
-    // botão favorito desabilitado se:
-    //  - cidade inválida
-    //  - input vazio
-    //  - cidade já nos favoritos
-    //  - ou se já tem 5 cidades favoritas
     dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
 
-    // tooltip para explicar o motivo de desabilitar o botão favorito
-    if (favorites.length >= 5) {
-      dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
-    } else {
-      dom.favBtn.title = "";
-    }
+    dom.favBtn.title = favorites.length >= 5 ? "Limite de 5 cidades favoritas atingido." : "";
   },
 
   init() {
@@ -445,34 +442,31 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Usar form submit para busca (melhoria de acessibilidade)
     const searchForm = document.getElementById("search-box");
     searchForm.addEventListener("submit", e => {
       e.preventDefault();
-      const city = dom.cityInput.value.trim();
+      const city = normalizeCityInput(dom.cityInput.value);
       if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida (apenas letras, espaços e hífens).");
+        UI.showToast("Por favor, informe uma cidade válida (letras, espaços, hífens e apóstrofos).");
         dom.cityInput.focus();
         return;
       }
       this.handleCitySelect(city);
     });
 
-    // Limpa o input ao clicar dentro dele (evento 'click')
     dom.cityInput.addEventListener("click", () => {
       dom.cityInput.value = "";
       currentCityValid = false;
       this.updateButtonsState();
     });
 
-    // Mantém listener de input para desabilitar botões enquanto o usuário digita
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
     });
 
     dom.favBtn.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
+      const city = normalizeCityInput(dom.cityInput.value);
       if (!city) return;
       this.addFavorite(city);
     });
