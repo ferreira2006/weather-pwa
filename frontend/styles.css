@@ -54,7 +54,6 @@ body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
 body.light.bg-rain { background: var(--bg-gradient-light-rain); }
 body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
 body.light.bg-snow { background: var(--bg-gradient-light-snow); }
-
 body.light input[type="text"] {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
@@ -71,7 +70,6 @@ body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
 body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
 body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
-
 body.dark input[type="text"] {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
@@ -90,7 +88,6 @@ header {
   align-items: center;
   margin-bottom: 20px;
 }
-
 h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 
 #theme-toggle {
@@ -138,7 +135,6 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   backdrop-filter: blur(3px);
   z-index: 10001;
 }
-
 #confirm-modal .modal-content {
   position: relative;
   background: var(--button-bg);
@@ -154,15 +150,9 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   transition: transform 0.3s ease;
 }
 #confirm-modal.show .modal-content { transform: scale(1); }
-
 #confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
 #confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
-
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
+#confirm-modal .modal-buttons { display: flex; justify-content: center; gap: 20px; }
 #confirm-modal button {
   min-width: 80px;
   padding: 10px 15px;
@@ -174,15 +164,12 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   transition: background-color 0.3s;
 }
 #confirm-modal button#confirm-yes { background-color: #4caf50; color: white; }
-#confirm-modal button#confirm-yes:hover,
-#confirm-modal button#confirm-yes:focus { background-color: #45a045; outline: none; }
+#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color: #45a045; outline: none; }
 #confirm-modal button#confirm-no { background-color: #f44336; color: white; }
-#confirm-modal button#confirm-no:hover,
-#confirm-modal button#confirm-no:focus { background-color: #d32f2f; outline: none; }
+#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color: #d32f2f; outline: none; }
 
 /* -------- CAIXA DE BUSCA -------- */
 #search-box { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 20px; width: 100%; }
-
 input[type="text"] {
   flex: 1;
   min-width: 150px;
@@ -224,6 +211,7 @@ button#search-btn:disabled, button#fav-btn:disabled {
   box-shadow: none;
 }
 
+/* -------- FAVORITOS E HISTÓRICO -------- */
 .remove-fav-btn, #favorites-list button {
   margin-left: 8px;
   cursor: pointer;
@@ -390,5 +378,5 @@ body.dark #history-section, body.dark #favorites-section {
   background: rgba(255,255,255,0.1);
   box-shadow: 0 4px 12px rgba(255,255,255,0.1);
 }
-#history-section h3, #favorites-section h3 { margin:0 0 10px 0; font-weight:600; font-size:1.2rem; }
-#history
+#history-section h2, #favorites-section h2 { margin:0 0 10px 0; font-weight:600; font-size:1.2rem; }
+#history-list, #favorites-list { list-style:none; padding:0; margin:0; display:flex; flex-direction: column; gap:8px; }
