@@ -80,16 +80,77 @@ const UI = {
     const t = dom.toast;
     t.textContent = message;
     t.classList.remove("show");
-    void t.offsetWidth;
+    void t.offsetWidth; // reflow
     t.classList.add("show");
     dom.cityInput.focus();
     setTimeout(() => t.classList.remove("show"), duration);
   },
 
-  setDynamicBackground(mainWeather) { /* Mantido seu código */ },
-  setDynamicBackgroundFromCurrentIcon() { /* Mantido seu código */ },
-  showWeather(data) { /* Mantido seu código */ },
-  showError(message) { /* Mantido seu código */ },
+  setDynamicBackground(mainWeather) {
+    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
+    document.body.classList.remove(...classes);
+
+    mainWeather = mainWeather.toLowerCase();
+    let weatherKey = "clear";
+    if (mainWeather.includes("cloud")) weatherKey = "clouds";
+    else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) weatherKey = "rain";
+    else if (mainWeather.includes("thunderstorm")) weatherKey = "thunderstorm";
+    else if (mainWeather.includes("snow")) weatherKey = "snow";
+
+    document.body.classList.add(`bg-${weatherKey}`);
+  },
+
+  setDynamicBackgroundFromCurrentIcon() {
+    if (!dom.weatherDiv.hidden) {
+      const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
+      this.setDynamicBackground(mainClass || "clear");
+    } else {
+      this.setDynamicBackground("clear");
+    }
+  },
+
+  showWeather(data) {
+    document.body.classList.remove("error");
+    dom.weatherError.hidden = true;
+    dom.weatherContent.style.display = "block";
+    dom.iconEl.style.display = "block";
+
+    dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+    dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
+    dom.descEl.textContent = data.weather[0].description;
+    dom.detailsEl.innerHTML = `
+      Sensação: ${Math.round(data.main.feels_like)}ºC<br/>
+      Umidade: ${data.main.humidity}%<br/>
+      Vento: ${data.wind.speed} m/s
+    `;
+
+    dom.iconEl.className = "weather-icon";
+    dom.iconEl.classList.add(data.weather[0].main.toLowerCase());
+
+    dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
+    dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    currentCityValid = true;
+    App.updateButtonsState();
+    this.setDynamicBackground(data.weather[0].main);
+  },
+
+  showError(message) {
+    document.body.classList.add("error");
+    dom.weatherError.textContent = message;
+    dom.weatherError.hidden = false;
+    dom.weatherContent.style.display = "none";
+    dom.iconEl.style.display = "none";
+
+    dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
+    dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    currentCityValid = false;
+    App.updateButtonsState();
+  },
+
   updateThemeColors() { /* Mantido seu código */ },
   updateThemeToggleButton() { /* Mantido seu código */ },
   renderHistory() { /* Mantido seu código */ },
@@ -98,14 +159,13 @@ const UI = {
   applySavedTheme() { /* Mantido seu código */ }
 };
 
-// ===== APP (Lógica e eventos) =====
+// ===== APP =====
 const App = {
   async handleCitySelect(city) { /* Mantido seu código */ },
   async fetchByCoords(lat, lon) { /* Mantido seu código */ },
   addFavorite(city) { /* Mantido seu código */ },
   async removeFavorite(city) { /* Mantido seu código */ },
 
-  // Atualiza estado dos botões com validação aprimorada
   updateButtonsState() {
     const city = dom.cityInput.value.trim().toLowerCase();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
@@ -115,9 +175,7 @@ const App = {
 
     dom.searchBtn.disabled = !isValidCity;
     dom.favBtn.disabled = !isValidCity || isCityEmpty || isCityInFavorites || (favorites.length >= 5);
-
-    if (favorites.length >= 5) dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
-    else dom.favBtn.title = "";
+    dom.favBtn.title = (favorites.length >= 5) ? "Limite de 5 cidades favoritas atingido." : "";
   },
 
   init() {
