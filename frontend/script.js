@@ -19,23 +19,6 @@ function normalizeCityInput(city) {
   return city;
 }
 
-// Funções do spinner com transição suave
-function showSpinner() {
-  dom.spinner.classList.remove("hidden");
-  requestAnimationFrame(() => {
-    dom.spinner.style.opacity = "1";
-    dom.spinner.style.visibility = "visible";
-  });
-}
-
-function hideSpinner() {
-  dom.spinner.style.opacity = "0";
-  setTimeout(() => {
-    dom.spinner.classList.add("hidden");
-    dom.spinner.style.visibility = "hidden";
-  }, 300); // tempo da transição
-}
-
 // Elementos DOM
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -121,12 +104,18 @@ const UI = {
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
-    t.textContent = message;
-    t.classList.remove("show");
-    void t.offsetWidth;
-    t.classList.add("show");
-    t.setAttribute("aria-live", "polite");
-    setTimeout(() => t.classList.remove("show"), duration);
+  t.textContent = message;
+  t.classList.remove("show");
+  void t.offsetWidth; // força reflow
+  t.classList.add("show");
+
+  // não focar automaticamente para não confundir leitores de tela
+  // dom.cityInput.focus(); // removido
+
+  // garante que leitores de tela anunciem a mensagem
+  t.setAttribute("aria-live", "polite");
+
+  setTimeout(() => t.classList.remove("show"), duration);
   },
 
   setDynamicBackground(mainWeather) {
@@ -149,10 +138,11 @@ const UI = {
   },
 
   showWeather(data) {
-    hideSpinner();
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
     dom.weatherError.style.opacity = "0";
+    dom.weatherContent.style.display = "block";
+    dom.iconEl.style.display = "block";
 
     dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -163,30 +153,22 @@ const UI = {
     dom.iconEl.classList.add(data.weather[0].main.toLowerCase());
 
     dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
+    dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
     currentCityValid = true;
-
-    requestAnimationFrame(() => {
-      dom.weatherDiv.classList.remove("loading");
-      dom.weatherContent.style.visibility = "visible";
-      dom.iconEl.style.visibility = "visible";
-      dom.weatherDiv.focus();
-      dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
 
   showError(message) {
-    hideSpinner();
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
     dom.weatherError.style.opacity = "1";
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
+    dom.weatherContent.style.display = "none";
+    dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
-    dom.weatherDiv.classList.remove("loading");
     dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     currentCityValid = false;
@@ -198,14 +180,14 @@ const UI = {
     const isDark = document.body.classList.contains("dark");
     dom.cityInput.style.color = isDark ? rootStyles.getPropertyValue('--input-text-dark').trim() : rootStyles.getPropertyValue('--input-text-light').trim();
     dom.cityInput.style.backgroundColor = isDark ? rootStyles.getPropertyValue('--input-bg-dark').trim() : rootStyles.getPropertyValue('--input-bg-light').trim();
+
     const buttonBg = rootStyles.getPropertyValue('--button-bg').trim();
     [dom.searchBtn, dom.favBtn].forEach(btn => {
       btn.style.backgroundColor = buttonBg;
       btn.style.color = isDark ? '#ddd' : '#fff';
     });
 
-    const allItems = [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])];
-    allItems.forEach(li => {
+    [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
       li.style.backgroundColor = buttonBg;
       li.style.color = isDark ? '#ddd' : '#fff';
     });
@@ -226,7 +208,6 @@ const UI = {
   renderHistory() {
     const history = Storage.getHistory();
     dom.historyListEl.innerHTML = "";
-    const fragment = document.createDocumentFragment();
     history.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
@@ -236,16 +217,14 @@ const UI = {
       li.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
       });
-      fragment.appendChild(li);
+      dom.historyListEl.appendChild(li);
     });
-    dom.historyListEl.appendChild(fragment);
     this.updateThemeColors();
   },
 
   renderFavorites() {
     const favorites = Storage.getFavorites();
     dom.favoritesListEl.innerHTML = "";
-    const fragment = document.createDocumentFragment();
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
@@ -279,9 +258,8 @@ const UI = {
       li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
       li.appendChild(citySpan);
       li.appendChild(removeBtn);
-      fragment.appendChild(li);
+      dom.favoritesListEl.appendChild(li);
     });
-    dom.favoritesListEl.appendChild(fragment);
     this.updateThemeColors();
   },
 
@@ -303,28 +281,25 @@ const UI = {
 
   applySavedTheme() {
     const saved = Storage.getTheme();
-    if (saved === "dark") {
-      document.body.classList.add("dark");
-      document.body.classList.remove("light");
-    } else {
-      document.body.classList.add("light");
-      document.body.classList.remove("dark");
-    }
-    this.updateThemeColors();
-    this.updateThemeToggleButton();
-    this.setDynamicBackgroundFromCurrentIcon();
+  if (saved === "dark") {
+    document.body.classList.add("dark");
+    document.body.classList.remove("light");
+  } else {
+    document.body.classList.add("light");
+    document.body.classList.remove("dark");
+  }
+  this.updateThemeColors();
+  this.updateThemeToggleButton();
+  this.setDynamicBackgroundFromCurrentIcon();
   }
 };
 
 // ===== APP =====
 const App = {
   async handleCitySelect(city) {
-    showSpinner();
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
-
+    const normalizedCity = normalizeCityInput(city);
+    dom.weatherDiv.classList.add("loading");
     try {
-      const normalizedCity = normalizeCityInput(city);
       if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
       dom.cityInput.value = normalizedCity;
       const data = await WeatherAPI.fetchByCity(normalizedCity);
@@ -335,14 +310,13 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
   async fetchByCoords(lat, lon) {
-    showSpinner();
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
-
+    dom.weatherDiv.classList.add("loading");
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
@@ -352,9 +326,12 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
+      // Fallback sem duplicar requisição
       if (!Storage.getLastCity()) {
         await this.handleCitySelect("São Miguel do Oeste");
       }
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
@@ -362,6 +339,7 @@ const App = {
     const normalizedCity = normalizeCityInput(city);
     const formattedCity = capitalizeCityName(normalizedCity);
     let favorites = Storage.getFavorites();
+
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
       UI.showToast(`"${formattedCity}" já está nos favoritos.`);
       return;
@@ -370,6 +348,7 @@ const App = {
       UI.showToast("Limite de 5 cidades favoritas atingido.");
       return;
     }
+
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
@@ -394,20 +373,19 @@ const App = {
     const cityLower = city.toLowerCase();
     const isCityEmpty = city === '';
     const isCityValid = UI.isValidCityInput(city);
+
     dom.searchBtn.disabled = !isCityValid;
+
     let canAddFavorite = currentCityValid && isCityValid && !isCityEmpty;
     canAddFavorite = canAddFavorite && !favorites.includes(cityLower) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
+
     if (!canAddFavorite && favorites.length >= 5) dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
     else if (!canAddFavorite && favorites.includes(cityLower)) dom.favBtn.title = `"${capitalizeCityName(city)}" já está nos favoritos.`;
     else dom.favBtn.title = "";
   },
 
   init() {
-    showSpinner();
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
-
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
