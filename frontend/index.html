@@ -70,22 +70,22 @@
       <ul id="favorites-list" role="list"></ul>
     </section>
 
-    <!-- Card do clima -->
+    <!-- Card do clima (sempre visível) -->
     <section
       id="weather"
+      class="loading"
       role="region"
       aria-live="polite"
       aria-atomic="true"
       tabindex="-1"
-      hidden
     >
-      <div id="icon" class="weather-icon" aria-hidden="true"></div>
+      <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
 
       <div id="weather-content" class="info">
-        <h2 id="city-name"></h2>
-        <div class="temp" id="temp"></div>
-        <div class="desc" id="desc"></div>
-        <div class="details" id="details"></div>
+        <h2 id="city-name">Carregando cidade...</h2>
+        <div class="temp" id="temp">-- °C</div>
+        <div class="desc" id="desc">Aguardando dados...</div>
+        <div class="details" id="details">--</div>
       </div>
 
       <div
@@ -94,7 +94,6 @@
         tabindex="0"
         aria-live="assertive"
         aria-atomic="true"
-        hidden
         class="error-message"
       ></div>
 
