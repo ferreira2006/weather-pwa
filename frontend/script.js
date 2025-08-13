@@ -19,13 +19,21 @@ function normalizeCityInput(city) {
   return city;
 }
 
-// Funções do spinner
+// Funções do spinner com transição suave
 function showSpinner() {
   dom.spinner.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    dom.spinner.style.opacity = "1";
+    dom.spinner.style.visibility = "visible";
+  });
 }
 
 function hideSpinner() {
-  dom.spinner.classList.add("hidden");
+  dom.spinner.style.opacity = "0";
+  setTimeout(() => {
+    dom.spinner.classList.add("hidden");
+    dom.spinner.style.visibility = "hidden";
+  }, 300); // tempo da transição
 }
 
 // Elementos DOM
@@ -195,10 +203,13 @@ const UI = {
       btn.style.backgroundColor = buttonBg;
       btn.style.color = isDark ? '#ddd' : '#fff';
     });
-    [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
+
+    const allItems = [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])];
+    allItems.forEach(li => {
       li.style.backgroundColor = buttonBg;
       li.style.color = isDark ? '#ddd' : '#fff';
     });
+
     dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
     dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
     dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
@@ -215,6 +226,7 @@ const UI = {
   renderHistory() {
     const history = Storage.getHistory();
     dom.historyListEl.innerHTML = "";
+    const fragment = document.createDocumentFragment();
     history.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
@@ -224,14 +236,16 @@ const UI = {
       li.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
       });
-      dom.historyListEl.appendChild(li);
+      fragment.appendChild(li);
     });
+    dom.historyListEl.appendChild(fragment);
     this.updateThemeColors();
   },
 
   renderFavorites() {
     const favorites = Storage.getFavorites();
     dom.favoritesListEl.innerHTML = "";
+    const fragment = document.createDocumentFragment();
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
@@ -265,8 +279,9 @@ const UI = {
       li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
       li.appendChild(citySpan);
       li.appendChild(removeBtn);
-      dom.favoritesListEl.appendChild(li);
+      fragment.appendChild(li);
     });
+    dom.favoritesListEl.appendChild(fragment);
     this.updateThemeColors();
   },
 
