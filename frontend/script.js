@@ -114,14 +114,16 @@ const UI = {
   },
 
   showOverlay() {
-    dom.overlay.style.display = "flex";
-    dom.weatherDiv.style.visibility = "hidden";
-  },
+  if (!dom.overlay) return;
+  dom.overlay.style.display = "flex";
+  if (dom.weatherDiv) dom.weatherDiv.style.visibility = "hidden";
+},
 
-  hideOverlay() {
-    dom.overlay.style.display = "none";
-    dom.weatherDiv.style.visibility = "visible";
-  },
+hideOverlay() {
+  if (!dom.overlay) return;
+  dom.overlay.style.display = "none";
+  if (dom.weatherDiv) dom.weatherDiv.style.visibility = "visible";
+},
 
   setDynamicBackground(mainWeather) {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
