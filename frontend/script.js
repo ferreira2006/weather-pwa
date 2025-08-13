@@ -425,17 +425,31 @@ const App = {
   },
 
   updateButtonsState() {
-    const city = normalizeCityInput(dom.cityInput.value).toLowerCase();
-    const favorites = Storage.getFavorites().map(c => normalizeCityInput(c).toLowerCase());
-    const isCityInFavorites = favorites.includes(city);
-    const isCityEmpty = city === '';
-    const isValidCity = UI.isValidCityInput(dom.cityInput.value);
+  const city = dom.cityInput.value.trim().toLowerCase();
+  const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+  const isCityInFavorites = favorites.includes(city);
+  const isCityEmpty = city === '';
+  const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-    dom.searchBtn.disabled = !isValidCity;
-    dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
+  // Botão busca ativo só se válido e não vazio
+  dom.searchBtn.disabled = !isValidCity;
 
-    dom.favBtn.title = favorites.length >= 5 ? "Limite de 5 cidades favoritas atingido." : "";
-  },
+  // Botão favorito desabilitado se:
+  // - cidade inválida
+  // - input vazio
+  // - cidade já nos favoritos
+  // - ou se já tem 5 cidades favoritas (mas permitir se a cidade que será removida for a mesma do input)
+  const canAddFavorite = isValidCity && !isCityEmpty && !isCityInFavorites;
+  const maxFavoritesReached = favorites.length >= 5;
+  dom.favBtn.disabled = !canAddFavorite || (maxFavoritesReached && !isCityInFavorites);
+
+  // Tooltip explicativo
+  if (maxFavoritesReached && !isCityInFavorites) {
+    dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
+  } else {
+    dom.favBtn.title = "";
+  }
+},
 
   init() {
     UI.applySavedTheme();
