@@ -29,14 +29,13 @@ const dom = {
   weatherDiv: document.getElementById("weather"),
   weatherContent: document.getElementById("weather-content"),
   weatherError: document.getElementById("weather-error"),
-  overlay: document.getElementById("overlay"),
-  spinner: document.getElementById("spinner"),
 
   cityNameEl: document.getElementById("city-name"),
   iconEl: document.getElementById("icon"),
   tempEl: document.getElementById("temp"),
   descEl: document.getElementById("desc"),
   detailsEl: document.getElementById("details"),
+  spinner: document.getElementById("spinner"),
 
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
@@ -82,16 +81,6 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
-  showOverlay() {
-    dom.overlay.hidden = false;
-    dom.spinner.hidden = false;
-    dom.weatherDiv.style.visibility = "hidden"; // evita mostrar card parcialmente
-  },
-  hideOverlay() {
-    dom.overlay.hidden = true;
-    dom.spinner.hidden = true;
-    dom.weatherDiv.style.visibility = "visible";
-  },
   isValidCityInput(city) {
     if (!city) return false;
     const normalized = normalizeCityInput(city);
@@ -103,6 +92,7 @@ const UI = {
     t.classList.remove("show");
     void t.offsetWidth;
     t.classList.add("show");
+    t.setAttribute("aria-live", "polite");
     setTimeout(() => t.classList.remove("show"), duration);
   },
   setDynamicBackground(mainWeather) {
@@ -115,6 +105,12 @@ const UI = {
     else if (mainWeather.includes("thunderstorm")) key = "thunderstorm";
     else if (mainWeather.includes("snow")) key = "snow";
     document.body.classList.add(`bg-${key}`);
+  },
+  setDynamicBackgroundFromCurrentIcon() {
+    if (!dom.weatherDiv.hidden) {
+      const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
+      this.setDynamicBackground(mainClass || "clear");
+    } else this.setDynamicBackground("clear");
   },
   showWeather(data) {
     document.body.classList.remove("error");
@@ -148,6 +144,38 @@ const UI = {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     currentCityValid = false;
     App.updateButtonsState();
+  },
+  renderHistory() {
+    dom.historyListEl.innerHTML = "";
+    Storage.getHistory().forEach(city => {
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.textContent = city;
+      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      li.addEventListener("click", () => App.handleCitySelect(city));
+      li.addEventListener("keydown", e => { if (e.key === "Enter") App.handleCitySelect(city); });
+      dom.historyListEl.appendChild(li);
+    });
+  },
+  renderFavorites() {
+    dom.favoritesListEl.innerHTML = "";
+    Storage.getFavorites().forEach(city => {
+      const li = document.createElement("li");
+      const citySpan = document.createElement("span");
+      citySpan.textContent = city;
+      citySpan.style.cursor = "pointer";
+      citySpan.title = "Clique para buscar";
+      citySpan.addEventListener("click", () => App.handleCitySelect(city));
+      li.appendChild(citySpan);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "×";
+      removeBtn.title = `Remover ${city} dos favoritos`;
+      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(city); });
+      li.appendChild(removeBtn);
+
+      dom.favoritesListEl.appendChild(li);
+    });
   }
 };
 
@@ -156,36 +184,51 @@ const App = {
   async handleCitySelect(city) {
     const normalizedCity = normalizeCityInput(city);
     if (!normalizedCity) return;
-
-    UI.showOverlay();
+    dom.weatherDiv.classList.add("loading");
     try {
       const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
       Storage.saveHistory(data.name);
       Storage.saveLastCity(data.name);
+      UI.renderHistory();
+      this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
     } finally {
-      UI.hideOverlay();
-      UI.renderHistory();
-      this.updateButtonsState();
+      dom.weatherDiv.classList.remove("loading");
     }
   },
   async fetchByCoords(lat, lon) {
-    UI.showOverlay();
+    dom.weatherDiv.classList.add("loading");
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
       Storage.saveHistory(data.name);
       Storage.saveLastCity(data.name);
+      UI.renderHistory();
+      this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
       if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
     } finally {
-      UI.hideOverlay();
-      UI.renderHistory();
-      this.updateButtonsState();
+      dom.weatherDiv.classList.remove("loading");
     }
+  },
+  addFavorite(city) {
+    const formattedCity = capitalizeCityName(normalizeCityInput(city));
+    let favs = Storage.getFavorites();
+    if (favs.includes(formattedCity)) return UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+    if (favs.length >= 5) return UI.showToast("Limite de 5 cidades favoritas atingido.");
+    favs.push(formattedCity);
+    Storage.saveFavorites(favs);
+    UI.renderFavorites();
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+  },
+  async removeFavorite(city) {
+    let favs = Storage.getFavorites().filter(c => c !== city);
+    Storage.saveFavorites(favs);
+    UI.renderFavorites();
+    UI.showToast(`"${city}" removido dos favoritos.`);
   },
   updateButtonsState() {
     const city = dom.cityInput.value.trim();
@@ -196,7 +239,6 @@ const App = {
   init() {
     UI.renderHistory();
     UI.renderFavorites();
-
     const lastCity = Storage.getLastCity();
     if (lastCity) this.handleCitySelect(lastCity);
     else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(
