@@ -109,7 +109,9 @@ const UI = {
   // Validação aprimorada: aceita letras (com acentos), espaços, hífens e apóstrofos
   isValidCityInput(city) {
     if (!city) return false;
+    // Normalização do input
     const normalized = normalizeCityInput(city);
+    // Aceita todas as letras Unicode + espaços + hífen + apóstrofo
     const validCityRegex = /^[\p{L}\s'-]+$/u;
     return validCityRegex.test(normalized);
   },
