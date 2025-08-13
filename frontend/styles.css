@@ -1,407 +1,194 @@
-:root {
-  /* -------- GRADIENTES DE FUNDO -------- */
-  --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+// URL do backend
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 
-  /* -------- CORES DE TEXTO -------- */
-  --text-color-light: #000000;
-  --text-color-dark: #ddd;
+// Limite do histórico
+const maxHistoryItems = 5;
 
-  /* -------- INPUTS -------- */
-  --input-text-light: #000000;
-  --input-text-dark: #cfd8dc;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg);
+// Elementos DOM
+const cityInput = document.getElementById('city-input');
+const searchBtn = document.getElementById('search-btn');
+const favBtn = document.getElementById('fav-btn');
+const historyList = document.getElementById('history-list');
+const favoritesList = document.getElementById('favorites-list');
+const weatherSection = document.getElementById('weather');
+const cityNameEl = document.getElementById('city-name');
+const tempEl = document.getElementById('temp');
+const descEl = document.getElementById('desc');
+const detailsEl = document.getElementById('details');
+const weatherErrorEl = document.getElementById('weather-error');
+const spinner = document.getElementById('spinner');
+const toast = document.getElementById('toast');
+const themeToggle = document.getElementById('theme-toggle');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmYes = document.getElementById('confirm-yes');
+const confirmNo = document.getElementById('confirm-no');
 
-  /* -------- BOTÕES -------- */
-  --button-bg: #ff9800;
-  --button-bg-hover: #e68a00;
-  --button-bg-disabled: #ffa733;
-  --button-shadow-hover: #ffb74d;
+// Estado do app
+let history = JSON.parse(localStorage.getItem('history')) || [];
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let currentCity = '';
+let theme = localStorage.getItem('theme') || 'light';
 
-  /* -------- TOAST -------- */
-  --toast-bg-light: rgba(0, 0, 0, 0.85);
-  --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255, 255, 255, 0.9);
-  --toast-text-dark: #000;
+// Aplicar tema inicial
+document.body.classList.toggle('dark', theme === 'dark');
+document.body.classList.toggle('light', theme === 'light');
+updateThemeButton();
 
-  /* -------- PLACEHOLDERS LOADING -------- */
-  --loading-bg-light: rgba(255, 255, 255, 0.35);
-  --loading-bg-dark: rgba(255, 255, 255, 0.15);
-}
+// Renderizar histórico e favoritos
+renderHistory();
+renderFavorites();
 
-/* -------- BODY E TEMAS -------- */
-body {
-  transition: background 0.75s ease, color 0.75s ease;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+// Habilitar/desabilitar botões
+function updateButtons() {
+  const hasCity = cityInput.value.trim().length > 0;
+  searchBtn.disabled = !hasCity;
+  favBtn.disabled = !hasCity;
 }
 
-/* Tema claro */
-body.light { color: var(--text-color-light); }
-body.light.bg-clear { background: var(--bg-gradient-light-clear); }
-body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
-body.light.bg-rain { background: var(--bg-gradient-light-rain); }
-body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
-body.light.bg-snow { background: var(--bg-gradient-light-snow); }
+cityInput.addEventListener('input', updateButtons);
 
-/* Tema escuro */
-body.dark { color: var(--text-color-dark); }
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
-body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
-body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
-body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
-
-/* -------- INPUTS -------- */
-body.light input[type="text"] {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-  border: 1px solid transparent;
-  transition: background-color 0.3s, color 0.3s;
-}
-body.light input[type="text"]:focus {
-  background-color: #fff;
-  color: #000;
-}
-body.light input[type="text"]::placeholder {
-  color: #666;
-  opacity: 1;
+// Função de toast
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-body.dark input[type="text"] {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
-  border: 1px solid transparent;
-  transition: background-color 0.3s, color 0.3s;
-}
-body.dark input[type="text"]:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: var(--input-text-dark);
-}
-body.dark input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+// Funções de histórico
+function addToHistory(city) {
+  history = history.filter(c => c.toLowerCase() !== city.toLowerCase());
+  history.unshift(city);
+  if(history.length > maxHistoryItems) history.pop();
+  localStorage.setItem('history', JSON.stringify(history));
+  renderHistory();
 }
 
-/* -------- HEADER -------- */
-header {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+function renderHistory() {
+  historyList.innerHTML = '';
+  history.forEach(city => {
+    const li = document.createElement('li');
+    li.tabIndex = 0;
+    li.textContent = city;
+    li.addEventListener('click', () => searchCity(city));
+    li.addEventListener('keypress', (e) => { if(e.key==='Enter') searchCity(city); });
+    historyList.appendChild(li);
+  });
 }
 
-h1 { margin: 0; font-weight: 700; font-size: 2rem; }
-
-#theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  color: inherit;
-  user-select: none;
-  min-width: 110px;
-  min-height: 40px;
-}
-#theme-toggle:hover, #theme-toggle:focus {
-  background-color: var(--button-bg);
-  color: white;
-  border-color: var(--button-bg);
-  outline: none;
+// Funções de favoritos
+function renderFavorites() {
+  favoritesList.innerHTML = '';
+  favorites.forEach(city => {
+    const li = document.createElement('li');
+    li.tabIndex = 0;
+    li.textContent = city;
+    li.addEventListener('click', () => removeFavorite(city));
+    li.addEventListener('keypress', (e) => { if(e.key==='Enter') removeFavorite(city); });
+    favoritesList.appendChild(li);
+  });
 }
 
-/* -------- MAIN -------- */
-main {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
+function addFavorite(city) {
+  if(!favorites.includes(city)) {
+    favorites.push(city);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderFavorites();
+    showToast(`${city} adicionada aos favoritos!`);
+  } else {
+    showToast(`${city} já está nos favoritos.`);
+  }
 }
 
-/* -------- MODAL -------- */
-#confirm-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  font-family: Arial, sans-serif;
-}
-#confirm-modal[hidden] { display: none; }
-#confirm-modal .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
-  z-index: 10001;
-}
-#confirm-modal .modal-content {
-  position: relative;
-  background: var(--button-bg);
-  color: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  z-index: 10002;
-  text-align: center;
-}
-#confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
-#confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-#confirm-modal button {
-  min-width: 80px;
-  padding: 10px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s;
-}
-#confirm-modal button#confirm-yes { background-color: #4caf50; color: white; }
-#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color: #45a045; outline: none; }
-#confirm-modal button#confirm-no { background-color: #f44336; color: white; }
-#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color: #d32f2f; outline: none; }
-
-/* -------- CAIXA DE BUSCA -------- */
-#search-box {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 20px;
-  width: 100%;
-}
-input[type="text"] {
-  flex: 1;
-  min-width: 150px;
-  padding: 12px 15px;
-  font-size: 1rem;
-  border-radius: 8px;
-  outline: none;
-  transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
-  min-height: 40px;
-}
-input[type="text"]:focus {
-  box-shadow: 0 0 8px var(--button-bg);
-  border-color: var(--input-border-focus);
+function removeFavorite(city) {
+  confirmModal.hidden = false;
+  confirmYes.onclick = () => {
+    favorites = favorites.filter(c => c !== city);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    renderFavorites();
+    confirmModal.hidden = true;
+    showToast(`${city} removida dos favoritos.`);
+  };
+  confirmNo.onclick = () => confirmModal.hidden = true;
 }
 
-/* -------- BOTÕES -------- */
-button#search-btn, button#fav-btn {
-  padding: 12px 20px;
-  border: none;
-  border-radius: 8px;
-  background-color: var(--button-bg);
-  color: white;
-  font-size: 1rem;
-  cursor: pointer;
-  min-width: 110px;
-  min-height: 40px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-  user-select: none;
-}
-button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
-button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
-  background-color: var(--button-bg-hover);
-  box-shadow: 0 0 12px var(--button-shadow-hover);
-  outline: none;
-}
-button#search-btn:disabled, button#fav-btn:disabled {
-  background-color: var(--button-bg-disabled);
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
+// Função de loading
+function setLoading(isLoading) {
+  weatherSection.classList.toggle('loading', isLoading);
 }
 
-/* -------- CARD DE CLIMA -------- */
-#weather {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 25px 30px;
-  width: 100%;
-  max-width: 600px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  grid-gap: 25px;
-  align-items: center;
-  position: relative;
-  min-height: 260px;
-  transition: background 0.75s ease, color 0.75s ease;
-  color: inherit;
-  overflow: hidden;
-}
-#weather[hidden] { display: none !important; }
-#weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
-body.dark #weather { background: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1); }
+// Função de exibir clima
+function renderWeather(data) {
+  if(!data || data.error) {
+    weatherErrorEl.textContent = data?.error || 'Cidade não encontrada';
+    document.body.classList.add('error');
+    return;
+  }
+  document.body.classList.remove('error');
 
-#weather-content { display: block; grid-column: 2; color: inherit; }
-#weather-error { display: none; grid-column: 1 / -1; color: #b00020; font-weight: 700; text-align: center; padding: 1rem 1.5rem; border-radius: 12px; background-color: rgba(255, 0, 0, 0.1); min-height: 100px; align-self: center; justify-self: center; font-size: 1.1rem; transition: opacity 0.3s ease; opacity: 0; pointer-events: none; }
-body.error #weather-error { display: block; opacity: 1; pointer-events: auto; background-color: rgba(176, 0, 32, 0.15); }
-body.error #weather-content { display: none; }
-body.error #icon { display: none; }
+  cityNameEl.textContent = data.name;
+  tempEl.textContent = `${data.temp} °C`;
+  descEl.textContent = data.description;
+  detailsEl.textContent = `Sensação: ${data.feels_like} °C | Umidade: ${data.humidity}% | Vento: ${data.wind_speed} m/s`;
 
-/* -------- SPINNER E OVERLAY DE LOADING -------- */
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1.2s linear infinite;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 10;
-}
-#weather.loading::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--loading-bg-light);
-  backdrop-filter: blur(6px); /* aumentei blur para esconder melhor o conteúdo */
-  border-radius: 12px;
-  z-index: 5;
-  transition: background 0.3s ease;
-}
-body.dark #weather.loading::before { background: var(--loading-bg-dark); }
-#weather.loading #spinner { opacity: 1; pointer-events: auto; }
+  const iconEl = document.getElementById('icon');
+  iconEl.className = `weather-icon ${data.icon}`;
 
-/* Esconde o conteúdo do card durante o loading */
-#weather.loading #weather-content,
-#weather.loading .weather-icon {
-  visibility: hidden;
+  // Atualizar background
+  document.body.classList.remove('bg-clear','bg-clouds','bg-rain','bg-thunderstorm','bg-snow');
+  document.body.classList.add(`bg-${data.icon}`);
 }
 
-/* -------- PLACEHOLDER DE TEXTO DURANTE LOADING -------- */
-#weather.loading .temp,
-#weather.loading .desc,
-#weather.loading .details,
-#weather.loading #city-name {
-  color: transparent;
-  background: rgba(255,255,255,0.2);
-  border-radius: 6px;
-}
-#weather.loading .temp { height: 60px; width: 80px; }
-#weather.loading .desc { height: 20px; width: 120px; margin: 10px 0; }
-#weather.loading .details { height: 60px; width: 100%; }
+// Buscar clima
+async function searchCity(city) {
+  if(!city) city = cityInput.value.trim();
+  if(!city) return;
+  currentCity = city;
+  setLoading(true);
 
-/* -------- ÍCONES DE CLIMA COM ANIMAÇÃO -------- */
-.weather-icon {
-  width: 100px;
-  height: 100px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  justify-self: center;
-  transition: background-image 0.5s ease;
-}
-.weather-icon.clear { background-image: url('../icons/wi-day-sunny.svg'); animation: rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image: url('../icons/wi-cloudy.svg'); animation: floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image: url('../icons/wi-rain.svg'); animation: rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image: url('../icons/wi-thunderstorm.svg'); animation: thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image: url('../icons/wi-snow.svg'); animation: snowAnim 15s linear infinite; }
-
-@keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);}50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;}100%{background-position:0 100%;}}
-@keyframes thunderAnim {0%{filter:brightness(1);}100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;}100%{background-position:100% 100%;}}
-@media (prefers-reduced-motion: reduce){.weather-icon{animation:none!important;}}
-
-/* -------- INFO TEXTO DO CLIMA -------- */
-.info { display: flex; flex-direction: column; justify-content: center; }
-.temp { font-size: 4rem; font-weight: 700; margin:0; line-height:1; }
-.desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px 0; font-style:italic; color:inherit; }
-.details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
-
-/* -------- TOAST -------- */
-#toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--toast-bg-light);
-  color: var(--toast-text-light);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-  z-index: 9999;
-}
-#toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
-body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
-body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
-
-/* -------- HISTÓRICO E FAVORITOS -------- */
-#history-section, #favorites-section {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  transition: background 0.3s ease;
-}
-#history-section h3, #favorites-section h3 { margin-top:0; }
-#history-list, #favorites-list { list-style: none; padding: 0; margin: 10px 0 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
-#history-list li, #favorites-list li { background: rgba(255,255,255,0.2); border-radius:8px; padding:5px 10px; display:flex; align-items:center; gap:5px; cursor:pointer; transition: background 0.3s ease; }
-#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background: var(--button-bg); color:white; outline:none; }
-
-/* -------- MEDIA QUERIES -------- */
-@media (max-width: 480px) {
-  #weather { grid-template-columns: 1fr; text-align: center; }
-  #weather .weather-icon { margin: 0 auto; }
-  #search-box { flex-direction: column; }
+  try {
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    const data = await res.json();
+    renderWeather(data);
+    addToHistory(city);
+  } catch(err) {
+    renderWeather({ error: 'Erro ao buscar dados.' });
+  } finally {
+    setLoading(false);
+  }
 }
 
-/* -------- SPINNER ANIMAÇÃO -------- */
-@keyframes spin { to{transform:rotate(360deg);} }
+searchBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  searchCity();
+});
 
-.spinner {
-  border: 8px solid #f3f3f3; /* fundo do spinner */
-  border-top: 8px solid #3498db; /* cor animada */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
+cityInput.addEventListener('keypress', (e) => { if(e.key==='Enter') searchCity(); });
+favBtn.addEventListener('click', () => addFavorite(currentCity));
+
+// Tema
+function toggleTheme() {
+  theme = theme === 'light' ? 'dark' : 'light';
+  document.body.classList.toggle('dark', theme==='dark');
+  document.body.classList.toggle('light', theme==='light');
+  localStorage.setItem('theme', theme);
+  updateThemeButton();
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+function updateThemeButton() {
+  themeToggle.textContent = theme === 'light' ? 'Modo Escuro' : 'Modo Claro';
+}
+
+themeToggle.addEventListener('click', toggleTheme);
+
+// Geolocalização
+if(navigator.geolocation){
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const {latitude, longitude} = pos.coords;
+    try{
+      const res = await fetch(`${backendUrl}?lat=${latitude}&lon=${longitude}`);
+      const data = await res.json();
+      renderWeather(data);
+      if(data.name) addToHistory(data.name);
+    }catch(err){ console.log('Erro geolocalização:', err); }
+  });
 }
