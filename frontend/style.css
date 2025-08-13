@@ -1,4 +1,5 @@
 :root {
+  /* Gradientes de fundo por clima e tema */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -10,21 +11,30 @@
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
+  /* Cores de texto */
   --text-color-light: #000000;
   --text-color-dark: #ddd;
 
+  /* Inputs */
   --input-text-light: #000000;
   --input-text-dark: #cfd8dc;
-
   --input-bg-light: rgba(255 255 255 / 0.9);
   --input-bg-dark: rgba(255 255 255 / 0.1);
 
+  /* Botões */
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
 
+  /* Foco */
   --input-border-focus: var(--button-bg);
+
+  /* Toast */
+  --toast-bg-light: rgba(0, 0, 0, 0.85);
+  --toast-text-light: #fff;
+  --toast-bg-dark: rgba(255, 255, 255, 0.9);
+  --toast-text-dark: #000;
 }
 
 /* -------- BACKGROUND DINÂMICO POR TEMA + CLIMA -------- */
@@ -81,44 +91,6 @@ body.dark.bg-snow {
 /* Transição suave para fundo e texto */
 body {
   transition: background 0.75s ease, color 0.75s ease;
-}
-
-/* Tema claro base */
-body.light {
-  /* Removido background fixo para deixar controle via classes dinâmicas */
-  color: var(--text-color-light);
-}
-
-body.light input[type="text"] {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-  border: 1px solid transparent;
-}
-
-body.light input[type="text"]:focus {
-  background-color: #fff;
-  color: #000;
-}
-
-/* Tema escuro base */
-body.dark {
-  /* Removido background fixo para deixar controle via classes dinâmicas */
-  color: var(--text-color-dark);
-}
-
-body.dark input[type="text"] {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
-  border: 1px solid transparent;
-}
-
-body.dark input[type="text"]:focus {
-  background-color: rgba(255 255 255 / 0.15);
-  color: var(--input-text-dark);
-}
-
-/* Corpo geral */
-body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
@@ -128,6 +100,52 @@ body {
   align-items: center;
 }
 
+/* Tema claro */
+body.light {
+  color: var(--text-color-light);
+}
+
+body.light input[type="text"] {
+  color: var(--input-text-light);
+  background-color: var(--input-bg-light);
+  border: 1px solid transparent;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.light input[type="text"]:focus {
+  background-color: #fff;
+  color: #000;
+}
+
+/* Placeholder tema claro */
+body.light input[type="text"]::placeholder {
+  color: #666;
+  opacity: 1;
+}
+
+/* Tema escuro */
+body.dark {
+  color: var(--text-color-dark);
+}
+
+body.dark input[type="text"] {
+  color: var(--input-text-dark);
+  background-color: var(--input-bg-dark);
+  border: 1px solid transparent;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+body.dark input[type="text"]:focus {
+  background-color: rgba(255 255 255 / 0.15);
+  color: var(--input-text-dark);
+}
+
+/* Placeholder tema escuro */
+body.dark input[type="text"]::placeholder {
+  color: rgba(255 255 255 / 0.6);
+}
+
+/* Header */
 header {
   width: 100%;
   max-width: 600px;
@@ -153,6 +171,8 @@ h1 {
   transition: background-color 0.3s, color 0.3s;
   color: inherit;
   user-select: none;
+  min-width: 110px;
+  min-height: 40px;
 }
 
 #theme-toggle:hover,
@@ -163,6 +183,7 @@ h1 {
   outline: none;
 }
 
+/* Main */
 main {
   width: 100%;
   max-width: 600px;
@@ -172,6 +193,92 @@ main {
   gap: 25px;
 }
 
+/* Modal de confirmação customizado */
+#confirm-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: Arial, sans-serif;
+}
+
+#confirm-modal[hidden] {
+  display: none;
+}
+
+#confirm-modal .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 10001;
+}
+
+#confirm-modal .modal-content {
+  position: relative;
+  background: var(--button-bg);
+  color: white;
+  padding: 25px 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 10002;
+  text-align: center;
+}
+
+#confirm-modal h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+#confirm-modal p {
+  margin: 20px 0;
+  font-size: 1.1rem;
+}
+
+#confirm-modal .modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#confirm-modal button {
+  min-width: 80px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+}
+
+#confirm-modal button#confirm-yes {
+  background-color: #4caf50;
+  color: white;
+}
+
+#confirm-modal button#confirm-yes:hover,
+#confirm-modal button#confirm-yes:focus {
+  background-color: #45a045;
+  outline: none;
+}
+
+#confirm-modal button#confirm-no {
+  background-color: #f44336;
+  color: white;
+}
+
+#confirm-modal button#confirm-no:hover,
+#confirm-modal button#confirm-no:focus {
+  background-color: #d32f2f;
+  outline: none;
+}
+
+/* Caixa de busca */
 #search-box {
   display: flex;
   gap: 10px;
@@ -189,11 +296,7 @@ input[type="text"] {
   border-radius: 8px;
   outline: none;
   transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
-}
-
-input[type="text"]::placeholder {
-  color: #666;
-  opacity: 1;
+  min-height: 40px;
 }
 
 input[type="text"]:focus {
@@ -201,6 +304,7 @@ input[type="text"]:focus {
   border-color: var(--input-border-focus);
 }
 
+/* Botões */
 button#search-btn,
 button#fav-btn {
   padding: 12px 20px;
@@ -211,31 +315,73 @@ button#fav-btn {
   font-size: 1rem;
   cursor: pointer;
   min-width: 110px;
+  min-height: 40px;
   transition: background-color 0.3s, box-shadow 0.3s;
   user-select: none;
 }
 
 button#search-btn:hover:not(:disabled),
 button#search-btn:focus:not(:disabled),
-button#fav-btn:hover,
-button#fav-btn:focus {
+button#fav-btn:hover:not(:disabled),
+button#fav-btn:focus:not(:disabled) {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
 }
 
-button#search-btn:disabled {
+/* Estilo para botões desabilitados */
+button#search-btn:disabled,
+button#fav-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
+/* Botão remover favorito */
+.remove-fav-btn,
+#favorites-list button {
+  margin-left: 8px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+  min-width: 30px;
+  min-height: 30px;
+  user-select: none;
+  transition: color 0.3s;
+}
+
+.remove-fav-btn:hover,
+.remove-fav-btn:focus,
+#favorites-list button:hover,
+#favorites-list button:focus {
+  color: var(--button-bg-hover);
+  outline: none;
+}
+
+/* Foco acessível para botões e itens */
+/* Feedback visual para foco em elementos clicáveis */
 button:focus,
-input[type="text"]:focus {
+a:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus,
+[role="button"]:focus,
+#history-list li:focus,
+#favorites-list li:focus,
+#favorites-list button:focus {
   outline: 3px solid var(--button-bg);
-  outline-offset: 2px;
+  outline-offset: 3px;
   transition: outline-color 0.3s ease;
 }
 
+/* Card clima */
 #weather {
   background: rgba(255 255 255 / 0.15);
   border-radius: 12px;
@@ -251,7 +397,17 @@ input[type="text"]:focus {
   min-height: 260px;
   transition: background 0.75s ease, color 0.75s ease;
   color: inherit;
-  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+/* Esconder com hidden */
+#weather[hidden] {
+  display: none !important;
+}
+
+#weather:focus {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 4px;
 }
 
 body.dark #weather {
@@ -259,6 +415,50 @@ body.dark #weather {
   box-shadow: 0 4px 12px rgba(255 255 255 / 0.1);
 }
 
+/* Bloco conteúdo clima */
+#weather-content {
+  display: block;
+  grid-column: 2;
+  color: inherit;
+}
+
+/* Mensagem de erro interna no card de clima */
+#weather-error {
+  display: none;
+  grid-column: 1 / -1;
+  color: #b00020;
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(255, 0, 0, 0.1);
+  min-height: 100px;
+  align-self: center;
+  justify-self: center;
+  font-size: 1.1rem;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Quando ativo, mostra o erro */
+body.error #weather-error {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+  background-color: rgba(176, 0, 32, 0.15);
+}
+
+/* Esconde o conteúdo normal do clima quando erro */
+body.error #weather-content {
+  display: none;
+}
+
+body.error #icon {
+  display: none;
+}
+
+/* Ícones clima com animações */
 .weather-icon {
   width: 100px;
   height: 100px;
@@ -268,6 +468,7 @@ body.dark #weather {
   transition: background-image 0.5s ease;
 }
 
+/* Animações */
 .weather-icon.clear {
   background-image: url('../icons/wi-day-sunny.svg');
   animation: rotateSlow 120s linear infinite;
@@ -318,6 +519,53 @@ body.dark #weather {
   100% { background-position: 100% 100%; }
 }
 
+/* Redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon {
+    animation: none !important;
+  }
+}
+
+/* Overlay leve no spinner */
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1.2s linear infinite;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+
+/* Spinner com overlay no card */
+#weather.loading::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255 255 255 / 0.3);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+  z-index: 5;
+}
+
+/* Mostrar spinner com transição ao ativar loading */
+#weather.loading #spinner {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Info texto do clima */
 .info {
   display: flex;
   flex-direction: column;
@@ -347,43 +595,43 @@ body.dark #weather {
   color: inherit;
 }
 
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-top: 5px solid white;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1.2s linear infinite;
-  display: none;
-  z-index: 10;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-#error-message {
-  margin-top: 20px;
-  max-width: 600px;
-  background-color: #5c0000;
-  color: #ffbaba;
-  padding: 14px;
+/* Toast base */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--toast-bg-light);
+  color: var(--toast-text-light);
+  padding: 10px 20px;
   border-radius: 8px;
-  font-weight: 700;
-  width: 100%;
-  text-align: center;
-  user-select: none;
-  transition: background-color 0.3s, color 0.3s;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 9999;
 }
 
-body.dark #error-message {
-  background-color: #8b0000;
-  color: #ffc4c4;
+/* Estado visível */
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
 }
 
+/* Tema claro */
+body.light #toast {
+  background-color: var(--toast-bg-light);
+  color: var(--toast-text-light);
+}
+
+/* Tema escuro */
+body.dark #toast {
+  background-color: var(--toast-bg-dark);
+  color: var(--toast-text-dark);
+}
+
+/* Seções Histórico e Favoritos */
 #history-section,
 #favorites-section {
   width: 100%;
@@ -410,6 +658,7 @@ body.dark #favorites-section {
   font-size: 1.2rem;
 }
 
+/* Listas Histórico e Favoritos */
 #history-list,
 #favorites-list {
   list-style: none;
@@ -431,6 +680,11 @@ body.dark #favorites-section {
   transition: background-color 0.3s;
   font-size: 0.95rem;
   font-weight: 600;
+  min-width: 48px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #history-list li:hover,
@@ -441,6 +695,7 @@ body.dark #favorites-section {
   outline: none;
 }
 
+/* Responsividade */
 @media (max-width: 600px) {
   #weather {
     grid-template-columns: 1fr;
@@ -462,17 +717,11 @@ body.dark #favorites-section {
     font-size: 1rem;
     padding: 10px 18px;
   }
-}
 
-/* -------- RESPONSIVIDADE E USABILIDADE MÓVEL -------- */
-
-@media (max-width: 600px) {
-
-  /* Botões Buscar e Favoritos: ocupar largura flexível, padding maior */
+  /* Botões buscar e favoritos responsivos */
   #search-box {
     gap: 12px;
   }
-
   button#search-btn,
   button#fav-btn {
     min-width: auto;
@@ -481,63 +730,11 @@ body.dark #favorites-section {
     font-size: 1.1rem;
   }
 
-  /* Spinner: centralizar no card de clima */
+  /* Spinner centralizado no card */
   #spinner {
-    bottom: 50%;
-    right: 50%;
-    transform: translate(50%, 50%);
-  }
-
-  /* Aumenta espaçamento vertical entre seções dentro do main */
-  main > * {
-    margin-bottom: 30px;
-  }
-}
-
-@media (max-width: 450px) {
-  /* Empilhar a caixa de busca em coluna para melhor uso no celular */
-  #search-box {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
-  }
-
-  #search-box input[type="text"],
-  #search-box button {
-    width: 100%;
-    min-width: auto;
-    flex: none;
-  }
-}
-
-@media (max-width: 400px) {
-  /* Histórico e Favoritos empilhados e botões maiores */
-  #history-list,
-  #favorites-list {
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  #history-list li,
-  #favorites-list li {
-    width: 100%;
-    text-align: center;
-    padding: 12px 0;
-    font-size: 1.1rem;
-  }
-}
-
-/* Feedback visual ao toque */
-button:active,
-#history-list li:active,
-#favorites-list li:active {
-  filter: brightness(0.85);
-  transition: filter 0.1s;
-}
-
-/* Aumentar contraste do placeholder em mobile */
-@media (max-width: 600px) {
-  input[type="text"]::placeholder {
-    color: #999;
+    bottom: auto;
+    right: auto;
+    top: 15px;
+    left: 15px;
   }
 }
