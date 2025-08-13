@@ -45,6 +45,7 @@ const dom = {
 
 // Estado global
 let currentCityValid = false;
+let firstLoad = true; // flag para estado loading inicial
 
 // ===== API =====
 const WeatherAPI = {
@@ -104,18 +105,12 @@ const UI = {
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
-  t.textContent = message;
-  t.classList.remove("show");
-  void t.offsetWidth; // força reflow
-  t.classList.add("show");
-
-  // não focar automaticamente para não confundir leitores de tela
-  // dom.cityInput.focus(); // removido
-
-  // garante que leitores de tela anunciem a mensagem
-  t.setAttribute("aria-live", "polite");
-
-  setTimeout(() => t.classList.remove("show"), duration);
+    t.textContent = message;
+    t.classList.remove("show");
+    void t.offsetWidth;
+    t.classList.add("show");
+    t.setAttribute("aria-live", "polite");
+    setTimeout(() => t.classList.remove("show"), duration);
   },
 
   setDynamicBackground(mainWeather) {
@@ -157,6 +152,7 @@ const UI = {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
+    firstLoad = false; // primeira carga concluída
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
@@ -180,18 +176,15 @@ const UI = {
     const isDark = document.body.classList.contains("dark");
     dom.cityInput.style.color = isDark ? rootStyles.getPropertyValue('--input-text-dark').trim() : rootStyles.getPropertyValue('--input-text-light').trim();
     dom.cityInput.style.backgroundColor = isDark ? rootStyles.getPropertyValue('--input-bg-dark').trim() : rootStyles.getPropertyValue('--input-bg-light').trim();
-
     const buttonBg = rootStyles.getPropertyValue('--button-bg').trim();
     [dom.searchBtn, dom.favBtn].forEach(btn => {
       btn.style.backgroundColor = buttonBg;
       btn.style.color = isDark ? '#ddd' : '#fff';
     });
-
     [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
       li.style.backgroundColor = buttonBg;
       li.style.color = isDark ? '#ddd' : '#fff';
     });
-
     dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
     dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
     dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
@@ -281,16 +274,16 @@ const UI = {
 
   applySavedTheme() {
     const saved = Storage.getTheme();
-  if (saved === "dark") {
-    document.body.classList.add("dark");
-    document.body.classList.remove("light");
-  } else {
-    document.body.classList.add("light");
-    document.body.classList.remove("dark");
-  }
-  this.updateThemeColors();
-  this.updateThemeToggleButton();
-  this.setDynamicBackgroundFromCurrentIcon();
+    if (saved === "dark") {
+      document.body.classList.add("dark");
+      document.body.classList.remove("light");
+    } else {
+      document.body.classList.add("light");
+      document.body.classList.remove("dark");
+    }
+    this.updateThemeColors();
+    this.updateThemeToggleButton();
+    this.setDynamicBackgroundFromCurrentIcon();
   }
 };
 
@@ -326,7 +319,6 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
-      // Fallback sem duplicar requisição
       if (!Storage.getLastCity()) {
         await this.handleCitySelect("São Miguel do Oeste");
       }
@@ -339,7 +331,6 @@ const App = {
     const normalizedCity = normalizeCityInput(city);
     const formattedCity = capitalizeCityName(normalizedCity);
     let favorites = Storage.getFavorites();
-
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
       UI.showToast(`"${formattedCity}" já está nos favoritos.`);
       return;
@@ -348,7 +339,6 @@ const App = {
       UI.showToast("Limite de 5 cidades favoritas atingido.");
       return;
     }
-
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
@@ -373,19 +363,19 @@ const App = {
     const cityLower = city.toLowerCase();
     const isCityEmpty = city === '';
     const isCityValid = UI.isValidCityInput(city);
-
     dom.searchBtn.disabled = !isCityValid;
-
     let canAddFavorite = currentCityValid && isCityValid && !isCityEmpty;
     canAddFavorite = canAddFavorite && !favorites.includes(cityLower) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
-
     if (!canAddFavorite && favorites.length >= 5) dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
     else if (!canAddFavorite && favorites.includes(cityLower)) dom.favBtn.title = `"${capitalizeCityName(city)}" já está nos favoritos.`;
     else dom.favBtn.title = "";
   },
 
   init() {
+    // Estado de loading inicial
+    dom.weatherDiv.classList.add("loading");
+
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
