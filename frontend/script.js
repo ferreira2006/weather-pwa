@@ -12,6 +12,16 @@ function capitalizeCityName(city) {
     .join(' ');
 }
 
+// ===== NORMALIZAÇÃO DE INPUT =====
+function normalizeCityInput(city) {
+  if (!city) return "";
+  // converte apóstrofos tipográficos para simples
+  city = city.replace(/[’‘]/g, "'");
+  // remove espaços extras no início/fim e múltiplos espaços no meio
+  city = city.trim().replace(/\s+/g, " ");
+  return city;
+}
+
 // Elementos do DOM agrupados para facilitar acesso e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -42,13 +52,13 @@ let currentCityValid = false;
 // ===== API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    const res = await fetch(${backendUrl}?city=${encodeURIComponent(city)}&days=1);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     return res.json();
   },
 
   async fetchByCoords(lat, lon) {
-    const res = await fetch(${backendUrl}?lat=${lat}&lon=${lon}&days=1);
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
     return res.json();
   }
@@ -96,11 +106,12 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
-  // Validação aprimorada: aceita letras (com acentos), espaços e hífens apenas
+  // Validação aprimorada: aceita letras (com acentos), espaços, hífens e apóstrofos
   isValidCityInput(city) {
     if (!city) return false;
+    const normalized = normalizeCityInput(city);
     const validCityRegex = /^[\p{L}\s'-]+$/u;
-    return validCityRegex.test(city.trim());
+    return validCityRegex.test(normalized);
   },
 
   showToast(message, duration = 3000) {
@@ -125,7 +136,7 @@ const UI = {
     else if (mainWeather.includes("thunderstorm")) weatherKey = "thunderstorm";
     else if (mainWeather.includes("snow")) weatherKey = "snow";
 
-    document.body.classList.add(bg-${weatherKey});
+    document.body.classList.add(`bg-${weatherKey}`);
   },
 
   setDynamicBackgroundFromCurrentIcon() {
@@ -147,15 +158,15 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    dom.cityNameEl.textContent = ${data.name}, ${data.sys.country};
-    dom.tempEl.textContent = ${Math.round(data.main.temp)}ºC;
+    dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+    dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
 
-    dom.detailsEl.innerHTML = 
+    dom.detailsEl.innerHTML = `
       Sensação: ${Math.round(data.main.feels_like)}ºC<br/>
       Umidade: ${data.main.humidity}%<br/>
       Vento: ${data.wind.speed} m/s
-    ;
+    `;
 
     dom.iconEl.className = "weather-icon";
     const mainClass = data.weather[0].main.toLowerCase();
@@ -163,7 +174,6 @@ const UI = {
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
@@ -184,7 +194,6 @@ const UI = {
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
-
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = false;
@@ -211,10 +220,8 @@ const UI = {
     });
 
     dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
-
     dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
     dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
-
     dom.themeToggle.style.color = isDark ? '#ddd' : '#000';
     dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
   },
@@ -232,7 +239,7 @@ const UI = {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.textContent = city;
-      li.setAttribute("aria-label", Buscar clima da cidade ${city});
+      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
 
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keydown", e => {
@@ -254,7 +261,7 @@ const UI = {
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.setAttribute("aria-label", Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.);
+      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
@@ -262,7 +269,7 @@ const UI = {
       citySpan.title = "Clique para buscar";
       citySpan.setAttribute("role", "button");
       citySpan.setAttribute("tabindex", "0");
-      citySpan.setAttribute("aria-label", Buscar clima da cidade ${city});
+      citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       citySpan.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") {
@@ -273,8 +280,8 @@ const UI = {
 
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
-      removeBtn.title = Remover ${city} dos favoritos;
-      removeBtn.setAttribute("aria-label", Remover ${city} dos favoritos);
+      removeBtn.title = `Remover ${city} dos favoritos`;
+      removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
       Object.assign(removeBtn.style, {
         marginLeft: "8px",
         cursor: "pointer",
@@ -339,17 +346,18 @@ const UI = {
 // ===== APP (Lógica e eventos) =====
 const App = {
   async handleCitySelect(city) {
+    const normalizedCity = normalizeCityInput(city);
     dom.weatherDiv.classList.add("loading");
     try {
-      if (!city || (city.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) {
+      if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) {
         return;
       }
-      dom.cityInput.value = city;
-      const data = await WeatherAPI.fetchByCity(city);
+      dom.cityInput.value = normalizedCity;
+      const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
-      Storage.saveHistory(city);
+      Storage.saveHistory(normalizedCity);
       UI.renderHistory();
-      Storage.saveLastCity(city);
+      Storage.saveLastCity(normalizedCity);
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
@@ -382,11 +390,12 @@ const App = {
   },
 
   addFavorite(city) {
-    const formattedCity = capitalizeCityName(city);
+    const normalizedCity = normalizeCityInput(city);
+    const formattedCity = capitalizeCityName(normalizedCity);
     let favorites = Storage.getFavorites();
 
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast("${formattedCity}" já está nos favoritos.);
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
       return;
     }
 
@@ -398,45 +407,33 @@ const App = {
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast("${formattedCity}" adicionado aos favoritos!);
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
   },
 
   async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(Tem certeza que deseja remover "${city}" dos favoritos?);
+    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
     if (!confirmed) return;
 
     let favorites = Storage.getFavorites();
     favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast("${city}" removido dos favoritos.);
+    UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
   },
 
   updateButtonsState() {
-    const city = dom.cityInput.value.trim().toLowerCase();
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+    const city = normalizeCityInput(dom.cityInput.value).toLowerCase();
+    const favorites = Storage.getFavorites().map(c => normalizeCityInput(c).toLowerCase());
     const isCityInFavorites = favorites.includes(city);
     const isCityEmpty = city === '';
     const isValidCity = UI.isValidCityInput(dom.cityInput.value);
 
-    // botão busca ativo só se válido e não vazio
     dom.searchBtn.disabled = !isValidCity;
-
-    // botão favorito desabilitado se:
-    //  - cidade inválida
-    //  - input vazio
-    //  - cidade já nos favoritos
-    //  - ou se já tem 5 cidades favoritas
     dom.favBtn.disabled = !isValidCity || isCityEmpty || dom.searchBtn.disabled || isCityInFavorites || (favorites.length >= 5);
 
-    // tooltip para explicar o motivo de desabilitar o botão favorito
-    if (favorites.length >= 5) {
-      dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
-    } else {
-      dom.favBtn.title = "";
-    }
+    dom.favBtn.title = favorites.length >= 5 ? "Limite de 5 cidades favoritas atingido." : "";
   },
 
   init() {
@@ -445,34 +442,31 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Usar form submit para busca (melhoria de acessibilidade)
     const searchForm = document.getElementById("search-box");
     searchForm.addEventListener("submit", e => {
       e.preventDefault();
-      const city = dom.cityInput.value.trim();
+      const city = normalizeCityInput(dom.cityInput.value);
       if (!UI.isValidCityInput(city)) {
-        UI.showToast("Por favor, informe uma cidade válida (apenas letras, espaços e hífens).");
+        UI.showToast("Por favor, informe uma cidade válida (letras, espaços, hífens e apóstrofos).");
         dom.cityInput.focus();
         return;
       }
       this.handleCitySelect(city);
     });
 
-    // Limpa o input ao clicar dentro dele (evento 'click')
     dom.cityInput.addEventListener("click", () => {
       dom.cityInput.value = "";
       currentCityValid = false;
       this.updateButtonsState();
     });
 
-    // Mantém listener de input para desabilitar botões enquanto o usuário digita
     dom.cityInput.addEventListener("input", () => {
       currentCityValid = false;
       this.updateButtonsState();
     });
 
     dom.favBtn.addEventListener("click", () => {
-      const city = dom.cityInput.value.trim();
+      const city = normalizeCityInput(dom.cityInput.value);
       if (!city) return;
       this.addFavorite(city);
     });
