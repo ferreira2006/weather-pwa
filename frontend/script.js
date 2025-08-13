@@ -45,6 +45,7 @@ const dom = {
 
 // Estado global
 let currentCityValid = false;
+let firstLoad = true; // flag para estado loading inicial
 
 // ===== API =====
 const WeatherAPI = {
@@ -135,6 +136,8 @@ const UI = {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
     dom.weatherError.style.opacity = "0";
+    dom.weatherContent.style.display = "block";
+    dom.iconEl.style.display = "block";
 
     dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
@@ -145,17 +148,11 @@ const UI = {
     dom.iconEl.classList.add(data.weather[0].main.toLowerCase());
 
     dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
+    dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
     currentCityValid = true;
-
-    // Aguarda um frame para garantir que o loading overlay tenha sido aplicado
-    requestAnimationFrame(() => {
-      dom.weatherDiv.classList.remove("loading");
-      dom.weatherContent.style.visibility = "visible";
-      dom.iconEl.style.visibility = "visible";
-      dom.weatherDiv.focus();
-      dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-
+    firstLoad = false; // primeira carga concluída
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
@@ -165,10 +162,9 @@ const UI = {
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
     dom.weatherError.style.opacity = "1";
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
+    dom.weatherContent.style.display = "none";
+    dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
-    dom.weatherDiv.classList.remove("loading");
     dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     currentCityValid = false;
@@ -296,9 +292,6 @@ const App = {
   async handleCitySelect(city) {
     const normalizedCity = normalizeCityInput(city);
     dom.weatherDiv.classList.add("loading");
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
-
     try {
       if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
       dom.cityInput.value = normalizedCity;
@@ -310,14 +303,13 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
-
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
@@ -330,6 +322,8 @@ const App = {
       if (!Storage.getLastCity()) {
         await this.handleCitySelect("São Miguel do Oeste");
       }
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
     }
   },
 
@@ -379,9 +373,8 @@ const App = {
   },
 
   init() {
+    // Estado de loading inicial
     dom.weatherDiv.classList.add("loading");
-    dom.weatherContent.style.visibility = "hidden";
-    dom.iconEl.style.visibility = "hidden";
 
     UI.applySavedTheme();
     UI.renderHistory();
