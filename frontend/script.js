@@ -50,12 +50,12 @@ let firstLoad = true; // flag para estado loading inicial
 // ===== API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    const res = await fetch(${backendUrl}?city=${encodeURIComponent(city)}&days=1);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     return res.json();
   },
   async fetchByCoords(lat, lon) {
-    const res = await fetch(${backendUrl}?lat=${lat}&lon=${lon}&days=1);
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
     return res.json();
   }
@@ -122,7 +122,7 @@ const UI = {
     else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) weatherKey = "rain";
     else if (mainWeather.includes("thunderstorm")) weatherKey = "thunderstorm";
     else if (mainWeather.includes("snow")) weatherKey = "snow";
-    document.body.classList.add(bg-${weatherKey});
+    document.body.classList.add(`bg-${weatherKey}`);
   },
 
   setDynamicBackgroundFromCurrentIcon() {
@@ -139,10 +139,10 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    dom.cityNameEl.textContent = ${data.name}, ${data.sys.country};
-    dom.tempEl.textContent = ${Math.round(data.main.temp)}ºC;
+    dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+    dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
-    dom.detailsEl.innerHTML = Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s;
+    dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
     dom.iconEl.className = "weather-icon";
     dom.iconEl.classList.add(data.weather[0].main.toLowerCase());
@@ -205,7 +205,7 @@ const UI = {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.textContent = city;
-      li.setAttribute("aria-label", Buscar clima da cidade ${city});
+      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
@@ -221,7 +221,7 @@ const UI = {
     favorites.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.setAttribute("aria-label", Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.);
+      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
@@ -229,7 +229,7 @@ const UI = {
       citySpan.title = "Clique para buscar";
       citySpan.setAttribute("role", "button");
       citySpan.setAttribute("tabindex", "0");
-      citySpan.setAttribute("aria-label", Buscar clima da cidade ${city});
+      citySpan.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       citySpan.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
@@ -237,8 +237,8 @@ const UI = {
 
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
-      removeBtn.title = Remover ${city} dos favoritos;
-      removeBtn.setAttribute("aria-label", Remover ${city} dos favoritos);
+      removeBtn.title = `Remover ${city} dos favoritos`;
+      removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
       Object.assign(removeBtn.style, { marginLeft: "8px", cursor: "pointer", background: "transparent", border: "none", color: "inherit", fontWeight: "bold", fontSize: "1.2rem", lineHeight: "1", padding: "0", outlineOffset: "2px" });
       removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(city); });
 
@@ -332,7 +332,7 @@ const App = {
     const formattedCity = capitalizeCityName(normalizedCity);
     let favorites = Storage.getFavorites();
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
-      UI.showToast("${formattedCity}" já está nos favoritos.);
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
       return;
     }
     if (favorites.length >= 5) {
@@ -342,18 +342,18 @@ const App = {
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast("${formattedCity}" adicionado aos favoritos!);
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
   },
 
   async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(Tem certeza que deseja remover "${city}" dos favoritos?);
+    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
     if (!confirmed) return;
     let favorites = Storage.getFavorites();
     favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast("${city}" removido dos favoritos.);
+    UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
   },
 
@@ -368,7 +368,7 @@ const App = {
     canAddFavorite = canAddFavorite && !favorites.includes(cityLower) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
     if (!canAddFavorite && favorites.length >= 5) dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
-    else if (!canAddFavorite && favorites.includes(cityLower)) dom.favBtn.title = "${capitalizeCityName(city)}" já está nos favoritos.;
+    else if (!canAddFavorite && favorites.includes(cityLower)) dom.favBtn.title = `"${capitalizeCityName(city)}" já está nos favoritos.`;
     else dom.favBtn.title = "";
   },
 
