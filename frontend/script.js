@@ -26,21 +26,24 @@ function saveToLocalStorage(key, value) {
 
 function showToast(message) {
   const toast = document.getElementById("toast");
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.add("show");
   setTimeout(() => toast.classList.remove("show"), 3000);
-  document.getElementById("city-input").focus();
+  const cityInput = document.getElementById("city-input");
+  if (cityInput) cityInput.focus();
 }
 
 function setLoadingState(isLoading) {
-  const loadingEl = document.getElementById("loading");
-  const weatherCard = document.getElementById("weather-card");
-
+  const weatherCard = document.getElementById("weather");
+  const spinner = document.getElementById("spinner");
+  if (!weatherCard || !spinner) return;
   if (isLoading) {
-    weatherCard.classList.remove("hidden");
-    loadingEl.classList.remove("hidden");
+    weatherCard.classList.add("loading");
+    spinner.style.display = "block";
   } else {
-    loadingEl.classList.add("hidden");
+    weatherCard.classList.remove("loading");
+    spinner.style.display = "none";
   }
 }
 
@@ -48,36 +51,44 @@ function setLoadingState(isLoading) {
 // Renderização
 // ==========================
 function renderHistory() {
-  const historyContainer = document.getElementById("history-list");
-  historyContainer.innerHTML = "";
+  const container = document.getElementById("history-list");
+  if (!container) return;
+  container.innerHTML = "";
   historyList.forEach(city => {
     const li = document.createElement("li");
     li.textContent = city;
+    li.tabIndex = 0;
     li.addEventListener("click", () => handleCitySelect(city));
-    historyContainer.appendChild(li);
+    container.appendChild(li);
   });
 }
 
 function renderFavorites() {
-  const favoritesContainer = document.getElementById("favorites-list");
-  favoritesContainer.innerHTML = "";
+  const container = document.getElementById("favorites-list");
+  if (!container) return;
+  container.innerHTML = "";
   favorites.forEach(city => {
     const li = document.createElement("li");
     li.textContent = city;
+    li.tabIndex = 0;
     li.addEventListener("click", () => handleCitySelect(city));
+
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "×";
-    removeBtn.addEventListener("click", (e) => {
+    removeBtn.className = "remove-fav-btn";
+    removeBtn.addEventListener("click", e => {
       e.stopPropagation();
       showConfirmationModal(`Remover ${city} dos favoritos?`, () => {
         favorites = favorites.filter(fav => fav !== city);
         saveToLocalStorage("favorites", favorites);
         renderFavorites();
         updateButtonsState(city);
+        showToast(`${city} removida dos favoritos`);
       });
     });
+
     li.appendChild(removeBtn);
-    favoritesContainer.appendChild(li);
+    container.appendChild(li);
   });
 }
 
@@ -93,20 +104,32 @@ async function fetchWeather(query) {
     renderWeather(data);
     updateHistory(data.name);
     updateButtonsState(data.name);
-  } catch (error) {
-    showToast(error.message);
+  } catch (err) {
+    showToast(err.message);
   } finally {
     setLoadingState(false);
   }
 }
 
 function renderWeather(data) {
-  const cityEl = document.getElementById("city");
-  const tempEl = document.getElementById("temperature");
-  const descEl = document.getElementById("description");
-  cityEl.textContent = data.name;
-  tempEl.textContent = `${Math.round(data.main.temp)}°C`;
-  descEl.textContent = data.weather[0].description;
+  const cityEl = document.getElementById("city-name");
+  const tempEl = document.getElementById("temp");
+  const descEl = document.getElementById("desc");
+  const iconEl = document.getElementById("icon");
+
+  if (cityEl) cityEl.textContent = data.name;
+  if (tempEl) tempEl.textContent = `${Math.round(data.main.temp)}°C`;
+  if (descEl) descEl.textContent = data.weather[0].description;
+
+  if (iconEl) {
+    iconEl.className = "weather-icon";
+    const main = data.weather[0].main.toLowerCase();
+    if (main.includes("cloud")) iconEl.classList.add("clouds");
+    else if (main.includes("rain")) iconEl.classList.add("rain");
+    else if (main.includes("thunder")) iconEl.classList.add("thunderstorm");
+    else if (main.includes("snow")) iconEl.classList.add("snow");
+    else iconEl.classList.add("clear");
+  }
 }
 
 function updateHistory(city) {
@@ -117,7 +140,8 @@ function updateHistory(city) {
 }
 
 function updateButtonsState(cityName) {
-  const addFavBtn = document.getElementById("add-favorite");
+  const addFavBtn = document.getElementById("fav-btn");
+  if (!addFavBtn) return;
   if (!cityName) {
     addFavBtn.disabled = true;
     return;
@@ -130,6 +154,7 @@ function updateButtonsState(cityName) {
       saveToLocalStorage("favorites", favorites);
       renderFavorites();
       updateButtonsState(cityName);
+      showToast(`${cityName} adicionada aos favoritos`);
     }
   };
 }
@@ -153,32 +178,32 @@ function applySavedTheme() {
 }
 
 // ==========================
-// Modal
+// Modal de confirmação
 // ==========================
 function showConfirmationModal(message, onConfirm) {
-  const modal = document.getElementById("confirmation-modal");
-  const msg = document.getElementById("modal-message");
-  const confirmBtn = document.getElementById("confirm-btn");
-  const cancelBtn = document.getElementById("cancel-btn");
+  const modal = document.getElementById("confirm-modal");
+  if (!modal) return;
 
-  msg.textContent = message;
-  modal.classList.remove("hidden");
+  modal.querySelector("p").textContent = message;
+  modal.hidden = false;
+  modal.classList.add("show");
+
+  const confirmBtn = document.getElementById("confirm-yes");
+  const cancelBtn = document.getElementById("confirm-no");
 
   const cleanup = () => {
-    modal.classList.add("hidden");
+    modal.hidden = true;
+    modal.classList.remove("show");
     confirmBtn.removeEventListener("click", confirmHandler);
     cancelBtn.removeEventListener("click", cancelHandler);
     document.removeEventListener("keydown", escHandler);
     modal.removeEventListener("click", outsideHandler);
   };
 
-  const confirmHandler = () => {
-    onConfirm();
-    cleanup();
-  };
+  const confirmHandler = () => { onConfirm(); cleanup(); };
   const cancelHandler = cleanup;
-  const escHandler = (e) => { if (e.key === "Escape") cleanup(); };
-  const outsideHandler = (e) => { if (e.target === modal) cleanup(); };
+  const escHandler = e => { if (e.key === "Escape") cleanup(); };
+  const outsideHandler = e => { if (e.target === modal) cleanup(); };
 
   confirmBtn.addEventListener("click", confirmHandler);
   cancelBtn.addEventListener("click", cancelHandler);
@@ -194,18 +219,42 @@ const App = {
     applySavedTheme();
     renderFavorites();
     renderHistory();
-    setLoadingState(true); // Mostra spinner e card desde o início
+
+    setLoadingState(true);
+
+    const cityInput = document.getElementById("city-input");
+    const searchBtn = document.getElementById("search-btn");
+    if (cityInput && searchBtn) {
+      cityInput.addEventListener("input", () => {
+        const hasText = cityInput.value.trim().length > 0;
+        searchBtn.disabled = !hasText;
+        updateButtonsState(cityInput.value);
+      });
+
+      searchBtn.addEventListener("click", e => {
+        e.preventDefault();
+        handleCitySelect(cityInput.value.trim());
+      });
+    }
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        pos => {
-          const coords = `${pos.coords.latitude},${pos.coords.longitude}`;
-          fetchWeather(coords);
-        },
+        pos => fetchWeather(`${pos.coords.latitude},${pos.coords.longitude}`),
         () => handleCitySelect("São Miguel do Oeste")
       );
     } else {
       handleCitySelect("São Miguel do Oeste");
+    }
+
+    // Toggle tema
+    const themeToggle = document.getElementById("theme-toggle");
+    if (themeToggle) {
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        document.body.classList.toggle("light");
+        const theme = document.body.classList.contains("dark") ? "dark" : "light";
+        localStorage.setItem("theme", theme);
+      });
     }
   }
 };
