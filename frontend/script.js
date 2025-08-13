@@ -1,7 +1,7 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// Função para capitalizar cada palavra do nome da cidade
+// ===== FUNÇÕES AUXILIARES =====
 function capitalizeCityName(city) {
   return city
     .toLowerCase()
@@ -11,15 +11,14 @@ function capitalizeCityName(city) {
     .join(' ');
 }
 
-// ===== NORMALIZAÇÃO DE INPUT =====
 function normalizeCityInput(city) {
   if (!city) return "";
   city = city.replace(/[’‘]/g, "'"); // apóstrofos tipográficos
-  city = city.trim().replace(/\s+/g, " "); // remove espaços extras
+  city = city.trim().replace(/\s+/g, " ");
   return city;
 }
 
-// ===== ELEMENTOS DOM =====
+// ===== DOM ELEMENTS =====
 const dom = {
   cityInput: document.getElementById("city-input"),
   searchBtn: document.getElementById("search-btn"),
@@ -29,19 +28,19 @@ const dom = {
   weatherDiv: document.getElementById("weather"),
   weatherContent: document.getElementById("weather-content"),
   weatherError: document.getElementById("weather-error"),
-  overlay: document.getElementById("overlay"),
-  spinner: document.getElementById("spinner"),
 
   cityNameEl: document.getElementById("city-name"),
   iconEl: document.getElementById("icon"),
   tempEl: document.getElementById("temp"),
   descEl: document.getElementById("desc"),
   detailsEl: document.getElementById("details"),
+  spinner: document.getElementById("spinner"),
 
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
 
   toast: document.getElementById("toast"),
+  overlay: document.getElementById("overlay"),
 };
 
 // ===== ESTADO GLOBAL =====
@@ -64,61 +63,90 @@ const WeatherAPI = {
 
 // ===== STORAGE =====
 const Storage = {
-  getHistory() { return JSON.parse(localStorage.getItem("weatherHistory")) || []; },
+  getHistory() {
+    return JSON.parse(localStorage.getItem("weatherHistory")) || [];
+  },
   saveHistory(city) {
     const formattedCity = capitalizeCityName(city);
-    let history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
+    let history = this.getHistory();
+    history = history.filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
     history.unshift(formattedCity);
     if (history.length > maxHistoryItems) history = history.slice(0, maxHistoryItems);
     localStorage.setItem("weatherHistory", JSON.stringify(history));
   },
-  getFavorites() { return JSON.parse(localStorage.getItem("weatherFavorites")) || []; },
-  saveFavorites(favorites) { localStorage.setItem("weatherFavorites", JSON.stringify(favorites)); },
-  getTheme() { return localStorage.getItem("theme") || "light"; },
-  saveTheme(theme) { localStorage.setItem("theme", theme); },
-  getLastCity() { return localStorage.getItem("lastCity"); },
-  saveLastCity(city) { localStorage.setItem("lastCity", city); }
+  getFavorites() {
+    return JSON.parse(localStorage.getItem("weatherFavorites")) || [];
+  },
+  saveFavorites(favorites) {
+    localStorage.setItem("weatherFavorites", JSON.stringify(favorites));
+  },
+  getTheme() {
+    return localStorage.getItem("theme") || "light";
+  },
+  saveTheme(theme) {
+    localStorage.setItem("theme", theme);
+  },
+  getLastCity() {
+    return localStorage.getItem("lastCity");
+  },
+  saveLastCity(city) {
+    localStorage.setItem("lastCity", city);
+  }
 };
 
 // ===== UI =====
 const UI = {
-  showOverlay() {
-    dom.overlay.hidden = false;
-    dom.spinner.hidden = false;
-    dom.weatherDiv.style.visibility = "hidden"; // evita mostrar card parcialmente
-  },
-  hideOverlay() {
-    dom.overlay.hidden = true;
-    dom.spinner.hidden = true;
-    dom.weatherDiv.style.visibility = "visible";
-  },
   isValidCityInput(city) {
     if (!city) return false;
     const normalized = normalizeCityInput(city);
-    return /^[\p{L}\s'-]+$/u.test(normalized);
+    const validCityRegex = /^[\p{L}\s'-]+$/u;
+    return validCityRegex.test(normalized);
   },
+
   showToast(message, duration = 3000) {
     const t = dom.toast;
     t.textContent = message;
     t.classList.remove("show");
     void t.offsetWidth;
     t.classList.add("show");
+    t.setAttribute("aria-live", "polite");
     setTimeout(() => t.classList.remove("show"), duration);
   },
+
+  showOverlay() {
+    dom.overlay.style.display = "flex";
+    dom.weatherDiv.style.visibility = "hidden";
+  },
+
+  hideOverlay() {
+    dom.overlay.style.display = "none";
+    dom.weatherDiv.style.visibility = "visible";
+  },
+
   setDynamicBackground(mainWeather) {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
     mainWeather = mainWeather.toLowerCase();
-    let key = "clear";
-    if (mainWeather.includes("cloud")) key = "clouds";
-    else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) key = "rain";
-    else if (mainWeather.includes("thunderstorm")) key = "thunderstorm";
-    else if (mainWeather.includes("snow")) key = "snow";
-    document.body.classList.add(`bg-${key}`);
+    let weatherKey = "clear";
+    if (mainWeather.includes("cloud")) weatherKey = "clouds";
+    else if (mainWeather.includes("rain") || mainWeather.includes("drizzle")) weatherKey = "rain";
+    else if (mainWeather.includes("thunderstorm")) weatherKey = "thunderstorm";
+    else if (mainWeather.includes("snow")) weatherKey = "snow";
+    document.body.classList.add(`bg-${weatherKey}`);
   },
+
+  setDynamicBackgroundFromCurrentIcon() {
+    if (!dom.weatherDiv.hidden) {
+      const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
+      this.setDynamicBackground(mainClass || "clear");
+    } else this.setDynamicBackground("clear");
+  },
+
   showWeather(data) {
+    this.hideOverlay();
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
+    dom.weatherError.style.opacity = "0";
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
@@ -131,6 +159,7 @@ const UI = {
     dom.iconEl.classList.add(data.weather[0].main.toLowerCase());
 
     dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
@@ -138,16 +167,126 @@ const UI = {
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
+
   showError(message) {
+    this.hideOverlay();
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
+    dom.weatherError.style.opacity = "1";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
+    dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     currentCityValid = false;
     App.updateButtonsState();
+  },
+
+  updateThemeColors() {
+    const rootStyles = getComputedStyle(document.documentElement);
+    const isDark = document.body.classList.contains("dark");
+    dom.cityInput.style.color = isDark ? rootStyles.getPropertyValue('--input-text-dark').trim() : rootStyles.getPropertyValue('--input-text-light').trim();
+    dom.cityInput.style.backgroundColor = isDark ? rootStyles.getPropertyValue('--input-bg-dark').trim() : rootStyles.getPropertyValue('--input-bg-light').trim();
+    const buttonBg = rootStyles.getPropertyValue('--button-bg').trim();
+    [dom.searchBtn, dom.favBtn].forEach(btn => {
+      btn.style.backgroundColor = buttonBg;
+      btn.style.color = isDark ? '#ddd' : '#fff';
+    });
+    [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
+      li.style.backgroundColor = buttonBg;
+      li.style.color = isDark ? '#ddd' : '#fff';
+    });
+    dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
+    dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
+    dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
+    dom.themeToggle.style.color = isDark ? '#ddd' : '#000';
+    dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
+  },
+
+  updateThemeToggleButton() {
+    const isDark = document.body.classList.contains("dark");
+    dom.themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
+    dom.themeToggle.setAttribute("aria-pressed", isDark ? "true" : "false");
+  },
+
+  renderHistory() {
+    const history = Storage.getHistory();
+    dom.historyListEl.innerHTML = "";
+    history.forEach(city => {
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.textContent = city;
+      li.setAttribute("aria-label", `Buscar clima da cidade ${city}`);
+      li.addEventListener("click", () => App.handleCitySelect(city));
+      li.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
+      });
+      dom.historyListEl.appendChild(li);
+    });
+    this.updateThemeColors();
+  },
+
+  renderFavorites() {
+    const favorites = Storage.getFavorites();
+    dom.favoritesListEl.innerHTML = "";
+    favorites.forEach(city => {
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.setAttribute("aria-label", `Cidade favorita ${city}. Pressione Enter para buscar, Delete para remover.`);
+
+      const citySpan = document.createElement("span");
+      citySpan.textContent = city;
+      citySpan.style.cursor = "pointer";
+      citySpan.title = "Clique para buscar";
+      citySpan.setAttribute("role", "button");
+      citySpan.setAttribute("tabindex", "0");
+      citySpan.addEventListener("click", () => App.handleCitySelect(city));
+      citySpan.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); App.handleCitySelect(city); }
+      });
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "×";
+      removeBtn.title = `Remover ${city} dos favoritos`;
+      removeBtn.style.cssText = "margin-left:8px;cursor:pointer;background:transparent;border:none;color:inherit;font-weight:bold;font-size:1.2rem;line-height:1;padding:0;outline-offset:2px;";
+      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(city); });
+
+      li.appendChild(citySpan);
+      li.appendChild(removeBtn);
+      dom.favoritesListEl.appendChild(li);
+    });
+    this.updateThemeColors();
+  },
+
+  toggleThemeColors() {
+    const isDark = document.body.classList.contains("dark");
+    if (isDark) {
+      document.body.classList.remove("dark");
+      document.body.classList.add("light");
+      Storage.saveTheme("light");
+    } else {
+      document.body.classList.remove("light");
+      document.body.classList.add("dark");
+      Storage.saveTheme("dark");
+    }
+    this.updateThemeColors();
+    this.updateThemeToggleButton();
+    this.setDynamicBackgroundFromCurrentIcon();
+  },
+
+  applySavedTheme() {
+    const saved = Storage.getTheme();
+    if (saved === "dark") {
+      document.body.classList.add("dark");
+      document.body.classList.remove("light");
+    } else {
+      document.body.classList.add("light");
+      document.body.classList.remove("dark");
+    }
+    this.updateThemeColors();
+    this.updateThemeToggleButton();
+    this.setDynamicBackgroundFromCurrentIcon();
   }
 };
 
@@ -155,55 +294,163 @@ const UI = {
 const App = {
   async handleCitySelect(city) {
     const normalizedCity = normalizeCityInput(city);
-    if (!normalizedCity) return;
-
     UI.showOverlay();
     try {
+      if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
+      dom.cityInput.value = normalizedCity;
       const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
-      Storage.saveHistory(data.name);
-      Storage.saveLastCity(data.name);
+      Storage.saveHistory(normalizedCity);
+      UI.renderHistory();
+      Storage.saveLastCity(normalizedCity);
+      this.updateButtonsState();
     } catch (err) {
-      UI.showError(err.message);
+      UI.showError(err.message || "Erro ao buscar o clima");
     } finally {
       UI.hideOverlay();
-      UI.renderHistory();
-      this.updateButtonsState();
     }
   },
+
   async fetchByCoords(lat, lon) {
     UI.showOverlay();
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
       Storage.saveHistory(data.name);
+      UI.renderHistory();
       Storage.saveLastCity(data.name);
+      this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
-      if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
+      if (!Storage.getLastCity()) {
+        await this.handleCitySelect("São Miguel do Oeste");
+      }
     } finally {
       UI.hideOverlay();
-      UI.renderHistory();
-      this.updateButtonsState();
     }
   },
+
+  addFavorite(city) {
+    const normalizedCity = normalizeCityInput(city);
+    const formattedCity = capitalizeCityName(normalizedCity);
+    let favorites = Storage.getFavorites();
+    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+      return;
+    }
+    if (favorites.length >= 5) {
+      UI.showToast("Limite de 5 cidades favoritas atingido.");
+      return;
+    }
+    favorites.push(formattedCity);
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    this.updateButtonsState();
+  },
+
+  async removeFavorite(city) {
+    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+    if (!confirmed) return;
+    let favorites = Storage.getFavorites();
+    favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`"${city}" removido dos favoritos.`);
+    this.updateButtonsState();
+  },
+
   updateButtonsState() {
     const city = dom.cityInput.value.trim();
-    const valid = UI.isValidCityInput(city) && currentCityValid;
-    dom.searchBtn.disabled = !valid;
-    dom.favBtn.disabled = !valid;
+    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+    const cityLower = city.toLowerCase();
+    const isCityEmpty = city === '';
+    const isCityValid = UI.isValidCityInput(city);
+    dom.searchBtn.disabled = !isCityValid;
+    let canAddFavorite = currentCityValid && isCityValid && !isCityEmpty;
+    canAddFavorite = canAddFavorite && !favorites.includes(cityLower) && favorites.length < 5;
+    dom.favBtn.disabled = !canAddFavorite;
+    if (!canAddFavorite && favorites.length >= 5) dom.favBtn.title = "Limite de 5 cidades favoritas atingido.";
+    else if (!canAddFavorite && favorites.includes(cityLower)) dom.favBtn.title = `"${capitalizeCityName(city)}" já está nos favoritos.`;
+    else dom.favBtn.title = "";
   },
+
   init() {
+    UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
+    this.updateButtonsState();
+
+    const searchForm = document.getElementById("search-box");
+    searchForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const city = normalizeCityInput(dom.cityInput.value);
+      if (!UI.isValidCityInput(city)) {
+        UI.showToast("Por favor, informe uma cidade válida (letras, espaços, hífens e apóstrofos).");
+        dom.cityInput.focus();
+        return;
+      }
+      this.handleCitySelect(city);
+    });
+
+    dom.cityInput.addEventListener("click", () => {
+      dom.cityInput.value = "";
+      currentCityValid = false;
+      this.updateButtonsState();
+    });
+
+    dom.cityInput.addEventListener("input", () => {
+      currentCityValid = false;
+      this.updateButtonsState();
+    });
+
+    dom.favBtn.addEventListener("click", () => {
+      const city = normalizeCityInput(dom.cityInput.value);
+      if (!city) return;
+      this.addFavorite(city);
+    });
+
+    dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
     const lastCity = Storage.getLastCity();
-    if (lastCity) this.handleCitySelect(lastCity);
-    else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(
-      pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => this.handleCitySelect("São Miguel do Oeste")
-    );
+    if (lastCity) {
+      this.handleCitySelect(lastCity);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+        () => {
+          UI.showError("Não foi possível obter sua localização. Exibindo clima para São Miguel do Oeste.");
+          this.handleCitySelect("São Miguel do Oeste");
+        }
+      );
+    } else {
+      this.handleCitySelect("São Miguel do Oeste");
+    }
   }
 };
+
+function showConfirmationModal(message) {
+  return new Promise((resolve) => {
+    const modal = document.getElementById("confirm-modal");
+    const desc = document.getElementById("confirm-modal-desc");
+    const yesBtn = document.getElementById("confirm-yes");
+    const noBtn = document.getElementById("confirm-no");
+
+    desc.textContent = message;
+    modal.hidden = false;
+    modal.focus();
+
+    function cleanUp() {
+      yesBtn.removeEventListener("click", onYes);
+      noBtn.removeEventListener("click", onNo);
+    }
+
+    function onYes() { cleanUp(); modal.hidden = true; resolve(true); }
+    function onNo() { cleanUp(); modal.hidden = true; resolve(false); }
+
+    yesBtn.addEventListener("click", onYes);
+    noBtn.addEventListener("click", onNo);
+  });
+}
 
 window.onload = () => App.init();
