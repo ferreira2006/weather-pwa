@@ -33,6 +33,10 @@
   --toast-text-light: #fff;
   --toast-bg-dark: rgba(255, 255, 255, 0.9);
   --toast-text-dark: #000;
+
+  /* -------- PLACEHOLDERS LOADING -------- */
+  --loading-bg-light: rgba(255, 255, 255, 0.35);
+  --loading-bg-dark: rgba(255, 255, 255, 0.15);
 }
 
 /* -------- BODY E TEMAS -------- */
@@ -48,43 +52,36 @@ body {
 }
 
 /* Tema claro */
-body.light {
-  color: var(--text-color-light);
-}
-
+body.light { color: var(--text-color-light); }
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
 body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
 body.light.bg-rain { background: var(--bg-gradient-light-rain); }
 body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
 body.light.bg-snow { background: var(--bg-gradient-light-snow); }
 
+/* Tema escuro */
+body.dark { color: var(--text-color-dark); }
+body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
+
+/* -------- INPUTS -------- */
 body.light input[type="text"] {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
   border: 1px solid transparent;
   transition: background-color 0.3s, color 0.3s;
 }
-
 body.light input[type="text"]:focus {
   background-color: #fff;
   color: #000;
 }
-
 body.light input[type="text"]::placeholder {
   color: #666;
   opacity: 1;
 }
-
-/* Tema escuro */
-body.dark {
-  color: var(--text-color-dark);
-}
-
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
-body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
-body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
-body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 body.dark input[type="text"] {
   color: var(--input-text-dark);
@@ -92,12 +89,10 @@ body.dark input[type="text"] {
   border: 1px solid transparent;
   transition: background-color 0.3s, color 0.3s;
 }
-
 body.dark input[type="text"]:focus {
   background-color: rgba(255, 255, 255, 0.15);
   color: var(--input-text-dark);
 }
-
 body.dark input[type="text"]::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
@@ -112,11 +107,7 @@ header {
   margin-bottom: 20px;
 }
 
-h1 {
-  margin: 0;
-  font-weight: 700;
-  font-size: 2rem;
-}
+h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 
 #theme-toggle {
   background: transparent;
@@ -131,9 +122,7 @@ h1 {
   min-width: 110px;
   min-height: 40px;
 }
-
-#theme-toggle:hover,
-#theme-toggle:focus {
+#theme-toggle:hover, #theme-toggle:focus {
   background-color: var(--button-bg);
   color: white;
   border-color: var(--button-bg);
@@ -160,9 +149,7 @@ main {
   z-index: 10000;
   font-family: Arial, sans-serif;
 }
-
 #confirm-modal[hidden] { display: none; }
-
 #confirm-modal .modal-overlay {
   position: fixed;
   inset: 0;
@@ -170,7 +157,6 @@ main {
   backdrop-filter: blur(3px);
   z-index: 10001;
 }
-
 #confirm-modal .modal-content {
   position: relative;
   background: var(--button-bg);
@@ -183,16 +169,13 @@ main {
   z-index: 10002;
   text-align: center;
 }
-
 #confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
 #confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
-
 #confirm-modal .modal-buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
 }
-
 #confirm-modal button {
   min-width: 80px;
   padding: 10px 15px;
@@ -203,14 +186,10 @@ main {
   user-select: none;
   transition: background-color 0.3s;
 }
-
 #confirm-modal button#confirm-yes { background-color: #4caf50; color: white; }
-#confirm-modal button#confirm-yes:hover,
-#confirm-modal button#confirm-yes:focus { background-color: #45a045; outline: none; }
-
+#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color: #45a045; outline: none; }
 #confirm-modal button#confirm-no { background-color: #f44336; color: white; }
-#confirm-modal button#confirm-no:hover,
-#confirm-modal button#confirm-no:focus { background-color: #d32f2f; outline: none; }
+#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color: #d32f2f; outline: none; }
 
 /* -------- CAIXA DE BUSCA -------- */
 #search-box {
@@ -221,7 +200,6 @@ main {
   margin-top: 20px;
   width: 100%;
 }
-
 input[type="text"] {
   flex: 1;
   min-width: 150px;
@@ -232,15 +210,13 @@ input[type="text"] {
   transition: box-shadow 0.3s, border-color 0.3s, color 0.3s, background-color 0.3s;
   min-height: 40px;
 }
-
 input[type="text"]:focus {
   box-shadow: 0 0 8px var(--button-bg);
   border-color: var(--input-border-focus);
 }
 
 /* -------- BOTÕES -------- */
-button#search-btn,
-button#fav-btn {
+button#search-btn, button#fav-btn {
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
@@ -253,63 +229,17 @@ button#fav-btn {
   transition: background-color 0.3s, box-shadow 0.3s;
   user-select: none;
 }
-
-button#search-btn:hover:not(:disabled),
-button#search-btn:focus:not(:disabled),
-button#fav-btn:hover:not(:disabled),
-button#fav-btn:focus:not(:disabled) {
+button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
+button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
 }
-
-button#search-btn:disabled,
-button#fav-btn:disabled {
+button#search-btn:disabled, button#fav-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
   opacity: 0.7;
   box-shadow: none;
-}
-
-.remove-fav-btn,
-#favorites-list button {
-  margin-left: 8px;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-weight: bold;
-  font-size: 1.2rem;
-  line-height: 1;
-  padding: 0;
-  min-width: 30px;
-  min-height: 30px;
-  user-select: none;
-  transition: color 0.3s;
-}
-
-.remove-fav-btn:hover,
-.remove-fav-btn:focus,
-#favorites-list button:hover,
-#favorites-list button:focus {
-  color: var(--button-bg-hover);
-  outline: none;
-}
-
-/* Foco acessível */
-button:focus,
-a:focus,
-input:focus,
-select:focus,
-textarea:focus,
-[tabindex]:focus,
-[role="button"]:focus,
-#history-list li:focus,
-#favorites-list li:focus,
-#favorites-list button:focus {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-  transition: outline-color 0.3s ease;
 }
 
 /* -------- CARD DE CLIMA -------- */
@@ -330,7 +260,6 @@ textarea:focus,
   color: inherit;
   overflow: hidden;
 }
-
 #weather[hidden] { display: none !important; }
 #weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
 body.dark #weather { background: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1); }
@@ -341,31 +270,7 @@ body.error #weather-error { display: block; opacity: 1; pointer-events: auto; ba
 body.error #weather-content { display: none; }
 body.error #icon { display: none; }
 
-/* -------- ÍCONES DE CLIMA COM ANIMAÇÃO -------- */
-.weather-icon {
-  width: 100px;
-  height: 100px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  justify-self: center;
-  transition: background-image 0.5s ease;
-}
-
-.weather-icon.clear { background-image: url('../icons/wi-day-sunny.svg'); animation: rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image: url('../icons/wi-cloudy.svg'); animation: floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image: url('../icons/wi-rain.svg'); animation: rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image: url('../icons/wi-thunderstorm.svg'); animation: thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image: url('../icons/wi-snow.svg'); animation: snowAnim 15s linear infinite; }
-
-@keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);}50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;}100%{background-position:0 100%;}}
-@keyframes thunderAnim {0%{filter:brightness(1);}100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;}100%{background-position:100% 100%;}}
-
-@media (prefers-reduced-motion: reduce){.weather-icon{animation:none!important;}}
-
-/* -------- SPINNER -------- */
+/* -------- SPINNER E OVERLAY DE LOADING -------- */
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -381,20 +286,59 @@ body.error #icon { display: none; }
   transition: opacity 0.3s ease;
   z-index: 10;
 }
-
 #weather.loading::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(3px);
+  background: var(--loading-bg-light);
+  backdrop-filter: blur(6px); /* aumentei blur para esconder melhor o conteúdo */
   border-radius: 12px;
   z-index: 5;
+  transition: background 0.3s ease;
 }
-
+body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 #weather.loading #spinner { opacity: 1; pointer-events: auto; }
 
-@keyframes spin { to{transform:rotate(360deg);} }
+/* Esconde o conteúdo do card durante o loading */
+#weather.loading #weather-content,
+#weather.loading .weather-icon {
+  visibility: hidden;
+}
+
+/* -------- PLACEHOLDER DE TEXTO DURANTE LOADING -------- */
+#weather.loading .temp,
+#weather.loading .desc,
+#weather.loading .details,
+#weather.loading #city-name {
+  color: transparent;
+  background: rgba(255,255,255,0.2);
+  border-radius: 6px;
+}
+#weather.loading .temp { height: 60px; width: 80px; }
+#weather.loading .desc { height: 20px; width: 120px; margin: 10px 0; }
+#weather.loading .details { height: 60px; width: 100%; }
+
+/* -------- ÍCONES DE CLIMA COM ANIMAÇÃO -------- */
+.weather-icon {
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  justify-self: center;
+  transition: background-image 0.5s ease;
+}
+.weather-icon.clear { background-image: url('../icons/wi-day-sunny.svg'); animation: rotateSlow 120s linear infinite; }
+.weather-icon.clouds { background-image: url('../icons/wi-cloudy.svg'); animation: floatClouds 20s ease-in-out infinite; }
+.weather-icon.rain { background-image: url('../icons/wi-rain.svg'); animation: rainAnim 3s linear infinite; }
+.weather-icon.thunderstorm { background-image: url('../icons/wi-thunderstorm.svg'); animation: thunderAnim 2s ease-in-out infinite alternate; }
+.weather-icon.snow { background-image: url('../icons/wi-snow.svg'); animation: snowAnim 15s linear infinite; }
+
+@keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes floatClouds { 0%,100%{transform:translateY(0);}50%{transform:translateY(8px);} }
+@keyframes rainAnim {0%{background-position:0 0;}100%{background-position:0 100%;}}
+@keyframes thunderAnim {0%{filter:brightness(1);}100%{filter:brightness(1.5);} }
+@keyframes snowAnim {0%{background-position:0 0;}100%{background-position:100% 100%;}}
+@media (prefers-reduced-motion: reduce){.weather-icon{animation:none!important;}}
 
 /* -------- INFO TEXTO DO CLIMA -------- */
 .info { display: flex; flex-direction: column; justify-content: center; }
@@ -427,35 +371,23 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   width: 100%;
   max-width: 600px;
   margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  padding: 10px 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  color: inherit;
-  transition: background-color 0.3s ease, color 0.3s ease;
-}
-body.dark #history-section, body.dark #favorites-section {
   background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-}
-
-#history-section h3, #favorites-section h3 { margin: 0 0 10px 0; font-weight: 600; font-size: 1.2rem; }
-
-#history-list, #favorites-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-#history-list li, #favorites-list li {
-  background: rgba(255, 255, 255, 0.25);
-  padding: 5px 10px;
-  border-radius: 8px;
-  cursor: pointer;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: background 0.3s ease;
 }
-#history-list li:hover, #history-list li:focus,
-#favorites-list li:hover, #favorites-list li:focus { background: rgba(255, 255, 255, 0.4); outline: none; }
+#history-section h3, #favorites-section h3 { margin-top:0; }
+#history-list, #favorites-list { list-style: none; padding: 0; margin: 10px 0 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+#history-list li, #favorites-list li { background: rgba(255,255,255,0.2); border-radius:8px; padding:5px 10px; display:flex; align-items:center; gap:5px; cursor:pointer; transition: background 0.3s ease; }
+#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background: var(--button-bg); color:white; outline:none; }
+
+/* -------- MEDIA QUERIES -------- */
+@media (max-width: 480px) {
+  #weather { grid-template-columns: 1fr; text-align: center; }
+  #weather .weather-icon { margin: 0 auto; }
+  #search-box { flex-direction: column; }
+}
+
+/* -------- SPINNER ANIMAÇÃO -------- */
+@keyframes spin { to{transform:rotate(360deg);} }
