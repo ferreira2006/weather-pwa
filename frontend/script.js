@@ -99,7 +99,7 @@ const UI = {
   // Validação aprimorada: aceita letras (com acentos), espaços e hífens apenas
   isValidCityInput(city) {
     if (!city) return false;
-    const validCityRegex = /^[a-zA-Zà-úÀ-ÚçÇ\s-]+$/;
+    const validCityRegex = /^[\p{L}\s'-]+$/u;
     return validCityRegex.test(city.trim());
   },
 
