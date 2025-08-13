@@ -19,6 +19,15 @@ function normalizeCityInput(city) {
   return city;
 }
 
+// Funções do spinner
+function showSpinner() {
+  dom.spinner.classList.remove("hidden");
+}
+
+function hideSpinner() {
+  dom.spinner.classList.add("hidden");
+}
+
 // Elementos DOM
 const dom = {
   cityInput: document.getElementById("city-input"),
@@ -132,6 +141,7 @@ const UI = {
   },
 
   showWeather(data) {
+    hideSpinner();
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
     dom.weatherError.style.opacity = "0";
@@ -147,7 +157,6 @@ const UI = {
     dom.weatherDiv.hidden = false;
     currentCityValid = true;
 
-    // Aguarda um frame para garantir que o loading overlay tenha sido aplicado
     requestAnimationFrame(() => {
       dom.weatherDiv.classList.remove("loading");
       dom.weatherContent.style.visibility = "visible";
@@ -161,6 +170,7 @@ const UI = {
   },
 
   showError(message) {
+    hideSpinner();
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
@@ -294,12 +304,12 @@ const UI = {
 // ===== APP =====
 const App = {
   async handleCitySelect(city) {
-    const normalizedCity = normalizeCityInput(city);
-    dom.weatherDiv.classList.add("loading");
+    showSpinner();
     dom.weatherContent.style.visibility = "hidden";
     dom.iconEl.style.visibility = "hidden";
 
     try {
+      const normalizedCity = normalizeCityInput(city);
       if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
       dom.cityInput.value = normalizedCity;
       const data = await WeatherAPI.fetchByCity(normalizedCity);
@@ -314,7 +324,7 @@ const App = {
   },
 
   async fetchByCoords(lat, lon) {
-    dom.weatherDiv.classList.add("loading");
+    showSpinner();
     dom.weatherContent.style.visibility = "hidden";
     dom.iconEl.style.visibility = "hidden";
 
@@ -379,7 +389,7 @@ const App = {
   },
 
   init() {
-    dom.weatherDiv.classList.add("loading");
+    showSpinner();
     dom.weatherContent.style.visibility = "hidden";
     dom.iconEl.style.visibility = "hidden";
 
