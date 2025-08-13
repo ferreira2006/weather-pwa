@@ -132,8 +132,14 @@
     </div>
   </div>
 
+  <!-- Script JS atualizado -->
   <script src="script.js"></script>
+  <!--
+    IMPORTANTE:
+    O script.js deve conter a função de validação atualizada:
+    UI.isValidCityInput(city) usa a regex:
+    /^[\p{L}\s'-’]+$/u
+    para aceitar letras Unicode, espaços, hífen e apóstrofos simples ou tipográficos.
+  -->
 </body>
 </html>
-
-
