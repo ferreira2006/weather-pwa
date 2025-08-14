@@ -259,13 +259,12 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
   width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
   justify-self:center; transition: background-image 0.5s ease;
 }
-.weather-icon.clear { background-image:url('../icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image:url('../icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image:url('../icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image:url('../icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image:url('../icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-.weather-icon.scattered-clouds { background-image: url('./icons/wi-scattered-clouds.svg'); }
-.weather-icon.fog { background-image: url('./icons/wi-fog.svg'); }
+
+.weather-icon.clear { background-image:url('assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
+.weather-icon.clouds { background-image:url('assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
+.weather-icon.rain { background-image:url('assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
+.weather-icon.thunderstorm { background-image:url('assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
+.weather-icon.snow { background-image:url('assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
 
 @keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
 @keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }

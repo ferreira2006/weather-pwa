@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="../icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
   <title>Clima Atual</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
 
@@ -101,6 +101,6 @@
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

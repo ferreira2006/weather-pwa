@@ -51,19 +51,30 @@ Permita acesso à geolocalização para buscar o clima da sua localização atua
 ## Estrutura de arquivos
 
 ```plaintext
-/
-├── index.html
-├── css/
+weather-pwa/
+│
+├── index.html              # Página principal
+├── manifest.json           # Manifesto PWA
+├── service-worker.js       # Service Worker para cache/offline
+│
+├── assets/                 # Imagens, ícones, fontes
+│   ├── icons/
+│   │   ├── icon-192.png
+│   │   ├── icon-512.png
+│   │   └── favicon.ico
+│   └── images/
+│       └── background.jpg
+│
+├── css/                    # Arquivos de estilo
 │   └── styles.css
-├── js/
-│   └── app.js
-├── icons/
-│   ├── wi-day-sunny.svg
-│   ├── wi-cloudy.svg
-│   ├── wi-rain.svg
-│   ├── wi-thunderstorm.svg
-│   └── wi-snow.svg
-└── README.md
+│
+├── js/                     # Lógica JS
+│   ├── app.js              # Lógica principal do clima
+│   └── ui.js               # Funções de interface
+│
+└── vendor/                 # Bibliotecas externas (opcional)
+    └── some-lib.js
+
 ```
 
 ## Diagrama de Estrutura do App de Clima
