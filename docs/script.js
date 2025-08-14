@@ -96,10 +96,14 @@ const UI = {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
     weather = weather.toLowerCase();
-    let key = weather.includes("cloud") ? "clouds" :
-              (weather.includes("rain") || weather.includes("drizzle")) ? "rain" :
-              weather.includes("thunderstorm") ? "thunderstorm" :
-              weather.includes("snow") ? "snow" : "clear";
+    let key = weather.toLowerCase();
+    if (key.includes("scattered clouds")) key = "scattered-clouds";
+    else if (key.includes("fog") || key.includes("mist") || key.includes("haze")) key = "fog";
+    else if (key.includes("cloud")) key = "clouds";
+    else if (key.includes("rain") || key.includes("drizzle")) key = "rain";
+    else if (key.includes("thunderstorm")) key = "thunderstorm";
+    else if (key.includes("snow")) key = "snow";
+    else key = "clear";
     document.body.classList.add(`bg-${key}`);
   },
 
