@@ -265,6 +265,17 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 .weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
 
+.weather-icon.scattered-clouds { 
+  background-image: url('../icons/wi-day-sunny-overcast.svg'); 
+  animation:snowAnim 15s linear infinite;
+  /* verficar aniamçao condizente*/
+}
+
+.weather-icon.fog { 
+  background-image: url('../icons/wi-fog.svg');
+  animation:snowAnim 15s linear infinite;
+}
+
 @keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
 @keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
 @keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
