@@ -205,27 +205,28 @@ body.error #weather-error { display:block; opacity:1; pointer-events:auto; backg
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
-/* -------- LOADING SPINNER & PLACEHOLDERS -------- */
+/* -------- LOADING SPINNER MELHORADO -------- */
 #spinner {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  bottom: 15px;
+  right: 15px;
   width: 40px;
   height: 40px;
-  border: 5px solid rgba(255,255,255,0.3);
-  border-top: 5px solid #fff;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
   border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: spin 1.2s linear infinite;
+  animation: spin 1s linear infinite;
+  transform-origin: center center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease, transform 0.3s ease;
   z-index: 10;
 }
 
+/* Animação de rotação */
 @keyframes spin {
-  0%   { transform: translate(-50%, -50%) rotate(0deg); }
-  100% { transform: translate(-50%, -50%) rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
 
 #weather.loading::before {
@@ -233,9 +234,10 @@ body.error #icon { display:none; }
   backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
 }
 body.dark #weather.loading::before { background:var(--loading-bg-dark); }
+/* Quando o card estiver carregando */
 #weather.loading #spinner {
-  opacity: 1;
-  pointer-events: auto;
+  opacity: 0.85;       /* semi-transparente */
+  transform: scale(1);  /* leve ajuste se quiser dar efeito de “aparecer” */
 }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
 
