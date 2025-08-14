@@ -161,7 +161,7 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
 
 /* -------- BOTÕES DE BUSCA -------- */
 button#search-btn, button#fav-btn {
-  display:inline-block; padding:12px 20px; border:none; border-radius:8px;
+  display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
   background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
   min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s;
   user-select:none; width:auto; flex:0 0 auto;
@@ -171,6 +171,14 @@ button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
   background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
 }
 button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
+
+/* -------- ICONE DE FAVORITO -------- */
+#fav-icon {
+  font-size:1.2rem;
+  display:inline-block;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+#fav-icon.active { color: red; transform: scale(1.2); }
 
 /* -------- WEATHER CARD -------- */
 #weather {
@@ -183,6 +191,7 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rg
 #weather[hidden] { display:none !important; }
 #weather:focus { outline:3px solid var(--button-bg); outline-offset:4px; }
 
+/* -------- WEATHER CONTENT E ERROS -------- */
 #weather-content { display:block; grid-column:2; }
 #weather-error {
   display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center;
