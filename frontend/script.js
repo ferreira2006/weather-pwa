@@ -233,6 +233,12 @@ const UI = {
   }
 };
 
+// ===== FAVORITE ICON =====
+const favIcon = document.createElement("span");
+favIcon.id = "fav-icon";
+favIcon.textContent = "🤍";
+dom.favBtn.prepend(favIcon);
+
 // ===== APP =====
 const App = {
   async handleCitySelect(city) {
@@ -269,13 +275,20 @@ const App = {
   addFavorite(city) {
     const formattedCity = Utils.capitalizeCityName(Utils.normalizeCityInput(city));
     const favorites = Storage.getFavorites();
-    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) return UI.showToast(`"${formattedCity}" já está nos favoritos.`);
-    if (favorites.length >= 5) return UI.showToast("Limite de 5 cidades favoritas atingido.");
+    if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`);
+      return;
+    }
+    if (favorites.length >= 5) {
+      UI.showToast("Limite de 5 cidades favoritas atingido.");
+      return;
+    }
     favorites.push(formattedCity);
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
+    this.updateFavButton();
   },
 
   async removeFavorite(city) {
@@ -286,6 +299,7 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
+    this.updateFavButton();
   },
 
   updateButtonsState() {
@@ -299,6 +313,14 @@ const App = {
     dom.favBtn.title = !canAddFavorite
       ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
+
+    this.updateFavButton();
+  },
+
+  updateFavButton() {
+    const city = Utils.normalizeCityInput(dom.cityInput.value);
+    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+    favIcon.textContent = favorites.includes(city.toLowerCase()) ? "❤️" : "🤍";
   },
 
   init() {
