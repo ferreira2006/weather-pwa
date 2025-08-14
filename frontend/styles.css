@@ -409,6 +409,7 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   cursor:pointer;
   transition: background 0.3s ease, transform 0.2s ease;
 }
+
 #history-list li:hover,
 #favorites-list li:hover,
 #history-list li:focus,
@@ -418,10 +419,15 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   transform: scale(1.05);
   outline:none;
 }
+
+/* --- TEXTO OCUPA O MÁXIMO --- */
 #favorites-list li span {
   cursor: pointer;
   user-select: none;
+  flex: 1 1 auto; /* texto ocupa espaço restante */
 }
+
+/* --- BOTÃO “×” FIXO AO LADO --- */
 #favorites-list li button {
   display: inline-flex;
   align-items: center;
@@ -435,9 +441,10 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   line-height: 1;
   cursor: pointer;
   transition: color 0.2s ease;
+  flex: 0 0 auto;    /* não cresce nem encolhe */
+  margin-left: auto;  /* empurra para a direita */
   width: auto;       /* evita esticar */
   min-width: 25px;   /* garante mínimo */
-  flex: 0 0 auto;    /* ESSENCIAL: impede que cresça */
 }
 
 #favorites-list li button:hover { color: #ffdddd; }
