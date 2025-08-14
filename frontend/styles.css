@@ -227,6 +227,7 @@ input[type="text"]:focus {
 
 /* -------- BOTÕES -------- */
 button#search-btn, button#fav-btn {
+  display: inline-block; /* evita ocupar 100% da linha */
   padding: 12px 20px;
   border: none;
   border-radius: 8px;
@@ -238,6 +239,8 @@ button#search-btn, button#fav-btn {
   min-height: 40px;
   transition: background-color 0.3s, box-shadow 0.3s;
   user-select: none;
+  width: auto; /* largura automática */
+  flex: 0 0 auto; /* não cresce nem encolhe dentro do flex container */
 }
 button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
 button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
@@ -392,62 +395,22 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  transition: background 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-#history-section h3, #favorites-section h3 { margin-top:0; margin-bottom:10px; font-size:1.2rem; }
-#history-list, #favorites-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:5px; }
-
-#history-list li,
-#favorites-list li {
-  background: rgba(255,255,255,0.2);
-  border-radius:8px;
-  padding:5px 10px;
-  display:flex;
-  align-items:center;
-  gap:5px;
-  cursor:pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-#history-list li:hover,
-#favorites-list li:hover,
-#history-list li:focus,
-#favorites-list li:focus {
+#history-section h2, #favorites-section h2 { margin-top: 0; font-size: 1.2rem; }
+#history-list, #favorites-list { list-style: none; margin:0; padding:0; display: flex; flex-wrap: wrap; gap: 8px; }
+#history-list li, #favorites-list li {
   background: var(--button-bg);
-  color:white;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  flex: 0 0 auto;
+}
+#history-list li:hover, #favorites-list li:hover,
+#history-list li:focus, #favorites-list li:focus {
+  background-color: var(--button-bg-hover);
   transform: scale(1.05);
-  outline:none;
+  outline: none;
 }
-
-/* --- TEXTO OCUPA O MÁXIMO --- */
-#favorites-list li span {
-  cursor: pointer;
-  user-select: none;
-  flex: 1 1 auto; /* texto ocupa espaço restante */
-}
-
-/* --- BOTÃO “×” FIXO AO LADO --- */
-#favorites-list li button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 10px;
-  background: transparent;
-  border: none;
-  color: inherit;
-  font-weight: bold;
-  font-size: 1.2rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: color 0.2s ease;
-  flex: 0 0 auto;    /* não cresce nem encolhe */
-  margin-left: auto;  /* empurra para a direita */
-  width: auto;       /* evita esticar */
-  min-width: 25px;   /* garante mínimo */
-}
-
-#favorites-list li button:hover { color: #ffdddd; }
-
-/* -------- KEYFRAMES GERAIS -------- */
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
