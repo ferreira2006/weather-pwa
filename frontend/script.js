@@ -105,7 +105,8 @@ const UI = {
 
   showWeather(data) {
     document.body.classList.remove("error");
-    [dom.weatherError].forEach(el => { el.style.display = "none"; el.style.opacity = 0; });
+    dom.weatherError.style.display = "none";
+    dom.weatherError.style.opacity = 0;
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
