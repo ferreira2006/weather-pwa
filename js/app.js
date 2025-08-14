@@ -1,10 +1,6 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// ===== STATE =====
-let currentCityValid = false;
-let firstLoad = true; // adicionado para controle de firstLoad
-
 // ===== UTILS ======
 const Utils = {
   capitalizeCityName(city) {
@@ -44,6 +40,10 @@ const dom = {
 
   toast: document.getElementById("toast"),
 };
+
+// ===== STATE =====
+let currentCityValid = false;
+let firstLoad = true;
 
 // ===== API =====
 const WeatherAPI = {
@@ -316,7 +316,7 @@ const App = {
   },
 
   updateButtonsState() {
-    const city = dom.cityInput.value.trim();
+    const city = Utils.normalizeCityInput(dom.cityInput.value);
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const canAddFavorite = currentCityValid && city && UI.isValidCityInput(city) && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
 
@@ -326,12 +326,16 @@ const App = {
       ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
 
-    // Atualiza o ícone de favorito
-    const cityNormalized = Utils.normalizeCityInput(city);
-    const favsLower = Storage.getFavorites().map(c => c.toLowerCase());
-    favIcon.textContent = favsLower.includes(cityNormalized.toLowerCase()) ? "❤️" : "🤍";
-    favIcon.classList.toggle("favorited", favsLower.includes(cityNormalized.toLowerCase()));
-    favIcon.classList.toggle("not-favorited", !favsLower.includes(cityNormalized.toLowerCase()));
+    // Atualiza ícone favorito
+    if (favorites.includes(city.toLowerCase())) {
+      favIcon.textContent = "❤️";
+      favIcon.classList.add("favorited");
+      favIcon.classList.remove("not-favorited");
+    } else {
+      favIcon.textContent = "🤍";
+      favIcon.classList.remove("favorited");
+      favIcon.classList.add("not-favorited");
+    }
   },
 
   init() {
