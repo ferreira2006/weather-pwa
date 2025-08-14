@@ -321,7 +321,7 @@ body.error #icon { display: none; }
   backdrop-filter: blur(6px);
   border-radius: 12px;
   z-index: 5;
-  transition: background 0.3s ease;
+  transition: none; /* remove transição para não piscar */
 }
 body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 #weather.loading #spinner { opacity: 1; pointer-events: auto; }
