@@ -11,57 +11,126 @@
 
   <header>
     <h1>Clima Atual</h1>
-    <button id="theme-toggle" aria-label="Alternar tema">Modo Escuro</button>
+    <button
+      id="theme-toggle"
+      aria-label="Alternar tema claro/escuro"
+      aria-pressed="false"
+      type="button"
+    >
+      Modo Escuro
+    </button>
   </header>
 
   <main>
-    <form id="search-box" aria-label="Buscar cidade">
-      <input type="text" id="city-input" placeholder="Digite a cidade" aria-label="Campo de cidade" autocomplete="off"/>
-      <button type="submit" id="search-btn">Buscar</button>
-      <button type="button" id="fav-btn">❤ Favorito</button>
-    </form>
-
-    <div id="weather" hidden tabindex="0">
-      <div id="icon" class="weather-icon"></div>
-      <div id="weather-content">
-        <div class="info">
-          <h2 id="city-name"></h2>
-          <p class="temp"></p>
-          <p class="desc"></p>
-          <p class="details"></p>
-        </div>
-      </div>
-      <div id="spinner" aria-hidden="true"></div>
-      <div id="weather-error" role="alert"></div>
-    </div>
-
-    <section id="history-section">
-      <h3>Histórico</h3>
-      <ul id="history-list"></ul>
+    <!-- Busca -->
+    <section id="search-section" aria-label="Busca de cidades">
+      <form id="search-box" role="search" aria-label="Busca de cidade">
+        <input
+          list="city-suggestions"
+          type="text"
+          id="city-input"
+          name="city"
+          placeholder="Digite a cidade"
+          aria-label="Digite o nome da cidade"
+          autocomplete="off"
+          required
+        />
+        <datalist id="city-suggestions">
+          <option value="Anchieta"></option>
+          <option value="Bandeirante"></option>
+          <option value="Barra Bonita"></option>
+          <option value="Belmonte"></option>
+          <option value="Descanso"></option>
+          <option value="Dionísio Cerqueira"></option>
+          <option value="Guaraciaba"></option>
+          <option value="Guarujá do Sul"></option>
+          <option value="Iporã do Oeste"></option>
+          <option value="Itapiranga"></option>
+          <option value="Mondaí"></option>
+          <option value="Palma Sola"></option>
+          <option value="Paraíso"></option>
+          <option value="Princesa"></option>
+          <option value="Santa Helena"></option>
+          <option value="São João do Oeste"></option>
+          <option value="São José do Cedro"></option>
+          <option value="São Miguel do Oeste"></option>
+        </datalist>
+        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
+          Buscar
+        </button>
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
+          Adicionar aos favoritos
+        </button>
+      </form>
     </section>
 
-    <section id="favorites-section">
-      <h3>Favoritos</h3>
-      <ul id="favorites-list"></ul>
+    <!-- Cidades favoritas -->
+    <section id="favorites-section" aria-label="Cidades favoritas">
+      <h2>Cidades Favoritas</h2>
+      <ul id="favorites-list" role="list"></ul>
+    </section>
+
+    <!-- Card do clima (sempre visível) -->
+    <section
+      id="weather"
+      class="loading"
+      role="region"
+      aria-live="polite"
+      aria-atomic="true"
+      tabindex="-1"
+    >
+      <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
+
+      <div id="weather-content" class="info">
+        <h2 id="city-name">Carregando cidade...</h2>
+        <div class="temp" id="temp">-- °C</div>
+        <div class="desc" id="desc">Aguardando dados...</div>
+        <div class="details" id="details">--</div>
+      </div>
+
+      <div
+        id="weather-error"
+        role="alert"
+        tabindex="0"
+        aria-live="assertive"
+        aria-atomic="true"
+        class="error-message"
+      ></div>
+
+      <div id="spinner" class="hidden"></div>
+    </section>
+
+    <!-- Histórico das últimas cidades -->
+    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
+      <h2>Últimas cidades pesquisadas</h2>
+      <ul id="history-list" role="list"></ul>
     </section>
   </main>
 
+  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
   <!-- Modal de confirmação -->
-  <div id="confirm-modal" hidden tabindex="-1" aria-modal="true" role="dialog">
+  <div
+    id="confirm-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-modal-title"
+    aria-describedby="confirm-modal-desc"
+    hidden
+  >
     <div class="modal-overlay"></div>
-    <div class="modal-content">
-      <h2>Confirmação</h2>
-      <p id="confirm-modal-desc"></p>
+    <div class="modal-content" role="document" tabindex="0">
+      <h2 id="confirm-modal-title">Confirmação</h2>
+      <p id="confirm-modal-desc">
+        Tem certeza que deseja remover esta cidade dos favoritos?
+      </p>
       <div class="modal-buttons">
-        <button id="confirm-yes">Sim</button>
-        <button id="confirm-no">Não</button>
+        <button id="confirm-yes" type="button">Sim</button>
+        <button id="confirm-no" type="button">Não</button>
       </div>
     </div>
   </div>
 
-  <!-- Toast -->
-  <div id="toast" role="status" aria-live="polite"></div>
-
-  <script src="app.js" type="module"></script>
+  <script src="script.js"></script>
 </body>
 </html>
