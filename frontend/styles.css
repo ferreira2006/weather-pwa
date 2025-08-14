@@ -305,19 +305,28 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
   visibility: hidden;
 }
 
-/* -------- PLACEHOLDER DE TEXTO DURANTE LOADING -------- */
-#weather.loading .temp,
-#weather.loading .desc,
-#weather.loading .details,
-#weather.loading #city-name {
+/* -------- PLACEHOLDER DE TEXTO DURANTE LOADING (adaptativo) -------- */
+body.light #weather.loading .temp,
+body.light #weather.loading .desc,
+body.light #weather.loading .details,
+body.light #weather.loading #city-name {
   color: transparent;
-  background: rgba(255,255,255,0.2);
+  background: var(--loading-bg-light);
   border-radius: 6px;
 }
+
+body.dark #weather.loading .temp,
+body.dark #weather.loading .desc,
+body.dark #weather.loading .details,
+body.dark #weather.loading #city-name {
+  color: transparent;
+  background: var(--loading-bg-dark);
+  border-radius: 6px;
+}
+
 #weather.loading .temp { height: 60px; width: 80px; }
 #weather.loading .desc { height: 20px; width: 120px; margin: 10px 0; }
 #weather.loading .details { height: 60px; width: 100%; }
-
 /* -------- ÍCONES DE CLIMA COM ANIMAÇÃO -------- */
 .weather-icon {
   width: 100px;
