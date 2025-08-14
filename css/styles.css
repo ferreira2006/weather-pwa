@@ -1,4 +1,4 @@
-:root {
+s/:root {
   /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
@@ -270,13 +270,13 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 .weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
 
 .weather-icon.scattered-clouds { 
-  background-image: url('../icons/wi-day-sunny-overcast.svg'); 
+  background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); 
   animation:snowAnim 15s linear infinite;
   /* verficar aniamçao condizente*/
 }
 
 .weather-icon.fog { 
-  background-image: url('../icons/wi-fog.svg');
+  background-image: url('../assets/icons/wi-fog.svg');
   animation:snowAnim 15s linear infinite;
 }
 
