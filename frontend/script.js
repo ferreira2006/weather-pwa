@@ -43,7 +43,6 @@ const dom = {
 
 // ===== STATE =====
 let currentCityValid = false;
-let firstLoad = true;
 
 // ===== API =====
 const WeatherAPI = {
