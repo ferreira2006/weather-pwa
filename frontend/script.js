@@ -1,7 +1,7 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// Função para capitalizar cada palavra do nome da cidade
+// ===== UTILS =====
 function capitalizeCityName(city) {
   return city
     .toLowerCase()
@@ -11,7 +11,6 @@ function capitalizeCityName(city) {
     .join(' ');
 }
 
-// ===== NORMALIZAÇÃO DE INPUT =====
 function normalizeCityInput(city) {
   if (!city) return "";
   city = city.replace(/[’‘]/g, "'"); // apóstrofos tipográficos
@@ -19,33 +18,29 @@ function normalizeCityInput(city) {
   return city;
 }
 
-// Elementos DOM
+// ===== DOM =====
 const dom = {
   cityInput: document.getElementById("city-input"),
   searchBtn: document.getElementById("search-btn"),
   favBtn: document.getElementById("fav-btn"),
   themeToggle: document.getElementById("theme-toggle"),
-
   weatherDiv: document.getElementById("weather"),
   weatherContent: document.getElementById("weather-content"),
   weatherError: document.getElementById("weather-error"),
-
   cityNameEl: document.getElementById("city-name"),
   iconEl: document.getElementById("icon"),
   tempEl: document.getElementById("temp"),
   descEl: document.getElementById("desc"),
   detailsEl: document.getElementById("details"),
   spinner: document.getElementById("spinner"),
-
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
-
   toast: document.getElementById("toast"),
 };
 
-// Estado global
+// ===== STATE =====
 let currentCityValid = false;
-let firstLoad = true; // flag para estado loading inicial
+let firstLoad = true;
 
 // ===== API =====
 const WeatherAPI = {
@@ -152,7 +147,7 @@ const UI = {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
-    firstLoad = false; // primeira carga concluída
+    firstLoad = false;
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
@@ -176,15 +171,18 @@ const UI = {
     const isDark = document.body.classList.contains("dark");
     dom.cityInput.style.color = isDark ? rootStyles.getPropertyValue('--input-text-dark').trim() : rootStyles.getPropertyValue('--input-text-light').trim();
     dom.cityInput.style.backgroundColor = isDark ? rootStyles.getPropertyValue('--input-bg-dark').trim() : rootStyles.getPropertyValue('--input-bg-light').trim();
+
     const buttonBg = rootStyles.getPropertyValue('--button-bg').trim();
     [dom.searchBtn, dom.favBtn].forEach(btn => {
       btn.style.backgroundColor = buttonBg;
       btn.style.color = isDark ? '#ddd' : '#fff';
     });
+
     [...dom.historyListEl.children, ...(dom.favoritesListEl ? [...dom.favoritesListEl.children] : [])].forEach(li => {
       li.style.backgroundColor = buttonBg;
       li.style.color = isDark ? '#ddd' : '#fff';
     });
+
     dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
     dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
     dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
@@ -319,9 +317,7 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
-      if (!Storage.getLastCity()) {
-        await this.handleCitySelect("São Miguel do Oeste");
-      }
+      if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
     } finally {
       dom.weatherDiv.classList.remove("loading");
     }
@@ -373,9 +369,7 @@ const App = {
   },
 
   init() {
-    // Estado de loading inicial
     dom.weatherDiv.classList.add("loading");
-
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
@@ -413,9 +407,8 @@ const App = {
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
     const lastCity = Storage.getLastCity();
-    if (lastCity) {
-      this.handleCitySelect(lastCity);
-    } else if (navigator.geolocation) {
+    if (lastCity) this.handleCitySelect(lastCity);
+    else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
         () => {
@@ -423,9 +416,7 @@ const App = {
           this.handleCitySelect("São Miguel do Oeste");
         }
       );
-    } else {
-      this.handleCitySelect("São Miguel do Oeste");
-    }
+    } else this.handleCitySelect("São Miguel do Oeste");
   }
 };
 
