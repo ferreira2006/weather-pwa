@@ -245,14 +245,39 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 .weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
 .weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-.weather-icon.scattered-clouds { background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.fog { background-image: url('../assets/icons/wi-fog.svg'); animation:none; }
+.weather-icon.scattered-clouds { 
+  background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); 
+  animation: floatScattered 20s ease-in-out infinite;
+}
+
+.weather-icon.fog { 
+  background-image: url('../assets/icons/wi-fog.svg');
+  animation: fogAnim 8s ease-in-out infinite alternate;
+}
 
 @keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
 @keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
 @keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
 @keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
 @keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
+@keyframes floatScattered {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(5px, 3px); }
+  50%  { transform: translate(-5px, 5px); }
+  75%  { transform: translate(5px, -3px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes fogAnim {
+  0%   { opacity: 0.6; transform: translateY(0); }
+  50%  { opacity: 0.8; transform: translateY(2px); }
+  100% { opacity: 0.6; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-icon.scattered-clouds,
+  .weather-icon.fog { animation: none !important; }
+}
 
 @media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
