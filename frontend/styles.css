@@ -1,4 +1,4 @@
-  :root {
+:root {
   /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
@@ -291,7 +291,7 @@ body.error #icon { display: none; }
   position: absolute;
   inset: 0;
   background: var(--loading-bg-light);
-  backdrop-filter: blur(6px); /* aumentei blur para esconder melhor o conteúdo */
+  backdrop-filter: blur(6px);
   border-radius: 12px;
   z-index: 5;
   transition: background 0.3s ease;
@@ -314,7 +314,6 @@ body.light #weather.loading #city-name {
   background: var(--loading-bg-light);
   border-radius: 6px;
 }
-
 body.dark #weather.loading .temp,
 body.dark #weather.loading .desc,
 body.dark #weather.loading .details,
@@ -323,10 +322,10 @@ body.dark #weather.loading #city-name {
   background: var(--loading-bg-dark);
   border-radius: 6px;
 }
-
 #weather.loading .temp { height: 60px; width: 80px; }
 #weather.loading .desc { height: 20px; width: 120px; margin: 10px 0; }
 #weather.loading .details { height: 60px; width: 100%; }
+
 /* -------- ÍCONES DE CLIMA COM ANIMAÇÃO -------- */
 .weather-icon {
   width: 100px;
