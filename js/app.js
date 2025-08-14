@@ -1,7 +1,7 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// ===== UTILS =====
+// ===== UTILS ======
 const Utils = {
   capitalizeCityName(city) {
     return city
