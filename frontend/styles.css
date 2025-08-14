@@ -97,6 +97,33 @@ body.dark input[type="text"]::placeholder {
   color: rgba(255, 255, 255, 0.6);
 }
 
+/* -------- FOCO VISÍVEL ACESSÍVEL -------- */
+:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+}
+
+/* Inputs de texto */
+input[type="text"]:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+}
+
+/* Botões */
+button:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+}
+
+/* Itens de listas (histórico e favoritos) */
+#history-list li:focus-visible,
+#favorites-list li:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+  background-color: var(--button-bg);
+  color: #fff;
+}
+
 /* -------- HEADER -------- */
 header {
   width: 100%;
