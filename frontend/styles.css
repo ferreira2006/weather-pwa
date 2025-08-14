@@ -423,15 +423,20 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   user-select: none;
 }
 #favorites-list li button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
   background: transparent;
   border: none;
   color: inherit;
   font-weight: bold;
   font-size: 1.2rem;
   line-height: 1;
-  padding: 0;
   cursor: pointer;
   transition: color 0.2s ease;
+  width: auto;       /* evita esticar */
+  min-width: 25px;   /* garante mínimo */
 }
 #favorites-list li button:hover { color: #ffdddd; }
 
