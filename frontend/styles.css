@@ -1,32 +1,40 @@
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
-  --bg-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --bg-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-  --bg-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-  --bg-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  --bg-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
-  --bg-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
-  --bg-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
-  --bg-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+  --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
+  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
+  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
+  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
+  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
+  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
-  /* -------- CORES -------- */
-  --text-light: #000;
-  --text-dark: #ddd;
-  --input-text-light: #000;
+  /* -------- CORES DE TEXTO -------- */
+  --text-color-light: #000000;
+  --text-color-dark: #ddd;
+
+  /* -------- INPUTS -------- */
+  --input-text-light: #000000;
   --input-text-dark: #cfd8dc;
   --input-bg-light: rgba(255, 255, 255, 0.9);
   --input-bg-dark: rgba(255, 255, 255, 0.1);
   --input-border-focus: var(--button-bg);
+
+  /* -------- BOTÕES -------- */
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
+
+  /* -------- TOAST -------- */
   --toast-bg-light: rgba(0, 0, 0, 0.85);
   --toast-text-light: #fff;
   --toast-bg-dark: rgba(255, 255, 255, 0.9);
   --toast-text-dark: #000;
+
+  /* -------- PLACEHOLDERS LOADING -------- */
   --loading-bg-light: rgba(255, 255, 255, 0.35);
   --loading-bg-dark: rgba(255, 255, 255, 0.15);
 }
@@ -42,21 +50,21 @@ body {
   flex-direction: column;
   align-items: center;
 }
+body.light { color: var(--text-color-light); }
+body.dark { color: var(--text-color-dark); }
 
-body.light { color: var(--text-light); }
-body.dark { color: var(--text-dark); }
+/* -------- BACKGROUNDS POR TEMPO -------- */
+body.light.bg-clear { background: var(--bg-gradient-light-clear); }
+body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
+body.light.bg-rain { background: var(--bg-gradient-light-rain); }
+body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
+body.light.bg-snow { background: var(--bg-gradient-light-snow); }
 
-body.light.bg-clear { background: var(--bg-light-clear); }
-body.light.bg-clouds { background: var(--bg-light-clouds); }
-body.light.bg-rain { background: var(--bg-light-rain); }
-body.light.bg-thunderstorm { background: var(--bg-light-thunderstorm); }
-body.light.bg-snow { background: var(--bg-light-snow); }
-
-body.dark.bg-clear { background: var(--bg-dark-clear); }
-body.dark.bg-clouds { background: var(--bg-dark-clouds); }
-body.dark.bg-rain { background: var(--bg-dark-rain); }
-body.dark.bg-thunderstorm { background: var(--bg-dark-thunderstorm); }
-body.dark.bg-snow { background: var(--bg-dark-snow); }
+body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 /* -------- INPUTS -------- */
 input[type="text"] {
@@ -74,14 +82,21 @@ body.light input[type="text"] {
   background-color: var(--input-bg-light);
   border: 1px solid transparent;
 }
-body.light input[type="text"]:focus { background-color: #fff; color: #000; }
+body.light input[type="text"]:focus {
+  background-color: #fff;
+  color: #000;
+}
 body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
+
 body.dark input[type="text"] {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
   border: 1px solid transparent;
 }
-body.dark input[type="text"]:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
+body.dark input[type="text"]:focus {
+  background-color: var(--input-bg-dark);
+  color: var(--input-text-dark);
+}
 body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
 
 /* -------- FOCO VISÍVEL ACESSÍVEL -------- */
@@ -119,7 +134,12 @@ button#fav-btn:focus:not(:disabled) {
   outline: none;
 }
 button#search-btn:disabled,
-button#fav-btn:disabled { background-color: var(--button-bg-disabled); cursor: not-allowed; opacity: 0.7; box-shadow: none; }
+button#fav-btn:disabled {
+  background-color: var(--button-bg-disabled);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
 #theme-toggle {
   background: transparent;
   border: 2px solid currentColor;
@@ -127,7 +147,12 @@ button#fav-btn:disabled { background-color: var(--button-bg-disabled); cursor: n
   min-width: 110px;
   min-height: 40px;
 }
-#theme-toggle:hover, #theme-toggle:focus { background-color: var(--button-bg); color: white; border-color: var(--button-bg); outline: none; }
+#theme-toggle:hover, #theme-toggle:focus {
+  background-color: var(--button-bg);
+  color: white;
+  border-color: var(--button-bg);
+  outline: none;
+}
 
 /* -------- CARD DE CLIMA -------- */
 #weather {
@@ -150,8 +175,30 @@ button#fav-btn:disabled { background-color: var(--button-bg-disabled); cursor: n
 body.dark #weather { background: rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
 
 /* -------- SPINNER E LOADING -------- */
-#spinner { position: absolute; bottom: 15px; right: 15px; border: 5px solid rgba(255,255,255,0.3); border-top:5px solid white; border-radius:50%; width:40px; height:40px; animation: spin 1.2s linear infinite; opacity:0; pointer-events:none; transition: opacity 0.3s ease; z-index:10; }
-#weather.loading::before { content:""; position:absolute; inset:0; background: var(--loading-bg-light); backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none; }
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  border: 5px solid rgba(255,255,255,0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1.2s linear infinite;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 10;
+}
+#weather.loading::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: var(--loading-bg-light);
+  backdrop-filter:blur(6px);
+  border-radius:12px;
+  z-index:5;
+}
 body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 #weather.loading #spinner { opacity:1; pointer-events:auto; }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
@@ -160,14 +207,19 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 body.light #weather.loading .temp,
 body.light #weather.loading .desc,
 body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background: var(--loading-bg-light); border-radius:6px; }
+body.light #weather.loading #city-name {
+  color:transparent;
+  background: var(--loading-bg-light);
+  border-radius:6px;
+}
 body.dark #weather.loading .temp,
 body.dark #weather.loading .desc,
 body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background: var(--loading-bg-dark); border-radius:6px; }
-#weather.loading .temp { height:60px; width:80px; }
-#weather.loading .desc { height:20px; width:120px; margin:10px 0; }
-#weather.loading .details { height:60px; width:100%; }
+body.dark #weather.loading #city-name {
+  color:transparent;
+  background: var(--loading-bg-dark);
+  border-radius:6px;
+}
 
 /* -------- ICONES DE CLIMA -------- */
 .weather-icon { width:100px; height:100px; background-size:contain; background-repeat:no-repeat; justify-self:center; transition:background-image 0.5s ease; }
@@ -176,6 +228,14 @@ body.dark #weather.loading #city-name { color:transparent; background: var(--loa
 .weather-icon.rain { background-image:url('../icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
 .weather-icon.thunderstorm { background-image:url('../icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { background-image:url('../icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
+
+/* -------- KEYFRAMES -------- */
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+@keyframes rotateSlow {from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes floatClouds {0%,100%{transform:translateY(0);}50%{transform:translateY(8px);}}
+@keyframes rainAnim {0%{background-position:0 0;}100%{background-position:0 100%;}}
+@keyframes thunderAnim {0%{filter:brightness(1);}100%{filter:brightness(1.5);}}
+@keyframes snowAnim {0%{background-position:0 0;}100%{background-position:100% 100%;}}
 @media (prefers-reduced-motion: reduce){.weather-icon{animation:none!important;}}
 
 /* -------- INFO TEXTO -------- */
@@ -191,20 +251,7 @@ body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-
 body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
 
 /* -------- HISTÓRICO E FAVORITOS -------- */
-#history-section, #favorites-section { width:100%; max-width:600px; margin-bottom:30px; background: rgba(255,255,255,0.1); border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.2); transition:background 0.3s ease; }
-#history-section h3, #favorites-section h3 { margin-top:0; margin-bottom:10px; font-size:1.2rem; }
-#history-list, #favorites-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:5px; }
-#history-list li, #favorites-list li { background: rgba(255,255,255,0.2); border-radius:8px; padding:5px 10px; display:flex; align-items:center; gap:5px; cursor:pointer; transition: background 0.3s ease, transform 0.2s ease; }
-#history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus { background: var(--button-bg); color:white; transform:scale(1.05); outline:none; }
-#favorites-list li span { flex:1 1 auto; }
-#favorites-list li button { display:inline-flex; align-items:center; justify-content:center; padding:5px 10px; background:transparent; border:none; color:inherit; font-weight:bold; font-size:1.2rem; line-height:1; cursor:pointer; transition:color 0.2s ease; flex:0 0 auto; margin-left:auto; width:auto; min-width:25px; }
-#favorites-list li button:hover { color:#ffdddd; }
-
-/* -------- KEYFRAMES -------- */
-@keyframes spin { 0% { transform:rotate(0deg); } 100% { transform:rotate(360deg); } }
-@keyframes rotateSlow { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);}50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;}100%{background-position:0 100%;}}
-@keyframes thunderAnim {0%{filter:brightness(1);}100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;}100%{background-position:100% 100%;}}
+#history-section, #favorites-section { width:100%; max-width:600px; margin-bottom:30px; background: rgba(255,255,255,0.1); border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+#history-list, #favorites-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+#history-list li, #favorites-list li { background: var(--button-bg); color:white; padding:8px 12px; border-radius:8px; cursor:pointer; transition: background-color 0.3s, transform 0.2s; flex:0 0 auto;}
+#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background-color: var(--button-bg-hover); transform:scale(1.05); outline:none; }
