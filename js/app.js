@@ -1,6 +1,10 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
+// ===== STATE =====
+let currentCityValid = false;
+let firstLoad = true; // adicionado para controle de firstLoad
+
 // ===== UTILS ======
 const Utils = {
   capitalizeCityName(city) {
@@ -40,9 +44,6 @@ const dom = {
 
   toast: document.getElementById("toast"),
 };
-
-// ===== STATE =====
-let currentCityValid = false;
 
 // ===== API =====
 const WeatherAPI = {
@@ -99,8 +100,8 @@ const UI = {
     weather = weather.toLowerCase();
     let key;
 
-    if (weather.includes("scattered clouds")) key = "scattered-clouds"; // nuvens dispersas
-    else if (weather.includes("fog") || weather.includes("mist") || weather.includes("haze")) key = "fog"; // neblina
+    if (weather.includes("scattered clouds")) key = "scattered-clouds";
+    else if (weather.includes("fog") || weather.includes("mist") || weather.includes("haze")) key = "fog";
     else if (weather.includes("cloud")) key = "clouds";
     else if (weather.includes("rain") || weather.includes("drizzle")) key = "rain";
     else if (weather.includes("thunderstorm")) key = "thunderstorm";
@@ -122,7 +123,6 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    // Novos tipos de clima
     const mainWeather = data.weather[0].main.toLowerCase();
     let iconClass;
     if (mainWeather.includes("scattered clouds")) iconClass = "scattered-clouds";
@@ -268,7 +268,6 @@ const App = {
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
       this.updateButtonsState();
-      this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
@@ -304,7 +303,6 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
-    this.updateFavButton();
   },
 
   async removeFavorite(city) {
@@ -315,7 +313,6 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
-    this.updateFavButton();
   },
 
   updateButtonsState() {
@@ -325,26 +322,16 @@ const App = {
 
     dom.searchBtn.disabled = !UI.isValidCityInput(city);
     dom.favBtn.disabled = !canAddFavorite;
-
     dom.favBtn.title = !canAddFavorite
       ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
 
-    this.updateFavButton();
-  },
-
-  updateFavButton() {
-    const city = Utils.normalizeCityInput(dom.cityInput.value);
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    if (favorites.includes(city.toLowerCase())) {
-      favIcon.textContent = "❤️";
-      favIcon.classList.remove("not-favorited");
-      favIcon.classList.add("favorited");
-    } else {
-      favIcon.textContent = "🤍";
-      favIcon.classList.remove("favorited");
-      favIcon.classList.add("not-favorited");
-    }
+    // Atualiza o ícone de favorito
+    const cityNormalized = Utils.normalizeCityInput(city);
+    const favsLower = Storage.getFavorites().map(c => c.toLowerCase());
+    favIcon.textContent = favsLower.includes(cityNormalized.toLowerCase()) ? "❤️" : "🤍";
+    favIcon.classList.toggle("favorited", favsLower.includes(cityNormalized.toLowerCase()));
+    favIcon.classList.toggle("not-favorited", !favsLower.includes(cityNormalized.toLowerCase()));
   },
 
   init() {
