@@ -163,7 +163,7 @@ Abra um Pull Request.
 Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
 
 ## Contato
-Se precisar de ajuda, abra uma issue ou entre em contato via email: seu-email@exemplo.com
+Se precisar de ajuda, abra uma issue ou entre em contato via email: ferreira2006@gmail.com
 
 
 Feito com ❤️ para facilitar sua consulta do clima!
