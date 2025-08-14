@@ -437,7 +437,9 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   transition: color 0.2s ease;
   width: auto;       /* evita esticar */
   min-width: 25px;   /* garante mínimo */
+  flex: 0 0 auto;    /* ESSENCIAL: impede que cresça */
 }
+
 #favorites-list li button:hover { color: #ffdddd; }
 
 /* -------- KEYFRAMES GERAIS -------- */
