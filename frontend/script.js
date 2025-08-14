@@ -236,6 +236,7 @@ const UI = {
 // ===== FAVORITE ICON =====
 const favIcon = document.createElement("span");
 favIcon.id = "fav-icon";
+favIcon.classList.add("not-favorited");
 favIcon.textContent = "🤍";
 dom.favBtn.prepend(favIcon);
 
@@ -253,6 +254,7 @@ const App = {
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
       this.updateButtonsState();
+      this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
@@ -320,7 +322,15 @@ const App = {
   updateFavButton() {
     const city = Utils.normalizeCityInput(dom.cityInput.value);
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    favIcon.textContent = favorites.includes(city.toLowerCase()) ? "❤️" : "🤍";
+    if (favorites.includes(city.toLowerCase())) {
+      favIcon.textContent = "❤️";
+      favIcon.classList.remove("not-favorited");
+      favIcon.classList.add("favorited");
+    } else {
+      favIcon.textContent = "🤍";
+      favIcon.classList.remove("favorited");
+      favIcon.classList.add("not-favorited");
+    }
   },
 
   init() {
