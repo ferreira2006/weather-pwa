@@ -271,6 +271,13 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 /* Redução de movimento para acessibilidade */
 @media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
+@media (max-width: 480px) {
+  button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+  }
+}
+
 /* =======================================================
    INFORMAÇÕES DE TEXTO DO CLIMA
    ======================================================= */
