@@ -37,12 +37,16 @@ const dom = {
 
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
-
   toast: document.getElementById("toast"),
+
+  stateSelect: document.createElement("select"),
+  citySelect: document.createElement("select"),
 };
 
 // ===== STATE =====
 let currentCityValid = false;
+let states = [];
+let citiesByState = {};
 
 // ===== API =====
 const WeatherAPI = {
@@ -55,6 +59,44 @@ const WeatherAPI = {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
     return res.json();
+  }
+};
+
+// ===== IBGE =====
+const IBGE = {
+  async fetchStates() {
+    const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados");
+    if (!res.ok) throw new Error("Não foi possível carregar os estados");
+    states = await res.json();
+    states.sort((a,b) => a.nome.localeCompare(b.nome));
+    IBGE.populateStateSelect();
+  },
+  populateStateSelect() {
+    dom.stateSelect.id = "state-select";
+    dom.stateSelect.innerHTML = `<option value="">Selecione o estado</option>` + 
+      states.map(s => `<option value="${s.id}">${s.nome}</option>`).join("");
+    dom.stateSelect.addEventListener("change", IBGE.onStateChange);
+    dom.cityInput.parentNode.insertBefore(dom.stateSelect, dom.cityInput);
+  },
+  async onStateChange(e) {
+    const stateId = e.target.value;
+    if (!stateId) return;
+    const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
+    if (!res.ok) throw new Error("Não foi possível carregar as cidades");
+    const cities = await res.json();
+    citiesByState[stateId] = cities;
+    IBGE.populateCitySelect(cities);
+  },
+  populateCitySelect(cities) {
+    dom.citySelect.id = "city-select";
+    dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>` + 
+      cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
+    dom.citySelect.addEventListener("change", e => {
+      dom.cityInput.value = e.target.value;
+      currentCityValid = true;
+      App.updateButtonsState();
+    });
+    dom.cityInput.parentNode.insertBefore(dom.citySelect, dom.cityInput.nextSibling);
   }
 };
 
@@ -338,6 +380,8 @@ const App = {
     UI.renderHistory();
     UI.renderFavorites();
     this.updateButtonsState();
+
+    IBGE.fetchStates();
 
     document.getElementById("search-box").addEventListener("submit", e => {
       e.preventDefault();
