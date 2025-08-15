@@ -93,20 +93,13 @@ const UI = {
   },
 
   setDynamicBackground(weather) {
-    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow", "bg-scattered-clouds", "bg-fog"];
+    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
-
     weather = weather.toLowerCase();
-    let key;
-
-    if (weather.includes("scattered clouds")) key = "scattered-clouds"; // nuvens dispersas
-    else if (weather.includes("fog") || weather.includes("mist") || weather.includes("haze")) key = "fog"; // neblina
-    else if (weather.includes("cloud")) key = "clouds";
-    else if (weather.includes("rain") || weather.includes("drizzle")) key = "rain";
-    else if (weather.includes("thunderstorm")) key = "thunderstorm";
-    else if (weather.includes("snow")) key = "snow";
-    else key = "clear";
-
+    let key = weather.includes("cloud") ? "clouds" :
+              (weather.includes("rain") || weather.includes("drizzle")) ? "rain" :
+              weather.includes("thunderstorm") ? "thunderstorm" :
+              weather.includes("snow") ? "snow" : "clear";
     document.body.classList.add(`bg-${key}`);
   },
 
@@ -122,14 +115,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    // Novos tipos de clima
-    const mainWeather = data.weather[0].main.toLowerCase();
-    let iconClass;
-    if (mainWeather.includes("scattered clouds")) iconClass = "scattered-clouds";
-    else if (mainWeather.includes("fog") || mainWeather.includes("mist") || mainWeather.includes("haze")) iconClass = "fog";
-    else iconClass = mainWeather;
-
-    dom.iconEl.className = `weather-icon ${iconClass}`;
+    dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
@@ -138,7 +124,7 @@ const UI = {
     currentCityValid = true;
     firstLoad = false;
     App.updateButtonsState();
-    this.setDynamicBackground(data.weather[0].description);
+    this.setDynamicBackground(data.weather[0].main);
   },
 
   showError(message) {
