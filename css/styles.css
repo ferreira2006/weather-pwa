@@ -1,59 +1,48 @@
 /* =======================================================
-   RAIZ: VARIÁVEIS CSS
+   VARIÁVEIS CSS
    ======================================================= */
 :root {
-  /* -------- GRADIENTES DE FUNDO -------- */
-  /* Gradientes de clima para tema claro */
-  --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-  --bg-gradient-light-scattered-clouds: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
-  --bg-gradient-light-fog: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
+  /* Gradientes clima - tema claro */
+  --bg-clear-light: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --bg-clouds-light: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
+  --bg-rain-light: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+  --bg-thunderstorm-light: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  --bg-snow-light: linear-gradient(135deg, #e6dada 0%, #274046 100%);
+  --bg-scattered-clouds-light: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  --bg-fog-light: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
 
-  /* Gradientes de clima para tema escuro */
-  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
-  --bg-gradient-dark-scattered-clouds: linear-gradient(135deg, #434343 0%, #b3b3b3 100%);
-  --bg-gradient-dark-fog: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%);
+  /* Gradientes clima - tema escuro */
+  --bg-clear-dark: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --bg-clouds-dark: linear-gradient(135deg, #434343 0%, #000000 100%);
+  --bg-rain-dark: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
+  --bg-thunderstorm-dark: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
+  --bg-snow-dark: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+  --bg-scattered-clouds-dark: linear-gradient(135deg, #434343 0%, #b3b3b3 100%);
+  --bg-fog-dark: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%);
 
-  /* -------- CORES GERAIS -------- */
-  --text-color-light: #000; /* texto tema claro */
-  --text-color-dark: #ddd;  /* texto tema escuro */
-
-  /* Inputs */
-  --input-text-light: #000;
-  --input-text-dark: #cfd8dc;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg); /* borda de foco acessível */
-
-  /* Botões */
+  /* Cores gerais */
+  --text-light: #000;
+  --text-dark: #ddd;
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
-
-  /* Toast */
+  --input-bg-light: rgba(255,255,255,0.9);
+  --input-bg-dark: rgba(255,255,255,0.1);
+  --input-text-light: #000;
+  --input-text-dark: #cfd8dc;
   --toast-bg-light: rgba(0,0,0,0.85);
   --toast-text-light: #fff;
   --toast-bg-dark: rgba(255,255,255,0.9);
   --toast-text-dark: #000;
-
-  /* Loading overlay */
   --loading-bg-light: rgba(255,255,255,0.35);
   --loading-bg-dark: rgba(255,255,255,0.15);
 }
 
 /* =======================================================
-   BODY E TEMAS
+   BODY, TEMAS E CLIMA
    ======================================================= */
 body {
-  transition: background 0.75s ease, color 0.75s ease; /* animação suave de tema */
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
@@ -61,16 +50,33 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background 0.75s ease, color 0.75s ease;
+  color: var(--text-light);
 }
-body.light { color: var(--text-color-light); }
-body.dark { color: var(--text-color-dark); }
 
-/* Aplicação de fundos dinâmicos por tema e clima */
-body.light.bg-clear { background: var(--bg-gradient-light-clear); }
-body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
-/* ...mesma lógica para chuva, tempestade, neve, nuvens dispersas e neblina... */
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-/* ...mesma lógica para os demais tipos no tema escuro... */
+/* Tema manual */
+body.light { color: var(--text-light); }
+body.dark { color: var(--text-dark); }
+
+/* Fundo via data-clima */
+body[data-clima="clear"] { background: var(--bg-clear-light); }
+body[data-clima="clouds"] { background: var(--bg-clouds-light); }
+body[data-clima="rain"] { background: var(--bg-rain-light); }
+body[data-clima="thunderstorm"] { background: var(--bg-thunderstorm-light); }
+body[data-clima="snow"] { background: var(--bg-snow-light); }
+body[data-clima="scattered-clouds"] { background: var(--bg-scattered-clouds-light); }
+body[data-clima="fog"] { background: var(--bg-fog-light); }
+
+/* Tema dark automático */
+@media (prefers-color-scheme: dark) {
+  body:not(.light)[data-clima="clear"] { background: var(--bg-clear-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="clouds"] { background: var(--bg-clouds-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="rain"] { background: var(--bg-rain-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="thunderstorm"] { background: var(--bg-thunderstorm-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="snow"] { background: var(--bg-snow-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="scattered-clouds"] { background: var(--bg-scattered-clouds-dark); color: var(--text-dark); }
+  body:not(.light)[data-clima="fog"] { background: var(--bg-fog-dark); color: var(--text-dark); }
+}
 
 /* =======================================================
    INPUTS
@@ -86,229 +92,160 @@ input[type="text"] {
   outline: none;
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
-
-/* Tema claro */
-body.light input[type="text"] {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-}
-body.light input[type="text"]:focus { background-color: #fff; color: #000; }
-body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
-
-/* Tema escuro */
-body.dark input[type="text"] {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
-}
-body.dark input[type="text"]:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
+body.light input[type="text"] { color: var(--input-text-light); background-color: var(--input-bg-light); }
+body.dark input[type="text"] { color: var(--input-text-dark); background-color: var(--input-bg-dark); }
+input[type="text"]:focus { background-color: #fff; color: #000; }
+input[type="text"]:focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
+input[type="text"]::placeholder { color: #666; opacity: 1; }
 body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
 
 /* =======================================================
-   FOCO VISÍVEL ACESSÍVEL
+   BOTÕES
    ======================================================= */
-:focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
-input[type="text"]:focus-visible,
-button:focus-visible,
-#history-list li:focus-visible,
-#favorites-list li:focus-visible {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-  background-color: var(--button-bg);
-  color: #fff;
-}
-
-/* =======================================================
-   HEADER
-   ======================================================= */
-header {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-h1 { margin: 0; font-weight: 700; font-size: 2rem; }
-
-/* Botão de troca de tema */
-#theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  color: inherit;
-  user-select: none;
+button {
   min-width: 110px;
   min-height: 40px;
-}
-#theme-toggle:hover, #theme-toggle:focus {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
   background-color: var(--button-bg);
-  color: white;
-  border-color: var(--button-bg);
-  outline: none;
+  color: #fff;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
-
-/* =======================================================
-   MAIN
-   ======================================================= */
-main {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px; /* espaçamento entre seções */
+button:hover:not(:disabled), button:focus:not(:disabled) {
+  background-color: var(--button-bg-hover);
+  box-shadow: 0 0 12px var(--button-shadow-hover);
 }
-
-/* =======================================================
-   MODAL DE CONFIRMAÇÃO
-   ======================================================= */
-#confirm-modal { 
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000;
-}
-#confirm-modal[hidden] { display: none; }
-/* Overlay semi-transparente com blur */
-#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
-/* Conteúdo do modal */
-#confirm-modal .modal-content {
-  position: relative; background: var(--button-bg); color: #fff;
-  padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
-}
-/* Botões dentro do modal */
-#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
-#confirm-modal button { min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; user-select:none; transition: background-color 0.3s; }
-#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
-#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
-
-/* =======================================================
-   BOTÕES DE BUSCA
-   ======================================================= */
-button#search-btn, button#fav-btn {
-  display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
-  background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
-  min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s;
-  user-select:none; width:auto; flex-shrink:0;
-}
-/* Hover/focus */
-button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
-button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
-  background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
-}
-/* Disabled */
-button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
-
-/* =======================================================
-   ÍCONE DE FAVORITO
-   ======================================================= */
-#fav-icon { font-size: 1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select: none; }
-#fav-icon.not-favorited { color: #fff; } 
-body.dark #fav-icon.not-favorited { color: #cfd8dc; } 
-#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
-
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
-#weather {
-  background: rgba(255,255,255,0.15); border-radius:12px; padding:25px 30px;
-  width:100%; max-width:600px; display:grid; grid-template-columns:100px 1fr; grid-gap:25px;
-  align-items:center; position:relative; min-height:260px; transition: background 0.75s ease, color 0.75s ease;
-  color:inherit; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.25);
-}
-body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(255,255,255,0.1); }
-#weather[hidden] { display:none !important; }
-
-/* =======================================================
-   WEATHER CONTENT, ERROS E LOADING
-   ======================================================= */
-#weather-content { display:block; grid-column:2; }
-/* Mensagem de erro */
-#weather-error { display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center; padding:1rem 1.5rem; border-radius:12px; background-color: rgba(255,0,0,0.1); min-height:100px; align-self:center; justify-self:center; font-size:1.1rem; transition:opacity 0.3s ease; opacity:0; pointer-events:none; }
-body.error #weather-error { display:block; opacity:1; pointer-events:auto; background-color: rgba(176,0,32,0.15); }
-body.error #weather-content { display:none; }
-body.error #icon { display:none; }
-
-/* Spinner de loading */
-#spinner { position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; transform-origin: center center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10; }
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* Loading overlay sobre card */
-#weather.loading::before { content:""; position:absolute; inset:0; background:var(--loading-bg-light); backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none; }
-body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-
-/* Esconder conteúdo durante loading */
-#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
-#weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-/* placeholders animados */
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
-
-/* =======================================================
-   ÍCONES DE CLIMA
-   ======================================================= */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
-/* Cada tipo de clima com animação específica */
-.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-.weather-icon.scattered-clouds { background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); animation: floatScattered 20s ease-in-out infinite; }
-.weather-icon.fog { background-image: url('../assets/icons/wi-fog.svg'); animation: fogAnim 8s ease-in-out infinite alternate; }
-
-/* Redução de movimento para acessibilidade */
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
-
-/* =======================================================
-   INFORMAÇÕES DE TEXTO DO CLIMA
-   ======================================================= */
-.info { display:flex; flex-direction:column; justify-content:center; }
-.temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
-.desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px; font-style:italic; color:inherit; }
-.details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
+button:disabled { background-color: var(--button-bg-disabled); cursor: not-allowed; opacity: 0.7; box-shadow: none; }
 
 /* =======================================================
    TOAST
    ======================================================= */
 #toast {
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
-  padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none;
-  transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s, transform 0.5s;
+  background: var(--toast-bg-light);
+  color: var(--toast-text-light);
 }
-#toast.show { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
-body.light #toast { background-color:var(--toast-bg-light); color:var(--toast-text-light); }
-body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text-dark); }
+body.dark #toast { background: var(--toast-bg-dark); color: var(--toast-text-dark); }
+
+/* =======================================================
+   WEATHER CARD & LOADING
+   ======================================================= */
+#weather {
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 25px 30px;
+  width: 100%;
+  max-width: 600px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 25px;
+  align-items: center;
+  position: relative;
+  min-height: 260px;
+  transition: background 0.75s, color 0.75s;
+  color: inherit;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+body.dark #weather { background: rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+
+/* Loading overlay e placeholders */
+#weather.loading::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: var(--loading-bg-light);
+  backdrop-filter: blur(6px);
+  border-radius:12px;
+  z-index:5;
+}
+body.dark #weather.loading::before { background: var(--loading-bg-dark); }
+
+#weather.loading #spinner { opacity: 0.85; transform: scale(1); pointer-events:auto; }
+#weather.loading #weather-content,
+#weather.loading .weather-icon { visibility:hidden; }
+body.light #weather.loading .temp,
+body.light #weather.loading .desc,
+body.light #weather.loading .details,
+body.light #weather.loading #city-name { color:transparent; background: var(--loading-bg-light); border-radius:6px; }
+body.dark #weather.loading .temp,
+body.dark #weather.loading .desc,
+body.dark #weather.loading .details,
+body.dark #weather.loading #city-name { color:transparent; background: var(--loading-bg-dark); border-radius:6px; }
+
+/* Spinner */
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform-origin: center center;
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 0.5s ease, transform 0.3s ease;
+  z-index: 10;
+}
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* =======================================================
+   WEATHER ICONS
+   ======================================================= */
+.weather-icon {
+  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
+  justify-self:center; transition: background-image 0.5s ease;
+}
+.weather-icon.clear { background-image: url('../assets/icons/wi-day-sunny.svg'); animation: rotateSlow 120s linear infinite; }
+.weather-icon.clouds { background-image: url('../assets/icons/wi-cloudy.svg'); animation: floatClouds 20s ease-in-out infinite; }
+.weather-icon.rain { background-image: url('../assets/icons/wi-rain.svg'); animation: rainAnim 3s linear infinite; }
+.weather-icon.thunderstorm { background-image: url('../assets/icons/wi-thunderstorm.svg'); animation: thunderAnim 2s ease-in-out infinite alternate; }
+.weather-icon.snow { background-image: url('../assets/icons/wi-snow.svg'); animation: snowAnim 15s linear infinite; }
+.weather-icon.scattered-clouds { background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); animation: floatScattered 20s ease-in-out infinite; }
+.weather-icon.fog { background-image: url('../assets/icons/wi-fog.svg'); animation: fogAnim 8s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
+
+/* =======================================================
+   FAVORITOS
+   ======================================================= */
+#fav-icon { font-size: 1.4rem; transition: color 0.25s ease, transform 0.2s ease; }
+#fav-icon.not-favorited { color: #fff; }
+body.dark #fav-icon.not-favorited { color: #cfd8dc; }
+#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
+@keyframes heart-pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1.2); } }
+
+/* =======================================================
+   MODAL DE CONFIRMAÇÃO
+   ======================================================= */
+#confirm-modal { position: fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:10000; }
+#confirm-modal[hidden] { display:none; }
+#confirm-modal .modal-overlay { position:fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
+#confirm-modal .modal-content { position: relative; background: var(--button-bg); color:#fff; padding:25px 30px; border-radius:12px; max-width:400px; width:90%; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center; }
+#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
+#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
+#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
 
 /* =======================================================
    HISTÓRICO E FAVORITOS
    ======================================================= */
-#history-section, #favorites-section {
-  width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1);
-  border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-#history-list, #favorites-list {
-  list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px;
-}
-#history-list li, #favorites-list li {
-  background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px;
-  cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto;
-}
-#history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus {
-  background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
-}
+#history-section, #favorites-section { width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1); border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
+#history-list, #favorites-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+#history-list li, #favorites-list li { background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto; }
+#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background-color:var(--button-bg-hover); transform:scale(1.05); outline:none; }
 
 /* =======================================================
    SEARCH BOX
@@ -316,22 +253,6 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 #search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
 
 /* =======================================================
-   FALLBACK PARA NOSCRIPT
+   NOSCRIPT
    ======================================================= */
-noscript .error-message {
-  display: block; /* garante que apareça se JS estiver desativado */
-  grid-column: 1 / -1;
-  color: #b00020;
-  font-weight: 700;
-  text-align: center;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  background-color: rgba(176, 0, 32, 0.15);
-  min-height: 100px;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.1rem;
-  opacity: 1; /* sem transição JS */
-  pointer-events: auto;
-  margin-bottom: 20px;
-}
+noscript .error-message { display:block; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center; padding:1rem 1.5rem; border-radius:12px; background-color: rgba(176,0,32,0.15); min-height:100px; align-self:center; justify-self:center; font-size:1.1rem; opacity:1; pointer-events:auto; margin-bottom:20px; }
