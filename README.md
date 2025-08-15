@@ -48,9 +48,7 @@ Aplicação web progressiva para consulta de clima por cidade, com temas claro/e
 
 Permita acesso à geolocalização para buscar o clima da sua localização atual.
 
-## Estrutura de arquivos
-
-```plaintext
+```text
 weather-pwa/
 │
 ├── index.html              # Página principal
@@ -74,96 +72,78 @@ weather-pwa/
 │
 └── vendor/                 # Bibliotecas externas (opcional)
     └── some-lib.js
+```
+---
+
+## Fluxo de Interações (JS ↔ HTML ↔ CSS)
+
+```text
+1. Tema (light/dark)
+   #theme-toggle.click
+   └─ Alterna body.light <-> body.dark
+        └─ Atualiza localStorage ("theme")
+        └─ CSS aplica cores, gradientes, inputs e botões
+
+2. Busca de cidade
+   #city-input.change → habilita #search-btn
+   #search-btn.click
+   └─ Bloqueia botões, mostra #spinner
+   └─ Fetch API clima
+        ├─ Success → atualiza #weather-content e #icon
+        └─ Error → mostra #weather-error
+   └─ Atualiza histórico #history-list e localStorage
+   └─ Remove loading (#spinner e placeholders)
+
+3. Favoritar cidade
+   #fav-btn.click
+   ├─ Se não favorita → adiciona em #favorites-list + localStorage
+   └─ Se já favorita → abre #confirm-modal
+         ├─ #confirm-yes → remove favorito
+         └─ #confirm-no → fecha modal
+
+4. Toast notifications
+   showToast(message)
+   └─ #toast.show + animação fade in/out
 
 ```
-
-## Diagrama de Estrutura do App de Clima
-
-```plaintext
-BODY [class="light" ou "dark"]
-│
-├─ HEADER
-│   ├─ <h1>Clima Atual</h1>
-│   └─ BUTTON [id="theme-toggle"] → JS: alterna tema, CSS: cores/light-dark
-│
-├─ MAIN
-│   ├─ SEARCH SECTION [id="search-section"]
-│   │   └─ FORM [id="search-box"]
-│   │       ├─ INPUT [id="city-input"] → JS: digitação e validação
-│   │       ├─ DATALIST [id="city-suggestions"] → autocomplete (opcional)
-│   │       ├─ BUTTON [id="search-btn"] → JS: busca clima
-│   │       └─ BUTTON [id="fav-btn"] → JS: adiciona cidade aos favoritos
-│   │
-│   ├─ FAVORITES SECTION [id="favorites-section"]
-│   │   ├─ <h2>Cidades Favoritas</h2>
-│   │   └─ UL [id="favorites-list"] → JS renderiza li de cidades favoritas
-│   │
-│   ├─ WEATHER SECTION [id="weather"] → JS: mostra clima ou erro
-│   │   ├─ DIV [id="icon" class="weather-icon"] → CSS: iconografia e cores dinâmicas
-│   │   ├─ DIV [id="weather-content"]
-│   │   │   ├─ H2 [id="city-name"]
-│   │   │   ├─ DIV [id="temp"]
-│   │   │   ├─ DIV [id="desc"]
-│   │   │   └─ DIV [id="details"]
-│   │   ├─ DIV [id="weather-error"] → JS: mostra erros
-│   │   └─ DIV [id="spinner"] → CSS + JS: carregamento
-│   │
-│   └─ HISTORY SECTION [id="history-section"]
-│       ├─ <h2>Últimas cidades pesquisadas</h2>
-│       └─ UL [id="history-list"] → JS renderiza histórico
-│
-├─ TOAST [id="toast"] → JS: mensagens temporárias
-│
-└─ MODAL DE CONFIRMAÇÃO [id="confirm-modal"] → JS: remover favoritos
-    ├─ DIV [class="modal-overlay"] → CSS: fundo semi-transparente
-    └─ DIV [class="modal-content"]
-        ├─ H2 [id="confirm-modal-title"]
-        ├─ P [id="confirm-modal-desc"]
-        └─ DIV [class="modal-buttons"]
-            ├─ BUTTON [id="confirm-yes"]
-            └─ BUTTON [id="confirm-no"]
-
-```
+---
 
 ## Conexões JS ↔ HTML ↔ CSS
 
-```plaintext
+```text
 | Elemento          | JS                                 | CSS                     |
 | ----------------- | ---------------------------------- | ----------------------- |
-| `#city-input`     | input, validação, focus            | cores de fundo/texto    |
-| `#search-btn`     | busca cidade                       | cores, disabled state   |
-| `#fav-btn`        | adiciona/remover favoritos         | cores, disabled state   |
-| `#weather`        | exibe clima ou erro                | animações de fade, grid |
-| `.weather-icon`   | atualiza classe do ícone           | cores e ícones          |
-| `#toast`          | exibe mensagens temporárias        | fade in/out             |
-| `#favorites-list` | renderiza favoritos                | cores, hover, cursor    |
-| `#history-list`   | renderiza histórico                | cores, hover, cursor    |
-| `#theme-toggle`   | alterna `light`/`dark`             | cores globais do root   |
-| `#spinner`        | mostra/oculta durante carregamento | animação spinner        |
-| `#confirm-modal`  | confirma remoção de favorito       | overlay e modal visível |
+| #city-input       | input, validação, focus            | cores de fundo/texto    |
+| #search-btn       | busca cidade                       | cores, disabled state   |
+| #fav-btn          | adiciona/remover favoritos         | cores, disabled state   |
+| #weather          | exibe clima ou erro                | animações de fade, grid |
+| .weather-icon     | atualiza classe do ícone           | cores e ícones          |
+| #toast            | exibe mensagens temporárias        | fade in/out             |
+| #favorites-list   | renderiza favoritos                | cores, hover, cursor    |
+| #history-list     | renderiza histórico                | cores, hover, cursor    |
+| #theme-toggle     | alterna light/dark                 | cores globais do root   |
+| #spinner          | mostra/oculta durante carregamento | animação spinner        |
+| #confirm-modal    | confirma remoção de favorito       | overlay e modal visível |
 
 ```
-
+---
 
 ## Contribuição
 
-Contribuições são bem-vindas! Para sugerir melhorias ou correções:
+Contribuições são bem-vindas!
+. Faça um fork deste repositório.
+. Crie uma branch com a sua feature: git checkout -b minha-feature.
+. Faça commits das alterações: git commit -m 'Minha feature'.
+. Faça push para sua branch: git push origin minha-feature.
+. Abra um Pull Request.
 
-Faça um fork deste repositório.
-
-Crie uma branch com a sua feature (git checkout -b minha-feature).
-
-Faça commits das suas alterações (git commit -m 'Minha feature').
-
-Faça push para sua branch (git push origin minha-feature).
-
-Abra um Pull Request.
+---
 
 ## Licença
 Este projeto está licenciado sob a licença MIT - veja o arquivo LICENSE para detalhes.
 
+---
+
 ## Contato
-Se precisar de ajuda, abra uma issue ou entre em contato via email: ferreira2006@gmail.com
-
-
+Para dúvidas ou sugestões, abra uma issue ou entre em contato via email: ferreira2006@gmail.com
 Feito com ❤️ para facilitar sua consulta do clima!
