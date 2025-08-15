@@ -43,7 +43,7 @@ const dom = {
 // ===== STATE =====
 let currentCityValid = false;
 let firstLoad = true;
-let lastCityData = null; // Cache da última cidade
+let lastCityData = null;
 
 // ===== API =====
 const WeatherAPI = {
@@ -229,6 +229,17 @@ const UI = {
       li.tabIndex = 0;
       li.addEventListener("click", () => App.handleCitySelect(city));
       li.addEventListener("keypress", e => { if(e.key==="Enter") App.handleCitySelect(city); });
+
+      // Botão remover favorito
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "❌";
+      removeBtn.className = "remove-fav";
+      removeBtn.addEventListener("click", async ev => {
+        ev.stopPropagation();
+        await App.removeFavorite(city);
+      });
+      li.appendChild(removeBtn);
+
       dom.favoritesListEl.appendChild(li);
     });
   }
@@ -275,9 +286,29 @@ const App = {
   },
 
   updateButtonsState() {
-    // Implementação existente ou padrão
     if(dom.favBtn) dom.favBtn.disabled = !currentCityValid;
     if(dom.searchBtn) dom.searchBtn.disabled = !currentCityValid;
+  },
+
+  addFavorite: async function(city) {
+    const favorites = Storage.getFavorites();
+    const formattedCity = Utils.capitalizeCityName(city);
+    if(!favorites.includes(formattedCity)) {
+      favorites.push(formattedCity);
+      Storage.saveFavorites(favorites);
+      UI.renderFavorites();
+      UI.showToast(`${formattedCity} adicionada aos favoritos`);
+    }
+  },
+
+  removeFavorite: async function(city) {
+    const confirmed = await showConfirmationModal(`Remover ${city} dos favoritos?`);
+    if(!confirmed) return;
+    let favorites = Storage.getFavorites();
+    favorites = favorites.filter(c => c.toLowerCase() !== city.toLowerCase());
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`${city} removida dos favoritos`);
   },
 
   init() {
