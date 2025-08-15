@@ -111,11 +111,9 @@ const UI = {
   },
 
   setDynamicBackground(weather) {
-    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow", "bg-scattered-clouds", "bg-fog"];
-    document.body.classList.remove(...classes);
-
     weather = weather.toLowerCase();
     let key;
+
     if (weather.includes("scattered clouds")) key = "scattered-clouds";
     else if (weather.includes("fog") || weather.includes("mist") || weather.includes("haze")) key = "fog";
     else if (weather.includes("cloud")) key = "clouds";
@@ -124,7 +122,8 @@ const UI = {
     else if (weather.includes("snow")) key = "snow";
     else key = "clear";
 
-    document.body.classList.add(`bg-${key}`);
+    // Atualiza dataset do body em vez de classes
+    document.body.dataset.clima = key;
   },
 
   showWeather(data) {
