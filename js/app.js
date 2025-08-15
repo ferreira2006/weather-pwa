@@ -48,7 +48,7 @@ let lastCityData = null; // Cache da última cidade
 // ===== API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    if (lastCityData?.name === city) return lastCityData; // usa cache se disponível
+    if (lastCityData?.name === city) return lastCityData;
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
     if (!res.ok) throw new Error("Cidade não encontrada");
     const data = await res.json();
@@ -113,6 +113,18 @@ const UI = {
     document.body.classList.add(`bg-${key}`);
   },
 
+  setDynamicBackgroundFromCurrentIcon() {
+    if(dom.iconEl && dom.iconEl.className.includes("weather-icon")) {
+      const classes = ["clear","clouds","rain","thunderstorm","snow","scattered-clouds","fog"];
+      for(const cls of classes) {
+        if(dom.iconEl.classList.contains(cls)) {
+          this.setDynamicBackground(cls);
+          break;
+        }
+      }
+    }
+  },
+
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display="none";
@@ -157,7 +169,20 @@ const UI = {
     App.updateButtonsState();
   },
 
-  // resto dos métodos de renderização e tema permanece igual...
+  updateThemeColors() {
+    const isDark = document.body.classList.contains("dark");
+    document.body.style.color = isDark ? "#f0f0f0" : "#000";
+
+    if(dom.weatherDiv) {
+      dom.weatherDiv.style.background = isDark ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.15)";
+      dom.weatherDiv.style.boxShadow = isDark ? "0 4px 12px rgba(255,255,255,0.1)" : "0 4px 12px rgba(0,0,0,0.25)";
+    }
+
+    const header = document.querySelector("header");
+    const footer = document.querySelector("footer");
+    if(header) header.style.backgroundColor = isDark ? "#121212" : "";
+    if(footer) footer.style.backgroundColor = isDark ? "#121212" : "";
+  },
 
   toggleThemeColors() {
     document.body.classList.toggle("dark");
@@ -175,14 +200,45 @@ const UI = {
     this.updateThemeColors();
     this.updateThemeToggleButton();
     this.setDynamicBackgroundFromCurrentIcon();
+  },
+
+  updateThemeToggleButton() {
+    if(!dom.themeToggle) return;
+    dom.themeToggle.textContent = document.body.classList.contains("dark") ? "☀️ Claro" : "🌙 Escuro";
+  },
+
+  renderHistory() {
+    const history = Storage.getHistory();
+    dom.historyListEl.innerHTML = "";
+    history.forEach(city => {
+      const li = document.createElement("li");
+      li.textContent = city;
+      li.tabIndex = 0;
+      li.addEventListener("click", () => App.handleCitySelect(city));
+      li.addEventListener("keypress", e => { if(e.key==="Enter") App.handleCitySelect(city); });
+      dom.historyListEl.appendChild(li);
+    });
+  },
+
+  renderFavorites() {
+    const favorites = Storage.getFavorites();
+    dom.favoritesListEl.innerHTML = "";
+    favorites.forEach(city => {
+      const li = document.createElement("li");
+      li.textContent = city;
+      li.tabIndex = 0;
+      li.addEventListener("click", () => App.handleCitySelect(city));
+      li.addEventListener("keypress", e => { if(e.key==="Enter") App.handleCitySelect(city); });
+      dom.favoritesListEl.appendChild(li);
+    });
   }
 };
 
 // ===== FAVORITE ICON =====
-const favIcon=document.createElement("span");
-favIcon.id="fav-icon";
+const favIcon = document.createElement("span");
+favIcon.id = "fav-icon";
 favIcon.classList.add("not-favorited");
-favIcon.textContent="🤍";
+favIcon.textContent = "🤍";
 dom.favBtn.prepend(favIcon);
 
 // ===== APP =====
@@ -218,7 +274,11 @@ const App = {
     } finally { dom.weatherDiv.classList.remove("loading"); }
   },
 
-  // addFavorite, removeFavorite e updateButtonsState permanecem iguais...
+  updateButtonsState() {
+    // Implementação existente ou padrão
+    if(dom.favBtn) dom.favBtn.disabled = !currentCityValid;
+    if(dom.searchBtn) dom.searchBtn.disabled = !currentCityValid;
+  },
 
   init() {
     dom.weatherDiv.classList.add("loading");
@@ -239,7 +299,6 @@ const App = {
     dom.favBtn.addEventListener("click", ()=>{ const city=Utils.normalizeCityInput(dom.cityInput.value); if(city) this.addFavorite(city); });
     dom.themeToggle.addEventListener("click", ()=>UI.toggleThemeColors());
 
-    // Tema automático pelo sistema
     if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) document.body.classList.add('dark');
 
     const lastCity=Storage.getLastCity();
