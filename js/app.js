@@ -1,6 +1,5 @@
-// URL do backend e limite de histórico
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; // endpoint da API de clima
-const maxHistoryItems = 5; // máximo de cidades no histórico
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+const maxHistoryItems = 5;
 
 // ===== UTILS ======
 const Utils = {
@@ -12,15 +11,13 @@ const Utils = {
       .map(w => w[0].toUpperCase() + w.slice(1))
       .join(' ');
   },
-
   normalizeCityInput(city) {
     return city ? city.replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") : "";
   },
-
   validCityRegex: /^[\p{L}\s'-]+$/u
 };
 
-// ===== DOM ELEMENTS ======
+// ===== DOM ELEMENTS =====
 const dom = {
   cityInput: document.getElementById("city-input"),
   searchBtn: document.getElementById("search-btn"),
@@ -44,39 +41,27 @@ const dom = {
   toast: document.getElementById("toast"),
 };
 
-// ===== STATE ======
+// ===== STATE =====
 let currentCityValid = false;
 let firstLoad = true;
 
-// ===== API ======
+// ===== API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    try {
-      const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
-      if (!res.ok) throw new Error("Cidade não encontrada");
-      return res.json();
-    } catch (err) {
-      if (err instanceof TypeError) throw new Error("Erro de conexão. Verifique sua internet.");
-      else throw err;
-    }
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
+    if (!res.ok) throw new Error("Cidade não encontrada");
+    return res.json();
   },
-
   async fetchByCoords(lat, lon) {
-    try {
-      const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
-      if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
-      return res.json();
-    } catch (err) {
-      if (err instanceof TypeError) throw new Error("Erro de conexão. Verifique sua internet.");
-      else throw err;
-    }
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
+    if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
+    return res.json();
   }
 };
 
-// ===== STORAGE ======
+// ===== STORAGE =====
 const Storage = {
   getHistory: () => JSON.parse(localStorage.getItem("weatherHistory")) || [],
-
   saveHistory(city) {
     const formattedCity = Utils.capitalizeCityName(city);
     let history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
@@ -94,11 +79,9 @@ const Storage = {
   saveLastCity: city => localStorage.setItem("lastCity", city)
 };
 
-// ===== UI ======
+// ===== UI =====
 const UI = {
-  isValidCityInput(city) {
-    return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city));
-  },
+  isValidCityInput(city) { return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city)); },
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
@@ -111,6 +94,9 @@ const UI = {
   },
 
   setDynamicBackground(weather) {
+    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow", "bg-scattered-clouds", "bg-fog"];
+    document.body.classList.remove(...classes);
+
     weather = weather.toLowerCase();
     let key;
 
@@ -122,13 +108,13 @@ const UI = {
     else if (weather.includes("snow")) key = "snow";
     else key = "clear";
 
-    // Atualiza dataset do body em vez de classes
-    document.body.dataset.clima = key;
+    document.body.classList.add(`bg-${key}`);
   },
 
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
+    dom.weatherError.style.opacity = 0;
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
@@ -159,6 +145,7 @@ const UI = {
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
+    dom.weatherError.style.opacity = "1";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
@@ -184,9 +171,7 @@ const UI = {
     this.updateThemeColors();
   },
 
-  renderHistory() {
-    this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city));
-  },
+  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
 
   renderFavorites() {
     dom.favoritesListEl.innerHTML = "";
@@ -197,7 +182,7 @@ const UI = {
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
-      citySpan.style.cursor = "pointer";
+      Object.assign(citySpan.style, { cursor: "pointer" });
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       li.appendChild(citySpan);
 
@@ -269,12 +254,11 @@ favIcon.classList.add("not-favorited");
 favIcon.textContent = "🤍";
 dom.favBtn.prepend(favIcon);
 
-// ===== APP ======
+// ===== APP =====
 const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
     if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
-
     dom.weatherDiv.classList.add("loading");
     try {
       dom.cityInput.value = normalizedCity;
@@ -337,14 +321,12 @@ const App = {
     const canAddFavorite = currentCityValid && city && UI.isValidCityInput(city) && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
 
     dom.searchBtn.disabled = !UI.isValidCityInput(city);
-     dom.favBtn.disabled = !canAddFavorite;
+    dom.favBtn.disabled = !canAddFavorite;
     dom.favBtn.title = !canAddFavorite
-      ? favorites.includes(city.toLowerCase()) 
-        ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` 
-        : "Limite de 5 cidades favoritas atingido."
+      ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
 
-    // Atualiza ícone favorito visual
+    // Atualiza ícone favorito
     if (favorites.includes(city.toLowerCase())) {
       favIcon.textContent = "❤️";
       favIcon.classList.add("favorited");
@@ -363,7 +345,6 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Form submit
     document.getElementById("search-box").addEventListener("submit", e => {
       e.preventDefault();
       const city = Utils.normalizeCityInput(dom.cityInput.value);
@@ -382,7 +363,7 @@ const App = {
       pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
       () => { UI.showError("Não foi possível obter sua localização."); this.handleCitySelect("São Miguel do Oeste"); }
     );
-    else this.handleCitySelect("São Miguel do Oeste"); // fallback default
+    else this.handleCitySelect("São Miguel do Oeste");
   }
 };
 
@@ -407,5 +388,4 @@ function showConfirmationModal(message) {
   });
 }
 
-// ===== INICIALIZAÇÃO =====
 window.onload = () => App.init();
