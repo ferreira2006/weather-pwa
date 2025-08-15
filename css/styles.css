@@ -3,7 +3,7 @@
    ======================================================= */
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
-  /* Gradientes de clima para tema claro */
+  /* Tema claro */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -12,7 +12,7 @@
   --bg-gradient-light-scattered-clouds: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
   --bg-gradient-light-fog: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
 
-  /* Gradientes de clima para tema escuro */
+  /* Tema escuro */
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
@@ -22,15 +22,15 @@
   --bg-gradient-dark-fog: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%);
 
   /* -------- CORES GERAIS -------- */
-  --text-color-light: #000; /* texto tema claro */
-  --text-color-dark: #ddd;  /* texto tema escuro */
+  --text-color-light: #000;
+  --text-color-dark: #ddd;
 
   /* Inputs */
   --input-text-light: #000;
   --input-text-dark: #cfd8dc;
   --input-bg-light: rgba(255, 255, 255, 0.9);
   --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg); /* borda de foco acessível */
+  --input-border-focus: var(--button-bg);
 
   /* Botões */
   --button-bg: #ff9800;
@@ -53,7 +53,7 @@
    BODY E TEMAS
    ======================================================= */
 body {
-  transition: background 0.75s ease, color 0.75s ease; /* animação suave de tema */
+  transition: background 0.75s ease, color 0.75s ease;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
@@ -62,19 +62,27 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+/* Texto por tema */
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
-/* Aplicação de fundos dinâmicos por tema e clima */
-/* Tema escuro com gradientes específicos por clima */
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); color: var(--text-color-dark); }
-body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); color: var(--text-color-dark); }
-body.dark.bg-rain { background: var(--bg-gradient-dark-rain); color: var(--text-color-dark); }
-body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); color: var(--text-color-dark); }
-body.dark.bg-snow { background: var(--bg-gradient-dark-snow); color: var(--text-color-dark); }
-body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); color: var(--text-color-dark); }
-body.dark.bg-fog { background: var(--bg-gradient-dark-fog); color: var(--text-color-dark); }
+/* BACKGROUNDS DINÂMICOS POR CLIMA */
+body.light.bg-clear { background: var(--bg-gradient-light-clear); }
+body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
+body.light.bg-rain { background: var(--bg-gradient-light-rain); }
+body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
+body.light.bg-snow { background: var(--bg-gradient-light-snow); }
+body.light.bg-scattered-clouds { background: var(--bg-gradient-light-scattered-clouds); }
+body.light.bg-fog { background: var(--bg-gradient-light-fog); }
 
+body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
+body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); }
+body.dark.bg-fog { background: var(--bg-gradient-dark-fog); }
 
 /* =======================================================
    INPUTS
@@ -164,9 +172,8 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px; /* espaçamento entre seções */
+  gap: 25px;
 }
-
 /* =======================================================
    MODAL DE CONFIRMAÇÃO
    ======================================================= */
