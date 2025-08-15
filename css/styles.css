@@ -3,7 +3,7 @@
    ======================================================= */
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
-  /* Gradientes de clima para tema claro */
+  /* Tema claro */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -12,7 +12,7 @@
   --bg-gradient-light-scattered-clouds: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
   --bg-gradient-light-fog: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
 
-  /* Gradientes de clima para tema escuro */
+  /* Tema escuro */
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
@@ -22,15 +22,15 @@
   --bg-gradient-dark-fog: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%);
 
   /* -------- CORES GERAIS -------- */
-  --text-color-light: #000; /* texto tema claro */
-  --text-color-dark: #ddd;  /* texto tema escuro */
+  --text-color-light: #000;
+  --text-color-dark: #ddd;
 
   /* Inputs */
   --input-text-light: #000;
   --input-text-dark: #cfd8dc;
   --input-bg-light: rgba(255, 255, 255, 0.9);
   --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg); /* borda de foco acessível */
+  --input-border-focus: var(--button-bg);
 
   /* Botões */
   --button-bg: #ff9800;
@@ -53,7 +53,7 @@
    BODY E TEMAS
    ======================================================= */
 body {
-  transition: background 0.75s ease, color 0.75s ease; /* animação suave de tema */
+  transition: background 0.75s ease, color 0.75s ease;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
@@ -65,12 +65,22 @@ body {
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
-/* Aplicação de fundos dinâmicos por tema e clima */
+/* Fundos dinâmicos por tema e clima */
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
 body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
-/* ...mesma lógica para chuva, tempestade, neve, nuvens dispersas e neblina... */
+body.light.bg-rain { background: var(--bg-gradient-light-rain); }
+body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
+body.light.bg-snow { background: var(--bg-gradient-light-snow); }
+body.light.bg-scattered-clouds { background: var(--bg-gradient-light-scattered-clouds); }
+body.light.bg-fog { background: var(--bg-gradient-light-fog); }
+
 body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-/* ...mesma lógica para os demais tipos no tema escuro... */
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
+body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); }
+body.dark.bg-fog { background: var(--bg-gradient-dark-fog); }
 
 /* =======================================================
    INPUTS
@@ -86,16 +96,12 @@ input[type="text"] {
   outline: none;
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
-
-/* Tema claro */
 body.light input[type="text"] {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
 }
 body.light input[type="text"]:focus { background-color: #fff; color: #000; }
 body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
-
-/* Tema escuro */
 body.dark input[type="text"] {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
@@ -129,8 +135,6 @@ header {
   margin-bottom: 20px;
 }
 h1 { margin: 0; font-weight: 700; font-size: 2rem; }
-
-/* Botão de troca de tema */
 #theme-toggle {
   background: transparent;
   border: 2px solid currentColor;
@@ -160,7 +164,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px; /* espaçamento entre seções */
+  gap: 25px;
 }
 
 /* =======================================================
@@ -170,15 +174,12 @@ main {
   position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000;
 }
 #confirm-modal[hidden] { display: none; }
-/* Overlay semi-transparente com blur */
 #confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
-/* Conteúdo do modal */
 #confirm-modal .modal-content {
   position: relative; background: var(--button-bg); color: #fff;
   padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
 }
-/* Botões dentro do modal */
 #confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
 #confirm-modal button { min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; user-select:none; transition: background-color 0.3s; }
 #confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
@@ -193,12 +194,10 @@ button#search-btn, button#fav-btn {
   min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s;
   user-select:none; width:auto; flex-shrink:0;
 }
-/* Hover/focus */
 button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
 button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
   background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
 }
-/* Disabled */
 button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
 
 /* =======================================================
@@ -225,7 +224,6 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rg
    WEATHER CONTENT, ERROS E LOADING
    ======================================================= */
 #weather-content { display:block; grid-column:2; }
-/* Mensagem de erro */
 #weather-error { display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center; padding:1rem 1.5rem; border-radius:12px; background-color: rgba(255,0,0,0.1); min-height:100px; align-self:center; justify-self:center; font-size:1.1rem; transition:opacity 0.3s ease; opacity:0; pointer-events:none; }
 body.error #weather-error { display:block; opacity:1; pointer-events:auto; background-color: rgba(176,0,32,0.15); }
 body.error #weather-content { display:none; }
@@ -234,49 +232,27 @@ body.error #icon { display:none; }
 /* Spinner de loading */
 #spinner { position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; transform-origin: center center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-/* Loading overlay sobre card */
 #weather.loading::before { content:""; position:absolute; inset:0; background:var(--loading-bg-light); backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none; }
 body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-
-/* Esconder conteúdo durante loading */
 #weather.loading #spinner { opacity: 0.85; transform: scale(1); }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-/* placeholders animados */
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
+body.light #weather.loading .temp, body.light #weather.loading .desc, body.light #weather.loading .details, body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
+body.dark #weather.loading .temp, body.dark #weather.loading .desc, body.dark #weather.loading .details, body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
 
 /* =======================================================
    ÍCONES DE CLIMA
    ======================================================= */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
-/* Cada tipo de clima com animação específica */
+.weather-icon { width:100px; height:100px; background-size:contain; background-repeat:no-repeat; justify-self:center; transition: background-image 0.5s ease; }
 .weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
 .weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
 .weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
 .weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-.weather-icon.scattered-clouds { background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); animation: floatScattered 20s ease-in-out infinite; }
-.weather-icon.fog { background-image: url('../assets/icons/wi-fog.svg'); animation: fogAnim 8s ease-in-out infinite alternate; }
-
-/* Redução de movimento para acessibilidade */
+.weather-icon.scattered-clouds { background-image:url('../assets/icons/wi-day-sunny-overcast.svg'); animation:floatScattered 20s ease-in-out infinite; }
+.weather-icon.fog { background-image:url('../assets/icons/wi-fog.svg'); animation:fogAnim 8s ease-in-out infinite alternate; }
 @media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
-@media (max-width: 480px) {
-  button {
-    font-size: 0.9rem;
-    padding: 0.4rem 0.6rem;
-  }
-}
+@media (max-width: 480px) { button { font-size: 0.9rem; padding: 0.4rem 0.6rem; } }
 
 /* =======================================================
    INFORMAÇÕES DE TEXTO DO CLIMA
@@ -305,17 +281,13 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1);
   border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
-#history-list, #favorites-list {
-  list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px;
-}
+#history-list, #favorites-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
 #history-list li, #favorites-list li {
   background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px;
   cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto;
 }
 #history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus {
-  background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
-}
+#history-list li:focus, #favorites-list li:focus { background-color:var(--button-bg-hover); transform:scale(1.05); outline:none; }
 
 /* =======================================================
    SEARCH BOX
@@ -326,19 +298,9 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
    FALLBACK PARA NOSCRIPT
    ======================================================= */
 noscript .error-message {
-  display: block; /* garante que apareça se JS estiver desativado */
-  grid-column: 1 / -1;
-  color: #b00020;
-  font-weight: 700;
-  text-align: center;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  background-color: rgba(176, 0, 32, 0.15);
-  min-height: 100px;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.1rem;
-  opacity: 1; /* sem transição JS */
-  pointer-events: auto;
+  display: block; grid-column: 1 / -1; color: #b00020; font-weight: 700;
+  text-align: center; padding: 1rem 1.5rem; border-radius: 12px;
+  background-color: rgba(176, 0, 32, 0.15); min-height: 100px;
+  align-self: center; justify-self: center; font-size: 1.1rem; opacity: 1; pointer-events: auto;
   margin-bottom: 20px;
 }
