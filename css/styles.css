@@ -207,6 +207,25 @@ body.error #weather-error { display:block; opacity:1; pointer-events:auto; backg
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
+noscript .error-message {
+  display: block; /* garante que apareça */
+  grid-column: 1 / -1;
+  color: #b00020;
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(176, 0, 32, 0.15);
+  min-height: 100px;
+  align-self: center;
+  justify-self: center;
+  font-size: 1.1rem;
+  opacity: 1; /* sem transição JS */
+  pointer-events: auto;
+  margin-bottom: 20px;
+}
+
+
 /* -------- LOADING SPINNER -------- */
 #spinner { position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; transform-origin: center center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
