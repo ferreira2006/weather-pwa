@@ -39,7 +39,7 @@ const dom = {
   toast: document.getElementById("toast"),
 
   stateSelect: document.createElement("select"),
-  citySelect: document.createElement("select")
+  citySelect: document.createElement("select"),
 };
 
 // ===== STATE =====
@@ -75,11 +75,18 @@ const IBGE = {
     dom.stateSelect.innerHTML = `<option value="">Selecione o estado</option>` + 
       states.map(s => `<option value="${s.id}">${s.nome}</option>`).join("");
     dom.stateSelect.addEventListener("change", IBGE.onStateChange);
-    dom.searchBtn.parentNode.insertBefore(dom.stateSelect, dom.searchBtn);
+    const searchBox = document.getElementById("search-box");
+    searchBox.insertBefore(dom.stateSelect, dom.searchBtn);
   },
   async onStateChange(e) {
     const stateId = e.target.value;
-    if (!stateId) return;
+    if (!stateId) {
+      dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>`;
+      dom.citySelect.disabled = true;
+      currentCityValid = false;
+      App.updateButtonsState();
+      return;
+    }
     const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
     if (!res.ok) throw new Error("Não foi possível carregar as cidades");
     const cities = await res.json();
@@ -88,13 +95,15 @@ const IBGE = {
   },
   populateCitySelect(cities) {
     dom.citySelect.id = "city-select";
+    dom.citySelect.disabled = false;
     dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>` + 
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
-    dom.citySelect.addEventListener("change", () => {
-      currentCityValid = !!dom.citySelect.value;
+    dom.citySelect.addEventListener("change", e => {
+      currentCityValid = !!e.target.value;
       App.updateButtonsState();
     });
-    dom.stateSelect.parentNode.insertBefore(dom.citySelect, dom.searchBtn);
+    const searchBox = document.getElementById("search-box");
+    searchBox.insertBefore(dom.citySelect, dom.searchBtn);
   }
 };
 
@@ -232,11 +241,7 @@ const UI = {
 };
 
 // ===== FAVORITE ICON =====
-const favIcon = document.createElement("span");
-favIcon.id = "fav-icon";
-favIcon.classList.add("not-favorited");
-favIcon.textContent = "🤍";
-dom.favBtn.prepend(favIcon);
+const favIcon = document.getElementById("fav-icon");
 
 // ===== APP =====
 const App = {
@@ -250,14 +255,12 @@ const App = {
       Storage.saveHistory(normalizedCity);
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
-      this.updateButtonsState();
-      this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
 
   addFavorite(city) {
-    const formattedCity = Utils.capitalizeCityName(city);
+    const formattedCity = Utils.capitalizeCityName(Utils.normalizeCityInput(city));
     const favorites = Storage.getFavorites();
     if (favorites.some(c => c.toLowerCase() === formattedCity.toLowerCase())) {
       UI.showToast(`"${formattedCity}" já está nos favoritos.`);
@@ -271,8 +274,6 @@ const App = {
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
-    this.updateButtonsState();
-    this.updateFavButton();
   },
 
   async removeFavorite(city) {
@@ -282,32 +283,15 @@ const App = {
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
-    this.updateButtonsState();
-    this.updateFavButton();
   },
 
   updateButtonsState() {
-    const city = dom.citySelect.value;
+    const city = dom.citySelect.value.trim();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const canAddFavorite = currentCityValid && city && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
 
     dom.searchBtn.disabled = !currentCityValid;
     dom.favBtn.disabled = !canAddFavorite;
-  },
-
-  updateFavButton() {
-    const city = dom.citySelect.value;
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    if (!city) return;
-    if (favorites.includes(city.toLowerCase())) {
-      favIcon.textContent = "❤️";
-      favIcon.classList.remove("not-favorited");
-      favIcon.classList.add("favorited");
-    } else {
-      favIcon.textContent = "🤍";
-      favIcon.classList.remove("favorited");
-      favIcon.classList.add("not-favorited");
-    }
   },
 
   init() {
@@ -319,25 +303,22 @@ const App = {
 
     IBGE.fetchStates();
 
-    dom.searchBtn.addEventListener("click", () => {
+    document.getElementById("search-box").addEventListener("submit", e => {
+      e.preventDefault();
       const city = dom.citySelect.value;
-      if (!city) return UI.showToast("Selecione uma cidade válida.");
+      if (!city) return UI.showToast("Selecione uma cidade válida."); 
       this.handleCitySelect(city);
     });
 
     dom.favBtn.addEventListener("click", () => {
       const city = dom.citySelect.value;
-      if (!city) return;
-      this.addFavorite(city);
+      if (city) this.addFavorite(city);
     });
+
+    dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
     const lastCity = Storage.getLastCity();
     if (lastCity) this.handleCitySelect(lastCity);
-    else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(
-      pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => { UI.showError("Não foi possível obter sua localização."); this.handleCitySelect("São Miguel do Oeste"); }
-    );
-    else this.handleCitySelect("São Miguel do Oeste");
   }
 };
 
