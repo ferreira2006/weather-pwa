@@ -74,13 +74,17 @@ body.light.bg-snow { background: var(--bg-gradient-light-snow); }
 body.light.bg-scattered-clouds { background: var(--bg-gradient-light-scattered-clouds); }
 body.light.bg-fog { background: var(--bg-gradient-light-fog); }
 
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
-body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
-body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
-body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
-body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); }
-body.dark.bg-fog { background: var(--bg-gradient-dark-fog); }
+/* Tema escuro com melhor contraste */
+body.dark.bg-clear { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-clouds { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-rain { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-thunderstorm { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-snow { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-scattered-clouds { background-color: #1f1f1f; color: #f0f0f0; }
+body.dark.bg-fog { background-color: #1f1f1f; color: #f0f0f0; }
+
+body.dark header, 
+body.dark footer { background-color: #121212; }
 
 /* =======================================================
    INPUTS
@@ -156,7 +160,7 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 }
 
 /* =======================================================
-   MAIN
+   MAIN (centralização consistente)
    ======================================================= */
 main {
   width: 100%;
@@ -164,7 +168,17 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 25px;
+  gap: 1rem;
+}
+
+/* =======================================================
+   BOTÕES EM TELAS MENORES
+   ======================================================= */
+@media (max-width: 480px) {
+  button {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+  }
 }
 
 /* =======================================================
