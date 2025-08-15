@@ -81,7 +81,9 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
-  isValidCityInput(city) { return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city)); },
+  isValidCityInput(city) {
+    return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city));
+  },
 
   showToast(message, duration = 3000) {
     const t = dom.toast;
@@ -171,7 +173,9 @@ const UI = {
     this.updateThemeColors();
   },
 
-  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
+  renderHistory() {
+    this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city));
+  },
 
   renderFavorites() {
     dom.favoritesListEl.innerHTML = "";
@@ -182,7 +186,7 @@ const UI = {
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
-      Object.assign(citySpan.style, { cursor: "pointer" });
+      citySpan.style.cursor = "pointer";
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       li.appendChild(citySpan);
 
@@ -259,6 +263,7 @@ const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
     if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
+
     dom.weatherDiv.classList.add("loading");
     try {
       dom.cityInput.value = normalizedCity;
