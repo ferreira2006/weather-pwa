@@ -1,8 +1,11 @@
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-const maxHistoryItems = 5;
+// URL do backend e limite de histórico
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; // endpoint da API de clima
+const maxHistoryItems = 5; // máximo de cidades no histórico
 
 // ===== UTILS ======
+// Funções utilitárias para manipulação de strings e validação de input
 const Utils = {
+  // Capitaliza cada palavra do nome da cidade (ex: "são paulo" -> "São Paulo")
   capitalizeCityName(city) {
     return city
       .toLowerCase()
@@ -11,13 +14,18 @@ const Utils = {
       .map(w => w[0].toUpperCase() + w.slice(1))
       .join(' ');
   },
+
+  // Normaliza input de cidade: remove espaços extras, padroniza aspas
   normalizeCityInput(city) {
     return city ? city.replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") : "";
   },
+
+  // Regex que valida nomes de cidades com letras, espaços, hífen e apóstrofo
   validCityRegex: /^[\p{L}\s'-]+$/u
 };
 
 // ===== DOM ELEMENTS =====
+// Cache de elementos DOM para evitar múltiplos queries, melhora performance e manutenção
 const dom = {
   cityInput: document.getElementById("city-input"),
   searchBtn: document.getElementById("search-btn"),
@@ -42,21 +50,25 @@ const dom = {
 };
 
 // ===== STATE =====
-let currentCityValid = false;
-let firstLoad = true;
+// Estado global simples da aplicação
+let currentCityValid = false; // controla se o input atual é uma cidade válida
+let firstLoad = true;         // usado para lógica de primeira carga
 
 // ===== API =====
+// Responsável por fazer requisições para o backend
 const WeatherAPI = {
   async fetchByCity(city) {
     try {
       const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
-      if (!res.ok) throw new Error("Cidade não encontrada");
+      if (!res.ok) throw new Error("Cidade não encontrada"); // trata erro de cidade não existente
       return res.json();
     } catch (err) {
+      // Trata erros de conexão (ex: offline)
       if (err instanceof TypeError) throw new Error("Erro de conexão. Verifique sua internet.");
       else throw err;
     }
   },
+
   async fetchByCoords(lat, lon) {
     try {
       const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
@@ -70,10 +82,13 @@ const WeatherAPI = {
 };
 
 // ===== STORAGE =====
+// Abstração de localStorage para histórico, favoritos, tema e última cidade
 const Storage = {
   getHistory: () => JSON.parse(localStorage.getItem("weatherHistory")) || [],
+  
   saveHistory(city) {
     const formattedCity = Utils.capitalizeCityName(city);
+    // remove duplicados (ignorando case) e adiciona cidade no topo
     let history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
     history.unshift(formattedCity);
     localStorage.setItem("weatherHistory", JSON.stringify(history.slice(0, maxHistoryItems)));
@@ -90,21 +105,25 @@ const Storage = {
 };
 
 // ===== UI =====
+// Responsável por atualizar interface, mostrar erros, toast, backgrounds, listas etc.
 const UI = {
+  // Valida input de cidade
   isValidCityInput(city) {
     return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city));
   },
 
+  // Mostra mensagem temporária tipo toast
   showToast(message, duration = 3000) {
     const t = dom.toast;
     t.textContent = message;
     t.classList.remove("show");
-    void t.offsetWidth;
+    void t.offsetWidth; // força reflow para animar novamente
     t.classList.add("show");
     t.setAttribute("aria-live", "polite");
     setTimeout(() => t.classList.remove("show"), duration);
   },
 
+  // Define background dinâmico baseado na descrição do clima
   setDynamicBackground(weather) {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow", "bg-scattered-clouds", "bg-fog"];
     document.body.classList.remove(...classes);
@@ -123,10 +142,10 @@ const UI = {
     document.body.classList.add(`bg-${key}`);
   },
 
+  // Mostra o clima no UI
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
-    dom.weatherError.style.opacity = 0;
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
@@ -143,6 +162,7 @@ const UI = {
 
     dom.iconEl.className = `weather-icon ${iconClass}`;
 
+    // acessibilidade: foca e scrolla para o div do clima
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -153,11 +173,11 @@ const UI = {
     this.setDynamicBackground(data.weather[0].description);
   },
 
+  // Mostra mensagem de erro
   showError(message) {
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
-    dom.weatherError.style.opacity = "1";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
@@ -167,11 +187,12 @@ const UI = {
     App.updateButtonsState();
   },
 
+  // Renderiza lista genérica (histórico ou favoritos)
   renderList(listEl, items, clickCallback, removeCallback) {
     listEl.innerHTML = "";
     items.forEach(city => {
       const li = document.createElement("li");
-      li.tabIndex = 0;
+      li.tabIndex = 0; // acessibilidade
       li.title = clickCallback ? `Clique para buscar.` : "";
       li.textContent = city;
       if (clickCallback) li.addEventListener("click", () => clickCallback(city));
@@ -180,7 +201,7 @@ const UI = {
       });
       listEl.appendChild(li);
     });
-    this.updateThemeColors();
+    this.updateThemeColors(); // garante cores corretas no tema
   },
 
   renderHistory() {
@@ -211,6 +232,7 @@ const UI = {
     this.updateThemeColors();
   },
 
+  // alterna tema claro/escuro
   toggleThemeColors() {
     document.body.classList.toggle("dark");
     document.body.classList.toggle("light");
@@ -262,6 +284,7 @@ const UI = {
 };
 
 // ===== FAVORITE ICON =====
+// Ícone que indica se a cidade está nos favoritos
 const favIcon = document.createElement("span");
 favIcon.id = "fav-icon";
 favIcon.classList.add("not-favorited");
@@ -269,9 +292,11 @@ favIcon.textContent = "🤍";
 dom.favBtn.prepend(favIcon);
 
 // ===== APP =====
+// Lógica principal da aplicação
 const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
+    // evita requisições desnecessárias se a cidade já está exibida
     if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
 
     dom.weatherDiv.classList.add("loading");
@@ -287,6 +312,7 @@ const App = {
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
 
+  // Busca clima via coordenadas (usado na geolocalização)
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
     try {
@@ -298,6 +324,7 @@ const App = {
       this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
+      // fallback caso não haja cidade salva
       if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
     } finally { dom.weatherDiv.classList.remove("loading"); }
   },
@@ -341,7 +368,7 @@ const App = {
       ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
 
-    // Atualiza ícone favorito
+    // Atualiza ícone favorito visual
     if (favorites.includes(city.toLowerCase())) {
       favIcon.textContent = "❤️";
       favIcon.classList.add("favorited");
@@ -360,6 +387,7 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
+    // Form submit
     document.getElementById("search-box").addEventListener("submit", e => {
       e.preventDefault();
       const city = Utils.normalizeCityInput(dom.cityInput.value);
@@ -378,11 +406,12 @@ const App = {
       pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
       () => { UI.showError("Não foi possível obter sua localização."); this.handleCitySelect("São Miguel do Oeste"); }
     );
-    else this.handleCitySelect("São Miguel do Oeste");
+    else this.handleCitySelect("São Miguel do Oeste"); // fallback default
   }
 };
 
 // ===== MODAL =====
+// Modal de confirmação genérico, retorna Promise
 function showConfirmationModal(message) {
   return new Promise(resolve => {
     const modal = document.getElementById("confirm-modal");
@@ -403,4 +432,5 @@ function showConfirmationModal(message) {
   });
 }
 
+// Inicializa app
 window.onload = () => App.init();
