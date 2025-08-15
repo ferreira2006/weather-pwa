@@ -66,11 +66,15 @@ body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
 /* Aplicação de fundos dinâmicos por tema e clima */
-body.light.bg-clear { background: var(--bg-gradient-light-clear); }
-body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
-/* ...mesma lógica para chuva, tempestade, neve, nuvens dispersas e neblina... */
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-/* ...mesma lógica para os demais tipos no tema escuro... */
+/* Tema escuro com gradientes específicos por clima */
+body.dark.bg-clear { background: var(--bg-gradient-dark-clear); color: var(--text-color-dark); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); color: var(--text-color-dark); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); color: var(--text-color-dark); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); color: var(--text-color-dark); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); color: var(--text-color-dark); }
+body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); color: var(--text-color-dark); }
+body.dark.bg-fog { background: var(--bg-gradient-dark-fog); color: var(--text-color-dark); }
+
 
 /* =======================================================
    INPUTS
