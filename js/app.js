@@ -43,7 +43,6 @@ const dom = {
 
 // ===== STATE =====
 let currentCityValid = false;
-let firstLoad = true;
 
 // ===== API =====
 const WeatherAPI = {
@@ -94,20 +93,13 @@ const UI = {
   },
 
   setDynamicBackground(weather) {
-    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow", "bg-scattered-clouds", "bg-fog"];
+    const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
-
     weather = weather.toLowerCase();
-    let key;
-
-    if (weather.includes("scattered clouds")) key = "scattered-clouds";
-    else if (weather.includes("fog") || weather.includes("mist") || weather.includes("haze")) key = "fog";
-    else if (weather.includes("cloud")) key = "clouds";
-    else if (weather.includes("rain") || weather.includes("drizzle")) key = "rain";
-    else if (weather.includes("thunderstorm")) key = "thunderstorm";
-    else if (weather.includes("snow")) key = "snow";
-    else key = "clear";
-
+    let key = weather.includes("cloud") ? "clouds" :
+              (weather.includes("rain") || weather.includes("drizzle")) ? "rain" :
+              weather.includes("thunderstorm") ? "thunderstorm" :
+              weather.includes("snow") ? "snow" : "clear";
     document.body.classList.add(`bg-${key}`);
   },
 
@@ -123,13 +115,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    const mainWeather = data.weather[0].main.toLowerCase();
-    let iconClass;
-    if (mainWeather.includes("scattered clouds")) iconClass = "scattered-clouds";
-    else if (mainWeather.includes("fog") || mainWeather.includes("mist") || mainWeather.includes("haze")) iconClass = "fog";
-    else iconClass = mainWeather;
-
-    dom.iconEl.className = `weather-icon ${iconClass}`;
+    dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
@@ -138,7 +124,7 @@ const UI = {
     currentCityValid = true;
     firstLoad = false;
     App.updateButtonsState();
-    this.setDynamicBackground(data.weather[0].description);
+    this.setDynamicBackground(data.weather[0].main);
   },
 
   showError(message) {
@@ -268,6 +254,7 @@ const App = {
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
       this.updateButtonsState();
+      this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
@@ -303,6 +290,7 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
+    this.updateFavButton();
   },
 
   async removeFavorite(city) {
@@ -313,24 +301,31 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
     this.updateButtonsState();
+    this.updateFavButton();
   },
 
   updateButtonsState() {
-    const city = Utils.normalizeCityInput(dom.cityInput.value);
+    const city = dom.cityInput.value.trim();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const canAddFavorite = currentCityValid && city && UI.isValidCityInput(city) && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
 
     dom.searchBtn.disabled = !UI.isValidCityInput(city);
     dom.favBtn.disabled = !canAddFavorite;
+
     dom.favBtn.title = !canAddFavorite
       ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
       : "";
 
-    // Atualiza ícone favorito
+    this.updateFavButton();
+  },
+
+  updateFavButton() {
+    const city = Utils.normalizeCityInput(dom.cityInput.value);
+    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     if (favorites.includes(city.toLowerCase())) {
       favIcon.textContent = "❤️";
-      favIcon.classList.add("favorited");
       favIcon.classList.remove("not-favorited");
+      favIcon.classList.add("favorited");
     } else {
       favIcon.textContent = "🤍";
       favIcon.classList.remove("favorited");
