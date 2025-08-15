@@ -5,11 +5,16 @@
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
   --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
+  --bg-gradient-light-scattered-clouds: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  --bg-gradient-light-fog: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
+
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+  --bg-gradient-dark-scattered-clouds: linear-gradient(135deg, #434343 0%, #b3b3b3 100%);
+  --bg-gradient-dark-fog: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%);
 
   /* -------- CORES -------- */
   --text-color-light: #000;
@@ -50,21 +55,22 @@ body {
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
+/* Fundo dinâmico por tema */
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
 body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
 body.light.bg-rain { background: var(--bg-gradient-light-rain); }
 body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
 body.light.bg-snow { background: var(--bg-gradient-light-snow); }
-body.light.bg-scattered-clouds { background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); }
-body.light.bg-fog { background: linear-gradient(135deg, #d7d2cc 0%, #304352 100%); }
+body.light.bg-scattered-clouds { background: var(--bg-gradient-light-scattered-clouds); }
+body.light.bg-fog { background: var(--bg-gradient-light-fog); }
 
 body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
 body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
 body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
 body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
-body.dark.bg-scattered-clouds { background: linear-gradient(135deg, #434343 0%, #b3b3b3 100%); }
-body.dark.bg-fog { background: linear-gradient(135deg, #2c3e50 0%, #bdc3c7 100%); }
+body.dark.bg-scattered-clouds { background: var(--bg-gradient-dark-scattered-clouds); }
+body.dark.bg-fog { background: var(--bg-gradient-dark-fog); }
 
 /* -------- INPUTS -------- */
 input[type="text"] {
@@ -140,10 +146,7 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 main { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 25px; }
 
 /* -------- MODAL -------- */
-#confirm-modal {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  z-index: 10000; font-family: Arial, sans-serif;
-}
+#confirm-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000; font-family: Arial, sans-serif; }
 #confirm-modal[hidden] { display: none; }
 #confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
 #confirm-modal .modal-content {
@@ -205,83 +208,12 @@ body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
 /* -------- LOADING SPINNER -------- */
-#spinner {
-  position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff;
-  border-radius: 50%; animation: spin 1s linear infinite;
-  transform-origin: center center; opacity: 0; pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10;
-}
+#spinner { position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px; border: 4px solid rgba(255, 255, 255, 0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; transform-origin: center center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10; }
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-#weather.loading::before {
-  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
-  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
-}
+#weather.loading::before { content:""; position:absolute; inset:0; background:var(--loading-bg-light); backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none; }
 body.dark #weather.loading::before { background:var(--loading-bg-dark); }
 #weather.loading #spinner { opacity: 0.85; transform: scale(1); }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
-
-#weather.loading .temp { height:60px; width:80px; }
-#weather.loading .desc { height:20px; width:120px; margin:10px 0; }
-#weather.loading .details { height:60px; width:100%; }
-
-/* -------- ÍCONES DE CLIMA -------- */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
-
-.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-.weather-icon.scattered-clouds { 
-  background-image: url('../assets/icons/wi-day-sunny-overcast.svg'); 
-  animation: floatScattered 20s ease-in-out infinite;
-}
-
-.weather-icon.fog { 
-  background-image: url('../assets/icons/wi-fog.svg');
-  animation: fogAnim 8s ease-in-out infinite alternate;
-}
-
-
-@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
-@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
-@keyframes floatScattered {
-  0%   { transform: translate(0, 0); }
-  25%  { transform: translate(5px, 3px); }
-  50%  { transform: translate(-5px, 5px); }
-  75%  { transform: translate(5px, -3px); }
-  100% { transform: translate(0, 0); }
-}
-
-@keyframes fogAnim {
-  0%   { opacity: 0.6; transform: translateY(0); }
-  50%  { opacity: 0.8; transform: translateY(2px); }
-  100% { opacity: 0.6; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .weather-icon.scattered-clouds,
-  .weather-icon.fog { animation: none !important; }
-}
-
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
 /* -------- INFO TEXTO DO CLIMA -------- */
 .info { display:flex; flex-direction:column; justify-content:center; }
@@ -290,39 +222,20 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 .details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
 
 /* -------- TOAST -------- */
-#toast {
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
-  padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none;
-  transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999;
-}
+#toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none; transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999; }
 #toast.show { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
 body.light #toast { background-color:var(--toast-bg-light); color:var(--toast-text-light); }
 body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text-dark); }
 
 /* -------- HISTÓRICO E FAVORITOS -------- */
-#history-section, #favorites-section {
-  width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1);
-  border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
+#history-section, #favorites-section { width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1); border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15); }
 #history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
-#history-list, #favorites-list {
-  list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px;
-}
-#history-list li, #favorites-list li {
-  background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px;
-  cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto;
-}
-#history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus {
-  background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
-}
-
-/* -------- ANIMAÇÃO LEVE PARA O CORAÇÃO AO CLICAR -------- */
-@keyframes heart-pop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(1.2); }
-}
+#history-list, #favorites-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
+#history-list li, #favorites-list li { background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto; }
+#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background-color:var(--button-bg-hover); transform:scale(1.05); outline:none; }
 
 /* -------- SEARCH BOX -------- */
 #search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
+
+/* -------- ANIMAÇÕES -------- */
+@keyframes heart-pop { 0%{transform:scale(1);} 50%{transform:scale(1.4);} 100%{transform:scale(1.2);} }
