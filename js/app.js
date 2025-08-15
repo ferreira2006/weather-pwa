@@ -1,4 +1,4 @@
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; 
 const maxHistoryItems = 5;
 
 // ===== UTILS ======
@@ -122,7 +122,6 @@ const UI = {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
-    firstLoad = false;
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
   },
