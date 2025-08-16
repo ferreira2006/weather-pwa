@@ -256,12 +256,16 @@ const App = {
       UI.showToast(`${fCity} já está nos favoritos`);
       return;
     }
-    if (favs.length >= 5) { UI.showToast("Limite de 5 cidades favoritas"); return; }
+    if (favs.length >= 5) { 
+      UI.showToast("Limite de 5 cidades favoritas"); 
+      return; 
+    }
     favs.push(fCity);
     Storage.saveFavorites(favs);
     UI.renderFavorites();
     UI.showToast(`${fCity} adicionado aos favoritos!`);
     this.updateFavIcon();
+    this.updateButtonsState();
   },
 
   updateButtonsState() {
@@ -271,7 +275,9 @@ const App = {
     const isRecent = history.includes(currentCity);
 
     dom.searchBtn.disabled = !currentCityValid || isFav || isRecent;
-    dom.favBtn.disabled = !currentCityValid || !currentCityLoaded || isFav || isRecent || favs.length >= 5;
+
+    const canAddFav = currentCityValid && currentCityLoaded && !isFav && !isRecent && favs.length < 5;
+    dom.favBtn.disabled = !canAddFav;
   },
 
   updateFavIcon() {
