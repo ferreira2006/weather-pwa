@@ -25,12 +25,12 @@
     <!-- BUSCA DE CIDADES -->
     <section id="search-section" aria-label="Busca de cidades">
       <div id="search-box" role="search" aria-label="Busca de cidade">
-        <select id="city-select" aria-label="Selecione a cidade">
+        <!-- Selects de estado e cidade serão criados dinamicamente pelo JS -->
+        <select id="state-select" aria-label="Selecione o estado">
+          <option value="" disabled selected>Selecione o estado</option>
+        </select>
+        <select id="city-select" aria-label="Selecione a cidade" disabled>
           <option value="" disabled selected>Selecione a cidade</option>
-          <option value="São Paulo">São Paulo</option>
-          <option value="Rio de Janeiro">Rio de Janeiro</option>
-          <option value="Belo Horizonte">Belo Horizonte</option>
-          <!-- Adicione mais cidades -->
         </select>
 
         <button id="search-btn" type="button" aria-label="Buscar clima da cidade" disabled>
