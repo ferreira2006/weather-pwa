@@ -324,4 +324,11 @@ function showConfirmationModal(message) {
   });
 }
 
+window.addEventListener("message", (event) => {
+  const data = event.data;
+  if (data?.type === "selectCity" && data.city) {
+    App.handleCitySelect(data.city);
+  }
+});
+
 window.onload = () => App.init();
