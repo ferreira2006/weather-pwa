@@ -1,7 +1,7 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; 
 const maxHistoryItems = 5;
 
-// ===== UTILS ======
+// ===== UTILS =====
 const Utils = {
   capitalizeCityName(city) {
     return city
@@ -12,7 +12,9 @@ const Utils = {
       .join(' ');
   },
   normalizeCityInput(city) {
-    return city ? city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") : "";
+    return city 
+      ? city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") 
+      : "";
   }
 };
 
@@ -44,9 +46,9 @@ const dom = {
 
 // ===== STATE =====
 let currentCityValid = false;
+let currentCity = "";
 let states = [];
 let citiesByState = {};
-let currentCity = "";
 
 // ===== API =====
 const WeatherAPI = {
@@ -68,7 +70,7 @@ const IBGE = {
   },
   populateStateSelect() {
     dom.stateSelect.id = "state-select";
-    dom.stateSelect.innerHTML = `<option value="">Selecione o estado</option>` + 
+    dom.stateSelect.innerHTML = `<option value="">Selecione o estado</option>` +
       states.map(s => `<option value="${s.id}">${s.nome}</option>`).join("");
     dom.stateSelect.addEventListener("change", IBGE.onStateChange);
     const searchBox = document.getElementById("search-box");
@@ -93,7 +95,7 @@ const IBGE = {
   populateCitySelect(cities) {
     dom.citySelect.id = "city-select";
     dom.citySelect.disabled = false;
-    dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>` + 
+    dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>` +
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
     dom.citySelect.addEventListener("change", e => {
       currentCityValid = !!e.target.value;
@@ -207,94 +209,6 @@ const UI = {
   }
 };
 
-// ===== APP =====
-const App = {
-  async handleCitySelect(city) {
-    if (!city) return;
-    dom.weatherDiv.classList.add("loading");
-    try {
-      const data = await WeatherAPI.fetchByCity(city);
-      UI.showWeather(data);
-      Storage.saveHistory(city);
-      UI.renderHistory();
-      Storage.saveLastCity(city);
-    } catch(err) { 
-      UI.showError(err.message); 
-    } finally { 
-      // garantir que spinner sempre desaparece
-      dom.weatherDiv.classList.remove("loading"); 
-      App.updateFavIcon(); // atualizar ícone mesmo após erro
-    }
-  },
-  addFavorite(city) {
-    if (!city) return;
-    const favs = Storage.getFavorites();
-    const fCity = Utils.capitalizeCityName(city);
-    if (favs.includes(fCity)) {
-      UI.showToast(`${fCity} já está nos favoritos`);
-      return;
-    }
-    if (favs.length >=5) { UI.showToast("Limite de 5 cidades favoritas"); return; }
-    favs.push(fCity);
-    Storage.saveFavorites(favs);
-    UI.renderFavorites();
-    UI.showToast(`${fCity} adicionado aos favoritos!`);
-    App.updateFavIcon();
-  },
-  updateButtonsState() {
-    const favs = Storage.getFavorites();
-    dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityValid || favs.includes(Utils.capitalizeCityName(currentCity)) || favs.length>=5;
-  },
-  updateFavIcon() {
-    const favs = Storage.getFavorites();
-    const cityKey = Utils.capitalizeCityName(currentCity);
-    if (!currentCityValid || !currentCity) {
-      dom.favIcon.classList.remove("favorited");
-      dom.favIcon.classList.add("not-favorited");
-      dom.favIcon.textContent = "🤍";
-      return;
-    }
-    if (favs.includes(cityKey)) {
-      dom.favIcon.classList.add("favorited");
-      dom.favIcon.classList.remove("not-favorited");
-      dom.favIcon.textContent = "❤️";
-    } else {
-      dom.favIcon.classList.remove("favorited");
-      dom.favIcon.classList.add("not-favorited");
-      dom.favIcon.textContent = "🤍";
-    }
-  },
-  init() {
-    UI.applySavedTheme();
-    UI.renderHistory();
-    UI.renderFavorites();
-    IBGE.fetchStates();
-    this.updateButtonsState();
-    this.updateFavIcon();
-
-    document.getElementById("search-box").addEventListener("submit", e=>{
-      e.preventDefault();
-      if (!currentCityValid) return UI.showToast("Selecione uma cidade válida.");
-      this.handleCitySelect(currentCity);
-    });
-
-    dom.favBtn.addEventListener("click", ()=>{ this.addFavorite(currentCity); });
-
-    dom.themeToggle.addEventListener("click", ()=>{
-      document.body.classList.toggle("dark");
-      document.body.classList.toggle("light");
-      const isDark = document.body.classList.contains("dark");
-      Storage.saveTheme(isDark ? "dark" : "light");
-      dom.themeToggle.setAttribute("aria-pressed", isDark);
-    });
-
-    const lastCity = Storage.getLastCity();
-    if(lastCity) this.handleCitySelect(lastCity);
-    else initGeolocation();
-  }
-};
-
 // ===== SPINNER + GEO =====
 function showSpinner() { dom.weatherDiv.classList.add("loading"); }
 function hideSpinner() { dom.weatherDiv.classList.remove("loading"); }
@@ -302,7 +216,10 @@ function initGeolocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => App.handleCitySelect(`${pos.coords.latitude},${pos.coords.longitude}`),
-      err => { UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); App.handleCitySelect("São Paulo"); },
+      err => { 
+        UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); 
+        App.handleCitySelect("São Paulo"); 
+      },
       { timeout: 5000 }
     );
   } else {
@@ -328,6 +245,115 @@ function showConfirmationModal(message) {
   });
 }
 
+// ===== APP =====
+const App = {
+  async handleCitySelect(city) {
+    if (!city) return;
+
+    document.body.classList.remove("error");
+    showSpinner();
+
+    try {
+      const normalizedCity = Utils.normalizeCityInput(city);
+      const data = await WeatherAPI.fetchByCity(normalizedCity);
+
+      UI.showWeather(data);
+      Storage.saveHistory(data.name);
+      Storage.saveLastCity(data.name);
+      UI.renderHistory();
+
+      currentCityValid = true;
+      currentCity = data.name;
+      App.updateButtonsState();
+      App.updateFavIcon();
+
+    } catch(err) { 
+      currentCityValid = false;
+      App.updateButtonsState();
+      UI.showError(err.message); 
+    } finally { 
+      hideSpinner(); 
+    }
+  },
+
+  addFavorite(city) {
+    if (!city) return;
+    const favs = Storage.getFavorites();
+    const fCity = Utils.capitalizeCityName(city);
+    if (favs.includes(fCity)) {
+      UI.showToast(`${fCity} já está nos favoritos`);
+      return;
+    }
+    if (favs.length >=5) { UI.showToast("Limite de 5 cidades favoritas"); return; }
+    favs.push(fCity);
+    Storage.saveFavorites(favs);
+    UI.renderFavorites();
+    UI.showToast(`${fCity} adicionado aos favoritos!`);
+    App.updateFavIcon();
+  },
+
+  updateButtonsState() {
+    const favs = Storage.getFavorites();
+    dom.searchBtn.disabled = !currentCityValid;
+    dom.favBtn.disabled = !currentCityValid || favs.includes(Utils.capitalizeCityName(currentCity)) || favs.length>=5;
+  },
+
+  updateFavIcon() {
+    const favs = Storage.getFavorites();
+    const cityKey = Utils.capitalizeCityName(currentCity || "");
+
+    if (!currentCityValid || !currentCity) {
+      dom.favIcon.classList.remove("favorited");
+      dom.favIcon.classList.add("not-favorited");
+      dom.favIcon.textContent = "🤍";
+      return;
+    }
+
+    if (favs.includes(cityKey)) {
+      dom.favIcon.classList.add("favorited");
+      dom.favIcon.classList.remove("not-favorited");
+      dom.favIcon.textContent = "❤️";
+    } else {
+      dom.favIcon.classList.remove("favorited");
+      dom.favIcon.classList.add("not-favorited");
+      dom.favIcon.textContent = "🤍";
+    }
+
+    App.updateButtonsState();
+  },
+
+  init() {
+    UI.applySavedTheme();
+    UI.renderHistory();
+    UI.renderFavorites();
+    IBGE.fetchStates();
+    this.updateButtonsState();
+    this.updateFavIcon();
+
+    // evento do formulário
+    document.getElementById("search-box").addEventListener("submit", e=>{
+      e.preventDefault();
+      if (!currentCityValid) return UI.showToast("Selecione uma cidade válida.");
+      this.handleCitySelect(currentCity);
+    });
+
+    dom.favBtn.addEventListener("click", ()=>{ this.addFavorite(currentCity); });
+
+    dom.themeToggle.addEventListener("click", ()=>{
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+      const isDark = document.body.classList.contains("dark");
+      Storage.saveTheme(isDark ? "dark" : "light");
+      dom.themeToggle.setAttribute("aria-pressed", isDark);
+    });
+
+    const lastCity = Storage.getLastCity();
+    if(lastCity) this.handleCitySelect(lastCity);
+    else initGeolocation();
+  }
+};
+
+// ===== POST MESSAGE =====
 window.addEventListener("message", (event) => {
   const data = event.data;
   if (data?.type === "selectCity" && data.city) {
@@ -335,4 +361,5 @@ window.addEventListener("message", (event) => {
   }
 });
 
+// ===== INIT =====
 window.onload = () => App.init();
