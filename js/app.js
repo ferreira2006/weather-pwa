@@ -1,4 +1,4 @@
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; 
 const maxHistoryItems = 5;
 
 // ===== UTILS ======
@@ -45,13 +45,6 @@ const dom = {
 let currentCityValid = false;
 let states = [];
 let citiesByState = {};
-
-// ===== THEME =====
-function setTheme(theme) {
-  document.body.classList.remove("light", "dark");
-  document.body.classList.add(theme);
-  localStorage.setItem("theme", theme);
-}
 
 // ===== API =====
 const WeatherAPI = {
@@ -146,20 +139,10 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    // Atualiza ícone e background climático
-    const condition = data.weather[0].main.toLowerCase();
-    dom.iconEl.className = `weather-icon ${condition}`;
-    document.body.classList.remove("bg-clear","bg-clouds","bg-rain","bg-thunderstorm","bg-snow");
-    switch(condition){
-      case "clear": document.body.classList.add("bg-clear"); break;
-      case "clouds": document.body.classList.add("bg-clouds"); break;
-      case "rain": case "drizzle": document.body.classList.add("bg-rain"); break;
-      case "thunderstorm": document.body.classList.add("bg-thunderstorm"); break;
-      case "snow": document.body.classList.add("bg-snow"); break;
-      default: document.body.classList.add("bg-clear"); break;
-    }
+    App.setWeatherIcon(data.weather[0].main.toLowerCase());
 
     dom.weatherDiv.hidden = false;
+
     currentCityValid = true;
     App.updateButtonsState();
     App.updateFavIcon();
@@ -179,30 +162,27 @@ const UI = {
       li.tabIndex = 0;
       li.textContent = city;
       if (clickCallback) li.addEventListener("click", () => clickCallback(city));
-
-      // Adiciona botão de remoção se for favorites-list
-      if(listEl.id === "favorites-list"){
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-fav";
-        removeBtn.textContent = "✖";
-        removeBtn.onclick = async (e) => {
-          e.stopPropagation();
-          const confirm = await showConfirmationModal(`Deseja remover ${city} dos favoritos?`);
-          if(confirm){
-            App.removeFavorite(city);
-          }
-        };
-        li.appendChild(removeBtn);
-      }
-
       listEl.appendChild(li);
     });
   },
   renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
   renderFavorites() { 
-    this.renderList(dom.favoritesListEl, Storage.getFavorites(), city => App.handleCitySelect(city));
+    dom.favoritesListEl.innerHTML = "";
+    Storage.getFavorites().forEach(city => {
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.textContent = city;
+      li.addEventListener("click", () => App.handleCitySelect(city));
+      li.addEventListener("dblclick", () => App.removeFavorite(city));
+      dom.favoritesListEl.appendChild(li);
+    });
   },
-  applySavedTheme() { setTheme(Storage.getTheme()); }
+  applySavedTheme() {
+    const t = Storage.getTheme();
+    document.body.classList.add(t);
+    dom.themeToggle.setAttribute("aria-pressed", t === "dark");
+    dom.themeToggle.textContent = t === "dark" ? "Modo Claro" : "Modo Escuro";
+  }
 };
 
 // ===== APP =====
@@ -228,38 +208,50 @@ const App = {
     favs.push(fCity);
     Storage.saveFavorites(favs);
     UI.renderFavorites();
-    UI.showToast(`${fCity} adicionado aos favoritos!`);
+    App.updateButtonsState();
     App.updateFavIcon();
+    UI.showToast(`${fCity} adicionado aos favoritos!`);
   },
   removeFavorite(city) {
-    let favs = Storage.getFavorites();
-    favs = favs.filter(c => c.toLowerCase() !== city.toLowerCase());
-    Storage.saveFavorites(favs);
-    UI.renderFavorites();
-    UI.showToast(`${city} removido dos favoritos.`);
-    App.updateFavIcon();
-    App.updateButtonsState();
+    showConfirmationModal(`Deseja remover ${city} dos favoritos?`).then(confirm => {
+      if (!confirm) return;
+      let favs = Storage.getFavorites().filter(c => c !== city);
+      Storage.saveFavorites(favs);
+      UI.renderFavorites();
+      App.updateButtonsState();
+      App.updateFavIcon();
+      UI.showToast(`${city} removido dos favoritos`);
+    });
   },
   updateButtonsState() {
-    if(!dom.citySelect) return;
     const city = dom.citySelect.value;
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
     dom.favBtn.disabled = !currentCityValid || favs.includes(city) || favs.length>=5;
   },
   updateFavIcon() {
-    if(!dom.citySelect) return;
     const city = dom.citySelect.value;
     const favs = Storage.getFavorites();
     const icon = document.getElementById("fav-icon");
-    if(favs.includes(city)) {
-      icon.textContent = "❤️";
+    if (favs.includes(city)) {
       icon.classList.add("favorited");
       icon.classList.remove("not-favorited");
+      icon.textContent = "❤️";
     } else {
-      icon.textContent = "🤍";
-      icon.classList.add("not-favorited");
       icon.classList.remove("favorited");
+      icon.classList.add("not-favorited");
+      icon.textContent = "🤍";
+    }
+  },
+  setWeatherIcon(condition) {
+    const icon = dom.iconEl;
+    icon.className = "weather-icon"; // reset
+    switch(condition) {
+      case "clouds": icon.classList.add("clouds"); break;
+      case "rain": icon.classList.add("rain"); break;
+      case "thunderstorm": icon.classList.add("thunderstorm"); break;
+      case "snow": icon.classList.add("snow"); break;
+      default: icon.classList.add("clear"); break;
     }
   },
   init() {
@@ -271,22 +263,23 @@ const App = {
 
     document.getElementById("search-box").addEventListener("submit", e=>{
       e.preventDefault();
-      const city = dom.citySelect?.value;
+      const city = dom.citySelect.value;
       if (!city) return UI.showToast("Selecione uma cidade válida.");
       this.handleCitySelect(city);
     });
 
-    dom.favBtn.addEventListener("click", ()=> {
-      const city = dom.citySelect?.value;
+    dom.favBtn.addEventListener("click", ()=>{
+      const city = dom.citySelect.value;
       this.addFavorite(city);
     });
 
     dom.themeToggle.addEventListener("click", ()=>{
-      const currentTheme = document.body.classList.contains("light") ? "light":"dark";
-      const newTheme = currentTheme==="light"?"dark":"light";
-      setTheme(newTheme);
-      dom.themeToggle.textContent = newTheme==="light"?"Modo Escuro":"Modo Claro";
-      dom.themeToggle.setAttribute("aria-pressed", newTheme==="dark");
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+      const t = document.body.classList.contains("dark") ? "dark" : "light";
+      Storage.saveTheme(t);
+      dom.themeToggle.setAttribute("aria-pressed", t === "dark");
+      dom.themeToggle.textContent = t === "dark" ? "Modo Claro" : "Modo Escuro";
     });
 
     const lastCity = Storage.getLastCity();
@@ -294,29 +287,22 @@ const App = {
   }
 };
 
+window.onload = () => App.init();
+
 // ===== MODAL =====
 function showConfirmationModal(message) {
-  return new Promise(resolve=>{
+  return new Promise(resolve => {
     const modal = document.getElementById("confirm-modal");
-    modal.querySelector("#confirm-modal-desc").textContent = message;
+    const desc = document.getElementById("confirm-modal-desc");
+    const yesBtn = document.getElementById("confirm-yes");
+    const noBtn = document.getElementById("confirm-no");
+    desc.textContent = message;
     modal.hidden = false;
-
-    const yesBtn = modal.querySelector("#confirm-yes");
-    const noBtn = modal.querySelector("#confirm-no");
-
-    function cleanup() {
-      modal.hidden = true;
-      yesBtn.removeEventListener("click", yes);
-      noBtn.removeEventListener("click", no);
-    }
-
-    function yes(){ cleanup(); resolve(true); }
-    function no(){ cleanup(); resolve(false); }
-
-    yesBtn.addEventListener("click", yes);
-    noBtn.addEventListener("click", no);
+    modal.focus();
+    const clean = ()=>{ yesBtn.removeEventListener("click",onYes); noBtn.removeEventListener("click",onNo); };
+    const onYes = ()=>{ clean(); modal.hidden=true; resolve(true); };
+    const onNo = ()=>{ clean(); modal.hidden=true; resolve(false); };
+    yesBtn.addEventListener("click",onYes);
+    noBtn.addEventListener("click",onNo);
   });
 }
-
-// ===== START APP =====
-document.addEventListener("DOMContentLoaded", ()=>App.init());
