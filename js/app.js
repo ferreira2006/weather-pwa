@@ -266,8 +266,12 @@ const App = {
 
   updateButtonsState() {
     const favs = Storage.getFavorites();
-    dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityLoaded || favs.includes(currentCity) || favs.length >= 5;
+    const history = Storage.getHistory();
+    const isFav = favs.includes(currentCity);
+    const isRecent = history.includes(currentCity);
+
+    dom.searchBtn.disabled = !currentCityValid || isFav || isRecent;
+    dom.favBtn.disabled = !currentCityValid || isFav || favs.length >= 5;
   },
 
   updateFavIcon() {
