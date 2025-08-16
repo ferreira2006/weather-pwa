@@ -136,13 +136,14 @@ const UI = {
     dom.weatherError.style.display = "none";
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
+    dom.spinner.style.display = "none";
 
     dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    dom.weatherDiv.hidden = false;
+    dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
 
     currentCityValid = true;
     currentCity = data.name;
@@ -154,6 +155,7 @@ const UI = {
     dom.weatherError.style.display = "block";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
+    dom.spinner.style.display = "none";
     currentCityValid = false;
     App.updateButtonsState();
     App.updateFavIcon();
@@ -192,6 +194,7 @@ const App = {
   async handleCitySelect(city) {
     if (!city) return;
     dom.weatherDiv.classList.add("loading");
+    dom.spinner.style.display = "block";
     try {
       const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
@@ -199,7 +202,7 @@ const App = {
       UI.renderHistory();
       Storage.saveLastCity(city);
     } catch(err) { UI.showError(err.message); }
-    finally { dom.weatherDiv.classList.remove("loading"); }
+    finally { dom.weatherDiv.classList.remove("loading"); dom.spinner.style.display="none"; }
   },
   addFavorite(city) {
     if (!city) return;
