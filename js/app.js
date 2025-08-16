@@ -271,7 +271,7 @@ const App = {
     const isRecent = history.includes(currentCity);
 
     dom.searchBtn.disabled = !currentCityValid || isFav || isRecent;
-    dom.favBtn.disabled = !currentCityValid || isFav || favs.length >= 5;
+    dom.favBtn.disabled = !currentCityValid || !currentCityLoaded || isFav || isRecent || favs.length >= 5;
   },
 
   updateFavIcon() {
