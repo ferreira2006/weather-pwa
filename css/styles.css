@@ -17,23 +17,19 @@
   /* -------- CORES -------- */
   --text-color-light: #000;
   --text-color-dark: #ddd;
-
   --input-text-light: #000;
   --input-text-dark: #cfd8dc;
   --input-bg-light: rgba(255, 255, 255, 0.9);
   --input-bg-dark: rgba(255, 255, 255, 0.1);
   --input-border-focus: var(--button-bg);
-
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
   --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
-
   --toast-bg-light: rgba(0,0,0,0.85);
   --toast-text-light: #fff;
   --toast-bg-dark: rgba(255,255,255,0.9);
   --toast-text-dark: #000;
-
   --loading-bg-light: rgba(255,255,255,0.35);
   --loading-bg-dark: rgba(255,255,255,0.15);
 }
@@ -175,14 +171,19 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 button#search-btn, button#fav-btn {
   display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
   background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
-  min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s;
+  min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
   user-select:none; width:auto; flex:0 0 auto;
 }
 button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
 button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
-  background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
+  background-color:var(--button-bg-hover); 
+  box-shadow:0 0 12px var(--button-shadow-hover); 
+  transform: scale(1.03);
+  outline:none;
 }
-button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
+button#search-btn:disabled, button#fav-btn:disabled { 
+  background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; 
+}
 
 /* =======================================================
    WEATHER CARD
@@ -252,7 +253,7 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
    ======================================================= */
 .weather-icon {
   width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
+  justify-self:center; transition: background-image 0.5s ease, transform 0.5s ease;
 }
 .weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
 .weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
@@ -271,6 +272,7 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 /* =======================================================
    INFO TEXTO DO CLIMA
    ======================================================= */
+.info { display:flex; flex-direction
 .info { display:flex; flex-direction:column; justify-content:center; }
 .temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
 .desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px; font-style:italic; color:inherit; }
@@ -307,25 +309,6 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 #history-list li:focus, #favorites-list li:focus {
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
 }
-
-/* =======================================================
-   ÍCONE DE REMOÇÃO DE FAVORITO
-   ======================================================= */
-#favorites-list li button.remove-fav {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-weight: bold;
-  font-size: 1rem;
-  margin-left: 8px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-#favorites-list li button.remove-fav:hover, #favorites-list li button.remove-fav:focus {
-  transform: scale(1.2);
-  outline: none;
-}
-
 
 /* =======================================================
    ÍCONE DE FAVORITO
