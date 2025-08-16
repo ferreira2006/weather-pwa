@@ -170,18 +170,17 @@ button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled),
 button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
   background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
 }
-button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
+button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; filter: grayscale(40%); }
 
-/* -------- ÍCONE DE FAVORITO (CORAÇÃO ÚNICO) -------- */
+/* -------- ÍCONE DE FAVORITO -------- */
 #fav-icon {
   font-size: 1.4rem;
   transition: color 0.25s ease, transform 0.2s ease;
   user-select: none;
 }
-
-#fav-icon.not-favorited { color: #fff; } /* branco quando não favoritado */
-body.dark #fav-icon.not-favorited { color: #cfd8dc; } /* tom claro no tema escuro */
-#fav-icon.favorited { color: red; transform: scale(1.2); } /* vermelho e leve zoom quando favoritado */
+#fav-icon.not-favorited { color: #fff; } 
+body.dark #fav-icon.not-favorited { color: #cfd8dc; }
+#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
 
 /* -------- WEATHER CARD -------- */
 #weather {
@@ -196,81 +195,38 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rg
 
 /* -------- WEATHER CONTENT E ERROS -------- */
 #weather-content { display:block; grid-column:2; }
-#weather-error {
-  display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center;
-  padding:1rem 1.5rem; border-radius:12px; background-color: rgba(255,0,0,0.1);
-  min-height:100px; align-self:center; justify-self:center; font-size:1.1rem; transition:opacity 0.3s ease; opacity:0; pointer-events:none;
-}
+#weather-error { display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center; padding:1rem 1.5rem; border-radius:12px; background-color: rgba(255,0,0,0.1); min-height:100px; align-self:center; justify-self:center; font-size:1.1rem; transition:opacity 0.3s ease; opacity:0; pointer-events:none; }
 body.error #weather-error { display:block; opacity:1; pointer-events:auto; background-color: rgba(176,0,32,0.15); }
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
-/* -------- LOADING SPINNER MELHORADO -------- */
+/* -------- LOADING SPINNER -------- */
 #spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #fff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  transform-origin: center center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.3s ease;
-  z-index: 10;
+  position: absolute; bottom: 15px; right: 15px; width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top: 4px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; transform-origin: center center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease, transform 0.3s ease; z-index: 10;
 }
-
-/* Animação de rotação */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-
-#weather.loading::before {
-  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
-  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
-}
+@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+#weather.loading::before { content:""; position:absolute; inset:0; background:var(--loading-bg-light); backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none; }
 body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-/* Quando o card estiver carregando */
-#weather.loading #spinner {
-  opacity: 0.85;       /* semi-transparente */
-  transform: scale(1);  /* leve ajuste se quiser dar efeito de “aparecer” */
-}
+#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
-
+body.light #weather.loading .temp, body.light #weather.loading .desc, body.light #weather.loading .details, body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
+body.dark #weather.loading .temp, body.dark #weather.loading .desc, body.dark #weather.loading .details, body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
 #weather.loading .temp { height:60px; width:80px; }
 #weather.loading .desc { height:20px; width:120px; margin:10px 0; }
 #weather.loading .details { height:60px; width:100%; }
 
 /* -------- ÍCONES DE CLIMA -------- */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
+.weather-icon { width:100px; height:100px; background-size:contain; background-repeat:no-repeat; justify-self:center; transition: background-image 0.5s ease; }
 .weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
 .weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
 .weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
 .weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-
 @keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
 @keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
 @keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
 @keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
 @keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
-
 @media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
 /* -------- INFO TEXTO DO CLIMA -------- */
@@ -283,7 +239,7 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 #toast {
   position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
   padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none;
-  transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999;
+  transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-weight:600; text-align:center; max-width:90%;
 }
 #toast.show { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
 body.light #toast { background-color:var(--toast-bg-light); color:var(--toast-text-light); }
@@ -304,40 +260,16 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 }
 #history-list li:hover, #favorites-list li:hover,
 #history-list li:focus, #favorites-list li:focus {
-  background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
+  background-color:var(--button-bg-hover);
+  transform:scale(1.08);
+  box-shadow:0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* -------- ANIMAÇÃO LEVE PARA O CORAÇÃO AO CLICAR -------- */
-#fav-icon.favorited {
-  animation: heart-pop 0.25s ease forwards;
-}
-
-@keyframes heart-pop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(1.2); }
-}
+/* -------- ANIMAÇÃO LEVE PARA O CORAÇÃO -------- */
+@keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
 
 /* -------- SEARCH BOX -------- */
 #search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
 
-/* =======================================================
-   FALLBACK PARA NOSCRIPT
-   ======================================================= */
-noscript .error-message {
-  display: block; /* garante que apareça se JS estiver desativado */
-  grid-column: 1 / -1;
-  color: #b00020;
-  font-weight: 700;
-  text-align: center;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  background-color: rgba(176, 0, 32, 0.15);
-  min-height: 100px;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.1rem;
-  opacity: 1; /* sem transição JS */
-  pointer-events: auto;
-  margin-bottom: 20px;
-}
+/* -------- FALLBACK NOSCRIPT -------- */
+noscript .warning { color:red; text-align:center; font-weight:bold; }
