@@ -1,4 +1,4 @@
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather"; 
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";  
 const maxHistoryItems = 5;
 
 // ===== UTILS ======
@@ -96,7 +96,7 @@ const IBGE = {
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
     dom.citySelect.addEventListener("change", e => {
       currentCity = e.target.value;
-      currentCityValid = !!currentCity;
+      // Removido: currentCityValid = !!currentCity;
       App.updateButtonsState();
       App.updateFavIcon();
     });
@@ -156,7 +156,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    currentCityValid = true;
+    currentCityValid = true; // Só habilita após carregar a cidade
     currentCity = data.name;
 
     UI.updateBackground(data.weather[0].main);
