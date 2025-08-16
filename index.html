@@ -22,22 +22,33 @@
   </header>
 
   <main>
+    <!-- BUSCA DE CIDADES -->
     <section id="search-section" aria-label="Busca de cidades">
-      <form id="search-box" role="search" aria-label="Busca de cidade">
-        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
+      <div id="search-box" role="search" aria-label="Busca de cidade">
+        <select id="city-select" aria-label="Selecione a cidade">
+          <option value="" disabled selected>Selecione a cidade</option>
+          <option value="São Paulo">São Paulo</option>
+          <option value="Rio de Janeiro">Rio de Janeiro</option>
+          <option value="Belo Horizonte">Belo Horizonte</option>
+          <!-- Adicione mais cidades -->
+        </select>
+
+        <button id="search-btn" type="button" aria-label="Buscar clima da cidade" disabled>
           Buscar
         </button>
         <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
           <span id="fav-icon" class="not-favorited">🤍</span> Adicionar aos favoritos
         </button>
-      </form>
+      </div>
     </section>
 
+    <!-- FAVORITOS -->
     <section id="favorites-section" aria-label="Cidades favoritas">
       <h2>Cidades Favoritas</h2>
       <ul id="favorites-list" role="list"></ul>
     </section>
 
+    <!-- WEATHER CARD -->
     <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
       <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
       <div id="weather-content" class="info">
@@ -50,14 +61,17 @@
       <div id="spinner"></div>
     </section>
 
+    <!-- HISTÓRICO -->
     <section id="history-section" aria-label="Histórico das cidades pesquisadas">
       <h2>Últimas cidades pesquisadas</h2>
       <ul id="history-list" role="list"></ul>
     </section>
   </main>
 
+  <!-- TOAST -->
   <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
+  <!-- MODAL DE CONFIRMAÇÃO -->
   <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
     <div class="modal-overlay"></div>
     <div class="modal-content" role="document" tabindex="0">
