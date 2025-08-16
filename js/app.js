@@ -1,116 +1,181 @@
-// ===== CONFIGURAÇÕES =====
+// ===================== CONFIGURAÇÕES =====================
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// ===== TEMAS =====
-const Themes = {
-  light: { text: '#000', inputText: '#000', inputBg: 'rgba(255,255,255,0.9)', loadingBg: 'rgba(255,255,255,0.35)' },
-  dark: { text: '#ddd', inputText: '#cfd8dc', inputBg: 'rgba(255,255,255,0.1)', loadingBg: 'rgba(255,255,255,0.15)' },
+// ===================== UTILITÁRIOS =====================
+const Utils = {
+  capitalizeCityName(city) {
+    return city
+      .toLowerCase()
+      .split(' ')
+      .filter(Boolean)
+      .map(w => w[0].toUpperCase() + w.slice(1))
+      .join(' ');
+  },
+  debounce(fn, delay = 300) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), delay);
+    };
+  }
 };
 
-function toggleTheme() {
-  const body = document.body;
-  body.classList.toggle('dark');
-  body.classList.toggle('light');
-  updateThemeStyles();
+// ===================== ELEMENTOS =====================
+const cityInput = document.getElementById('city-input');
+const searchBtn = document.getElementById('search-btn');
+const favBtn = document.getElementById('fav-btn');
+const favIcon = document.getElementById('fav-icon');
+const weatherCard = document.getElementById('weather');
+const cityNameEl = document.getElementById('city-name');
+const tempEl = document.getElementById('temp');
+const descEl = document.getElementById('desc');
+const detailsEl = document.getElementById('details');
+const iconEl = document.getElementById('icon');
+const spinnerEl = document.getElementById('spinner');
+const historyList = document.getElementById('history-list');
+const favoritesList = document.getElementById('favorites-list');
+const toastEl = document.getElementById('toast');
+const bodyEl = document.body;
+
+// ===================== STATE =====================
+let currentCity = '';
+let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let history = JSON.parse(localStorage.getItem('history')) || [];
+
+// ===================== FUNÇÕES =====================
+function setLoading(isLoading) {
+  if (isLoading) {
+    weatherCard.classList.add('loading');
+  } else {
+    weatherCard.classList.remove('loading');
+  }
 }
 
-function updateThemeStyles() {
-  const theme = document.body.classList.contains('dark') ? Themes.dark : Themes.light;
-  document.documentElement.style.setProperty('--text-color-light', theme.text);
-  document.documentElement.style.setProperty('--input-text-light', theme.inputText);
-  document.documentElement.style.setProperty('--input-bg-light', theme.inputBg);
-  document.documentElement.style.setProperty('--loading-bg-light', theme.loadingBg);
+function showToast(message) {
+  toastEl.textContent = message;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 2500);
 }
 
-document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-updateThemeStyles();
-
-// ===== TOAST =====
-function showToast(message, duration=3000) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), duration);
+function toggleSearchBtn() {
+  searchBtn.disabled = !cityInput.value.trim();
 }
 
-// ===== HISTÓRICO E FAVORITOS =====
-function addToHistory(city) {
-  let history = JSON.parse(localStorage.getItem('history')) || [];
-  history = [city, ...history.filter(c => c !== city)].slice(0, maxHistoryItems);
+function saveHistory(city) {
+  history = history.filter(c => c !== city);
+  history.unshift(city);
+  if (history.length > maxHistoryItems) history.pop();
   localStorage.setItem('history', JSON.stringify(history));
   renderHistory();
 }
 
 function renderHistory() {
-  const historyList = document.getElementById('history-list');
-  const history = JSON.parse(localStorage.getItem('history')) || [];
   historyList.innerHTML = '';
   history.forEach(city => {
     const li = document.createElement('li');
     li.textContent = city;
     li.tabIndex = 0;
-    li.addEventListener('click', () => fetchWeather(city));
+    li.addEventListener('click', () => searchCity(city));
     historyList.appendChild(li);
   });
 }
 
 function toggleFavorite(city) {
-  let favs = JSON.parse(localStorage.getItem('favorites')) || [];
-  if (favs.includes(city)) {
-    favs = favs.filter(c => c !== city);
+  if (favorites.includes(city)) {
+    favorites = favorites.filter(c => c !== city);
+    showToast('Cidade removida dos favoritos!');
   } else {
-    favs.push(city);
+    favorites.push(city);
+    showToast('Cidade adicionada aos favoritos!');
   }
-  localStorage.setItem('favorites', JSON.stringify(favs));
+  localStorage.setItem('favorites', JSON.stringify(favorites));
   renderFavorites();
+  updateFavIcon(city);
 }
 
 function renderFavorites() {
-  const favList = document.getElementById('favorites-list');
-  const favs = JSON.parse(localStorage.getItem('favorites')) || [];
-  favList.innerHTML = '';
-  favs.forEach(city => {
+  favoritesList.innerHTML = '';
+  favorites.forEach(city => {
     const li = document.createElement('li');
     li.textContent = city;
     li.tabIndex = 0;
-    li.addEventListener('click', () => fetchWeather(city));
-    favList.appendChild(li);
+    li.addEventListener('click', () => searchCity(city));
+    favoritesList.appendChild(li);
   });
 }
 
-// ===== FETCH WEATHER =====
-async function fetchWeather(city) {
-  const weather = document.getElementById('weather');
-  weather.classList.add('loading');
-  try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    if (!res.ok) throw new Error('Cidade não encontrada');
-    const data = await res.json();
-    renderWeather(data);
-    addToHistory(city);
-  } catch (err) {
-    showToast(err.message);
-  } finally {
-    weather.classList.remove('loading');
+function updateFavIcon(city) {
+  if (favorites.includes(city)) {
+    favIcon.classList.add('favorited');
+    favIcon.classList.remove('not-favorited');
+    favBtn.setAttribute('aria-pressed', 'true');
+  } else {
+    favIcon.classList.remove('favorited');
+    favIcon.classList.add('not-favorited');
+    favBtn.setAttribute('aria-pressed', 'false');
   }
 }
 
-function renderWeather(data) {
-  document.getElementById('city-name').textContent = data.city;
-  document.getElementById('temp').textContent = `${Math.round(data.temp)}°C`;
-  document.getElementById('desc').textContent = data.description;
-  document.getElementById('details').textContent = `Sensação: ${Math.round(data.feels_like)}°C | Umidade: ${data.humidity}% | Vento: ${data.wind_speed} m/s`;
-  const icon = document.getElementById('icon');
-  icon.className = `weather-icon ${data.icon}`;
+function clearWeather() {
+  cityNameEl.textContent = '--';
+  tempEl.textContent = '-- °C';
+  descEl.textContent = 'Aguardando dados...';
+  detailsEl.textContent = '--';
+  iconEl.className = 'weather-icon';
 }
 
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
+async function searchCity(city) {
+  currentCity = Utils.capitalizeCityName(city);
+  setLoading(true);
+  clearWeather();
+
+  try {
+    const response = await fetch(`${backendUrl}?city=${encodeURIComponent(currentCity)}`);
+    if (!response.ok) throw new Error('Cidade não encontrada');
+    const data = await response.json();
+
+    cityNameEl.textContent = currentCity;
+    tempEl.textContent = `${Math.round(data.temp)} °C`;
+    descEl.textContent = data.description;
+    detailsEl.textContent = `Umidade: ${data.humidity}% | Vento: ${data.wind_speed} km/h`;
+
+    const weatherType = data.type.toLowerCase();
+    iconEl.className = `weather-icon ${weatherType}`;
+    bodyEl.className = `${bodyEl.classList.contains('dark') ? 'dark' : 'light'} bg-${weatherType}`;
+
+    saveHistory(currentCity);
+    updateFavIcon(currentCity);
+  } catch (err) {
+    showToast(err.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
+// ===================== EVENTOS =====================
+cityInput.addEventListener('input', Utils.debounce(toggleSearchBtn, 300));
+searchBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (cityInput.value.trim()) searchCity(cityInput.value.trim());
+});
+
+favBtn.addEventListener('click', () => {
+  if (currentCity) toggleFavorite(currentCity);
+});
+
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('click', () => {
+  const isDark = bodyEl.classList.toggle('dark');
+  bodyEl.classList.toggle('light', !isDark);
+  themeToggle.textContent = isDark ? 'Modo Claro' : 'Modo Escuro';
+});
+
+function init() {
   renderHistory();
   renderFavorites();
-  document.getElementById('search-btn').addEventListener('click', () => {
-    const city = document.getElementById('city-input').value.trim();
-    if (city) fetchWeather(city);
-  });
-});
+  toggleSearchBtn();
+  if (favorites.length) updateFavIcon(favorites[0]);
+}
+
+init();
