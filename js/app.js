@@ -43,7 +43,8 @@ const dom = {
 };
 
 // ===== STATE =====
-let currentCityValid = false;
+let currentCityValid = false; // habilita busca
+let currentCityLoaded = false; // habilita favoritos
 let states = [];
 let citiesByState = {};
 let currentCity = "";
@@ -96,7 +97,8 @@ const IBGE = {
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
     dom.citySelect.addEventListener("change", e => {
       currentCity = e.target.value;
-      // Removido: currentCityValid = !!currentCity;
+      currentCityValid = !!currentCity; // habilita busca
+      currentCityLoaded = false; // desabilita favoritos até carregar
       App.updateButtonsState();
       App.updateFavIcon();
     });
@@ -156,7 +158,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    currentCityValid = true; // Só habilita após carregar a cidade
+    currentCityLoaded = true; // habilita favoritos após carregamento
     currentCity = data.name;
 
     UI.updateBackground(data.weather[0].main);
@@ -173,6 +175,7 @@ const UI = {
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
     currentCityValid = false;
+    currentCityLoaded = false;
     App.updateButtonsState();
     App.updateFavIcon();
   },
@@ -246,7 +249,7 @@ const App = {
   },
 
   addFavorite(city) {
-    if (!city) return;
+    if (!city || !currentCityLoaded) return;
     const favs = Storage.getFavorites();
     const fCity = Utils.capitalizeCityName(city);
     if (favs.includes(fCity)) {
@@ -264,12 +267,12 @@ const App = {
   updateButtonsState() {
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length >= 5;
+    dom.favBtn.disabled = !currentCityLoaded || favs.includes(currentCity) || favs.length >= 5;
   },
 
   updateFavIcon() {
     const favs = Storage.getFavorites();
-    if (!currentCityValid || !currentCity) {
+    if (!currentCityLoaded || !currentCity) {
       dom.favIcon.classList.remove("favorited");
       dom.favIcon.classList.add("not-favorited");
       dom.favIcon.textContent = "🤍";
@@ -311,6 +314,7 @@ const App = {
     if (lastCity) {
       currentCity = lastCity;
       currentCityValid = true;
+      currentCityLoaded = true;
       this.handleCitySelect(lastCity);
     } else {
       initGeolocation();
