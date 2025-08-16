@@ -31,7 +31,7 @@
 
   --toast-bg-light: rgba(0,0,0,0.85);
   --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255,255,255,0.9);
+  --toast-bg-dark: rgba(255,255,255,0.95);
   --toast-text-dark: #000;
 
   --loading-bg-light: rgba(255,255,255,0.35);
