@@ -12,7 +12,7 @@ const Utils = {
       .join(' ');
   },
   normalizeCityInput(city) {
-    return city ? city.replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") : "";
+    return city ? city.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[’‘]/g, "'").trim().replace(/\s+/g, " ") : "";
   }
 };
 
@@ -81,6 +81,7 @@ const IBGE = {
       dom.citySelect.disabled = true;
       currentCityValid = false;
       App.updateButtonsState();
+      App.updateFavIcon();
       return;
     }
     const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
@@ -220,7 +221,9 @@ const App = {
     } catch(err) { 
       UI.showError(err.message); 
     } finally { 
+      // garantir que spinner sempre desaparece
       dom.weatherDiv.classList.remove("loading"); 
+      App.updateFavIcon(); // atualizar ícone mesmo após erro
     }
   },
   addFavorite(city) {
@@ -241,17 +244,18 @@ const App = {
   updateButtonsState() {
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length>=5;
+    dom.favBtn.disabled = !currentCityValid || favs.includes(Utils.capitalizeCityName(currentCity)) || favs.length>=5;
   },
   updateFavIcon() {
     const favs = Storage.getFavorites();
+    const cityKey = Utils.capitalizeCityName(currentCity);
     if (!currentCityValid || !currentCity) {
       dom.favIcon.classList.remove("favorited");
       dom.favIcon.classList.add("not-favorited");
       dom.favIcon.textContent = "🤍";
       return;
     }
-    if (favs.includes(currentCity)) {
+    if (favs.includes(cityKey)) {
       dom.favIcon.classList.add("favorited");
       dom.favIcon.classList.remove("not-favorited");
       dom.favIcon.textContent = "❤️";
