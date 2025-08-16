@@ -95,8 +95,8 @@ const IBGE = {
     dom.citySelect.innerHTML = `<option value="">Selecione a cidade</option>` + 
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
     dom.citySelect.addEventListener("change", e => {
-      currentCityValid = !!e.target.value;
       currentCity = e.target.value;
+      currentCityValid = !!currentCity;
       App.updateButtonsState();
       App.updateFavIcon();
     });
@@ -133,7 +133,6 @@ const UI = {
     setTimeout(() => t.classList.remove("show"), duration);
   },
 
-  // Atualiza o fundo do corpo conforme o clima
   updateBackground(weatherMain) {
     document.body.classList.remove('bg-clear','bg-clouds','bg-rain','bg-thunderstorm','bg-snow');
     switch(weatherMain.toLowerCase()) {
@@ -160,7 +159,7 @@ const UI = {
     currentCityValid = true;
     currentCity = data.name;
 
-    UI.updateBackground(data.weather[0].main); // atualiza o fundo
+    UI.updateBackground(data.weather[0].main);
     App.updateButtonsState();
     App.updateFavIcon();
     UI.renderHistory();
@@ -185,7 +184,7 @@ const UI = {
       li.tabIndex = 0;
       li.textContent = city;
       if (clickCallback) li.addEventListener("click", () => clickCallback(city));
-      if(city === currentCity) li.classList.add("selected"); // cidade selecionada
+      if(city === currentCity) li.classList.add("selected");
       listEl.appendChild(li);
     });
   },
@@ -265,7 +264,7 @@ const App = {
   updateButtonsState() {
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length>=5;
+    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length >=5;
   },
 
   updateFavIcon() {
@@ -311,13 +310,11 @@ const App = {
 
     const lastCity = Storage.getLastCity();
     if(lastCity) this.handleCitySelect(lastCity);
-    else initGeolocation(); // fallback geolocalização
+    else initGeolocation();
   }
 };
 
 // ===== SPINNER + GEO =====
-function showSpinner() { dom.weatherDiv.classList.add("loading"); }
-function hideSpinner() { dom.weatherDiv.classList.remove("loading"); }
 function initGeolocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
