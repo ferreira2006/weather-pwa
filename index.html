@@ -8,12 +8,13 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
-<noscript> 
+
+<noscript>
   <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
     ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
   </div>
 </noscript>
-
+  
 <header>
   <h1>Clima Atual</h1>
   <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
@@ -22,55 +23,29 @@
 </header>
 
 <main>
-  <!-- Busca de cidades -->
   <section id="search-section" aria-label="Busca de cidades">
     <form id="search-box" role="search" aria-label="Busca de cidade">
-      <input
-        id="city-input"
-        name="city"
-        type="text"
-        list="city-suggestions"
-        placeholder="Digite a cidade"
-        aria-label="Digite o nome da cidade"
-        autocomplete="off"
-        required
-      />
+      <input id="city-input" name="city" type="text" list="city-suggestions"
+        placeholder="Digite a cidade" aria-label="Digite o nome da cidade" autocomplete="off" required />
       <datalist id="city-suggestions">
-        <option value="Anchieta">
-        <option value="Bandeirante">
-        <option value="Barra Bonita">
-        <option value="Belmonte">
-        <option value="Descanso">
-        <option value="Dionísio Cerqueira">
-        <option value="Guaraciaba">
-        <option value="Guarujá do Sul">
-        <option value="Iporã do Oeste">
-        <option value="Itapiranga">
-        <option value="Mondaí">
-        <option value="Palma Sola">
-        <option value="Paraíso">
-        <option value="Princesa">
-        <option value="Santa Helena">
-        <option value="São João do Oeste">
-        <option value="São José do Cedro">
-        <option value="São Miguel do Oeste">
+        <option value="Anchieta"><option value="Bandeirante"><option value="Barra Bonita"><option value="Belmonte">
+        <option value="Descanso"><option value="Dionísio Cerqueira"><option value="Guaraciaba"><option value="Guarujá do Sul">
+        <option value="Iporã do Oeste"><option value="Itapiranga"><option value="Mondaí"><option value="Palma Sola">
+        <option value="Paraíso"><option value="Princesa"><option value="Santa Helena"><option value="São João do Oeste">
+        <option value="São José do Cedro"><option value="São Miguel do Oeste">
       </datalist>
-      <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
-        Buscar
-      </button>
+      <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>Buscar</button>
       <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
         <span id="fav-icon" class="not-favorited"></span> Adicionar aos favoritos
       </button>
     </form>
   </section>
 
-  <!-- Cidades favoritas -->
   <section id="favorites-section" aria-label="Cidades favoritas">
     <h2>Cidades Favoritas</h2>
     <ul id="favorites-list" role="list"></ul>
   </section>
 
-  <!-- Card do clima -->
   <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
     <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
     <div id="weather-content" class="info">
@@ -83,29 +58,14 @@
     <div id="spinner"></div>
   </section>
 
-  <!-- Histórico de pesquisas -->
   <section id="history-section" aria-label="Histórico das cidades pesquisadas">
     <h2>Últimas cidades pesquisadas</h2>
     <ul id="history-list" role="list"></ul>
   </section>
-
-  <!-- Sessão de atalhos de teclado -->
-  <section id="shortcuts-section" aria-label="Atalhos de teclado">
-    <h2>Atalhos de Teclado</h2>
-    <ul>
-      <li><strong>Enter:</strong> Buscar cidade</li>
-      <li><strong>Ctrl + F:</strong> Focar no campo de busca</li>
-      <li><strong>Ctrl + T:</strong> Alternar tema claro/escuro</li>
-      <li><strong>F:</strong> Adicionar/Remover cidade favorita</li>
-      <li><strong>Setas ↑ ↓:</strong> Navegar no histórico/favoritos</li>
-    </ul>
-  </section>
 </main>
 
-<!-- Toast de notificações -->
 <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
-<!-- Modal de confirmação -->
 <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
   <div class="modal-overlay"></div>
   <div class="modal-content" role="document" tabindex="0">
@@ -117,6 +77,17 @@
     </div>
   </div>
 </div>
+
+<footer id="shortcuts-section" aria-label="Atalhos de teclado">
+  <h2>Atalhos de Teclado</h2>
+  <ul>
+    <li><strong>Enter:</strong> Buscar cidade</li>
+    <li><strong>Tab:</strong> Navegar entre inputs e botões</li>
+    <li><strong>Setas ↑↓:</strong> Selecionar cidade no autocomplete</li>
+    <li><strong>F:</strong> Adicionar/Remover cidade dos favoritos</li>
+    <li><strong>T:</strong> Alternar tema claro/escuro</li>
+  </ul>
+</footer>
 
 <script src="js/app.js"></script>
 </body>
