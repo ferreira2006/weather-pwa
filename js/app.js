@@ -253,18 +253,18 @@ const App = {
       UI.showToast(`${fCity} já está nos favoritos`);
       return;
     }
-    if (favs.length >=5) { UI.showToast("Limite de 5 cidades favoritas"); return; }
+    if (favs.length >= 5) { UI.showToast("Limite de 5 cidades favoritas"); return; }
     favs.push(fCity);
     Storage.saveFavorites(favs);
     UI.renderFavorites();
     UI.showToast(`${fCity} adicionado aos favoritos!`);
-    App.updateFavIcon();
+    this.updateFavIcon();
   },
 
   updateButtonsState() {
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
-    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length >=5;
+    dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length >= 5;
   },
 
   updateFavIcon() {
@@ -292,9 +292,8 @@ const App = {
     this.updateButtonsState();
     this.updateFavIcon();
 
-    document.getElementById("search-box").addEventListener("submit", e=>{
-      e.preventDefault();
-      if (!currentCityValid) return UI.showToast("Selecione uma cidade válida.");
+    dom.searchBtn.addEventListener("click", ()=>{
+      if (!currentCityValid || !currentCity) return UI.showToast("Selecione uma cidade válida.");
       this.handleCitySelect(currentCity);
     });
 
@@ -309,8 +308,13 @@ const App = {
     });
 
     const lastCity = Storage.getLastCity();
-    if(lastCity) this.handleCitySelect(lastCity);
-    else initGeolocation();
+    if (lastCity) {
+      currentCity = lastCity;
+      currentCityValid = true;
+      this.handleCitySelect(lastCity);
+    } else {
+      initGeolocation();
+    }
   }
 };
 
