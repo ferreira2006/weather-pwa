@@ -309,6 +309,25 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 }
 
 /* =======================================================
+   ÍCONE DE REMOÇÃO DE FAVORITO
+   ======================================================= */
+#favorites-list li button.remove-fav {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-left: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+#favorites-list li button.remove-fav:hover, #favorites-list li button.remove-fav:focus {
+  transform: scale(1.2);
+  outline: none;
+}
+
+
+/* =======================================================
    ÍCONE DE FAVORITO
    ======================================================= */
 #fav-icon {
