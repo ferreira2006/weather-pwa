@@ -133,17 +133,17 @@ const UI = {
     setTimeout(() => t.classList.remove("show"), duration);
   },
   showWeather(data) {
+    document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
-    dom.spinner.style.display = "none";
 
     dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
+    dom.weatherDiv.hidden = false;
 
     currentCityValid = true;
     currentCity = data.name;
@@ -151,11 +151,11 @@ const UI = {
     App.updateFavIcon();
   },
   showError(msg) {
+    document.body.classList.add("error");
     dom.weatherError.textContent = msg;
     dom.weatherError.style.display = "block";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
-    dom.spinner.style.display = "none";
     currentCityValid = false;
     App.updateButtonsState();
     App.updateFavIcon();
@@ -178,6 +178,23 @@ const UI = {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.textContent = city;
+
+      // botão remover
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "remove-fav";
+      removeBtn.textContent = "✕";
+      removeBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const confirm = await showConfirmationModal(`Remover ${city} dos favoritos?`);
+        if (!confirm) return;
+        const newFavs = Storage.getFavorites().filter(f => f !== city);
+        Storage.saveFavorites(newFavs);
+        UI.renderFavorites();
+        App.updateButtonsState();
+        App.updateFavIcon();
+      });
+      li.appendChild(removeBtn);
+
       li.addEventListener("click", () => App.handleCitySelect(city));
       dom.favoritesListEl.appendChild(li);
     });
@@ -194,15 +211,17 @@ const App = {
   async handleCitySelect(city) {
     if (!city) return;
     dom.weatherDiv.classList.add("loading");
-    dom.spinner.style.display = "block";
     try {
       const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
       Storage.saveHistory(city);
       UI.renderHistory();
       Storage.saveLastCity(city);
-    } catch(err) { UI.showError(err.message); }
-    finally { dom.weatherDiv.classList.remove("loading"); dom.spinner.style.display="none"; }
+    } catch(err) { 
+      UI.showError(err.message); 
+    } finally { 
+      dom.weatherDiv.classList.remove("loading"); 
+    }
   },
   addFavorite(city) {
     if (!city) return;
@@ -268,10 +287,24 @@ const App = {
 
     const lastCity = Storage.getLastCity();
     if(lastCity) this.handleCitySelect(lastCity);
+    else initGeolocation();
   }
 };
 
-window.onload = () => App.init();
+// ===== SPINNER + GEO =====
+function showSpinner() { dom.weatherDiv.classList.add("loading"); }
+function hideSpinner() { dom.weatherDiv.classList.remove("loading"); }
+function initGeolocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => App.handleCitySelect(`${pos.coords.latitude},${pos.coords.longitude}`),
+      err => { UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); App.handleCitySelect("São Paulo"); },
+      { timeout: 5000 }
+    );
+  } else {
+    App.handleCitySelect("São Paulo");
+  }
+}
 
 // ===== MODAL =====
 function showConfirmationModal(message) {
@@ -290,3 +323,5 @@ function showConfirmationModal(message) {
     noBtn.addEventListener("click",onNo);
   });
 }
+
+window.onload = () => App.init();
