@@ -31,7 +31,7 @@
 
   --toast-bg-light: rgba(0,0,0,0.85);
   --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255,255,255,0.95);
+  --toast-bg-dark: rgba(255,255,255,0.9);
   --toast-text-dark: #000;
 
   --loading-bg-light: rgba(255,255,255,0.35);
@@ -298,12 +298,22 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 }
 #history-list li, #favorites-list li {
   background:var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px;
-  cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto;
+  cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto; position:relative;
 }
 #history-list li:hover, #favorites-list li:hover,
 #history-list li:focus, #favorites-list li:focus {
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
 }
+
+/* -------- BOTÃO X FAVORITOS -------- */
+#favorites-list li .remove-fav {
+  position:absolute; top:-5px; right:-5px;
+  background:#f44336; border:none; color:#fff; font-size:0.85rem;
+  width:20px; height:20px; border-radius:50%; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0.9; transition:opacity 0.2s;
+}
+#favorites-list li .remove-fav:hover { opacity:1; }
 
 /* =======================================================
    ÍCONE DE FAVORITO
@@ -339,19 +349,11 @@ body.dark #fav-icon.not-favorited { color: #cfd8dc; }
 }
 #confirm-modal h2 { margin-top:0; font-size:1.5rem; }
 #confirm-modal p { margin:20px 0; font-size:1.1rem; }
-#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
 #confirm-modal button {
-  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
-  cursor:pointer; user-select:none; transition: background-color 0.3s;
+  margin:0 10px; padding:8px 18px; font-size:1rem; border:none; border-radius:8px;
+  cursor:pointer; transition: background-color 0.25s ease;
 }
-#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
-#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
-#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
-#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#e53935; outline:none; }
-
-/* =======================================================
-   NOSCRIPT
-   ======================================================= */
-noscript .error-message {
-  padding:12px; margin:12px 0; border-radius:8px; background:#ffcdd2; color:#b00020; font-weight:700; text-align:center;
-}
+#confirm-yes { background:#4caf50; color:#fff; }
+#confirm-no { background:#f44336; color:#fff; }
+#confirm-yes:hover { background:#45a049; }
+#confirm-no:hover { background:#e53935; }
