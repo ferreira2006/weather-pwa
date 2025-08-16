@@ -179,7 +179,6 @@ const UI = {
       li.tabIndex = 0;
       li.textContent = city;
 
-      // botão remover
       const removeBtn = document.createElement("button");
       removeBtn.className = "remove-fav";
       removeBtn.textContent = "✕";
@@ -287,7 +286,7 @@ const App = {
 
     const lastCity = Storage.getLastCity();
     if(lastCity) this.handleCitySelect(lastCity);
-    else initGeolocation();
+    else initGeolocation(); // fallback geolocalização
   }
 };
 
@@ -298,11 +297,14 @@ function initGeolocation() {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       pos => App.handleCitySelect(`${pos.coords.latitude},${pos.coords.longitude}`),
-      err => { UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); App.handleCitySelect("São Paulo"); },
+      err => { 
+        UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); 
+        App.handleCitySelect("São Miguel do Oeste"); // fallback antigo restaurado
+      },
       { timeout: 5000 }
     );
   } else {
-    App.handleCitySelect("São Paulo");
+    App.handleCitySelect("São Miguel do Oeste"); // fallback antigo restaurado
   }
 }
 
