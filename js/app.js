@@ -48,6 +48,7 @@ let currentCityLoaded = false; // habilita favoritos
 let states = [];
 let citiesByState = {};
 let currentCity = "";
+let citiesWithData = {}; // { "Cidade": true } para marcar cidades que já carregaram dados
 
 // ===== API =====
 const WeatherAPI = {
@@ -97,8 +98,8 @@ const IBGE = {
       cities.map(c => `<option value="${c.nome}">${c.nome}</option>`).join("");
     dom.citySelect.addEventListener("change", e => {
       currentCity = e.target.value;
-      currentCityValid = !!currentCity; // habilita busca
-      currentCityLoaded = false; // desabilita favoritos até carregar
+      currentCityValid = !!currentCity;
+      currentCityLoaded = !!citiesWithData[currentCity]; 
       App.updateButtonsState();
       App.updateFavIcon();
     });
@@ -158,7 +159,8 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    currentCityLoaded = true; // habilita favoritos após carregamento
+    currentCityLoaded = true;
+    citiesWithData[data.name] = true;
     currentCity = data.name;
 
     UI.updateBackground(data.weather[0].main);
@@ -185,14 +187,24 @@ const UI = {
     items.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.textContent = city;
-      if (clickCallback) li.addEventListener("click", () => clickCallback(city));
+
+      // Adiciona cadeado se a cidade não tiver dados
+      const hasData = !!citiesWithData[city];
+      li.textContent = city + (hasData ? "" : " 🔒");
+
+      if (clickCallback) li.addEventListener("click", () => {
+        currentCityLoaded = !!citiesWithData[city]; 
+        clickCallback(city);
+      });
+
       if(city === currentCity) li.classList.add("selected");
       listEl.appendChild(li);
     });
   },
 
-  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
+  renderHistory() { 
+    this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); 
+  },
 
   renderFavorites() { 
     const favs = Storage.getFavorites();
@@ -242,6 +254,10 @@ const App = {
       Storage.saveHistory(city);
       Storage.saveLastCity(city);
     } catch(err) { 
+      // Mantém a cidade no histórico mesmo sem dados
+      citiesWithData[city] = false;
+      Storage.saveHistory(city);
+      UI.renderHistory();
       UI.showError(err.message); 
     } finally { 
       dom.weatherDiv.classList.remove("loading"); 
@@ -324,7 +340,7 @@ const App = {
     if (lastCity) {
       currentCity = lastCity;
       currentCityValid = true;
-      currentCityLoaded = true;
+      currentCityLoaded = !!citiesWithData[lastCity];
       this.handleCitySelect(lastCity);
     } else {
       initGeolocation();
