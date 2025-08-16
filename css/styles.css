@@ -18,11 +18,11 @@
   --text-color-light: #000;
   --text-color-dark: #ddd;
 
-  --input-text-light: #000;
-  --input-text-dark: #cfd8dc;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg);
+  --select-text-light: #000;
+  --select-text-dark: #cfd8dc;
+  --select-bg-light: rgba(255, 255, 255, 0.9);
+  --select-bg-dark: rgba(255, 255, 255, 0.1);
+  --select-border-focus: var(--button-bg);
 
   --button-bg: #ff9800;
   --button-bg-hover: #e68a00;
@@ -67,9 +67,9 @@ body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 /* =======================================================
-   INPUTS E SELECTS
+   SELECTS
    ======================================================= */
-input[type="text"], select {
+select {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -80,37 +80,31 @@ input[type="text"], select {
   outline: none;
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
-body.light input[type="text"], body.light select {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
+body.light select {
+  color: var(--select-text-light);
+  background-color: var(--select-bg-light);
 }
-body.light input[type="text"]:focus, body.light select:focus {
+body.light select:focus {
   background-color: #fff;
   color: #000;
-  border-color: var(--input-border-focus);
+  border-color: var(--select-border-focus);
 }
-body.light input[type="text"]::placeholder, body.light select option {
-  color: #666;
-  opacity: 1;
+body.light select option { color: #666; opacity: 1; }
+body.dark select {
+  color: var(--select-text-dark);
+  background-color: var(--select-bg-dark);
 }
-body.dark input[type="text"], body.dark select {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
+body.dark select:focus {
+  background-color: var(--select-bg-dark);
+  color: var(--select-text-dark);
+  border-color: var(--select-border-focus);
 }
-body.dark input[type="text"]:focus, body.dark select:focus {
-  background-color: var(--input-bg-dark);
-  color: var(--input-text-dark);
-  border-color: var(--input-border-focus);
-}
-body.dark input[type="text"]::placeholder, body.dark select option {
-  color: rgba(255,255,255,0.6);
-}
+body.dark select option { color: rgba(255,255,255,0.6); }
 
 /* =======================================================
    FOCO VISÍVEL ACESSÍVEL
    ======================================================= */
 :focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
-input[type="text"]:focus-visible,
 select:focus-visible,
 button:focus-visible,
 #history-list li:focus-visible,
