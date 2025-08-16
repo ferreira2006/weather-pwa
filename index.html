@@ -11,7 +11,7 @@
 <noscript> 
   <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
     ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
-  </div> 
+  </div>
 </noscript>
 
 <header>
@@ -36,12 +36,24 @@
         required
       />
       <datalist id="city-suggestions">
-        <option value="Anchieta"><option value="Bandeirante"><option value="Barra Bonita">
-        <option value="Belmonte"><option value="Descanso"><option value="Dionísio Cerqueira">
-        <option value="Guaraciaba"><option value="Guarujá do Sul"><option value="Iporã do Oeste">
-        <option value="Itapiranga"><option value="Mondaí"><option value="Palma Sola">
-        <option value="Paraíso"><option value="Princesa"><option value="Santa Helena">
-        <option value="São João do Oeste"><option value="São José do Cedro"><option value="São Miguel do Oeste">
+        <option value="Anchieta">
+        <option value="Bandeirante">
+        <option value="Barra Bonita">
+        <option value="Belmonte">
+        <option value="Descanso">
+        <option value="Dionísio Cerqueira">
+        <option value="Guaraciaba">
+        <option value="Guarujá do Sul">
+        <option value="Iporã do Oeste">
+        <option value="Itapiranga">
+        <option value="Mondaí">
+        <option value="Palma Sola">
+        <option value="Paraíso">
+        <option value="Princesa">
+        <option value="Santa Helena">
+        <option value="São João do Oeste">
+        <option value="São José do Cedro">
+        <option value="São Miguel do Oeste">
       </datalist>
       <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
         Buscar
@@ -77,13 +89,15 @@
     <ul id="history-list" role="list"></ul>
   </section>
 
-  <!-- Sessão de Atalhos de Teclado -->
+  <!-- Sessão de atalhos de teclado -->
   <section id="shortcuts-section" aria-label="Atalhos de teclado">
     <h2>Atalhos de Teclado</h2>
     <ul>
-      <li><strong>Alt + C</strong>: Focar campo de busca</li>
-      <li><strong>Alt + B</strong>: Buscar clima da cidade</li>
-      <li><strong>Alt + T</strong>: Alternar tema claro/escuro</li>
+      <li><strong>Enter:</strong> Buscar cidade</li>
+      <li><strong>Ctrl + F:</strong> Focar no campo de busca</li>
+      <li><strong>Ctrl + T:</strong> Alternar tema claro/escuro</li>
+      <li><strong>F:</strong> Adicionar/Remover cidade favorita</li>
+      <li><strong>Setas ↑ ↓:</strong> Navegar no histórico/favoritos</li>
     </ul>
   </section>
 </main>
