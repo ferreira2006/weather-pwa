@@ -132,6 +132,20 @@ const UI = {
     t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), duration);
   },
+
+  // Atualiza o fundo do corpo conforme o clima
+  updateBackground(weatherMain) {
+    document.body.classList.remove('bg-clear','bg-clouds','bg-rain','bg-thunderstorm','bg-snow');
+    switch(weatherMain.toLowerCase()) {
+      case 'clear': document.body.classList.add('bg-clear'); break;
+      case 'clouds': document.body.classList.add('bg-clouds'); break;
+      case 'rain': document.body.classList.add('bg-rain'); break;
+      case 'thunderstorm': document.body.classList.add('bg-thunderstorm'); break;
+      case 'snow': document.body.classList.add('bg-snow'); break;
+      default: document.body.classList.add('bg-clear');
+    }
+  },
+
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
@@ -143,13 +157,16 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    dom.weatherDiv.hidden = false;
-
     currentCityValid = true;
     currentCity = data.name;
+
+    UI.updateBackground(data.weather[0].main); // atualiza o fundo
     App.updateButtonsState();
     App.updateFavIcon();
+    UI.renderHistory();
+    UI.renderFavorites();
   },
+
   showError(msg) {
     document.body.classList.add("error");
     dom.weatherError.textContent = msg;
@@ -160,6 +177,7 @@ const UI = {
     App.updateButtonsState();
     App.updateFavIcon();
   },
+
   renderList(listEl, items, clickCallback) {
     listEl.innerHTML = "";
     items.forEach(city => {
@@ -167,10 +185,13 @@ const UI = {
       li.tabIndex = 0;
       li.textContent = city;
       if (clickCallback) li.addEventListener("click", () => clickCallback(city));
+      if(city === currentCity) li.classList.add("selected"); // cidade selecionada
       listEl.appendChild(li);
     });
   },
+
   renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
+
   renderFavorites() { 
     const favs = Storage.getFavorites();
     dom.favoritesListEl.innerHTML = "";
@@ -182,6 +203,7 @@ const UI = {
       const removeBtn = document.createElement("button");
       removeBtn.className = "remove-fav";
       removeBtn.textContent = "✕";
+      removeBtn.setAttribute("aria-label", `Remover ${city} dos favoritos`);
       removeBtn.addEventListener("click", async (e) => {
         e.stopPropagation();
         const confirm = await showConfirmationModal(`Remover ${city} dos favoritos?`);
@@ -195,9 +217,11 @@ const UI = {
       li.appendChild(removeBtn);
 
       li.addEventListener("click", () => App.handleCitySelect(city));
+      if(city === currentCity) li.classList.add("selected");
       dom.favoritesListEl.appendChild(li);
     });
   },
+
   applySavedTheme() {
     const t = Storage.getTheme();
     document.body.classList.add(t);
@@ -214,7 +238,6 @@ const App = {
       const data = await WeatherAPI.fetchByCity(city);
       UI.showWeather(data);
       Storage.saveHistory(city);
-      UI.renderHistory();
       Storage.saveLastCity(city);
     } catch(err) { 
       UI.showError(err.message); 
@@ -222,6 +245,7 @@ const App = {
       dom.weatherDiv.classList.remove("loading"); 
     }
   },
+
   addFavorite(city) {
     if (!city) return;
     const favs = Storage.getFavorites();
@@ -237,11 +261,13 @@ const App = {
     UI.showToast(`${fCity} adicionado aos favoritos!`);
     App.updateFavIcon();
   },
+
   updateButtonsState() {
     const favs = Storage.getFavorites();
     dom.searchBtn.disabled = !currentCityValid;
     dom.favBtn.disabled = !currentCityValid || favs.includes(currentCity) || favs.length>=5;
   },
+
   updateFavIcon() {
     const favs = Storage.getFavorites();
     if (!currentCityValid || !currentCity) {
@@ -260,10 +286,9 @@ const App = {
       dom.favIcon.textContent = "🤍";
     }
   },
+
   init() {
     UI.applySavedTheme();
-    UI.renderHistory();
-    UI.renderFavorites();
     IBGE.fetchStates();
     this.updateButtonsState();
     this.updateFavIcon();
@@ -299,12 +324,12 @@ function initGeolocation() {
       pos => App.handleCitySelect(`${pos.coords.latitude},${pos.coords.longitude}`),
       err => { 
         UI.showToast("Não foi possível obter localização. Selecionando cidade padrão."); 
-        App.handleCitySelect("São Miguel do Oeste"); // fallback antigo restaurado
+        App.handleCitySelect("São Miguel do Oeste"); 
       },
       { timeout: 5000 }
     );
   } else {
-    App.handleCitySelect("São Miguel do Oeste"); // fallback antigo restaurado
+    App.handleCitySelect("São Miguel do Oeste");
   }
 }
 
