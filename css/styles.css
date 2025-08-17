@@ -343,6 +343,39 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   transform: scale(1.1);
 }
 
+/* ===== Estilo dos selects e botão de busca ===== */
+.state-city-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.state-city-container select,
+.state-city-container button {
+  padding: 8px 12px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.state-city-container select:disabled,
+.state-city-container button:disabled {
+  background-color: #eee;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.state-city-container select:focus,
+.state-city-container button:focus {
+  outline: none;
+  b
+
 /* -------- SEARCH BOX -------- */
 #search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
 
