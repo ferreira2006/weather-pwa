@@ -111,29 +111,29 @@ const UI = {
     document.body.classList.add(`bg-${key}`);
   },
 
-  UI.setWeatherIcon = function(mainWeather) {
-  const map = {
-    clear: ["wi", "wi-day-sunny"],
-    clouds: ["wi", "wi-cloudy"],
-    rain: ["wi", "wi-rain"],
-    drizzle: ["wi", "wi-sprinkle"],
-    thunderstorm: ["wi", "wi-thunderstorm"],
-    snow: ["wi", "wi-snow"],
-    mist: ["wi", "wi-fog"],
-    smoke: ["wi", "wi-smoke"],
-    haze: ["wi", "wi-day-haze"],
-    dust: ["wi", "wi-dust"],
-    fog: ["wi", "wi-fog"],
-    sand: ["wi", "wi-sandstorm"],
-    ash: ["wi", "wi-volcano"],
-    squall: ["wi", "wi-strong-wind"],
-    tornado: ["wi", "wi-tornado"]
-  };
+  setWeatherIcon(mainWeather) {
+    const map = {
+      clear: ["wi", "wi-day-sunny"],
+      clouds: ["wi", "wi-cloudy"],
+      rain: ["wi", "wi-rain"],
+      drizzle: ["wi", "wi-sprinkle"],
+      thunderstorm: ["wi", "wi-thunderstorm"],
+      snow: ["wi", "wi-snow"],
+      mist: ["wi", "wi-fog"],
+      smoke: ["wi", "wi-smoke"],
+      haze: ["wi", "wi-day-haze"],
+      dust: ["wi", "wi-dust"],
+      fog: ["wi", "wi-fog"],
+      sand: ["wi", "wi-sandstorm"],
+      ash: ["wi", "wi-volcano"],
+      squall: ["wi", "wi-strong-wind"],
+      tornado: ["wi", "wi-tornado"]
+    };
 
-  const classes = map[mainWeather.toLowerCase()] || ["wi", "wi-day-sunny"];
-  dom.iconEl.className = "weather-icon";  // reseta a classe
-  dom.iconEl.classList.add(...classes);    // adiciona cada classe separadamente
-},
+    const classes = map[mainWeather.toLowerCase()] || ["wi", "wi-day-sunny"];
+    dom.iconEl.className = "weather-icon";  
+    dom.iconEl.classList.add(...classes);
+  },
 
   showWeather(data) {
     document.body.classList.remove("error");
