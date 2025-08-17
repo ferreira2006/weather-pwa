@@ -374,12 +374,14 @@ function showConfirmationModal(message) {
     const noBtn = modal.querySelector("#confirm-no");
     const focusable = [yesBtn, noBtn];
 
-    const firstBtn = focusable[0];
-    const lastBtn = focusable[focusable.length - 1];
+    const firstBtn = focusable[0]; // "Sim" (laranja)
+    const lastBtn = focusable[focusable.length - 1]; // "Não" (azul)
 
     // Salva elemento ativo antes do modal
     const previousActive = document.activeElement;
-    firstBtn.focus();
+
+    // Foco inicial no "Não"
+    lastBtn.focus();
 
     const cleanup = () => {
       modal.setAttribute("hidden", "");
@@ -413,7 +415,7 @@ function showConfirmationModal(message) {
     };
     modal.addEventListener("keydown", keyHandler);
 
-    // Bloqueia clique na overlay
+    // Bloqueia clique na overlay (não fecha clicando fora)
     const overlayHandler = e => e.stopPropagation();
     overlay.addEventListener("click", overlayHandler);
   });
