@@ -1,6 +1,3 @@
-/* =======================================================
-   VARIÁVEIS, CORES, GRADIENTES E TEMA
-   ======================================================= */
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -19,7 +16,7 @@
   --text-dark: #ddd;
   --input-text-light: #000;
   --input-text-dark: #555;
-  --input-bg-light: rgba(255,255,255,0.9);
+  --input-bg-light: rgba(255, 255, 255, 0.9);
   --input-bg-dark: #fff;
   --input-border-focus: var(--button-bg);
 
@@ -35,32 +32,23 @@
 
   --loading-bg-light: rgba(255,255,255,0.35);
   --loading-bg-dark: rgba(255,255,255,0.15);
-
-  --card-radius: 12px;
-  --card-padding: 24px;
-
-  /* Modal cores */
-  --modal-bg: rgba(255,255,255,0.95);
-  --modal-text: #000;
 }
 
-/* =======================================================
-   BODY E TEMAS
-   ======================================================= */
+/* -------- BODY E TEMAS -------- */
 body {
+  transition: background 0.75s ease, color 0.75s ease;
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 20px;
-  font-family: Arial, sans-serif;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.75s ease, color 0.75s ease;
 }
 body.light { color: var(--text-light); }
 body.dark { color: var(--text-dark); }
 
-/* BACKGROUNDS POR CONDIÇÃO */
+/* -------- BACKGROUNDS POR CONDIÇÃO -------- */
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
 body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
 body.light.bg-rain { background: var(--bg-gradient-light-rain); }
@@ -73,53 +61,8 @@ body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
 body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
-/* =======================================================
-   HEADER
-   ======================================================= */
-header {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
-h1 { margin: 0; font-weight: 700; font-size: 2rem; }
-
-#theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  min-width: 110px;
-  min-height: 40px;
-}
-#theme-toggle:hover, #theme-toggle:focus {
-  background-color: var(--button-bg);
-  color: #fff;
-  border-color: var(--button-bg);
-  outline: none;
-}
-
-/* =======================================================
-   MAIN CONTAINER
-   ======================================================= */
-main {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-}
-
-/* =======================================================
-   INPUTS, SELECTS E BUTTONS
-   ======================================================= */
-select, input {
+/* -------- INPUTS, SELECTS E BUTTONS -------- */
+select {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -131,10 +74,22 @@ select, input {
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
   cursor: pointer;
 }
-body.light input, body.light select { color: var(--input-text-light); background-color: var(--input-bg-light); }
-body.light input:focus, body.light select:focus { background-color: #fff; color: #000; }
-body.dark select { color: var(--input-text-dark); background-color: var(--input-bg-dark); }
-body.dark select:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
+body.light input, body.light select {
+  color: var(--input-text-light);
+  background-color: var(--input-bg-light);
+}
+body.light input:focus, body.light select:focus {
+  background-color: #fff;
+  color: #000;
+}
+body.dark select {
+  color: var(--input-text-dark);
+  background-color: var(--input-bg-dark);
+}
+body.dark select:focus {
+  background-color: var(--input-bg-dark);
+  color: var(--input-text-dark);
+}
 
 button, #state-city-search-btn {
   border: none;
@@ -164,9 +119,7 @@ button, #state-city-search-btn {
   box-shadow: none;
 }
 
-/* =======================================================
-   CONTAINER DE ESTADO E MUNICÍPIO
-   ======================================================= */
+/* -------- CONTAINER DE ESTADO E MUNICÍPIO -------- */
 #state-city-container {
   display: flex;
   flex-wrap: wrap;
@@ -174,35 +127,83 @@ button, #state-city-search-btn {
 }
 @media (max-width: 480px) {
   #state-city-container select,
-  #state-city-container button { flex: 1 1 100%; }
+  #state-city-container button {
+    flex: 1 1 100%;
+  }
 }
 
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
-#weather {
+/* -------- FOCO VISÍVEL -------- */
+:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+}
+
+/* -------- HEADER -------- */
+header {
   width: 100%;
   max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+h1 { margin: 0; font-weight: 700; font-size: 2rem; }
+#theme-toggle {
+  background: transparent;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  min-width: 110px;
+  min-height: 40px;
+}
+#theme-toggle:hover, #theme-toggle:focus {
+  background-color: var(--button-bg);
+  color: white;
+  border-color: var(--button-bg);
+  outline: none;
+}
+
+/* -------- MAIN -------- */
+main {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+/* -------- WEATHER CARD -------- */
+#weather {
   background: rgba(255,255,255,0.15);
-  border-radius: var(--card-radius);
-  padding: var(--card-padding);
+  border-radius: 12px;
+  padding: 25px 30px;
+  width: 100%;
+  max-width: 600px;
   display: grid;
   grid-template-columns: 100px 1fr;
   grid-gap: 25px;
   align-items: center;
-  min-height: 260px;
   position: relative;
+  min-height: 260px;
+  transition: background 0.75s ease, color 0.75s ease;
   color: inherit;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  transition: background 0.75s ease, color 0.75s ease;
 }
-body.dark #weather { background: rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(255,255,255,0.1); }
+body.dark #weather {
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+}
 #weather[hidden] { display: none !important; }
+#weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
 #weather-content { grid-column: 2; }
 #state-abbr { font-weight: bold; margin-left: 5px; }
 
-/* WEATHER ERROR */
+/* -------- WEATHER ERROR -------- */
 #weather-error {
   display: none;
   grid-column: 1/-1;
@@ -210,7 +211,7 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow: 0 4px 12px r
   font-weight: 700;
   text-align: center;
   padding: 1rem 1.5rem;
-  border-radius: var(--card-radius);
+  border-radius: 12px;
   background-color: rgba(255,0,0,0.1);
   min-height: 100px;
   align-self: center;
@@ -228,14 +229,14 @@ body.error #weather-error {
 }
 body.error #weather-content { display: none; }
 
-/* LOADING SPINNER */
+/* -------- LOADING SPINNER -------- */
 #spinner {
   position: absolute;
   bottom: 15px;
   right: 15px;
   width: 40px;
   height: 40px;
-  border: 4px solid rgba(255,255,255,0.3);
+  border: 4px solid rgba(255, 255, 255, 0.3);
   border-top: 4px solid #fff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -251,14 +252,14 @@ body.error #weather-content { display: none; }
   inset:0;
   background: var(--loading-bg-light);
   backdrop-filter: blur(6px);
-  border-radius: var(--card-radius);
+  border-radius: 12px;
   z-index: 5;
 }
 body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 #weather.loading #spinner { opacity: 0.85; transform: scale(1); }
 #weather.loading #weather-content { visibility: hidden; }
 
-/* WEATHER ICONS */
+/* -------- WEATHER ICONS E ANIMAÇÕES -------- */
 .weather-icon {
   font-size: 100px;
   line-height: 1;
@@ -295,13 +296,13 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 
 @media (prefers-reduced-motion: reduce) { .weather-icon { animation: none !important; } }
 
-/* INFO CLIMA */
+/* -------- INFO CLIMA -------- */
 .info { display: flex; flex-direction: column; justify-content: center; }
 .temp { font-size: 4rem; font-weight: 700; margin: 0; line-height: 1; }
 .desc { font-size: 1.5rem; font-weight: 500; text-transform: capitalize; margin: 5px 0 15px; font-style: italic; color: inherit; }
 .details { font-size: 1rem; font-weight: 400; line-height: 1.6; color: inherit; }
 
-/* TOAST */
+/* -------- TOAST -------- */
 #toast {
   position: fixed;
   bottom: 20px;
@@ -323,25 +324,25 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
 body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
 
-/* HISTÓRICO E FAVORITOS */
+/* -------- HISTÓRICO E FAVORITOS -------- */
 #history-section, #favorites-section {
   width: 100%;
   max-width: 600px;
   margin-bottom: 30px;
   background: rgba(255,255,255,0.1);
-  border-radius: var(--card-radius);
+  border-radius: 12px;
   padding: 15px;
   box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 #history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
 #history-list, #favorites-list {
-  list-style: none;
+   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
+  justify-content: center; /* centraliza os itens horizontalmente */
 }
 #history-list li, #favorites-list li {
   background: var(--button-bg);
@@ -359,13 +360,12 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   outline:none;
 }
 
-/* FAVORITOS (CORAÇÃO) */
+/* -------- FAVORITOS (CORAÇÃO) -------- */
 #fav-icon { font-size:1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select:none; }
 #fav-icon.not-favorited { color: #fff; }
 body.dark #fav-icon.not-favorited { color: #555; }
 #fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
 @keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
-
 #fav-btn {
   position:absolute; top:10px; right:10px;
   background: var(--button-bg);
@@ -381,7 +381,7 @@ body.dark #fav-icon.not-favorited { color: #555; }
 }
 #fav-btn:hover, #fav-btn:focus { transform:scale(1.1); background-color: var(--button-bg-hover); outline:none; }
 
-/* MODAL */
+/* -------- MODAL -------- */
 #confirm-modal {
   position: fixed;
   inset: 0;
@@ -406,7 +406,7 @@ body.dark #fav-icon.not-favorited { color: #555; }
   background-color: var(--modal-bg);
   color: var(--modal-text);
   padding: 25px 30px;
-  border-radius: var(--card-radius);
+  border-radius: 12px;
   max-width: 400px;
   width: 90%;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -414,23 +414,54 @@ body.dark #fav-icon.not-favorited { color: #555; }
   text-align: center;
 }
 
-#confirm-modal h2 { margin-top: 0; margin-bottom: 15px; font-size:1.2rem; }
-#confirm-modal p { margin:10px 0 20px; font-size:1rem; }
+#confirm-modal h2 { margin-top:0; font-size:1.3rem; }
+#confirm-modal button {
+  margin: 12px 6px 0 6px;
+  padding: 8px 16px;
+}
 
-#confirm-modal .modal-buttons { display:flex; justify-content:space-around; gap:10px; }
-#confirm-modal button { padding:10px 15px; font-size:1rem; border-radius:6px; border:none; cursor:pointer; }
-#confirm-modal button.confirm { background: red; color:#fff; }
-#confirm-modal button.cancel { background: #aaa; color:#fff; }
+/* -------- BOTÃO VOLTAR AO TOPO -------- */
+#scroll-top-btn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--button-bg);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.3s ease, background-color 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+  z-index: 1000;
+}
+#scroll-top-btn.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+#scroll-top-btn:hover, #scroll-top-btn:focus {
+  transform: scale(1.1);
+  background-color: var(--button-bg-hover);
+  outline: none;
+}
 
-/* =======================================================
-   RESPONSIVIDADE
-   ======================================================= */
-@media (max-width: 640px) {
-  main { gap: 20px; }
-  #weather { grid-template-columns: 1fr; padding: 20px; min-height: auto; }
-  .weather-icon { font-size: 64px; margin-bottom: 10px; }
-  #history-list li, #favorites-list li { flex: 1 1 100%; text-align: center; }
-  #confirm-modal .modal-content { width: 95%; padding: 20px; }
-  #confirm-modal .modal-buttons { flex-direction: column; }
-  #confirm-modal button { width: 100%; }
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width:640px){
+   #history-list li,
+  #favorites-list li {
+    flex: 1 1 100%;  
+    text-align: center;
+  }
+  #history-list,
+  #favorites-list {
+    justify-content: center; 
+  }
 }
