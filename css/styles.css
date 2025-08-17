@@ -1,374 +1,264 @@
 /* =======================================================
-   VARIÁVEIS CSS
-   ======================================================= */
+   VARIÁVEIS E GRADIENTES
+======================================================= */
 :root {
-  --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #3a6073 100%);
-  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e6e9f0 0%, #eef1f5 100%);
-  
-  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #828282 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #1c1c1c 0%, #3a3a3a 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #0b0c10 0%, #1f2833 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #3e3e3e 0%, #6c6c6c 100%);
-  
-  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  --transition: 0.3s ease;
+  --primary-color: #4facfe;
+  --secondary-color: #00f2fe;
+  --bg-light: #f5f5f5;
+  --bg-dark: #1e1e1e;
+  --text-light: #fff;
+  --text-dark: #111;
+
+  --bg-gradient-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  --bg-gradient-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
+  --bg-gradient-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+  --bg-gradient-thunderstorm: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --bg-gradient-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
 }
 
 /* =======================================================
-   RESET / BASE
-   ======================================================= */
+   RESET E BASE
+======================================================= */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-
 body {
-  font-family: var(--font-main);
-  line-height: 1.4;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-light);
+  color: var(--text-dark);
   min-height: 100vh;
-  transition: background 0.5s;
-  background: var(--bg-gradient-light-clear);
-  color: #333;
+  transition: background 0.5s, color 0.5s;
 }
-
 body.dark {
-  color: #eee;
+  background: var(--bg-dark);
+  color: var(--text-light);
 }
-
-/* =======================================================
-   BACKGROUNDS DINÂMICOS POR CLIMA
-   ======================================================= */
-body.bg-clear.light { background: var(--bg-gradient-light-clear); }
-body.bg-clouds.light { background: var(--bg-gradient-light-clouds); }
-body.bg-rain.light { background: var(--bg-gradient-light-rain); }
-body.bg-thunderstorm.light { background: var(--bg-gradient-light-thunderstorm); }
-body.bg-snow.light { background: var(--bg-gradient-light-snow); }
-
-body.bg-clear.dark { background: var(--bg-gradient-dark-clear); }
-body.bg-clouds.dark { background: var(--bg-gradient-dark-clouds); }
-body.bg-rain.dark { background: var(--bg-gradient-dark-rain); }
-body.bg-thunderstorm.dark { background: var(--bg-gradient-dark-thunderstorm); }
-body.bg-snow.dark { background: var(--bg-gradient-dark-snow); }
+h1, h2 { font-weight: 600; }
+button { cursor: pointer; }
 
 /* =======================================================
    HEADER
-   ======================================================= */
+======================================================= */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 1rem 2rem;
+  background: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  border-radius: 0 0 12px 12px;
 }
-
-header h1 {
-  font-size: 1.8rem;
-}
-
+header h1 { font-size: 1.8rem; }
 #theme-toggle {
-  padding: 8px 14px;
-  border: none;
+  background: none;
+  border: 2px solid #fff;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
   border-radius: 6px;
-  cursor: pointer;
-  background-color: rgba(0,0,0,0.1);
-  transition: background-color var(--transition);
+  transition: background 0.3s;
 }
-
-body.dark #theme-toggle {
-  background-color: rgba(255,255,255,0.1);
-  color: #eee;
-}
-
-#theme-toggle:hover {
-  background-color: rgba(0,0,0,0.2);
-}
-
-body.dark #theme-toggle:hover {
-  background-color: rgba(255,255,255,0.2);
-}
+#theme-toggle:hover { background: rgba(255,255,255,0.2); }
 
 /* =======================================================
-   MAIN LAYOUT
-   ======================================================= */
+   MAIN E SEÇÕES
+======================================================= */
 main {
   max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-  display: grid;
-  grid-gap: 30px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
+section h2 { margin-bottom: 0.8rem; }
 
 /* =======================================================
-   STATE & CITY SELECT
-   ======================================================= */
+   ESTADOS E MUNICÍPIOS
+======================================================= */
 .state-city-container {
   display: flex;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
 }
-
-.state-city-container select,
-.state-city-container button {
-  padding: 8px 12px;
-  font-size: 1rem;
+select, #state-city-search-btn {
+  padding: 0.5rem 0.8rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 1rem;
 }
-
-.state-city-container select:disabled,
-.state-city-container button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+#state-city-search-btn {
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  transition: background 0.3s;
+}
+#state-city-search-btn:hover:not(:disabled) {
+  background: var(--secondary-color);
 }
 
 /* =======================================================
-   FAVORITES & HISTORY LIST
-   ======================================================= */
-ul {
-  list-style: none;
+   CARD DE CLIMA
+======================================================= */
+#weather {
+  position: relative;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.5s, opacity 0.5s;
+  color: #fff;
+}
+#weather.loading { opacity: 0.6; }
+.weather-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
 }
 
-#favorites-list li,
-#history-list li {
-  padding: 6px 10px;
+/* Gradientes dinâmicos */
+body.bg-clear #weather { background: var(--bg-gradient-clear); }
+body.bg-clouds #weather { background: var(--bg-gradient-clouds); }
+body.bg-rain #weather { background: var(--bg-gradient-rain); }
+body.bg-thunderstorm #weather { background: var(--bg-gradient-thunderstorm); }
+body.bg-snow #weather { background: var(--bg-gradient-snow); }
+
+.info { text-align: center; }
+#fav-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+/* =======================================================
+   HISTÓRICO E FAVORITOS
+======================================================= */
+ul { list-style: none; }
+#favorites-list li, #history-list li {
+  background: rgba(255,255,255,0.15);
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.4rem;
   border-radius: 6px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background-color var(--transition);
+  transition: background 0.3s;
 }
-
-#favorites-list li:hover,
-#history-list li:hover {
-  background-color: rgba(0,0,0,0.05);
-}
-
-body.dark #favorites-list li:hover,
-body.dark #history-list li:hover {
-  background-color: rgba(255,255,255,0.1);
-}
-
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
-#weather {
-  position: relative;
-  padding: 25px 20px;
-  border-radius: 14px;
-  background-color: rgba(255,255,255,0.9);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-  transition: background-color var(--transition), box-shadow var(--transition);
-}
-
-body.dark #weather {
-  background-color: rgba(30,30,30,0.85);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-
-#weather.loading::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(255,255,255,0.4);
-  backdrop-filter: blur(2px);
-  border-radius: 14px;
-}
-
-/* ICON */
-.weather-icon {
-  font-size: 4rem;
-  margin-bottom: 15px;
-}
-
-/* FAVORITE BUTTON */
-#fav-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
-
-#fav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* TEMPERATURE & DESCRIPTION */
-#temp {
-  font-size: 2rem;
-  font-weight: bold;
-}
-
-#desc {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-}
-
-#details {
-  font-size: 1rem;
-  line-height: 1.5;
-}
-
-/* =======================================================
-   ERROR MENSAGEM
-   ======================================================= */
-.error-message {
-  color: #d9534f;
-  padding: 10px;
-  background-color: rgba(255,0,0,0.1);
-  border-radius: 6px;
-}
+#favorites-list li:hover, #history-list li:hover { background: rgba(255,255,255,0.25); }
 
 /* =======================================================
    TOAST
-   ======================================================= */
+======================================================= */
 #toast {
   position: fixed;
-  bottom: 20px;
+  bottom: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #333;
+  background: #333;
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s;
-  z-index: 1000;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 999;
 }
-
 #toast.show {
   opacity: 1;
   pointer-events: auto;
+  transform: translateX(-50%) translateY(-10px);
 }
 
 /* =======================================================
-   SCROLL TOP BUTTON
-   ======================================================= */
+   MODAL
+======================================================= */
+#confirm-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+#confirm-modal[hidden] { display: none; }
+#confirm-modal .modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+#confirm-modal .modal-content {
+  position: relative;
+  background: #fff;
+  color: #111;
+  border-radius: 10px;
+  padding: 1.5rem 2rem;
+  max-width: 400px;
+  width: 90%;
+  z-index: 10;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  transition: background 0.3s, color 0.3s;
+}
+#confirm-modal.dark .modal-content {
+  background: #333;
+  color: #fff;
+}
+#confirm-modal .modal-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1.2rem;
+}
+#confirm-modal button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.2s;
+}
+#confirm-modal button:hover { opacity: 0.9; }
+#confirm-yes { background: var(--primary-color); color: #fff; }
+#confirm-no { background: #aaa; color: #fff; }
+
+/* =======================================================
+   BOTÃO VOLTAR AO TOPO
+======================================================= */
 #scroll-top-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 45px;
-  height: 45px;
-  font-size: 1.5rem;
-  background-color: rgba(0,0,0,0.7);
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--primary-color);
   color: #fff;
   border: none;
   border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.3rem;
   cursor: pointer;
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 999;
-  transition: opacity 0.3s, transform 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
-
-#scroll-top-btn.show-scroll-btn {
-  display: flex;
-  opacity: 1;
-  transform: translateY(0);
-}
-
 #scroll-top-btn:hover {
-  background-color: rgba(0,0,0,0.85);
+  background: var(--secondary-color);
+  transform: translateY(-2px);
 }
-
-/* =======================================================
-   CONFIRM MODAL
-   ======================================================= */
-#confirm-modal {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-#confirm-modal .modal-overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.6);
-}
-
-#confirm-modal .modal-content {
-  position: relative;
-  background-color: #fff;
-  color: #333;
-  padding: 25px 30px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-  max-width: 400px;
-  width: 90%;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-#confirm-modal.dark .modal-content {
-  background-color: #2c2c2c;
-  color: #eee;
-}
-
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-#confirm-modal button {
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-#confirm-yes {
-  background-color: #d9534f;
-  color: #fff;
-}
-
-#confirm-yes:hover { background-color: #c9302c; }
-
-#confirm-no {
-  background-color: #6c757d;
-  color: #fff;
-}
-
-#confirm-no:hover { background-color: #5a6268; }
+#scroll-top-btn.show-scroll-btn { display: flex; }
 
 /* =======================================================
    RESPONSIVIDADE
-   ======================================================= */
-@media(max-width: 600px){
-  .state-city-container {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  #weather {
-    padding: 20px 15px;
-  }
-
-  #temp { font-size: 1.8rem; }
-  #desc { font-size: 1rem; }
+======================================================= */
+@media (max-width: 600px){
+  #weather { padding: 1rem; }
+  .state-city-container { flex-direction: column; gap: 0.5rem; }
+  header { flex-direction: column; gap: 0.5rem; }
 }
