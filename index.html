@@ -38,6 +38,7 @@
       <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
         Buscar
       </button>
+       
     </div>
   </section>
   
@@ -51,10 +52,11 @@
   <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
     <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
     <div id="weather-content" class="info">
-      <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
-        <span id="weather-fav-icon" class="not-favorited"></span>
-      </button>
-      <h2 id="city-name">Carregando cidade...</h2>
+      <!-- Botão de favoritar dentro do card, pequeno e redondo -->
+        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
+          <span id="weather-fav-icon" class="not-favorited"></span>
+        </button>
+        <h2 id="city-name">Carregando cidade...</h2>
       <div id="temp" class="temp">-- °C</div>
       <div id="desc" class="desc">Aguardando dados...</div>
       <div id="details" class="details">--</div>
