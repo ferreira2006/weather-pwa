@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
   <title>Clima Atual</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="light">
-
 <noscript>
   <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
     ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
@@ -23,13 +23,14 @@
   <!-- Busca de cidades -->
   <section id="search-section" aria-label="Busca de cidades">
     <form id="search-box" role="search" aria-label="Busca de cidade">
-      <input id="city-input" name="city" type="text" placeholder="Digite a cidade" list="city-suggestions" autocomplete="off" required>
+      <input id="city-input" name="city" type="text" list="city-suggestions" placeholder="Digite a cidade" aria-label="Digite o nome da cidade" autocomplete="off" required />
       <datalist id="city-suggestions">
-        <option value="Anchieta"><option value="Bandeirante"><option value="Barra Bonita"><option value="Belmonte">
-        <option value="Descanso"><option value="Dionísio Cerqueira"><option value="Guaraciaba"><option value="Guarujá do Sul">
-        <option value="Iporã do Oeste"><option value="Itapiranga"><option value="Mondaí"><option value="Palma Sola">
-        <option value="Paraíso"><option value="Princesa"><option value="Santa Helena"><option value="São João do Oeste">
-        <option value="São José do Cedro"><option value="São Miguel do Oeste">
+        <option value="Anchieta"><option value="Bandeirante"><option value="Barra Bonita">
+        <option value="Belmonte"><option value="Descanso"><option value="Dionísio Cerqueira">
+        <option value="Guaraciaba"><option value="Guarujá do Sul"><option value="Iporã do Oeste">
+        <option value="Itapiranga"><option value="Mondaí"><option value="Palma Sola">
+        <option value="Paraíso"><option value="Princesa"><option value="Santa Helena">
+        <option value="São João do Oeste"><option value="São José do Cedro"><option value="São Miguel do Oeste">
       </datalist>
       <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>Buscar</button>
       <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
@@ -82,7 +83,7 @@
 
 <!-- Footer com atalhos -->
 <footer id="app-footer">
-  <p>Atalhos de teclado: <kbd>Enter</kbd> Buscar cidade, <kbd>F</kbd> Favorito, <kbd>T</kbd> Alternar tema</p>
+  <p><strong>Atalhos de teclado:</strong> <kbd>Ctrl + F</kbd> Buscar cidade | <kbd>Ctrl + T</kbd> Alternar tema</p>
 </footer>
 
 <script src="js/app.js"></script>
