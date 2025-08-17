@@ -7,13 +7,13 @@
   <title>Clima Atual</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="light bg-clear">
+<body class="light">
   <noscript>
     <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
       ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
     </div>
   </noscript>
-  
+
   <header>
     <h1>Clima Atual</h1>
     <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
@@ -25,12 +25,12 @@
     <!-- Busca de cidades -->
     <section id="search-section" aria-label="Busca de cidades">
       <form id="search-box" role="search" aria-label="Busca de cidade">
-        <!-- Selects de estado e município serão inseridos via JS -->
+        <!-- Selects serão injetados pelo JS -->
         <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
           Buscar
         </button>
         <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
-          <span id="fav-icon" class="not-favorited">&#10084;</span> Adicionar aos favoritos
+          <span id="fav-icon" class="not-favorited"></span> Adicionar aos favoritos
         </button>
       </form>
     </section>
@@ -42,7 +42,7 @@
     </section>
 
     <!-- Card do clima -->
-    <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1" hidden>
+    <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
       <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
       <div id="weather-content" class="info">
         <h2 id="city-name">Carregando cidade...</h2>
