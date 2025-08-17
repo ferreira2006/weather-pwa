@@ -169,21 +169,24 @@ const UI = {
   renderFavorites() {
     dom.favoritesListEl.innerHTML = "";
     Storage.getFavorites().forEach(item => {
-      const city = typeof item === "string" ? item : item.city;
+      const cityName = typeof item === "string" ? item : item.city;
+      const state = typeof item === "string" ? "" : item.state;
+      const displayText = state ? `${cityName}, ${state}` : cityName;
+
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.title = "Clique para buscar. Shift+Enter ou Delete para remover.";
 
       const citySpan = document.createElement("span");
-      citySpan.textContent = city;
+      citySpan.textContent = displayText;
       citySpan.style.cursor = "pointer";
-      citySpan.addEventListener("click", () => App.handleCitySelect(city));
+      citySpan.addEventListener("click", () => App.handleCitySelect(cityName, state, true));
       li.appendChild(citySpan);
 
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
       Object.assign(removeBtn.style, { marginLeft:"8px", cursor:"pointer", background:"transparent", border:"none", fontWeight:"bold", fontSize:"1.2rem", lineHeight:"1", padding:"0" });
-      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(city); });
+      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(cityName); });
       li.appendChild(removeBtn);
 
       dom.favoritesListEl.appendChild(li);
