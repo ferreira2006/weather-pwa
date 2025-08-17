@@ -219,19 +219,27 @@ const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
     if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
+
+    // MOSTRA LOADING
     dom.weatherDiv.classList.add("loading");
+
     try {
       const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
       Storage.saveHistory(normalizedCity);
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
-    } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
-    finally { dom.weatherDiv.classList.remove("loading"); }
+    } catch (err) {
+      UI.showError(err.message || "Erro ao buscar o clima");
+    } finally {
+      // ESCONDE LOADING
+      dom.weatherDiv.classList.remove("loading");
+    }
   },
 
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
+
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       UI.showWeather(data);
@@ -241,7 +249,9 @@ const App = {
     } catch (err) {
       UI.showError(err.message);
       if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
-    } finally { dom.weatherDiv.classList.remove("loading"); }
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
+    }
   },
 
   addFavorite(city) {
@@ -273,7 +283,6 @@ const App = {
   },
 
   updateUIState() {
-    // Atualiza botão favorito
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
@@ -288,7 +297,9 @@ const App = {
   },
 
   init() {
+    // MOSTRA LOADING INICIAL
     dom.weatherDiv.classList.add("loading");
+
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
@@ -305,40 +316,18 @@ const App = {
     dom.scrollTopBtn.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
 
     const lastCity = Storage.getLastCity();
-    if (lastCity) this.handleCitySelect(lastCity);
-    else if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-        () => this.handleCitySelect("São Miguel do Oeste"));
+    if (lastCity) {
+      this.handleCitySelect(lastCity).finally(() => dom.weatherDiv.classList.remove("loading"));
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude).finally(() => dom.weatherDiv.classList.remove("loading")),
+        () => this.handleCitySelect("São Miguel do Oeste").finally(() => dom.weatherDiv.classList.remove("loading"))
+      );
     } else {
-      this.handleCitySelect("São Miguel do Oeste");
+      this.handleCitySelect("São Miguel do Oeste").finally(() => dom.weatherDiv.classList.remove("loading"));
     }
-    dom.weatherDiv.classList.remove("loading");
   }
 };
-
-// ===== CONFIRM MODAL =====
-function showConfirmationModal(message) {
-  return new Promise(resolve => {
-    const modal = document.getElementById("confirm-modal");
-    modal.querySelector("p").textContent = message;
-    modal.removeAttribute("hidden");
-
-    const yesBtn = modal.querySelector("#confirm-yes");
-    const noBtn = modal.querySelector("#confirm-no");
-
-    const cleanup = () => {
-      yesBtn.removeEventListener("click", yesHandler);
-      noBtn.removeEventListener("click", noHandler);
-      modal.setAttribute("hidden", "");
-    };
-
-    const yesHandler = () => { cleanup(); resolve(true); };
-    const noHandler = () => { cleanup(); resolve(false); };
-
-    yesBtn.addEventListener("click", yesHandler);
-    noBtn.addEventListener("click", noHandler);
-  });
-}
 
 // ===== IBGE SELECTS =====
 const IBGE = {
