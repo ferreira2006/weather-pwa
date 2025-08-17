@@ -375,7 +375,7 @@ const IBGE = {
 const scrollBtn = document.getElementById("scroll-top-btn");
 
 window.addEventListener("scroll", () => {
-  if (window.scrollY > 300) {
+  if (window.scrollY > 200) {
     scrollBtn.style.display = "block";
   } else {
     scrollBtn.style.display = "none";
