@@ -51,7 +51,6 @@ body {
   flex-direction: column;
   align-items: center;
 }
-
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
@@ -81,7 +80,6 @@ input[type="text"], select {
   outline: none;
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
-
 body.light input[type="text"], body.light select {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
@@ -91,7 +89,6 @@ body.light input[type="text"]:focus, body.light select:focus {
   color: #000; 
   border-color: var(--input-border-focus);
 }
-
 body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
 
 body.dark input[type="text"], body.dark select {
@@ -154,7 +151,7 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 }
 
 /* =======================================================
-   SEARCH BOX (INPUTS + SELECTS + BOTÕES)
+   SEARCH BOX
    ======================================================= */
 #search-box {
   display:flex;
@@ -188,10 +185,10 @@ button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--but
   transition: color 0.25s ease, transform 0.2s ease;
   user-select: none;
 }
-
 #fav-icon.not-favorited { color: #fff; }
 body.dark #fav-icon.not-favorited { color: #cfd8dc; }
-#fav-icon.favorited { color: red; transform: scale(1.2); }
+#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
+@keyframes heart-pop { 0%{transform:scale(1);} 50%{transform:scale(1.4);} 100%{transform:scale(1.2);} }
 
 /* =======================================================
    WEATHER CARD
@@ -204,7 +201,6 @@ body.dark #fav-icon.not-favorited { color: #cfd8dc; }
 }
 body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(255,255,255,0.1); }
 #weather[hidden] { display:none !important; }
-#weather:focus { outline:3px solid var(--button-bg); outline-offset:4px; }
 
 #weather-content { display:block; grid-column:2; }
 #weather-error {
@@ -215,6 +211,44 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rg
 body.error #weather-error { display:block; opacity:1; pointer-events:auto; background-color: rgba(176,0,32,0.15); }
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
+
+#weather.loading::before {
+  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
+  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
+}
+body.dark #weather.loading::before { background:var(--loading-bg-dark); }
+
+#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
+#weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
+
+body.light #weather.loading .temp,
+body.light #weather.loading .desc,
+body.light #weather.loading .details,
+body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
+body.dark #weather.loading .temp,
+body.dark #weather.loading .desc,
+body.dark #weather.loading .details,
+body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
+
+/* =======================================================
+   ÍCONES DE CLIMA
+   ======================================================= */
+.weather-icon {
+  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
+  justify-self:center; transition: background-image 0.5s ease;
+}
+.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
+.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
+.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
+.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
+.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
+
+@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
+@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
+@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
+@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
+@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
+@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
 /* =======================================================
    LOADING SPINNER
@@ -235,46 +269,7 @@ body.error #icon { display:none; }
   transition: opacity 0.5s ease, transform 0.3s ease;
   z-index: 10;
 }
-
 @keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
-
-#weather.loading::before {
-  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
-  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
-}
-body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
-#weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
-
-/* =======================================================
-   ICONES DE CLIMA
-   ======================================================= */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
-.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-
-@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
-@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
-
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
 
 /* =======================================================
    INFO TEXTO DO CLIMA
@@ -314,18 +309,6 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 #history-list li:hover, #favorites-list li:hover,
 #history-list li:focus, #favorites-list li:focus {
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
-}
-
-/* =======================================================
-   ANIMAÇÃO FAVORITO
-   ======================================================= */
-#fav-icon.favorited {
-  animation: heart-pop 0.25s ease forwards;
-}
-@keyframes heart-pop {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); }
-  100% { transform: scale(1.2); }
 }
 
 /* =======================================================
