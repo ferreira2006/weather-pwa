@@ -19,8 +19,6 @@ const Utils = {
 
 // ===== DOM ELEMENTS =====
 const dom = {
-  cityInput: document.getElementById("city-input"),
-  searchBtn: document.getElementById("search-btn"),
   favBtn: document.getElementById("fav-btn"),
   themeToggle: document.getElementById("theme-toggle"),
 
@@ -43,12 +41,16 @@ const dom = {
   // IBGE selects
   stateSelect: document.getElementById("state-select"),
   citySelect: document.getElementById("city-select"),
-  stateCitySearchBtn: document.getElementById("state-city-search-btn")
+  stateCitySearchBtn: document.getElementById("state-city-search-btn"),
+
+  // Scroll top button
+  scrollTopBtn: document.getElementById("scroll-top-btn")
 };
 
 // ===== STATE =====
 let currentCityValid = false;
 let firstLoad = true;
+let currentCity = "";
 
 // ===== API =====
 const WeatherAPI = {
@@ -128,6 +130,7 @@ const UI = {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
+    currentCity = data.name;
     firstLoad = false;
     App.updateButtonsState();
     this.setDynamicBackground(data.weather[0].main);
@@ -160,7 +163,6 @@ const UI = {
       });
       listEl.appendChild(li);
     });
-    this.updateThemeColors();
   },
 
   renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
@@ -186,15 +188,12 @@ const UI = {
 
       dom.favoritesListEl.appendChild(li);
     });
-    this.updateThemeColors();
   },
 
   toggleThemeColors() {
     document.body.classList.toggle("dark");
     document.body.classList.toggle("light");
     Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
-    this.updateThemeColors();
-    this.updateThemeToggleButton();
     this.setDynamicBackgroundFromCurrentIcon();
   },
 
@@ -202,37 +201,7 @@ const UI = {
     const saved = Storage.getTheme();
     document.body.classList.add(saved);
     document.body.classList.remove(saved === "dark" ? "light" : "dark");
-    this.updateThemeColors();
-    this.updateThemeToggleButton();
     this.setDynamicBackgroundFromCurrentIcon();
-  },
-
-  updateThemeToggleButton() {
-    const isDark = document.body.classList.contains("dark");
-    dom.themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
-    dom.themeToggle.setAttribute("aria-pressed", isDark);
-  },
-
-  updateThemeColors() {
-    const root = getComputedStyle(document.documentElement);
-    const isDark = document.body.classList.contains("dark");
-    const textColor = isDark ? root.getPropertyValue('--input-text-dark')?.trim() || "#000" : root.getPropertyValue('--input-text-light')?.trim() || "#000";
-    const bgColor = isDark ? root.getPropertyValue('--input-bg-dark')?.trim() || "#fff" : root.getPropertyValue('--input-bg-light')?.trim() || "#fff";
-    const buttonBg = root.getPropertyValue('--button-bg')?.trim() || "#007bff";
-
-    if(dom.cityInput){
-      dom.cityInput.style.color = textColor;
-      dom.cityInput.style.backgroundColor = bgColor;
-    }
-
-    [dom.searchBtn, dom.favBtn].forEach(btn => { if(btn){ btn.style.backgroundColor = buttonBg; btn.style.color = isDark ? '#ddd' : '#fff'; } });
-    [...dom.historyListEl.children, ...dom.favoritesListEl.children].forEach(li => { li.style.backgroundColor = buttonBg; li.style.color = isDark ? '#ddd' : '#fff'; });
-
-    dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
-    dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
-    dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
-    dom.themeToggle.style.color = isDark ? '#ddd' : '#000';
-    dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
   },
 
   setDynamicBackgroundFromCurrentIcon() {
@@ -252,10 +221,9 @@ dom.favBtn.prepend(favIcon);
 const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
-    if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
+    if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
     dom.weatherDiv.classList.add("loading");
     try {
-      dom.cityInput.value = normalizedCity;
       const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
       Storage.saveHistory(normalizedCity);
@@ -313,26 +281,14 @@ const App = {
   },
 
   updateButtonsState() {
-    const city = dom.cityInput?.value.trim() || "";
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    const canAddFavorite = currentCityValid && city && UI.isValidCityInput(city) && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
-
-    if(dom.searchBtn) dom.searchBtn.disabled = !UI.isValidCityInput(city);
-    if(dom.favBtn) dom.favBtn.disabled = !canAddFavorite;
-
-    if(dom.favBtn){
-      dom.favBtn.title = !canAddFavorite
-        ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
-        : "";
-    }
-
-    this.updateFavButton();
+    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+    dom.favBtn.disabled = !canAddFavorite;
   },
 
   updateFavButton() {
-    const city = Utils.normalizeCityInput(dom.cityInput?.value || "");
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    if (favorites.includes(city.toLowerCase())) {
+    if (favorites.includes(currentCity.toLowerCase())) {
       favIcon.textContent = "❤️";
       favIcon.classList.remove("not-favorited");
       favIcon.classList.add("favorited");
@@ -350,12 +306,17 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    dom.cityInput?.addEventListener("input", () => this.updateButtonsState());
-    dom.favBtn?.addEventListener("click", () => this.addFavorite(dom.cityInput.value));
-    dom.themeToggle?.addEventListener("click", () => UI.toggleThemeColors());
+    dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
+    dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
     // Inicializa IBGE selects
     IBGE.init();
+
+    // Scroll top
+    window.addEventListener("scroll", () => {
+      dom.scrollTopBtn.style.display = window.scrollY > 150 ? "block" : "none";
+    });
+    dom.scrollTopBtn.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
 
     const lastCity = Storage.getLastCity();
     if (lastCity) this.handleCitySelect(lastCity);
@@ -406,14 +367,7 @@ const IBGE = {
       });
       dom.stateSelect.addEventListener("change", () => this.onStateChange());
       dom.citySelect.addEventListener("change", () => this.updateSearchButtonState());
-      // Botão de busca do select
-      dom.stateCitySearchBtn.addEventListener("click", () => {
-        const city = dom.citySelect.value;
-        if (city) {
-          dom.cityInput.value = city;  // Atualiza input
-          App.handleCitySelect(city);   // Dispara pesquisa
-        }
-      });
+      dom.stateCitySearchBtn.addEventListener("click", () => this.onSearchClick());
       this.updateSearchButtonState();
     } catch {
       UI.showToast("Erro ao carregar estados do IBGE.");
@@ -441,21 +395,17 @@ const IBGE = {
     } catch {
       UI.showToast("Erro ao carregar municípios do IBGE.");
     }
-    this.updateSearchButtonState();
   },
 
   updateSearchButtonState() {
     dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
+  },
+
+  onSearchClick() {
+    const city = dom.citySelect.value;
+    if (city) App.handleCitySelect(city);
   }
 };
 
-// ===== SCROLL TOP BUTTON =====
-const scrollTopBtn = document.getElementById("scroll-top-btn");
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 150) scrollTopBtn.style.display = "block";
-  else scrollTopBtn.style.display = "none";
-});
-scrollTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-
-// ===== INIT =====
-App.init();
+// ===== INIT APP =====
+window.addEventListener("load", () => App.init());
