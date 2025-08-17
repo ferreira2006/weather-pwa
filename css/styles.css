@@ -103,21 +103,6 @@ body.dark input[type="text"]:focus, body.dark select:focus {
 body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
 
 /* =======================================================
-   FOCO VISÍVEL ACESSÍVEL
-   ======================================================= */
-:focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
-input[type="text"]:focus-visible,
-select:focus-visible,
-button:focus-visible,
-#history-list li:focus-visible,
-#favorites-list li:focus-visible {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-  background-color: var(--button-bg);
-  color: #fff;
-}
-
-/* =======================================================
    HEADER
    ======================================================= */
 header {
@@ -231,17 +216,6 @@ body.dark #weather.loading .details,
 body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
 
 /* =======================================================
-   TEMPERATURA COM 1 CASA DECIMAL
-   ======================================================= */
-.temp {
-  font-size: 4rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1;
-}
-.temp::after { content: " °C"; } /* °C incluído no JS */
-
-/* =======================================================
    ÍCONES DE CLIMA
    ======================================================= */
 .weather-icon {
@@ -286,6 +260,7 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
    INFO TEXTO DO CLIMA
    ======================================================= */
 .info { display:flex; flex-direction:column; justify-content:center; }
+.temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
 .desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px; font-style:italic; color:inherit; }
 .details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
 
@@ -322,27 +297,11 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 }
 
 /* =======================================================
-   MODAL
+   MODAL DE CONFIRMAÇÃO
    ======================================================= */
-#confirm-modal {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  z-index: 10000; font-family: Arial, sans-serif;
-}
-#confirm-modal[hidden] { display: none; }
-#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
-#confirm-modal .modal-content {
-  position: relative; background: var(--button-bg); color: #fff;
-  padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
-}
-#confirm-modal h2 { margin-top:0; font-size:1.5rem; }
-#confirm-modal p { margin:20px 0; font-size:1.1rem; }
-#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
-#confirm-modal button {
-  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
-  cursor:pointer; user-select:none; transition: background-color 0.3s;
-}
-#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
-#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
-#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
-#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#e53935; outline:none; }
+#confirm-modal { position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:1000; }
+.modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.5); }
+.modal-content { background:var(--input-bg-light); padding:20px 25px; border-radius:12px; max-width:400px; width:100%; position:relative; z-index:2; text-align:center; }
+body.dark .modal-content { background:var(--input-bg-dark); color:var(--input-text-dark); }
+.modal-buttons { display:flex; justify-content:center; gap:15px; margin-top:15px; }
+.modal-buttons button { min-width:80px; }
