@@ -111,6 +111,29 @@ const UI = {
     document.body.classList.add(`bg-${key}`);
   },
 
+  setWeatherIcon(mainWeather) {
+    const map = {
+      clear: "wi wi-day-sunny",
+      clouds: "wi wi-cloudy",
+      rain: "wi wi-rain",
+      drizzle: "wi wi-sprinkle",
+      thunderstorm: "wi wi-thunderstorm",
+      snow: "wi wi-snow",
+      mist: "wi wi-fog",
+      smoke: "wi wi-smoke",
+      haze: "wi wi-day-haze",
+      dust: "wi wi-dust",
+      fog: "wi wi-fog",
+      sand: "wi wi-sandstorm",
+      ash: "wi wi-volcano",
+      squall: "wi wi-strong-wind",
+      tornado: "wi wi-tornado"
+    };
+    const key = mainWeather.toLowerCase();
+    dom.iconEl.className = "weather-icon";
+    dom.iconEl.classList.add(map[key] || "wi wi-day-sunny");
+  },
+
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
@@ -123,8 +146,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
-    // Atualiza icon para Weather Icons
-    dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
+    this.setWeatherIcon(data.weather[0].main);
 
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
@@ -134,6 +156,7 @@ const UI = {
     currentCity = data.name;
     firstLoad = false;
     App.updateButtonsState();
+    App.updateFavButton();
     this.setDynamicBackground(data.weather[0].main);
   },
 
@@ -310,10 +333,8 @@ const App = {
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
-    // Inicializa IBGE selects
     IBGE.init();
 
-    // Scroll top
     window.addEventListener("scroll", () => {
       dom.scrollTopBtn.style.display = window.scrollY > 150 ? "block" : "none";
     });
