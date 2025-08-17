@@ -324,7 +324,41 @@ body.dark #fav-icon.not-favorited { color: #555; }
 #fav-btn:hover, #fav-btn:focus { transform:scale(1.1); background-color: var(--button-bg-hover); outline:none; }
 
 /* -------- MODAL -------- */
-#confirm-modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; z-index:10000; font-family: Arial,sans-serif; }
-#confirm-modal[hidden] { display:none; }
-#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter:blur(3px); z-index:10001; }
-#confirm-modal .modal-content { position: relative; background: var(--button-bg); color:#fff; padding:25px 30px; border-radius:12
+#confirm-modal {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000;
+  font-family: Arial, sans-serif;
+}
+#confirm-modal[hidden] { display: none; }
+#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
+#confirm-modal .modal-content {
+  position: relative; background: var(--button-bg); color: #fff;
+  padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
+}
+#confirm-modal h2 { margin-top:0; font-size:1.5rem; }
+#confirm-modal p { margin:20px 0; font-size:1.1rem; }
+#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
+#confirm-modal button {
+  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
+  cursor:pointer; user-select:none; transition: background-color 0.3s;
+}
+#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
+#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
+#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
+#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#d32f2f; outline:none; }
+
+/* -------- BOTÃO FLUTUANTE -------- */
+#scroll-top-btn {
+  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
+  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
+  transition: transform 0.3s ease, background-color 0.3s;
+}
+#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
+
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width:640px){
+  #weather { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: auto; }
+  .weather-icon { justify-self:center; margin-bottom:15px; }
+  .state-city-container { flex-direction: column; }
+}
