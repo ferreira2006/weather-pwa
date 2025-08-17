@@ -1,6 +1,3 @@
-/* =======================================================
-   VARIÁVEIS CSS
-   ======================================================= */
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
@@ -38,9 +35,7 @@
   --loading-bg-dark: rgba(255,255,255,0.15);
 }
 
-/* =======================================================
-   BODY E TEMAS
-   ======================================================= */
+/* -------- BODY E TEMAS -------- */
 body {
   transition: background 0.75s ease, color 0.75s ease;
   font-family: Arial, sans-serif;
@@ -51,6 +46,7 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
 
@@ -66,10 +62,8 @@ body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
 body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
-/* =======================================================
-   INPUTS E SELECTS
-   ======================================================= */
-input[type="text"], select {
+/* -------- INPUTS -------- */
+input[type="text"] {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -80,31 +74,34 @@ input[type="text"], select {
   outline: none;
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
-body.light input[type="text"], body.light select {
+
+body.light input[type="text"] {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
 }
-body.light input[type="text"]:focus, body.light select:focus { 
-  background-color: #fff; 
-  color: #000; 
-  border-color: var(--input-border-focus);
-}
+body.light input[type="text"]:focus { background-color: #fff; color: #000; }
 body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
 
-body.dark input[type="text"], body.dark select {
+body.dark input[type="text"] {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
 }
-body.dark input[type="text"]:focus, body.dark select:focus { 
-  background-color: var(--input-bg-dark); 
-  color: var(--input-text-dark); 
-  border-color: var(--input-border-focus);
-}
+body.dark input[type="text"]:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
 body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
 
-/* =======================================================
-   HEADER
-   ======================================================= */
+/* -------- FOCO VISÍVEL ACESSÍVEL -------- */
+:focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
+input[type="text"]:focus-visible,
+button:focus-visible,
+#history-list li:focus-visible,
+#favorites-list li:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+  background-color: var(--button-bg);
+  color: #fff;
+}
+
+/* -------- HEADER -------- */
 header {
   width: 100%;
   max-width: 600px;
@@ -135,21 +132,34 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
   outline: none;
 }
 
-/* =======================================================
-   SEARCH BOX
-   ======================================================= */
-#search-box {
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  justify-content:center;
-  margin-top:20px;
-  width:100%;
-}
+/* -------- MAIN -------- */
+main { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 25px; }
 
-/* =======================================================
-   BOTÕES DE BUSCA E FAVORITOS
-   ======================================================= */
+/* -------- MODAL -------- */
+#confirm-modal {
+  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+  z-index: 10000; font-family: Arial, sans-serif;
+}
+#confirm-modal[hidden] { display: none; }
+#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
+#confirm-modal .modal-content {
+  position: relative; background: var(--button-bg); color: #fff;
+  padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
+}
+#confirm-modal h2 { margin-top:0; font-size:1.5rem; }
+#confirm-modal p { margin:20px 0; font-size:1.1rem; }
+#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
+#confirm-modal button {
+  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
+  cursor:pointer; user-select:none; transition: background-color 0.3s;
+}
+#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
+#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
+#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
+#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#d32f2f; outline:none; }
+
+/* -------- BOTÕES DE BUSCA -------- */
 button#search-btn, button#fav-btn {
   display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
   background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
@@ -162,22 +172,18 @@ button#fav-btn:hover:not(:disabled), button#fav-btn:focus:not(:disabled) {
 }
 button#search-btn:disabled, button#fav-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
 
-/* =======================================================
-   ÍCONE DE FAVORITO
-   ======================================================= */
+/* -------- ÍCONE DE FAVORITO (CORAÇÃO ÚNICO) -------- */
 #fav-icon {
   font-size: 1.4rem;
   transition: color 0.25s ease, transform 0.2s ease;
   user-select: none;
 }
-#fav-icon.not-favorited { color: #fff; }
-body.dark #fav-icon.not-favorited { color: #cfd8dc; }
-#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
-@keyframes heart-pop { 0%{transform:scale(1);} 50%{transform:scale(1.4);} 100%{transform:scale(1.2);} }
 
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
+#fav-icon.not-favorited { color: #fff; } /* branco quando não favoritado */
+body.dark #fav-icon.not-favorited { color: #cfd8dc; } /* tom claro no tema escuro */
+#fav-icon.favorited { color: red; transform: scale(1.2); } /* vermelho e leve zoom quando favoritado */
+
+/* -------- WEATHER CARD -------- */
 #weather {
   background: rgba(255,255,255,0.15); border-radius:12px; padding:25px 30px;
   width:100%; max-width:600px; display:grid; grid-template-columns:100px 1fr; grid-gap:25px;
@@ -186,7 +192,9 @@ body.dark #fav-icon.not-favorited { color: #cfd8dc; }
 }
 body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rgba(255,255,255,0.1); }
 #weather[hidden] { display:none !important; }
+#weather:focus { outline:3px solid var(--button-bg); outline-offset:4px; }
 
+/* -------- WEATHER CONTENT E ERROS -------- */
 #weather-content { display:block; grid-column:2; }
 #weather-error {
   display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center;
@@ -197,47 +205,7 @@ body.error #weather-error { display:block; opacity:1; pointer-events:auto; backg
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
-#weather.loading::before {
-  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
-  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
-}
-body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-
-#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
-#weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
-
-body.light #weather.loading .temp,
-body.light #weather.loading .desc,
-body.light #weather.loading .details,
-body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
-body.dark #weather.loading .temp,
-body.dark #weather.loading .desc,
-body.dark #weather.loading .details,
-body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
-
-/* =======================================================
-   ÍCONES DE CLIMA
-   ======================================================= */
-.weather-icon {
-  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
-  justify-self:center; transition: background-image 0.5s ease;
-}
-.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
-.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
-.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
-
-@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
-@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
-
-/* =======================================================
-   LOADING SPINNER
-   ======================================================= */
+/* -------- LOADING SPINNER MELHORADO -------- */
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -254,19 +222,64 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
   transition: opacity 0.5s ease, transform 0.3s ease;
   z-index: 10;
 }
-@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
 
-/* =======================================================
-   INFO TEXTO DO CLIMA
-   ======================================================= */
+/* Animação de rotação */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+#weather.loading::before {
+  content:""; position:absolute; inset:0; background:var(--loading-bg-light);
+  backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
+}
+body.dark #weather.loading::before { background:var(--loading-bg-dark); }
+/* Quando o card estiver carregando */
+#weather.loading #spinner {
+  opacity: 0.85;       /* semi-transparente */
+  transform: scale(1);  /* leve ajuste se quiser dar efeito de “aparecer” */
+}
+#weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
+
+body.light #weather.loading .temp,
+body.light #weather.loading .desc,
+body.light #weather.loading .details,
+body.light #weather.loading #city-name { color:transparent; background:var(--loading-bg-light); border-radius:6px; }
+body.dark #weather.loading .temp,
+body.dark #weather.loading .desc,
+body.dark #weather.loading .details,
+body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
+
+#weather.loading .temp { height:60px; width:80px; }
+#weather.loading .desc { height:20px; width:120px; margin:10px 0; }
+#weather.loading .details { height:60px; width:100%; }
+
+/* -------- ÍCONES DE CLIMA -------- */
+.weather-icon {
+  width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
+  justify-self:center; transition: background-image 0.5s ease;
+}
+.weather-icon.clear { background-image:url('../assets/icons/wi-day-sunny.svg'); animation:rotateSlow 120s linear infinite; }
+.weather-icon.clouds { background-image:url('../assets/icons/wi-cloudy.svg'); animation:floatClouds 20s ease-in-out infinite; }
+.weather-icon.rain { background-image:url('../assets/icons/wi-rain.svg'); animation:rainAnim 3s linear infinite; }
+.weather-icon.thunderstorm { background-image:url('../assets/icons/wi-thunderstorm.svg'); animation:thunderAnim 2s ease-in-out infinite alternate; }
+.weather-icon.snow { background-image:url('../assets/icons/wi-snow.svg'); animation:snowAnim 15s linear infinite; }
+
+@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
+@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
+@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
+@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
+@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
+
+@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
+
+/* -------- INFO TEXTO DO CLIMA -------- */
 .info { display:flex; flex-direction:column; justify-content:center; }
 .temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
 .desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px; font-style:italic; color:inherit; }
 .details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
 
-/* =======================================================
-   TOAST
-   ======================================================= */
+/* -------- TOAST -------- */
 #toast {
   position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px);
   padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none;
@@ -276,9 +289,7 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 body.light #toast { background-color:var(--toast-bg-light); color:var(--toast-text-light); }
 body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text-dark); }
 
-/* =======================================================
-   HISTÓRICO E FAVORITOS
-   ======================================================= */
+/* -------- HISTÓRICO E FAVORITOS -------- */
 #history-section, #favorites-section {
   width:100%; max-width:600px; margin-bottom:30px; background:rgba(255,255,255,0.1);
   border-radius:12px; padding:15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);
@@ -296,12 +307,37 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
 }
 
+/* -------- ANIMAÇÃO LEVE PARA O CORAÇÃO AO CLICAR -------- */
+#fav-icon.favorited {
+  animation: heart-pop 0.25s ease forwards;
+}
+
+@keyframes heart-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.4); }
+  100% { transform: scale(1.2); }
+}
+
+/* -------- SEARCH BOX -------- */
+#search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
+
 /* =======================================================
-   MODAL DE CONFIRMAÇÃO
+   FALLBACK PARA NOSCRIPT
    ======================================================= */
-#confirm-modal { position:fixed; inset:0; display:flex; justify-content:center; align-items:center; z-index:1000; }
-.modal-overlay { position:absolute; inset:0; background:rgba(0,0,0,0.5); }
-.modal-content { background:var(--input-bg-light); padding:20px 25px; border-radius:12px; max-width:400px; width:100%; position:relative; z-index:2; text-align:center; }
-body.dark .modal-content { background:var(--input-bg-dark); color:var(--input-text-dark); }
-.modal-buttons { display:flex; justify-content:center; gap:15px; margin-top:15px; }
-.modal-buttons button { min-width:80px; }
+noscript .error-message {
+  display: block; /* garante que apareça se JS estiver desativado */
+  grid-column: 1 / -1;
+  color: #b00020;
+  font-weight: 700;
+  text-align: center;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(176, 0, 32, 0.15);
+  min-height: 100px;
+  align-self: center;
+  justify-self: center;
+  font-size: 1.1rem;
+  opacity: 1; /* sem transição JS */
+  pointer-events: auto;
+  margin-bottom: 20px;
+}
