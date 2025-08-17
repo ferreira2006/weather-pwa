@@ -340,9 +340,10 @@ function showConfirmationModal(message){
     noBtn.addEventListener("click",noHandler);
 
     const keyHandler=e=>{
-      if(e.key==="Tab"){ if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); } 
-      else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); } }
-      else if(e.key==="Escape"){ cleanup(); resolve(false); }
+      if(e.key==="Tab"){ 
+        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); } 
+        else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); } 
+      } else if(e.key==="Escape"){ cleanup(); resolve(false); }
     };
     modal.addEventListener("keydown",keyHandler);
     const overlayHandler=e=>e.stopPropagation();
