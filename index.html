@@ -1,447 +1,99 @@
-:root {
-  /* -------- GRADIENTES DE FUNDO -------- */
-  --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
+meu html está coerente com o css e js?: <!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
+  <title>Clima Atual</title>
+  <!-- Weather Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="light">
+<noscript>
+  <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
+    ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
+  </div>
+</noscript>
 
-  /* -------- CORES -------- */
-  --text-light: #000;
-  --text-dark: #ddd;
-  --input-text-light: #000;
-  --input-text-dark: #555;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: #fff;
-  --input-border-focus: var(--button-bg);
+<header>
+  <h1>Clima Atual</h1>
+  <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
+    Modo Escuro
+  </button>
+</header>
 
-  --button-bg: #ff9800;
-  --button-bg-hover: #e68a00;
-  --button-bg-disabled: #ffa733;
-  --button-shadow-hover: #ffb74d;
+<main>
 
-  --toast-bg-light: rgba(0,0,0,0.85);
-  --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255,255,255,0.9);
-  --toast-text-dark: #000;
+  <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
+  <section id="state-city-section" aria-label="Seleção de estado e município">
+    <h2>Buscar por Estado e Município</h2>
+    <div id="state-city-container" class="state-city-container">
+      <select id="state-select" aria-label="Selecione o estado" required>
+        <option value="">Selecione o estado</option>
+      </select>
 
-  --loading-bg-light: rgba(255,255,255,0.35);
-  --loading-bg-dark: rgba(255,255,255,0.15);
-}
+      <select id="city-select" aria-label="Selecione o município" required disabled>
+        <option value="">Selecione o município</option>
+      </select>
 
-/* -------- BODY E TEMAS -------- */
-body {
-  transition: background 0.75s ease, color 0.75s ease;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-body.light { color: var(--text-light); }
-body.dark { color: var(--text-dark); }
+      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
+        Buscar
+      </button>
+    </div>
+  </section>
+  
+  <!-- Cidades favoritas -->
+  <section id="favorites-section" aria-label="Cidades favoritas">
+    <h2>Cidades Favoritas</h2>
+    <ul id="favorites-list" role="list"></ul>
+  </section>
 
-/* -------- BACKGROUNDS POR CONDIÇÃO -------- */
-body.light.bg-clear { background: var(--bg-gradient-light-clear); }
-body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
-body.light.bg-rain { background: var(--bg-gradient-light-rain); }
-body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
-body.light.bg-snow { background: var(--bg-gradient-light-snow); }
+  <!-- Card do clima -->
+  <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
+    <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
+    <div id="weather-content" class="info">
+      <!-- Botão de favoritar dentro do card, pequeno e redondo -->
+      <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
+        <span id="fav-icon" class="not-favorited"></span>
+      </button>
+      <h2 id="city-name">
+        Carregando cidade... <span id="state-abbr"></span>
+      </h2>
+      <div id="temp" class="temp">-- °C</div>
+      <div id="desc" class="desc">Aguardando dados...</div>
+      <div id="details" class="details">--</div>
+    </div>
+    <div id="weather-error" class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"></div>
+    <div id="spinner"></div>
+  </section>
 
-body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
-body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
-body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
-body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
-body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
+  <!-- Histórico de pesquisas -->
+  <section id="history-section" aria-label="Histórico das cidades pesquisadas">
+    <h2>Últimas cidades pesquisadas</h2>
+    <ul id="history-list" role="list"></ul>
+  </section>
+</main>
 
-/* -------- INPUTS, SELECTS E BUTTONS -------- */
-select {
-  flex: 1;
-  min-width: 150px;
-  min-height: 40px;
-  padding: 12px 15px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  outline: none;
-  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
-  cursor: pointer;
-}
-body.light input, body.light select {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-}
-body.light input:focus, body.light select:focus {
-  background-color: #fff;
-  color: #000;
-}
-body.dark select {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
-}
-body.dark select:focus {
-  background-color: var(--input-bg-dark);
-  color: var(--input-text-dark);
-}
+<!-- Toast de notificações -->
+<div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
 
-button, #state-city-search-btn {
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  user-select: none;
-}
-#state-city-search-btn {
-  padding: 12px 20px;
-  min-width: 110px;
-  min-height: 40px;
-  background-color: var(--button-bg);
-  color: #fff;
-}
-#state-city-search-btn:hover:not(:disabled),
-#state-city-search-btn:focus:not(:disabled) {
-  background-color: var(--button-bg-hover);
-  box-shadow: 0 0 12px var(--button-shadow-hover);
-  transform: scale(1.05);
-}
-#state-city-search-btn:disabled {
-  background-color: var(--button-bg-disabled);
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-/* -------- FOCO VISÍVEL -------- */
-:focus-visible {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-}
-
-/* -------- HEADER -------- */
-header {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-h1 { margin: 0; font-weight: 700; font-size: 2rem; }
-#theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  min-width: 110px;
-  min-height: 40px;
-}
-#theme-toggle:hover, #theme-toggle:focus {
-  background-color: var(--button-bg);
-  color: white;
-  border-color: var(--button-bg);
-  outline: none;
-}
-
-/* -------- MAIN -------- */
-main {
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-}
-
-/* -------- WEATHER CARD -------- */
-#weather {
-  background: rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 25px 30px;
-  width: 100%;
-  max-width: 600px;
-  display: grid;
-  grid-template-columns: 100px 1fr;
-  grid-gap: 25px;
-  align-items: center;
-  position: relative;
-  min-height: 260px;
-  transition: background 0.75s ease, color 0.75s ease;
-  color: inherit;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-}
-body.dark #weather {
-  background: rgba(255,255,255,0.1);
-  box-shadow: 0 4px 12px rgba(255,255,255,0.1);
-}
-#weather[hidden] { display: none !important; }
-#weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
-#weather-content { grid-column: 2; }
-#state-abbr { font-weight: bold; margin-left: 5px; }
-
-/* -------- WEATHER ERROR -------- */
-#weather-error {
-  display: none;
-  grid-column: 1/-1;
-  color: #b00020;
-  font-weight: 700;
-  text-align: center;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  background-color: rgba(255,0,0,0.1);
-  min-height: 100px;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.1rem;
-  transition: opacity 0.3s ease;
-  opacity: 0;
-  pointer-events: none;
-}
-body.error #weather-error {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
-  background-color: rgba(176,0,32,0.15);
-}
-body.error #weather-content { display: none; }
-
-/* -------- LOADING SPINNER -------- */
-#spinner {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  width: 40px;
-  height: 40px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #fff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.5s ease, transform 0.3s ease;
-  z-index: 10;
-}
-@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-#weather.loading::before {
-  content:"";
-  position: absolute;
-  inset:0;
-  background: var(--loading-bg-light);
-  backdrop-filter: blur(6px);
-  border-radius: 12px;
-  z-index: 5;
-}
-body.dark #weather.loading::before { background: var(--loading-bg-dark); }
-#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
-#weather.loading #weather-content { visibility: hidden; }
-
-/* -------- WEATHER ICONS E ANIMAÇÕES -------- */
-.weather-icon {
-  font-size: 100px;
-  line-height: 1;
-  text-align: center;
-  color: #fff;
-  transition: color 0.5s, transform 0.5s;
-}
-.weather-icon.clear { animation: rotateSlow 120s linear infinite; }
-.weather-icon.clouds { animation: floatClouds 20s ease-in-out infinite; }
-.weather-icon.rain { animation: rainAnim 3s linear infinite; }
-.weather-icon.drizzle { animation: drizzleAnim 2.5s linear infinite; }
-.weather-icon.thunderstorm { animation: thunderAnim 2s ease-in-out infinite alternate; }
-.weather-icon.snow { animation: snowAnim 15s linear infinite; }
-.weather-icon.mist,
-.weather-icon.fog,
-.weather-icon.haze,
-.weather-icon.smoke { animation: floatMist 12s ease-in-out infinite; }
-.weather-icon.dust,
-.weather-icon.sand,
-.weather-icon.ash { animation: dustAnim 8s linear infinite; }
-.weather-icon.squall { animation: squallAnim 3s ease-in-out infinite alternate; }
-.weather-icon.tornado { animation: tornadoAnim 1.5s linear infinite; }
-
-@keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
-@keyframes rainAnim { 0%{transform:translateY(0);} 100%{transform:translateY(10px);} }
-@keyframes drizzleAnim { 0%{transform:translateY(0);} 50%{transform:translateY(5px);} 100%{transform:translateY(0);} }
-@keyframes thunderAnim { 0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
-@keyframes snowAnim { 0%{transform:translateY(0);} 100%{transform:translateY(10px);} }
-@keyframes floatMist { 0%,100%{transform:translateY(0);} 50%{transform:translateY(3px);} }
-@keyframes dustAnim { 0%{transform:translateX(0);} 50%{transform:translateX(5px);} 100%{transform:translateX(0);} }
-@keyframes squallAnim { 0%{transform:rotate(-5deg);} 50%{transform:rotate(5deg);} 100%{transform:rotate(-5deg);} }
-@keyframes tornadoAnim { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
-
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation: none !important; } }
-
-/* -------- INFO CLIMA -------- */
-.info { display: flex; flex-direction: column; justify-content: center; }
-.temp { font-size: 4rem; font-weight: 700; margin: 0; line-height: 1; }
-.desc { font-size: 1.5rem; font-weight: 500; text-transform: capitalize; margin: 5px 0 15px; font-style: italic; color: inherit; }
-.details { font-size: 1rem; font-weight: 400; line-height: 1.6; color: inherit; }
-
-/* -------- TOAST -------- */
-#toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 9999;
-}
-#toast.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
-body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
-
-/* -------- HISTÓRICO E FAVORITOS -------- */
-#history-section, #favorites-section {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 30px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
-#history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
-#history-list, #favorites-list {
-   list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center; /* centraliza os itens horizontalmente */
-}
-#history-list li, #favorites-list li {
-  background: var(--button-bg);
-  color:#fff;
-  padding:8px 12px;
-  border-radius:8px;
-  cursor:pointer;
-  transition:background-color 0.3s, transform 0.2s;
-  flex:0 0 auto;
-}
-#history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus {
-  background-color: var(--button-bg-hover);
-  transform:scale(1.05);
-  outline:none;
-}
-
-/* -------- FAVORITOS (CORAÇÃO) -------- */
-#fav-icon { font-size:1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select:none; }
-#fav-icon.not-favorited { color: #fff; }
-body.dark #fav-icon.not-favorited { color: #555; }
-#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
-@keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
-#fav-btn {
-  position:absolute; top:10px; right:10px;
-  background: var(--button-bg);
-  color:#fff;
-  border:none;
-  border-radius:50%;
-  width:35px; height:35px;
-  font-size:18px; font-weight:bold;
-  cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 3px 5px rgba(0,0,0,0.25);
-  transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s;
-}
-#fav-btn:hover, #fav-btn:focus { transform:scale(1.1); background-color: var(--button-bg-hover); outline:none; }
-
-/* -------- MODAL -------- */
-#confirm-modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  font-family: Arial, sans-serif;
-}
-#confirm-modal[hidden] { display: none; }
-
-#confirm-modal .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(3px);
-  z-index: 10001;
-}
-
-#confirm-modal .modal-content {
-  position: relative;
-  background-color: var(--modal-bg);
-  color: var(--modal-text);
-  padding: 25px 30px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-  z-index: 10002;
-  text-align: center;
-}
-
-#confirm-modal h2 { margin-top: 0; font-size: 1.2rem; font-weight: 700; }
-#confirm-modal .modal-buttons { margin-top: 20px; display:flex; justify-content:center; gap:15px; }
-#confirm-modal button { padding: 10px 18px; min-width: 90px; min-height: 35px; border-radius: 8px; border:none; cursor:pointer; transition: transform 0.2s, background-color 0.3s; }
-#confirm-modal button:hover, #confirm-modal button:focus { transform: scale(1.05); outline:none; }
-
-/* -------- BOTÃO FLUTUANTE (SCROLL TOP) -------- */
-#scroll-top-btn {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background-color: var(--button-bg);
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease, background-color 0.3s;
-}
-#scroll-top-btn:hover, #scroll-top-btn:focus {
-  transform: scale(1.1);
-  background-color: var(--button-bg-hover);
-  outline: none;
-}
-
-/* -------- RESPONSIVIDADE -------- */
-@media (max-width: 650px) {
-  main { padding: 15px; gap: 20px; }
-  #weather { grid-template-columns: 80px 1fr; padding: 20px; }
-  .weather-icon { font-size: 80px; }
-  .temp { font-size: 3.2rem; }
-  .desc { font-size: 1.2rem; }
-}
-@media (max-width: 400px) {
-  #weather { grid-template-columns: 70px 1fr; padding: 15px; }
-  .weather-icon { font-size: 65px; }
-  .temp { font-size: 2.5rem; }
-  .desc { font-size: 1rem; }
-}
+<!-- Modal de confirmação -->
+<div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
+  <div class="modal-overlay"></div>
+  <div class="modal-content" role="document" tabindex="0">
+    <h2 id="confirm-modal-title">Confirmação</h2>
+    <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
+    <div class="modal-buttons">
+      <button id="confirm-yes" type="button">Sim</button>
+      <button id="confirm-no" type="button">Não</button>
+    </div>
+  </div>
+</div>
+  
+<!-- Botão flutuante para voltar ao topo -->
+<button id="scroll-top-btn" aria-label="Voltar ao topo">↑</button>
+  
+<script src="js/app.js"></script>
+</body>
+</html>
