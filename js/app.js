@@ -207,10 +207,15 @@ const UI = {
   },
 
   toggleThemeColors() {
-    document.body.classList.toggle("dark");
+   document.body.classList.toggle("dark");
     document.body.classList.toggle("light");
     Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
     this.setDynamicBackgroundFromCurrentIcon();
+
+    // Atualiza classe do modal
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark","light");
+    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
   },
 
   applySavedTheme() {
@@ -218,6 +223,11 @@ const UI = {
     document.body.classList.add(saved);
     document.body.classList.remove(saved === "dark" ? "light" : "dark");
     this.setDynamicBackgroundFromCurrentIcon();
+
+    // Aplica também ao modal
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark","light");
+    modal.classList.add(saved);
   },
 
   setDynamicBackgroundFromCurrentIcon() {
