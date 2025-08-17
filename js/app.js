@@ -41,7 +41,7 @@ const dom = {
   // IBGE selects
   stateSelect: document.getElementById("state-select"),
   citySelect: document.getElementById("city-select"),
-  //stateCitySearchBtn: document.getElementById("state-city-search-btn"),
+  stateCitySearchBtn: document.getElementById("state-city-search-btn"),
 
   // Scroll top button
   scrollTopBtn: document.getElementById("scroll-top-btn")
