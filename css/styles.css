@@ -319,10 +319,10 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
 
 /* Botão de favoritar dentro do card */
 #fav-btn {
-  position: absolute; /* ou relative ao container do card */
+  position: absolute;
   top: 10px;
   right: 10px;
-  background: var(--primary-color, #0077ff);
+  background: var(--button-bg);  /* mesma cor dos botões do app */
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -335,8 +335,13 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.3s ease-in-out, transform 0.2s;
+  transition: opacity 0.3s ease-in-out, transform 0.2s, background 0.3s;
   z-index: 10;
+}
+
+#fav-btn:hover {
+  background: var(--button-bg-hover);  /* mesma cor de hover dos botões */
+  transform: scale(1.1);
 }
 
 
