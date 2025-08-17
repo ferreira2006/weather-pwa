@@ -61,10 +61,10 @@ const WeatherAPI = {
 // ===== STORAGE =====
 const Storage = {
   getHistory: () => JSON.parse(localStorage.getItem("weatherHistory")) || [],
-  saveHistory(city, stateAbbr = "") {
+  saveHistory(city) {
     const formattedCity = Utils.capitalizeCityName(city);
-    const history = this.getHistory().filter(c => c.city.toLowerCase() !== formattedCity.toLowerCase());
-    history.unshift({ city: formattedCity, state: stateAbbr });
+    const history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
+    history.unshift(formattedCity);
     localStorage.setItem("weatherHistory", JSON.stringify(history.slice(0, maxHistoryItems)));
   },
   getFavorites: () => JSON.parse(localStorage.getItem("weatherFavorites")) || [],
@@ -72,7 +72,7 @@ const Storage = {
   getTheme: () => localStorage.getItem("theme") || "light",
   saveTheme: theme => localStorage.setItem("theme", theme),
   getLastCity: () => localStorage.getItem("lastCity"),
-  saveLastCity: (city, stateAbbr = "") => localStorage.setItem("lastCity", JSON.stringify({ city, stateAbbr }))
+  saveLastCity: city => localStorage.setItem("lastCity", city)
 };
 
 // ===== UI =====
@@ -118,8 +118,8 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    const stateAbbrDisplay = currentStateAbbr || data.sys?.state || "BR";
-    dom.cityNameEl.textContent = `${data.name}, ${stateAbbrDisplay}`;
+    const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.sys.country}`;
+    dom.cityNameEl.textContent = `${data.name}${stateAbbrDisplay}`;
 
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
@@ -151,38 +151,39 @@ const UI = {
 
   renderList(listEl, items, clickCallback, removeCallback) {
     listEl.innerHTML = "";
-    items.forEach(item => {
+    items.forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.title = clickCallback ? `Clique para buscar.` : "";
-      li.textContent = `${item.city}, ${item.state || "BR"}`;
-      if (clickCallback) li.addEventListener("click", () => clickCallback(item.city, item.state, true));
+      li.textContent = city;
+      if (clickCallback) li.addEventListener("click", () => clickCallback(city));
       if (removeCallback) li.addEventListener("keydown", e => {
-        if (["Delete","Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) removeCallback(item.city);
+        if (["Delete","Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) removeCallback(city);
       });
       listEl.appendChild(li);
     });
   },
 
-  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), (city, stateAbbr) => App.handleCitySelect(city, stateAbbr, true)); },
+  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
 
   renderFavorites() {
     dom.favoritesListEl.innerHTML = "";
     Storage.getFavorites().forEach(item => {
+      const city = typeof item === "string" ? item : item.city;
       const li = document.createElement("li");
       li.tabIndex = 0;
       li.title = "Clique para buscar. Shift+Enter ou Delete para remover.";
 
       const citySpan = document.createElement("span");
-      citySpan.textContent = `${item.city}, ${item.state || "BR"}`;
+      citySpan.textContent = city;
       citySpan.style.cursor = "pointer";
-      citySpan.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
+      citySpan.addEventListener("click", () => App.handleCitySelect(city));
       li.appendChild(citySpan);
 
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
       Object.assign(removeBtn.style, { marginLeft:"8px", cursor:"pointer", background:"transparent", border:"none", fontWeight:"bold", fontSize:"1.2rem", lineHeight:"1", padding:"0" });
-      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(item.city); });
+      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(city); });
       li.appendChild(removeBtn);
 
       dom.favoritesListEl.appendChild(li);
@@ -230,9 +231,9 @@ const App = {
       const query = isIBGECity ? `${normalizedCity},BR` : normalizedCity;
       const data = await WeatherAPI.fetchByCity(query);
       UI.showWeather(data);
-      Storage.saveHistory(normalizedCity, stateAbbr);
+      Storage.saveHistory(normalizedCity);
       UI.renderHistory();
-      Storage.saveLastCity(normalizedCity, stateAbbr);
+      Storage.saveLastCity(normalizedCity);
     } catch (err) {
       UI.showError(err.message || "Erro ao buscar o clima");
     } finally {
@@ -245,7 +246,7 @@ const App = {
 
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
-      currentStateAbbr = ""; // coordenadas podem não ter estado
+      currentStateAbbr = "";
       UI.showWeather(data);
       Storage.saveHistory(data.name);
       UI.renderHistory();
@@ -261,7 +262,7 @@ const App = {
   addFavorite(city) {
     const formattedCity = Utils.capitalizeCityName(Utils.normalizeCityInput(city));
     const favorites = Storage.getFavorites();
-    if (favorites.some(c => c.city.toLowerCase() === formattedCity.toLowerCase())) {
+    if (favorites.some(c => (typeof c === "string" ? c : c.city).toLowerCase() === formattedCity.toLowerCase())) {
       UI.showToast(`"${formattedCity}" já está nos favoritos.`);
       return;
     }
@@ -279,7 +280,7 @@ const App = {
   async removeFavorite(city) {
     const confirmed = await showConfirmationModal(`Remover "${city}" dos favoritos?`);
     if (!confirmed) return;
-    const favorites = Storage.getFavorites().filter(c => c.city.toLowerCase() !== city.toLowerCase());
+    const favorites = Storage.getFavorites().filter(c => (typeof c === "string" ? c : c.city).toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
@@ -287,7 +288,10 @@ const App = {
   },
 
   updateUIState() {
-    const favorites = Storage.getFavorites().map(c => c.city.toLowerCase());
+    const favorites = Storage.getFavorites()
+      .filter(c => c && (typeof c === "string" ? c : c.city))
+      .map(c => (typeof c === "string" ? c : c.city).toLowerCase());
+
     const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
 
@@ -318,10 +322,9 @@ const App = {
     });
     dom.scrollTopBtn.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
 
-    const lastCityRaw = Storage.getLastCity();
-    if (lastCityRaw) {
-      const lastCityObj = JSON.parse(lastCityRaw);
-      this.handleCitySelect(lastCityObj.city, lastCityObj.state).finally(() => dom.weatherDiv.classList.remove("loading"));
+    const lastCity = Storage.getLastCity();
+    if (lastCity) {
+      this.handleCitySelect(lastCity).finally(() => dom.weatherDiv.classList.remove("loading"));
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
@@ -367,7 +370,7 @@ const IBGE = {
         const opt = document.createElement("option");
         opt.value = s.id;
         opt.textContent = s.nome;
-        opt.dataset.uf = s.sigla; // salva sigla do estado
+        opt.dataset.uf = s.sigla;
         dom.stateSelect.appendChild(opt);
       });
       dom.stateSelect.addEventListener("change", () => this.onStateChange());
