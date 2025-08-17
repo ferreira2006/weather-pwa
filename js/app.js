@@ -133,7 +133,7 @@ const UI = {
   const classes = map[mainWeather.toLowerCase()] || ["wi", "wi-day-sunny"];
   dom.iconEl.className = "weather-icon";  // reseta a classe
   dom.iconEl.classList.add(...classes);    // adiciona cada classe separadamente
-};
+},
 
   showWeather(data) {
     document.body.classList.remove("error");
