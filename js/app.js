@@ -38,6 +38,11 @@ const confirmYes = document.getElementById('confirm-yes');
 const confirmNo = document.getElementById('confirm-no');
 
 // =======================
+// VARIÁVEL GLOBAL
+// =======================
+let lastIcon = 'clear'; // mantém ícone atual para o fundo
+
+// =======================
 // ESTADOS & MUNICÍPIOS
 // =======================
 async function fetchStates() {
@@ -52,7 +57,7 @@ async function fetchStates() {
       stateSelect.appendChild(opt);
     });
     searchBtn.disabled = true;
-  } catch (err) {
+  } catch {
     showToast('Erro ao carregar estados');
   }
 }
@@ -69,7 +74,7 @@ async function fetchCities(stateSigla) {
       opt.textContent = city.nome;
       citySelect.appendChild(opt);
     });
-  } catch (err) {
+  } catch {
     showToast('Erro ao carregar municípios');
   }
 }
@@ -159,15 +164,16 @@ function showConfirmModal(city) {
 // =======================
 function toggleTheme() {
   const body = document.body;
-  if (body.classList.contains('light')) {
-    body.classList.replace('light','dark');
-    themeToggle.textContent = 'Modo Claro';
-    themeToggle.setAttribute('aria-pressed','true');
-  } else {
-    body.classList.replace('dark','light');
-    themeToggle.textContent = 'Modo Escuro';
-    themeToggle.setAttribute('aria-pressed','false');
-  }
+  body.classList.toggle('light');
+  body.classList.toggle('dark');
+  themeToggle.textContent = body.classList.contains('light') ? 'Modo Escuro' : 'Modo Claro';
+  setBodyBg(lastIcon);
+}
+
+function setBodyBg(icon) {
+  lastIcon = icon;
+  document.body.classList.remove('bg-clear', 'bg-clouds', 'bg-rain', 'bg-thunderstorm', 'bg-snow');
+  document.body.classList.add(`bg-${icon}`);
 }
 
 // =======================
@@ -186,21 +192,19 @@ async function searchWeather() {
     const res = await fetch(`${backendUrl}?state=${state}&city=${city}`);
     const data = await res.json();
 
-    // Ajustando campos do backend
     cityNameEl.textContent = `${data.name || city}, ${data.uf || state}`;
     tempEl.textContent = `${data.main?.temp ?? 'N/A'} °C`;
     descEl.textContent = data.weather?.[0]?.description ?? 'Sem descrição';
     detailsEl.textContent = `Umidade: ${data.main?.humidity ?? 'N/A'}% | Vento: ${data.wind?.speed ?? 'N/A'} km/h`;
 
-    // Atualiza ícone e fundo do clima
     const weatherMain = data.weather?.[0]?.main?.toLowerCase() || 'clear';
     iconEl.className = `weather-icon ${weatherMain}`;
-    document.body.classList.remove('bg-clear','bg-clouds','bg-rain','bg-thunderstorm','bg-snow');
-    document.body.classList.add(`bg-${weatherMain}`);
+    setBodyBg(weatherMain);
 
     addToHistory(city);
     checkFavorite(city);
-  } catch (err) {
+
+  } catch {
     errorEl.textContent = 'Erro ao carregar o clima.';
     errorEl.style.display = 'block';
   } finally {
@@ -208,9 +212,8 @@ async function searchWeather() {
   }
 }
 
-// Busca rápida ao clicar no histórico ou favoritos
 function searchWeatherByCity(city) {
-  const state = stateSelect.value || ''; // mantém estado selecionado
+  const state = stateSelect.value || '';
   if (!state || !city) {
     showToast('Selecione o estado e a cidade');
     return;
