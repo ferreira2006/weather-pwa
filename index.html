@@ -9,12 +9,12 @@
 </head>
 <body class="light">
 
-<noscript> 
+<noscript>
   <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
     ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
   </div>
 </noscript>
-  
+
 <header>
   <h1>Clima Atual</h1>
   <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
@@ -26,16 +26,9 @@
   <!-- Busca de cidades -->
   <section id="search-section" aria-label="Busca de cidades">
     <form id="search-box" role="search" aria-label="Busca de cidade">
-      <input
-        id="city-input"
-        name="city"
-        type="text"
-        list="city-suggestions"
-        placeholder="Digite a cidade"
-        aria-label="Digite o nome da cidade"
-        autocomplete="off"
-        required
-      />
+      <input id="city-input" name="city" type="text" list="city-suggestions"
+             placeholder="Digite a cidade" aria-label="Digite o nome da cidade"
+             autocomplete="off" required />
       <datalist id="city-suggestions">
         <option value="Anchieta">
         <option value="Bandeirante">
@@ -107,16 +100,14 @@
   </div>
 </div>
 
-<!-- Footer com atalhos -->
-<footer id="shortcuts" aria-label="Atalhos de teclado" role="contentinfo">
-  <h2>Atalhos de Teclado</h2>
-  <ul>
-    <li><strong>Enter</strong> → Buscar cidade</li>
-    <li><strong>Ctrl + F</strong> → Focar na busca</li>
-    <li><strong>Alt + T</strong> → Alternar tema claro/escuro</li>
-    <li><strong>Ctrl + D</strong> → Adicionar ou remover cidade dos favoritos</li>
-    <li><strong>Setas</strong> → Navegar entre histórico e favoritos</li>
-  </ul>
+<!-- Footer com atalhos de teclado -->
+<footer id="app-footer" aria-label="Atalhos de teclado">
+  <p><strong>Atalhos de teclado:</strong> 
+    <kbd>Enter</kbd> Buscar | 
+    <kbd>Alt + T</kbd> Alternar tema | 
+    <kbd>Ctrl + F</kbd> Focar na busca | 
+    <kbd>Ctrl + D</kbd> Favoritar/Remover cidade
+  </p>
 </footer>
 
 <script src="js/app.js"></script>
