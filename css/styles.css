@@ -1,5 +1,5 @@
 :root {
-  /* Gradientes de fundo */
+  /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
   --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
@@ -10,37 +10,142 @@
   --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
   --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
   --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
-  /* Cores */
-  --text-color-light: #000; --text-color-dark: #ddd;
-  --button-bg: #ff9800; --button-bg-hover: #e68a00; --button-bg-disabled: #ffa733;
+
+  /* -------- CORES -------- */
+  --text-color-light: #000;
+  --text-color-dark: #ddd;
+  --input-text-light: #000;
+  --input-text-dark: #cfd8dc;
+  --input-bg-light: rgba(255, 255, 255, 0.9);
+  --input-bg-dark: rgba(255, 255, 255, 0.1);
+  --input-border-focus: var(--button-bg);
+  --button-bg: #ff9800;
+  --button-bg-hover: #e68a00;
+  --button-bg-disabled: #ffa733;
   --button-shadow-hover: #ffb74d;
+  --toast-bg-light: rgba(0,0,0,0.85);
+  --toast-text-light: #fff;
+  --toast-bg-dark: rgba(255,255,255,0.9);
+  --toast-text-dark: #000;
+  --loading-bg-light: rgba(255,255,255,0.35);
+  --loading-bg-dark: rgba(255,255,255,0.15);
 }
 
-/* Corpo e temas */
-body { font-family:Arial,sans-serif; margin:0; padding:20px; min-height:100vh; display:flex; flex-direction:column; align-items:center; transition: background 0.75s, color 0.75s; }
+/* -------- BODY E TEMAS -------- */
+body {
+  transition: background 0.75s ease, color 0.75s ease;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 body.light { color: var(--text-color-light); }
 body.dark { color: var(--text-color-dark); }
+
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
+body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
+body.light.bg-rain { background: var(--bg-gradient-light-rain); }
+body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
+body.light.bg-snow { background: var(--bg-gradient-light-snow); }
+
 body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
-/* Inputs */
-input[type="text"] { padding:12px 15px; border-radius:8px; border:1px solid transparent; transition: all 0.3s; }
-body.light input[type="text"] { background: rgba(255,255,255,0.9); color:#000; }
-body.dark input[type="text"] { background: rgba(255,255,255,0.1); color:#cfd8dc; }
+/* -------- INPUTS -------- */
+input[type="text"] {
+  flex: 1;
+  min-width: 150px;
+  min-height: 40px;
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  outline: none;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+body.light input[type="text"] {
+  color: var(--input-text-light);
+  background-color: var(--input-bg-light);
+}
+body.light input[type="text"]:focus { background-color: #fff; color: #000; }
+body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
+body.dark input[type="text"] {
+  color: var(--input-text-dark);
+  background-color: var(--input-bg-dark);
+}
+body.dark input[type="text"]:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
+body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
 
-/* Header */
-header { width:100%; max-width:600px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
-#theme-toggle { padding:8px 16px; border-radius:8px; border:2px solid currentColor; cursor:pointer; }
+/* -------- FOCO VISÍVEL ACESSÍVEL -------- */
+:focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
+input[type="text"]:focus-visible,
+button:focus-visible,
+#history-list li:focus-visible,
+#favorites-list li:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+  background-color: var(--button-bg);
+  color: #fff;
+}
 
-/* Main */
-main { width:100%; max-width:600px; display:flex; flex-direction:column; align-items:center; gap:25px; }
+/* -------- HEADER -------- */
+header {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+h1 { margin: 0; font-weight: 700; font-size: 2rem; }
+#theme-toggle {
+  background: transparent;
+  border: 2px solid currentColor;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  color: inherit;
+  user-select: none;
+  min-width: 110px;
+  min-height: 40px;
+}
+#theme-toggle:hover, #theme-toggle:focus {
+  background-color: var(--button-bg);
+  color: white;
+  border-color: var(--button-bg);
+  outline: none;
+}
 
-/* Botões */
-button { padding:12px 20px; border:none; border-radius:8px; background:var(--button-bg); color:#fff; cursor:pointer; transition:0.3s; }
-button:disabled { background: var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; }
+/* -------- MAIN -------- */
+main { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 25px; }
 
-/* Footer com atalhos */
-#app-footer { width:100%; max-width:600px; margin:20px 0 0; padding:12px 15px; text-align:center; font-size:0.9rem; color:inherit; background:rgba(255,255,255,0.1); border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+/* -------- FOOTER COM ATALHOS -------- */
+#app-footer {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px 0 0;
+  padding: 12px 15px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: inherit;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
 body.dark #app-footer { background: rgba(255,255,255,0.15); }
-#app-footer kbd { background: rgba(0,0,0,0.1); border-radius:4px; padding:2px 6px; font-size:0.85rem; font-weight:600; }
+#app-footer kbd {
+  background: rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
 body.dark #app-footer kbd { background: rgba(255,255,255,0.2); }
