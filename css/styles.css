@@ -429,12 +429,12 @@ body.dark #fav-icon.not-favorited { color: #555; }
   outline: none;
 }
 
-/* -------- VARIÁVEIS DE TEMA PARA MODAL -------- */
+/* -------- VARIÁVEIS DE TEMA PARA MODAL (COLORIDOS) -------- */
 body.light #confirm-modal {
   --modal-bg: #fff;
   --modal-text: #000;
-  --modal-button-bg: #ff9800;
-  --modal-button-bg-hover: #e68a00;
+  --modal-button-bg: #ff9800;        /* laranja */
+  --modal-button-bg-hover: #e68a00;  /* laranja escuro */
   --modal-button-text: #fff;
   --modal-button-border: #ff9800;
 }
@@ -442,10 +442,29 @@ body.light #confirm-modal {
 body.dark #confirm-modal {
   --modal-bg: #222;
   --modal-text: #fff;
-  --modal-button-bg: #1e90ff;
-  --modal-button-bg-hover: #63a4ff;
+  --modal-button-bg: #1e90ff;        /* azul vivo */
+  --modal-button-bg-hover: #63a4ff;  /* azul claro */
   --modal-button-text: #fff;
   --modal-button-border: #1e90ff;
+}
+
+#confirm-modal button {
+  min-width: 80px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--modal-button-bg);
+  color: var(--modal-button-text);
+  border: 1px solid var(--modal-button-border);
+}
+
+#confirm-modal button:hover,
+#confirm-modal button:focus {
+  transform: scale(1.05);
+  background-color: var(--modal-button-bg-hover);
+  outline: none;
 }
 
 /* -------- RESPONSIVIDADE -------- */
