@@ -61,10 +61,12 @@ const WeatherAPI = {
 // ===== STORAGE =====
 const Storage = {
   getHistory: () => JSON.parse(localStorage.getItem("weatherHistory")) || [],
-  saveHistory(city) {
+  saveHistory(city, state = "") {
     const formattedCity = Utils.capitalizeCityName(city);
-    const history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
-    history.unshift(formattedCity);
+    const history = this.getHistory().filter(
+      c => c.city.toLowerCase() !== formattedCity.toLowerCase()
+    );
+    history.unshift({ city: formattedCity, state });
     localStorage.setItem("weatherHistory", JSON.stringify(history.slice(0, maxHistoryItems)));
   },
   getFavorites: () => JSON.parse(localStorage.getItem("weatherFavorites")) || [],
@@ -149,22 +151,18 @@ const UI = {
     App.updateUIState();
   },
 
-  renderList(listEl, items, clickCallback, removeCallback) {
-    listEl.innerHTML = "";
-    items.forEach(city => {
+  renderHistory() {
+    dom.historyListEl.innerHTML = "";
+    Storage.getHistory().forEach(item => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.title = clickCallback ? `Clique para buscar.` : "";
-      li.textContent = city;
-      if (clickCallback) li.addEventListener("click", () => clickCallback(city));
-      if (removeCallback) li.addEventListener("keydown", e => {
-        if (["Delete","Backspace"].includes(e.key) || (e.key === "Enter" && e.shiftKey)) removeCallback(city);
-      });
-      listEl.appendChild(li);
+      li.textContent = item.state ? `${item.city} (${item.state})` : item.city;
+      li.title = "Clique para buscar.";
+      li.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
+      li.addEventListener("keypress", e => { if (e.key === "Enter") App.handleCitySelect(item.city, item.state, true); });
+      dom.historyListEl.appendChild(li);
     });
   },
-
-  renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
 
   renderFavorites() {
     dom.favoritesListEl.innerHTML = "";
@@ -234,7 +232,7 @@ const App = {
       const query = isIBGECity ? `${normalizedCity},BR` : normalizedCity;
       const data = await WeatherAPI.fetchByCity(query);
       UI.showWeather(data);
-      Storage.saveHistory(normalizedCity);
+      Storage.saveHistory(normalizedCity, stateAbbr);
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
     } catch (err) {
