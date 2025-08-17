@@ -135,31 +135,70 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 /* -------- MAIN -------- */
 main { width: 100%; max-width: 600px; display: flex; flex-direction: column; align-items: center; gap: 25px; }
 
-/* -------- MODAL -------- */
-#confirm-modal {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
-  z-index: 10000; font-family: Arial, sans-serif;
+/* -------- SELECTS E BOTÃO STATE/CITY -------- */
+.state-city-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
 }
-#confirm-modal[hidden] { display: none; }
-#confirm-modal .modal-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index:10001; }
-#confirm-modal .modal-content {
-  position: relative; background: var(--button-bg); color: #fff;
-  padding: 25px 30px; border-radius: 12px; max-width: 400px; width: 90%;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index:10002; text-align:center;
-}
-#confirm-modal h2 { margin-top:0; font-size:1.5rem; }
-#confirm-modal p { margin:20px 0; font-size:1.1rem; }
-#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
-#confirm-modal button {
-  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
-  cursor:pointer; user-select:none; transition: background-color 0.3s;
-}
-#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
-#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
-#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
-#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#d32f2f; outline:none; }
 
-/* -------- BOTÕES DE BUSCA E ADICIONAR AOS FAVORITOS -------- */
+.state-city-container select {
+  padding: 12px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  min-width: 120px;
+}
+
+.state-city-container select:disabled {
+  background-color: #eee;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.state-city-container select:focus {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+  box-shadow: 0 0 6px var(--button-shadow-hover);
+}
+
+#state-city-search-btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--button-bg);
+  color: #fff;
+  cursor: pointer;
+  min-width: 110px;
+  min-height: 40px;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  user-select: none;
+}
+
+#state-city-search-btn:hover:not(:disabled),
+#state-city-search-btn:focus:not(:disabled) {
+  background-color: var(--button-bg-hover);
+  box-shadow: 0 0 12px var(--button-shadow-hover);
+  outline: none;
+  transform: scale(1.05);
+}
+
+#state-city-search-btn:disabled {
+  background-color: var(--button-bg-disabled);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+/* -------- BOTÃO SEARCH PRINCIPAL -------- */
 button#search-btn {
   display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
   background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
@@ -170,17 +209,6 @@ button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled)  
   background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
 }
 button#search-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
-
-/* -------- ÍCONE DE FAVORITO (CORAÇÃO ÚNICO) -------- */
-#fav-icon {
-  font-size: 1.4rem;
-  transition: color 0.25s ease, transform 0.2s ease;
-  user-select: none;
-}
-
-#fav-icon.not-favorited { color: #fff; } /* branco quando não favoritado */
-body.dark #fav-icon.not-favorited { color: #cfd8dc; } /* tom claro no tema escuro */
-#fav-icon.favorited { color: red; transform: scale(1.2); } /* vermelho e leve zoom quando favoritado */
 
 /* -------- WEATHER CARD -------- */
 #weather {
@@ -204,7 +232,7 @@ body.error #weather-error { display:block; opacity:1; pointer-events:auto; backg
 body.error #weather-content { display:none; }
 body.error #icon { display:none; }
 
-/* -------- LOADING SPINNER MELHORADO -------- */
+/* -------- LOADING SPINNER -------- */
 #spinner {
   position: absolute;
   bottom: 15px;
@@ -222,21 +250,17 @@ body.error #icon { display:none; }
   z-index: 10;
 }
 
-/* Animação de rotação */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 #weather.loading::before {
   content:""; position:absolute; inset:0; background:var(--loading-bg-light);
   backdrop-filter:blur(6px); border-radius:12px; z-index:5; transition:none;
 }
 body.dark #weather.loading::before { background:var(--loading-bg-dark); }
-/* Quando o card estiver carregando */
+
 #weather.loading #spinner {
-  opacity: 0.85;       /* semi-transparente */
-  transform: scale(1);  /* leve ajuste se quiser dar efeito de “aparecer” */
+  opacity: 0.85;
+  transform: scale(1);
 }
 #weather.loading #weather-content, #weather.loading .weather-icon { visibility:hidden; }
 
@@ -249,11 +273,7 @@ body.dark #weather.loading .desc,
 body.dark #weather.loading .details,
 body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
 
-#weather.loading .temp { height:60px; width:80px; }
-#weather.loading .desc { height:20px; width:120px; margin:10px 0; }
-#weather.loading .details { height:60px; width:100%; }
-
-/* -------- ÍCONES DE CLIMA -------- */
+/* -------- WEATHER ICONS -------- */
 .weather-icon {
   width:100px; height:100px; background-size:contain; background-repeat:no-repeat;
   justify-self:center; transition: background-image 0.5s ease;
@@ -306,10 +326,15 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
 }
 
-/* -------- ANIMAÇÃO LEVE PARA O CORAÇÃO AO CLICAR -------- */
-#fav-icon.favorited {
-  animation: heart-pop 0.25s ease forwards;
+/* -------- FAVORITOS (CORAÇÃO) -------- */
+#fav-icon {
+  font-size: 1.4rem;
+  transition: color 0.25s ease, transform 0.2s ease;
+  user-select: none;
 }
+#fav-icon.not-favorited { color: #fff; }
+body.dark #fav-icon.not-favorited { color: #cfd8dc; }
+#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
 
 @keyframes heart-pop {
   0%   { transform: scale(1); }
@@ -322,7 +347,7 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   position: absolute;
   top: 10px;
   right: 10px;
-  background: var(--button-bg);  /* mesma cor dos botões do app */
+  background: var(--button-bg);
   color: #fff;
   border: none;
   border-radius: 50%;
@@ -335,95 +360,34 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.3s ease-in-out, transform 0.2s, background 0.3s;
-  z-index: 10;
+  transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s;
 }
+#fav-btn:hover, #fav-btn:focus { transform: scale(1.1); background-color: var(--button-bg-hover); outline:none; }
 
-#fav-btn:hover {
-  background: var(--button-bg-hover);  /* mesma cor de hover dos botões */
-  transform: scale(1.1);
+/* -------- MODAL -------- */
+#modal {
+  position: fixed; inset:0; display:none; justify-content:center; align-items:center;
+  background: rgba(0,0,0,0.6); z-index:9998; padding:20px;
 }
+#modal.show { display:flex; }
+#modal-content {
+  background:#fff; padding:20px; border-radius:12px; max-width:500px; width:100%;
+  box-shadow:0 5px 15px rgba(0,0,0,0.3);
+}
+#modal-close { position:absolute; top:10px; right:10px; background:transparent; border:none; font-size:1.5rem; cursor:pointer; }
 
-
-/* Botão flutuante "Voltar ao topo" */
+/* -------- BOTÃO FLUTUANTE -------- */
 #scroll-top-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: none;
-  background: var(--button-bg, #0077ff); /* mesma cor dos botões do app */
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.25);
-  transition: opacity 0.3s ease-in-out, transform 0.2s, background 0.3s;
-  z-index: 1000;
+  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
+  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
+  transition: transform 0.3s ease, background-color 0.3s;
 }
+#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
 
-/* Hover */
-#scroll-top-btn:hover {
-  background: var(--button-hover-bg, #005fcc); /* mesma cor de hover dos botões */
-  transform: scale(1.1);
-}
-
-/* ===== Estilo dos selects e botão de busca ===== */
-.state-city-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.state-city-container select,
-.state-city-container button {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #000;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.state-city-container select:disabled,
-.state-city-container button:disabled {
-  background-color: #eee;
-  color: #888;
-  cursor: not-allowed;
-}
-
-.state-city-container select:focus,
-.state-city-container button:focus {
-  outline: none;
-  b
-
-/* -------- SEARCH BOX -------- */
-#search-box { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px; width:100%; }
-
-/* =======================================================
-   FALLBACK PARA NOSCRIPT
-   ======================================================= */
-noscript .error-message {
-  display: block; /* garante que apareça se JS estiver desativado */
-  grid-column: 1 / -1;
-  color: #b00020;
-  font-weight: 700;
-  text-align: center;
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  background-color: rgba(176, 0, 32, 0.15);
-  min-height: 100px;
-  align-self: center;
-  justify-self: center;
-  font-size: 1.1rem;
-  opacity: 1; /* sem transição JS */
-  pointer-events: auto;
-  margin-bottom: 20px;
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width:640px){
+  #weather { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: auto; }
+  .weather-icon { justify-self:center; margin-bottom:15px; }
+  .state-city-container { flex-direction: column; }
 }
