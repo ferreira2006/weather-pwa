@@ -231,6 +231,17 @@ body.dark #weather.loading .details,
 body.dark #weather.loading #city-name { color:transparent; background:var(--loading-bg-dark); border-radius:6px; }
 
 /* =======================================================
+   TEMPERATURA COM 1 CASA DECIMAL
+   ======================================================= */
+.temp {
+  font-size: 4rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+.temp::after { content: " °C"; } /* °C incluído no JS */
+
+/* =======================================================
    ÍCONES DE CLIMA
    ======================================================= */
 .weather-icon {
@@ -275,7 +286,6 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
    INFO TEXTO DO CLIMA
    ======================================================= */
 .info { display:flex; flex-direction:column; justify-content:center; }
-.temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
 .desc { font-size:1.5rem; font-weight:500; text-transform:capitalize; margin:5px 0 15px; font-style:italic; color:inherit; }
 .details { font-size:1rem; font-weight:400; line-height:1.6; color:inherit; }
 
