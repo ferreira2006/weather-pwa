@@ -169,7 +169,7 @@ const UI = {
     Storage.getFavorites().forEach(item => {
       const cityName = typeof item === "string" ? item : item.city;
       const state = typeof item === "string" ? "" : item.state;
-      const displayText = state ? `${cityName}, ${state}` : cityName;
+      const displayText = state ? `${cityName} (${state})` : cityName;
 
       const li = document.createElement("li");
       li.tabIndex = 0;
@@ -184,7 +184,11 @@ const UI = {
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
       Object.assign(removeBtn.style, { marginLeft:"8px", cursor:"pointer", background:"transparent", border:"none", fontWeight:"bold", fontSize:"1.2rem", lineHeight:"1", padding:"0" });
-      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(cityName); });
+      removeBtn.addEventListener("click", e => { 
+        e.stopPropagation(); 
+        const modalText = state ? `${cityName} (${state})` : cityName;
+        App.removeFavorite(modalText, cityName);
+      });
       li.appendChild(removeBtn);
 
       dom.favoritesListEl.appendChild(li);
@@ -278,13 +282,13 @@ const App = {
     this.updateUIState();
   },
 
-  async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(`Remover "${city}" dos favoritos?`);
+  async removeFavorite(displayText, cityName) {
+    const confirmed = await showConfirmationModal(`Remover "${displayText}" dos favoritos?`);
     if (!confirmed) return;
-    const favorites = Storage.getFavorites().filter(c => (typeof c === "string" ? c : c.city).toLowerCase() !== city.toLowerCase());
+    const favorites = Storage.getFavorites().filter(c => (typeof c === "string" ? c : c.city).toLowerCase() !== cityName.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
-    UI.showToast(`"${city}" removido dos favoritos.`);
+    UI.showToast(`"${displayText}" removido dos favoritos.`);
     this.updateUIState();
   },
 
