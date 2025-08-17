@@ -389,7 +389,10 @@ const IBGE = {
       });
       dom.stateSelect.addEventListener("change", () => this.onStateChange());
       dom.citySelect.addEventListener("change", () => this.updateSearchButtonState());
-      dom.stateCitySearchBtn.addEventListener("click", () => this.onSearchClick());
+      dom.stateCitySearchBtn.addEventListener("click", () => this.onSearchClick());dom.stateCitySearchBtn.addEventListener("click", () => {
+  const city = dom.citySelect.value;
+  if (city) App.handleCitySelect(city);
+});
       this.updateSearchButtonState();
     } catch {
       UI.showToast("Erro ao carregar estados do IBGE.");
