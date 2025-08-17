@@ -1,215 +1,239 @@
 /* =======================================================
    RAIZ: VARIÁVEIS CSS
-   ======================================================= */
+======================================================= */
 :root {
-  /* -------- GRADIENTES DE FUNDO - TEMA CLARO -------- */
+  /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-  --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
-  --bg-gradient-light-fog: linear-gradient(135deg, #d7d2cc 0%, #304352 100%);
-
-  /* -------- GRADIENTES DE FUNDO - TEMA ESCURO -------- */
+  --bg-gradient-light-rain: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
   --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
   --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
-  --bg-gradient-dark-fog: linear-gradient(135deg, #3e3e3e 0%, #7a7a7a 100%);
+  --bg-gradient-dark-rain: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
 
   /* -------- CORES -------- */
-  --text-color-light: #000;
-  --text-color-dark: #ddd;
+  --color-light-text: #111;
+  --color-light-bg: #f5f5f5;
+  --color-dark-text: #eee;
+  --color-dark-bg: #121212;
 
-  --input-text-light: #000;
-  --input-text-dark: #cfd8dc;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: rgba(255, 255, 255, 0.1);
-  --input-border-focus: var(--button-bg);
+  /* -------- ESPAÇAMENTOS -------- */
+  --gap-section: 1.5rem;
+  --gap-item: 1rem;
+  --padding-main: 1rem;
+  --max-width: 480px;
 
-  --button-bg: #ff9800;
-  --button-bg-hover: #e68a00;
-  --button-bg-disabled: #ffa733;
-  --button-shadow-hover: #ffb74d;
-
-  --toast-bg-light: rgba(0,0,0,0.85);
-  --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255,255,255,0.9);
-  --toast-text-dark: #000;
-
-  --loading-bg-light: rgba(255,255,255,0.35);
-  --loading-bg-dark: rgba(255,255,255,0.15);
-
-  --fav-icon-color: #ff4d4d;
+  /* -------- OUTROS -------- */
+  --transition: 0.3s ease-in-out;
+  --border-radius: 12px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* =======================================================
-   RESET E BASE
-   ======================================================= */
+   RESET & BASE
+======================================================= */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  color: var(--color-light-text);
+  background: var(--bg-gradient-light-clear);
+  transition: background var(--transition), color var(--transition);
+}
+
+body.dark {
+  color: var(--color-dark-text);
+  background: var(--bg-gradient-dark-clear);
+}
+
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: var(--padding-main);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-section);
+}
+
+/* =======================================================
+   CARD PRINCIPAL DE CLIMA
+======================================================= */
+#weather {
+  background: rgba(255,255,255,0.9);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: background 0.75s ease, color 0.75s ease;
+  gap: 1rem;
+  text-align: center;
+  transition: background var(--transition);
 }
 
-/* Tema claro/escuro */
-body.light { color: var(--text-color-light); }
-body.dark { color: var(--text-color-dark); }
-
-/* =======================================================
-   INPUTS E SELECTS
-   ======================================================= */
-input[type="text"], select {
-  padding: 12px 15px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-size: 1rem;
-  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+body.dark #weather {
+  background: rgba(0,0,0,0.7);
 }
 
-body.light input[type="text"], body.light select {
-  color: var(--input-text-light);
-  background-color: var(--input-bg-light);
-}
-body.dark input[type="text"], body.dark select {
-  color: var(--input-text-dark);
-  background-color: var(--input-bg-dark);
+/* -------- TITULO E TEMPERATURA -------- */
+#weather h1 {
+  font-size: 1.8rem;
 }
 
-input:focus, select:focus {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-  box-shadow: 0 0 6px var(--button-shadow-hover);
+#weather .temperature {
+  font-size: 3rem;
+  font-weight: bold;
 }
 
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
-.weather-card {
-  position: relative;
-  width: 250px;
-  padding: 16px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.75s ease, color 0.75s ease;
-}
-
-/* Hover card */
-.weather-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-}
-
-/* Gradiente aplicado dinamicamente via JS conforme clima */
-.weather-card.clear.light { background: var(--bg-gradient-light-clear); }
-.weather-card.clouds.light { background: var(--bg-gradient-light-clouds); }
-.weather-card.rain.light { background: var(--bg-gradient-light-rain); }
-.weather-card.thunderstorm.light { background: var(--bg-gradient-light-thunderstorm); }
-.weather-card.snow.light { background: var(--bg-gradient-light-snow); }
-.weather-card.fog.light { background: var(--bg-gradient-light-fog); }
-
-.weather-card.clear.dark { background: var(--bg-gradient-dark-clear); }
-.weather-card.clouds.dark { background: var(--bg-gradient-dark-clouds); }
-.weather-card.rain.dark { background: var(--bg-gradient-dark-rain); }
-.weather-card.thunderstorm.dark { background: var(--bg-gradient-dark-thunderstorm); }
-.weather-card.snow.dark { background: var(--bg-gradient-dark-snow); }
-.weather-card.fog.dark { background: var(--bg-gradient-dark-fog); }
-
-/* Weather icon */
-.weather-icon {
-  font-family: "Weather Icons";
-  font-size: 4rem;
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.5s ease;
-}
-.weather-icon.clear::before { content: "\f00d"; }
-.weather-icon.clouds::before { content: "\f013"; }
-.weather-icon.rain::before { content: "\f019"; }
-.weather-icon.thunderstorm::before { content: "\f01e"; }
-.weather-icon.snow::before { content: "\f01b"; }
-.weather-icon.fog::before { content: "\f014"; }
-
-/* Card text */
-.weather-card .city-name { font-size: 1.25rem; font-weight:700; color:#fff; }
-.weather-card .temp { font-size:2.5rem; font-weight:700; color:#fff; margin:5px 0; }
-.weather-card .desc { font-size:1.2rem; font-style:italic; text-transform:capitalize; color:#f0f0f0; }
-.weather-card .details { font-size:1rem; color:#e0e0e0; display:flex; justify-content:space-between; }
-
-/* =======================================================
-   FAVORITO
-   ======================================================= */
-#fav-btn {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 36px;
-  height: 36px;
-  border: 2px solid #fff;
-  border-radius: 8px;
-  background-color: rgba(255,255,255,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* -------- ÍCONE DE FAVORITO -------- */
+#fav-icon {
   cursor: pointer;
-  transition: all 0.25s ease;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform var(--transition);
 }
 
-#fav-btn:hover { background-color: rgba(255,255,255,0.5); }
-#fav-btn .wi { font-size: 20px; color: var(--fav-icon-color); transition: transform 0.25s; }
-#fav-btn .wi.favorited { transform: scale(1.3); animation: heart-pop 0.25s ease forwards; }
+#fav-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: red; /* cor do coração */
+}
 
-@keyframes heart-pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.5); }
-  100% { transform: scale(1.3); }
+#fav-icon.not-favorited svg {
+  fill: none;
+  stroke: red;
+  stroke-width: 2;
+}
+
+#fav-icon:hover {
+  transform: scale(1.2);
 }
 
 /* =======================================================
-   HISTÓRICO E FAVORITOS
-   ======================================================= */
-#history-list, #favorites-list { list-style:none; display:flex; flex-wrap:wrap; gap:8px; padding:0; }
-#history-list li, #favorites-list li {
-  background: var(--button-bg);
+   SEÇÕES DE HISTÓRICO E FAVORITOS
+======================================================= */
+.section {
+  background: rgba(255,255,255,0.85);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-item);
+  transition: background var(--transition);
+}
+
+body.dark .section {
+  background: rgba(0,0,0,0.6);
+}
+
+.section h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* LISTAS */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  background: rgba(255,255,255,0.7);
+  transition: background var(--transition);
+}
+
+body.dark .list-item {
+  background: rgba(0,0,0,0.5);
+}
+
+/* =======================================================
+   SELECTS IBGE
+======================================================= */
+.select-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+select {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid #ccc;
+  transition: background var(--transition), color var(--transition);
+}
+
+body.dark select {
+  background: #222;
+  color: var(--color-dark-text);
+  border: 1px solid #555;
+}
+
+/* =======================================================
+   TOAST & LOADING
+======================================================= */
+.toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
   color: #fff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor:pointer;
-  transition: transform 0.2s, background-color 0.3s;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  z-index: 9999;
 }
-#history-list li:hover, #favorites-list li:hover,
-#history-list li:focus, #favorites-list li:focus { background-color: var(--button-bg-hover); transform:scale(1.05); outline:none; }
+
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 4px solid rgba(0,0,0,0.1);
+  border-left-color: #4facfe;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  z-index: 9999;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
 
 /* =======================================================
-   LOADING SPINNER
-   ======================================================= */
-#spinner { position:absolute; bottom:15px; right:15px; width:40px; height:40px; border:4px solid rgba(255,255,255,0.3); border-top:4px solid #fff; border-radius:50%; animation:spin 1s linear infinite; opacity:0; pointer-events:none; transition:opacity 0.5s, transform 0.3s; z-index:10; }
-@keyframes spin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+   RESPONSIVIDADE
+======================================================= */
+@media (max-width: 500px) {
+  main {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
 
-/* =======================================================
-   TOASTS
-   ======================================================= */
-#toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(20px); padding:10px 20px; border-radius:8px; font-size:14px; opacity:0; pointer-events:none; transition:opacity 0.3s ease, transform 0.3s ease; z-index:9999; }
-#toast.show { opacity:1; pointer-events:auto; transform:translateX(-50%) translateY(0); }
-body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
-body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
+  #weather .temperature {
+    font-size: 2.5rem;
+  }
+
+  .section h2 {
+    font-size: 1rem;
+  }
+
+  select {
+    font-size: 0.9rem;
+  }
+}
