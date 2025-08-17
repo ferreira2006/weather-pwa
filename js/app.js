@@ -159,7 +159,9 @@ const UI = {
       li.textContent = item.state ? `${item.city} (${item.state})` : item.city;
       li.title = "Clique para buscar.";
       li.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
-      li.addEventListener("keypress", e => { if (e.key === "Enter") App.handleCitySelect(item.city, item.state, true); });
+      li.addEventListener("keydown", e => {
+        if (e.key === "Enter") App.handleCitySelect(item.city, item.state, true);
+      });
       dom.historyListEl.appendChild(li);
     });
   },
@@ -190,6 +192,15 @@ const UI = {
         App.removeFavorite(modalText, cityName);
       });
       li.appendChild(removeBtn);
+
+      // --- Keyboard shortcuts for li ---
+      li.addEventListener("keydown", e => {
+        if (e.key === "Enter") App.handleCitySelect(cityName, state, true);
+        if (e.key === "Delete" || e.key === "Backspace" || (e.key === "Enter" && e.shiftKey)) {
+          const modalText = state ? `${cityName} (${state})` : cityName;
+          App.removeFavorite(modalText, cityName);
+        }
+      });
 
       dom.favoritesListEl.appendChild(li);
     });
