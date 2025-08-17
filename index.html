@@ -18,6 +18,24 @@
   </header>
 
   <main>
+    <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
+<section id="state-city-section" aria-label="Seleção de estado e município">
+  <h2>Buscar por Estado e Município</h2>
+  <div id="state-city-container" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <select id="state-select" aria-label="Selecione o estado" required>
+      <option value="">Selecione o estado</option>
+    </select>
+
+    <select id="city-select" aria-label="Selecione o município" required disabled>
+      <option value="">Selecione o município</option>
+    </select>
+
+    <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
+      Buscar
+    </button>
+  </div>
+</section>
+    
     <!-- Busca de cidades -->
     <section id="search-section" aria-label="Busca de cidades">
       <form id="search-box" role="search" aria-label="Busca de cidade">
