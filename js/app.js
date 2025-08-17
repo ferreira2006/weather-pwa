@@ -211,7 +211,7 @@ const UI = {
 // ===== FAVORITE ICON =====
 const favIcon = document.createElement("img");
 favIcon.id = "weather-fav-icon";
-favIcon.src = "assets/icons/heart.svg";
+favIcon.src = "assets/icons/heart-off.svg"; // inicial não favoritado
 favIcon.alt = "Favorito";
 favIcon.classList.add("not-favorited");
 dom.favBtn.prepend(favIcon);
