@@ -119,6 +119,20 @@ button, #state-city-search-btn {
   box-shadow: none;
 }
 
+/* -------- CONTAINER DE ESTADO E MUNICÍPIO -------- */
+#state-city-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  #state-city-container select,
+  #state-city-container button {
+    flex: 1 1 100%;
+  }
+}
+
 /* -------- FOCO VISÍVEL -------- */
 :focus-visible {
   outline: 3px solid var(--button-bg);
