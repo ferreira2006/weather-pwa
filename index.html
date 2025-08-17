@@ -20,10 +20,13 @@
     Modo Escuro
   </button>
 </header>
-<button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
-      <span id="fav-icon" class="not-favorited">🤍</span> Adicionar aos favoritos
-    </button>
+
 <main>
+<section id="buttons-section" aria-label="Botões de Ação">
+  <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
+      <span id="fav-icon" class="not-favorited">🤍</span> Adicionar aos favoritos
+  </button>
+</section>
   <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
   <section id="state-city-section" aria-label="Seleção de estado e município">
     <h2>Buscar por Estado e Município</h2>
@@ -46,7 +49,6 @@
   <section id="favorites-section" aria-label="Cidades favoritas">
     <h2>Cidades Favoritas</h2>
     <ul id="favorites-list" role="list"></ul>
-    
   </section>
 
   <!-- Card do clima -->
