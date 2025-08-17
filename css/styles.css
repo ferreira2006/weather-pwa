@@ -198,18 +198,6 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   box-shadow: none;
 }
 
-/* -------- BOTÃO SEARCH PRINCIPAL -------- */
-button#search-btn {
-  display:inline-flex; align-items:center; gap:8px; padding:12px 20px; border:none; border-radius:8px;
-  background-color:var(--button-bg); color:#fff; font-size:1rem; cursor:pointer;
-  min-width:110px; min-height:40px; transition: background-color 0.3s, box-shadow 0.3s;
-  user-select:none; width:auto; flex:0 0 auto;
-}
-button#search-btn:hover:not(:disabled), button#search-btn:focus:not(:disabled)  {
-  background-color:var(--button-bg-hover); box-shadow:0 0 12px var(--button-shadow-hover); outline:none;
-}
-button#search-btn:disabled { background-color:var(--button-bg-disabled); cursor:not-allowed; opacity:0.7; box-shadow:none; }
-
 /* -------- WEATHER CARD -------- */
 #weather {
   background: rgba(255,255,255,0.15); border-radius:12px; padding:25px 30px;
@@ -221,7 +209,6 @@ body.dark #weather { background: rgba(255,255,255,0.1); box-shadow:0 4px 12px rg
 #weather[hidden] { display:none !important; }
 #weather:focus { outline:3px solid var(--button-bg); outline-offset:4px; }
 
-/* -------- WEATHER CONTENT E ERROS -------- */
 #weather-content { display:block; grid-column:2; }
 #weather-error {
   display:none; grid-column:1/-1; color:#b00020; font-weight:700; text-align:center;
@@ -292,14 +279,6 @@ body.dark #weather.loading #city-name { color:transparent; background:var(--load
 .weather-icon.thunderstorm::before { content: "\f01e"; }   /* wi-thunderstorm */
 .weather-icon.snow::before { content: "\f01b"; }           /* wi-snow */
 
-@keyframes rotateSlow { from {transform:rotate(0deg);} to {transform:rotate(360deg);} }
-@keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
-@keyframes rainAnim {0%{background-position:0 0;} 100%{background-position:0 100%;} }
-@keyframes thunderAnim {0%{filter:brightness(1);} 100%{filter:brightness(1.5);} }
-@keyframes snowAnim {0%{background-position:0 0;} 100%{background-position:100% 100%;} }
-
-@media (prefers-reduced-motion: reduce) { .weather-icon { animation:none !important; } }
-
 /* -------- INFO TEXTO DO CLIMA -------- */
 .info { display:flex; flex-direction:column; justify-content:center; }
 .temp { font-size:4rem; font-weight:700; margin:0; line-height:1; }
@@ -334,43 +313,48 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   background-color:var(--button-bg-hover); transform:scale(1.05); outline:none;
 }
 
-/* -------- FAVORITOS (CORAÇÃO) -------- */
-#fav-icon {
-  font-size: 1.4rem;
-  transition: color 0.25s ease, transform 0.2s ease;
-  user-select: none;
+/* -------- BOTÃO DE FAVORITO (USANDO IMG LOCAL) -------- */
+#fav-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--button-bg);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.25);
+  transition: transform 0.2s, background-color 0.3s;
 }
-#fav-icon.not-favorited { color: #fff; }
-body.dark #fav-icon.not-favorited { color: #cfd8dc; }
-#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
+
+#fav-btn:hover,
+#fav-btn:focus {
+  transform: scale(1.1);
+  background-color: var(--button-bg-hover);
+  outline: none;
+}
+
+#weather-fav-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.25s ease;
+}
+
+#weather-fav-icon.favorited {
+  transform: scale(1.2);
+  animation: heart-pop 0.25s ease forwards;
+}
 
 @keyframes heart-pop {
   0%   { transform: scale(1); }
   50%  { transform: scale(1.4); }
   100% { transform: scale(1.2); }
 }
-
-/* Botão de favoritar dentro do card */
-#fav-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: var(--button-bg);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 3px 5px rgba(0,0,0,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s;
-}
-#fav-btn:hover, #fav-btn:focus { transform: scale(1.1); background-color: var(--button-bg-hover); outline:none; }
 
 /* -------- MODAL -------- */
 #confirm-modal {
@@ -398,16 +382,9 @@ body.dark #fav-icon.not-favorited { color: #cfd8dc; }
 
 /* -------- BOTÃO FLUTUANTE -------- */
 #scroll-top-btn {
-  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
-  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
-  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
-  transition: transform 0.3s ease, background-color 0.3s;
+  position:fixed; bottom:40px; right:40px; width:45px; height:45px; border:none; border-radius:50%;
+  background: var(--button-bg); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 8px rgba(0,0,0,0.25); transition:transform 0.2s, background-color 0.3s;
+  z-index:999;
 }
 #scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
-
-/* -------- RESPONSIVIDADE -------- */
-@media (max-width:640px){
-  #weather { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: auto; }
-  .weather-icon { justify-self:center; margin-bottom:15px; }
-  .state-city-container { flex-direction: column; }
-}
