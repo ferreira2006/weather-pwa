@@ -42,6 +42,7 @@ const dom = {
 // ===== STATE =====
 let currentCityValid = false;
 let currentCity = "";
+let currentStateAbbr = "";
 
 // ===== WEATHER API =====
 const WeatherAPI = {
@@ -117,7 +118,9 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    dom.cityNameEl.textContent = `${data.name}, ${data.sys.country}`;
+    const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.sys.country}`;
+    dom.cityNameEl.textContent = `${data.name}${stateAbbrDisplay}`;
+
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
@@ -216,33 +219,33 @@ dom.favBtn.prepend(favIcon);
 
 // ===== APP =====
 const App = {
-  async handleCitySelect(city, isIBGECity = false) {
-  const normalizedCity = Utils.normalizeCityInput(city);
-  if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
+  async handleCitySelect(city, stateAbbr = "", isIBGECity = false) {
+    const normalizedCity = Utils.normalizeCityInput(city);
+    if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
 
-  dom.weatherDiv.classList.add("loading");
+    currentStateAbbr = stateAbbr;
+    dom.weatherDiv.classList.add("loading");
 
-  try {
-    // Se a cidade veio do IBGE, força país BR
-    const query = isIBGECity ? `${normalizedCity},BR` : normalizedCity;
-    const data = await WeatherAPI.fetchByCity(query);
-
-    UI.showWeather(data);
-    Storage.saveHistory(normalizedCity);
-    UI.renderHistory();
-    Storage.saveLastCity(normalizedCity);
-  } catch (err) {
-    UI.showError(err.message || "Erro ao buscar o clima");
-  } finally {
-    dom.weatherDiv.classList.remove("loading");
-  }
-},
+    try {
+      const query = isIBGECity ? `${normalizedCity},BR` : normalizedCity;
+      const data = await WeatherAPI.fetchByCity(query);
+      UI.showWeather(data);
+      Storage.saveHistory(normalizedCity);
+      UI.renderHistory();
+      Storage.saveLastCity(normalizedCity);
+    } catch (err) {
+      UI.showError(err.message || "Erro ao buscar o clima");
+    } finally {
+      dom.weatherDiv.classList.remove("loading");
+    }
+  },
 
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
 
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
+      currentStateAbbr = ""; // coordenadas podem não ter estado
       UI.showWeather(data);
       Storage.saveHistory(data.name);
       UI.renderHistory();
@@ -298,7 +301,6 @@ const App = {
   },
 
   init() {
-    // MOSTRA LOADING INICIAL
     dom.weatherDiv.classList.add("loading");
 
     UI.applySavedTheme();
@@ -321,7 +323,7 @@ const App = {
       this.handleCitySelect(lastCity).finally(() => dom.weatherDiv.classList.remove("loading"));
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude).finally(() => dom.weatherDiv.classList.remove("loading")),
+        pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
         () => this.handleCitySelect("São Miguel do Oeste").finally(() => dom.weatherDiv.classList.remove("loading"))
       );
     } else {
@@ -329,6 +331,30 @@ const App = {
     }
   }
 };
+
+// ===== CONFIRM MODAL =====
+function showConfirmationModal(message) {
+  return new Promise(resolve => {
+    const modal = document.getElementById("confirm-modal");
+    modal.querySelector("p").textContent = message;
+    modal.removeAttribute("hidden");
+
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
+
+    const cleanup = () => {
+      yesBtn.removeEventListener("click", yesHandler);
+      noBtn.removeEventListener("click", noHandler);
+      modal.setAttribute("hidden", "");
+    };
+
+    const yesHandler = () => { cleanup(); resolve(true); };
+    const noHandler = () => { cleanup(); resolve(false); };
+
+    yesBtn.addEventListener("click", yesHandler);
+    noBtn.addEventListener("click", noHandler);
+  });
+}
 
 // ===== IBGE SELECTS =====
 const IBGE = {
@@ -340,6 +366,7 @@ const IBGE = {
         const opt = document.createElement("option");
         opt.value = s.id;
         opt.textContent = s.nome;
+        opt.dataset.uf = s.sigla; // salva sigla do estado
         dom.stateSelect.appendChild(opt);
       });
       dom.stateSelect.addEventListener("change", () => this.onStateChange());
@@ -380,7 +407,8 @@ const IBGE = {
 
   onSearchClick() {
     const city = dom.citySelect.value;
-  if (city) App.handleCitySelect(city, true); // isIBGECity = true
+    const stateAbbr = dom.stateSelect.selectedOptions[0]?.dataset.uf || "";
+    if (city) App.handleCitySelect(city, stateAbbr, true);
   }
 };
 
