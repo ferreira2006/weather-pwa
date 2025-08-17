@@ -38,12 +38,10 @@ const dom = {
 
   toast: document.getElementById("toast"),
 
-  // IBGE selects
   stateSelect: document.getElementById("state-select"),
   citySelect: document.getElementById("city-select"),
   stateCitySearchBtn: document.getElementById("state-city-search-btn"),
 
-  // Scroll top button
   scrollTopBtn: document.getElementById("scroll-top-btn")
 };
 
@@ -211,10 +209,11 @@ const UI = {
 };
 
 // ===== FAVORITE ICON =====
-const favIcon = document.createElement("span");
-favIcon.id = "fav-icon";
+const favIcon = document.createElement("img");
+favIcon.id = "weather-fav-icon";
+favIcon.src = "assets/icons/heart.svg";
+favIcon.alt = "Favorito";
 favIcon.classList.add("not-favorited");
-favIcon.textContent = "🤍";
 dom.favBtn.prepend(favIcon);
 
 // ===== APP =====
@@ -244,6 +243,7 @@ const App = {
       UI.renderHistory();
       Storage.saveLastCity(data.name);
       this.updateButtonsState();
+      this.updateFavButton();
     } catch (err) {
       UI.showError(err.message);
       if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
@@ -266,6 +266,12 @@ const App = {
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
     this.updateButtonsState();
+
+    // animação do coração
+    favIcon.classList.remove("favorited");
+    void favIcon.offsetWidth; // reinicia animação
+    favIcon.classList.add("favorited");
+
     this.updateFavButton();
   },
 
@@ -289,11 +295,9 @@ const App = {
   updateFavButton() {
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     if (favorites.includes(currentCity.toLowerCase())) {
-      favIcon.textContent = "❤️";
-      favIcon.classList.remove("not-favorited");
       favIcon.classList.add("favorited");
+      favIcon.classList.remove("not-favorited");
     } else {
-      favIcon.textContent = "🤍";
       favIcon.classList.remove("favorited");
       favIcon.classList.add("not-favorited");
     }
