@@ -38,6 +38,10 @@
 
   --card-radius: 12px;
   --card-padding: 24px;
+
+  /* Modal cores */
+  --modal-bg: rgba(255,255,255,0.95);
+  --modal-text: #000;
 }
 
 /* =======================================================
@@ -56,7 +60,7 @@ body {
 body.light { color: var(--text-light); }
 body.dark { color: var(--text-dark); }
 
-/* -------- BACKGROUNDS POR CONDIÇÃO -------- */
+/* BACKGROUNDS POR CONDIÇÃO */
 body.light.bg-clear { background: var(--bg-gradient-light-clear); }
 body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
 body.light.bg-rain { background: var(--bg-gradient-light-rain); }
@@ -81,6 +85,7 @@ header {
   margin-bottom: 25px;
 }
 h1 { margin: 0; font-weight: 700; font-size: 2rem; }
+
 #theme-toggle {
   background: transparent;
   border: 2px solid currentColor;
@@ -360,6 +365,7 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
 body.dark #fav-icon.not-favorited { color: #555; }
 #fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
 @keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
+
 #fav-btn {
   position:absolute; top:10px; right:10px;
   background: var(--button-bg);
