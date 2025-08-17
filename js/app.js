@@ -216,26 +216,27 @@ dom.favBtn.prepend(favIcon);
 
 // ===== APP =====
 const App = {
-  async handleCitySelect(city) {
-    const normalizedCity = Utils.normalizeCityInput(city);
-    if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
+  async handleCitySelect(city, isIBGECity = false) {
+  const normalizedCity = Utils.normalizeCityInput(city);
+  if (!normalizedCity || (normalizedCity === currentCity && currentCityValid)) return;
 
-    // MOSTRA LOADING
-    dom.weatherDiv.classList.add("loading");
+  dom.weatherDiv.classList.add("loading");
 
-    try {
-      const data = await WeatherAPI.fetchByCity(normalizedCity);
-      UI.showWeather(data);
-      Storage.saveHistory(normalizedCity);
-      UI.renderHistory();
-      Storage.saveLastCity(normalizedCity);
-    } catch (err) {
-      UI.showError(err.message || "Erro ao buscar o clima");
-    } finally {
-      // ESCONDE LOADING
-      dom.weatherDiv.classList.remove("loading");
-    }
-  },
+  try {
+    // Se a cidade veio do IBGE, força país BR
+    const query = isIBGECity ? `${normalizedCity},BR` : normalizedCity;
+    const data = await WeatherAPI.fetchByCity(query);
+
+    UI.showWeather(data);
+    Storage.saveHistory(normalizedCity);
+    UI.renderHistory();
+    Storage.saveLastCity(normalizedCity);
+  } catch (err) {
+    UI.showError(err.message || "Erro ao buscar o clima");
+  } finally {
+    dom.weatherDiv.classList.remove("loading");
+  }
+},
 
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
@@ -379,7 +380,7 @@ const IBGE = {
 
   onSearchClick() {
     const city = dom.citySelect.value;
-    if (city) App.handleCitySelect(city);
+  if (city) App.handleCitySelect(city, true); // isIBGECity = true
   }
 };
 
