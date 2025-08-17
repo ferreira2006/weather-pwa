@@ -62,7 +62,7 @@ body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 /* -------- INPUTS, SELECTS E BUTTONS -------- */
-select {
+ select {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -311,7 +311,7 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
 body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
 
-/* -------- HISTÓRICO E FAVORITOS FLUIDOS -------- */
+/* -------- HISTÓRICO E FAVORITOS -------- */
 #history-section, #favorites-section {
   width: 100%;
   max-width: 600px;
@@ -323,34 +323,27 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
 }
 #history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
 #history-list, #favorites-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
 }
 #history-list li, #favorites-list li {
-  flex: 1 1 120px;
-  max-width: 45%;
-  text-align: center;
-  padding: 10px 8px;
-  font-size: 0.95rem;
-  border-radius: 8px;
   background: var(--button-bg);
   color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
   cursor:pointer;
-  transition: transform 0.2s, background-color 0.3s;
+  transition:background-color 0.3s, transform 0.2s;
+  flex:0 0 auto;
 }
 #history-list li:hover, #favorites-list li:hover,
 #history-list li:focus, #favorites-list li:focus {
   background-color: var(--button-bg-hover);
   transform:scale(1.05);
   outline:none;
-}
-@media (max-width:480px) {
-  #history-list li, #favorites-list li {
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
 }
 
 /* -------- FAVORITOS (CORAÇÃO) -------- */
@@ -385,6 +378,7 @@ body.dark #fav-icon.not-favorited { color: #555; }
   font-family: Arial, sans-serif;
 }
 #confirm-modal[hidden] { display: none; }
+
 #confirm-modal .modal-overlay {
   position: fixed;
   inset: 0;
@@ -392,6 +386,7 @@ body.dark #fav-icon.not-favorited { color: #555; }
   backdrop-filter: blur(3px);
   z-index: 10001;
 }
+
 #confirm-modal .modal-content {
   position: relative;
   background-color: var(--modal-bg);
@@ -404,11 +399,89 @@ body.dark #fav-icon.not-favorited { color: #555; }
   z-index: 10002;
   text-align: center;
 }
-#confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
-#confirm-modal button { margin: 15px 10px 0; padding: 10px 20px; border-radius:8px; }
 
-/* -------- RESPONSIVIDADE GERAL -------- */
-@media (max-width: 600px) {
-  #weather { grid-template-columns: 1fr; text-align:center; }
-  #weather-content { grid-column: 1; }
+#confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
+#confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
+
+#confirm-modal .modal-buttons {
+  display:flex;
+  justify-content:center;
+  gap:20px;
+}
+
+#confirm-modal button {
+  min-width: 80px;
+  padding:10px 15px;
+  font-size:1rem;
+  border-radius:8px;
+  cursor:pointer;
+  user-select:none;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+/* -------- CORES DOS BOTÕES -------- */
+#confirm-modal button#confirm-yes {
+  background-color: #ff9800; /* laranja */
+  color: #fff;
+  border-color: #ff9800;
+}
+#confirm-modal button#confirm-yes:hover,
+#confirm-modal button#confirm-yes:focus {
+  background-color: #e68a00;
+  outline: none;
+}
+
+#confirm-modal button#confirm-no {
+  background-color: #1e90ff; /* azul */
+  color: #fff;
+  border-color: #1e90ff;
+}
+#confirm-modal button#confirm-no:hover,
+#confirm-modal button#confirm-no:focus {
+  background-color: #63a4ff;
+  outline: none;
+}
+
+/* -------- VARIÁVEIS DE TEMA -------- */
+body.light #confirm-modal {
+  --modal-bg: #fff;
+  --modal-text: #000;
+}
+
+body.dark #confirm-modal {
+  --modal-bg: #333; /* fundo dark mais claro */
+  --modal-text: #fff;
+}
+
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width: 640px) {
+  #confirm-modal .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+  #confirm-modal .modal-buttons {
+    flex-direction: column;
+  }
+  #confirm-modal button {
+    width: 100%;
+  }
+}
+
+/* -------- BOTÃO FLUTUANTE -------- */
+#scroll-top-btn {
+  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
+  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
+  transition: transform 0.3s ease, background-color 0.3s;
+}
+#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
+
+
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width:640px){
+  #weather { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: auto; }
+  .weather-icon { justify-self:center; margin-bottom:15px; }
+  .state-city-container { flex-direction: column; }
+  #history-list li, #favorites-list li { flex:1 1 100%; text-align:center; }
 }
