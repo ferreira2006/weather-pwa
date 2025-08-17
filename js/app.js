@@ -103,7 +103,6 @@ function renderHistory() {
     li.textContent = city;
     li.tabIndex = 0;
     li.addEventListener('click', () => searchWeatherByCity(city));
-    li.addEventListener('keypress', e => { if(e.key==='Enter') searchWeatherByCity(city); });
     historyList.appendChild(li);
   });
 }
@@ -119,7 +118,6 @@ function renderFavorites() {
     li.textContent = city;
     li.tabIndex = 0;
     li.addEventListener('click', () => searchWeatherByCity(city));
-    li.addEventListener('keypress', e => { if(e.key==='Enter') searchWeatherByCity(city); });
     li.addEventListener('contextmenu', e => {
       e.preventDefault();
       showConfirmModal(city);
@@ -129,7 +127,7 @@ function renderFavorites() {
 }
 
 function toggleFavorite(city) {
-  if(!city) return;
+  if (!city) return;
   let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
   if (favorites.includes(city)) {
     favorites = favorites.filter(c => c !== city);
@@ -152,7 +150,6 @@ function showConfirmModal(city) {
     localStorage.setItem('favorites', JSON.stringify(favorites));
     renderFavorites();
     confirmModal.hidden = true;
-    showToast(`${city} removido dos favoritos`);
   };
   confirmNo.onclick = () => { confirmModal.hidden = true; };
 }
@@ -165,11 +162,11 @@ function toggleTheme() {
   if (body.classList.contains('light')) {
     body.classList.replace('light','dark');
     themeToggle.textContent = 'Modo Claro';
-    themeToggle.setAttribute('aria-pressed', 'true');
+    themeToggle.setAttribute('aria-pressed','true');
   } else {
     body.classList.replace('dark','light');
     themeToggle.textContent = 'Modo Escuro';
-    themeToggle.setAttribute('aria-pressed', 'false');
+    themeToggle.setAttribute('aria-pressed','false');
   }
 }
 
@@ -182,19 +179,24 @@ async function searchWeather() {
   if (!state || !city) return;
 
   weatherCard.classList.add('loading');
-  errorEl.style.display = 'none';
   errorEl.textContent = '';
+  errorEl.style.display = 'none';
 
   try {
     const res = await fetch(`${backendUrl}?state=${state}&city=${city}`);
     const data = await res.json();
 
-    cityNameEl.textContent = `${data.name}, ${data.state}`;
-    tempEl.textContent = `${data.temp} °C`;
-    descEl.textContent = data.desc;
-    detailsEl.textContent = `Umidade: ${data.humidity}% | Vento: ${data.wind.speed} km/h`;
+    // Ajustando campos do backend
+    cityNameEl.textContent = `${data.name || city}, ${data.uf || state}`;
+    tempEl.textContent = `${data.main?.temp ?? 'N/A'} °C`;
+    descEl.textContent = data.weather?.[0]?.description ?? 'Sem descrição';
+    detailsEl.textContent = `Umidade: ${data.main?.humidity ?? 'N/A'}% | Vento: ${data.wind?.speed ?? 'N/A'} km/h`;
 
-    iconEl.className = `weather-icon ${data.icon || 'clear'}`;
+    // Atualiza ícone e fundo do clima
+    const weatherMain = data.weather?.[0]?.main?.toLowerCase() || 'clear';
+    iconEl.className = `weather-icon ${weatherMain}`;
+    document.body.classList.remove('bg-clear','bg-clouds','bg-rain','bg-thunderstorm','bg-snow');
+    document.body.classList.add(`bg-${weatherMain}`);
 
     addToHistory(city);
     checkFavorite(city);
@@ -206,18 +208,20 @@ async function searchWeather() {
   }
 }
 
+// Busca rápida ao clicar no histórico ou favoritos
 function searchWeatherByCity(city) {
-  const history = JSON.parse(localStorage.getItem('history')) || [];
-  const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-  let state = '';
-  // Tenta descobrir estado pelo histórico/favoritos ou default
-  // Nesse exemplo mantemos o último estado selecionado
-  state = stateSelect.value || '';
+  const state = stateSelect.value || ''; // mantém estado selecionado
+  if (!state || !city) {
+    showToast('Selecione o estado e a cidade');
+    return;
+  }
   citySelect.value = city;
-  searchBtn.disabled = false;
   searchWeather();
 }
 
+// =======================
+// FAVORITO ATUAL
+// =======================
 function checkFavorite(city) {
   const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
   if (favorites.includes(city)) {
@@ -256,7 +260,9 @@ function init() {
     searchWeather();
   });
 
-  favBtn.addEventListener('click', () => toggleFavorite(citySelect.value));
+  favBtn.addEventListener('click', () => {
+    toggleFavorite(citySelect.value);
+  });
 
   themeToggle.addEventListener('click', toggleTheme);
 }
