@@ -317,46 +317,40 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   100% { transform: scale(1.2); }
 }
 
-/* ===== Botão de favorito dentro do card de clima ===== */
-#weather-fav-btn {
-  position: absolute; /* permite posicionamento dentro do card */
+/* Botão de favorito dentro do card de clima */
+#fav-btn {
+  position: absolute; /* fica sobre o card */
   top: 10px;
   right: 10px;
-  width: 40px;
-  height: 40px;
+  width: 35px;
+  height: 35px;
   border-radius: 50%;
   border: none;
-  background-color: var(--button-bg, #0077ff);
+  background-color: var(--primary-color, #0077ff); /* mantém a cor do app */
   color: #fff;
   font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  z-index: 10;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease-in-out, background-color 0.2s;
+  padding: 0;
 }
 
-#weather-fav-btn:hover {
+#fav-btn:hover {
   transform: scale(1.1);
-  background-color: var(--button-hover-bg, #005fcc);
+  background-color: var(--primary-hover-color, #005fcc);
 }
 
-/* Ajuste do ícone dentro do botão */
-#weather-fav-icon {
+/* Esconde o texto "Favoritar" dentro do card */
+#fav-btn span:not(.favorited):not(.not-favorited) {
+  display: none;
+}
+
+/* Mantém o ícone do coração visível */
+#fav-icon {
   font-size: 18px;
-  pointer-events: none; /* evita conflito com clique no botão */
-}
-
-/* Suporte a temas claros/escuros */
-body.dark #weather-fav-btn {
-  background-color: var(--button-bg-dark, #444);
-  color: #ddd;
-}
-
-body.dark #weather-fav-btn:hover {
-  background-color: var(--button-hover-bg-dark, #666);
 }
 
 /* Botão flutuante "Voltar ao topo" */
