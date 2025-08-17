@@ -371,5 +371,20 @@ const IBGE = {
   }
 };
 
+// ===== BOTÃO "VOLTAR AO TOPO" =====
+const scrollBtn = document.getElementById("scroll-top-btn");
+
+window.addEventListener("scroll", () => {
+  if (window.scrollY > 300) {
+    scrollBtn.style.display = "block";
+  } else {
+    scrollBtn.style.display = "none";
+  }
+});
+
+scrollBtn.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
 // ===== INIT APP =====
 window.addEventListener("load", () => App.init());
