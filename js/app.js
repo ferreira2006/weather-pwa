@@ -366,25 +366,28 @@ const App = {
 function showConfirmationModal(message) {
   return new Promise(resolve => {
     const modal = document.getElementById("confirm-modal");
+    const overlay = modal.querySelector(".modal-overlay");
     modal.querySelector("p").textContent = message;
     modal.removeAttribute("hidden");
 
     const yesBtn = modal.querySelector("#confirm-yes");
     const noBtn = modal.querySelector("#confirm-no");
+    const focusable = [yesBtn, noBtn];
 
-    // Desativa o resto da página
-    document.querySelector("main").setAttribute("inert", "");
-    document.querySelector("header").setAttribute("inert", "");
+    const firstBtn = focusable[0];
+    const lastBtn = focusable[focusable.length - 1];
 
-    // Força foco inicial no botão "Sim"
-    yesBtn.focus();
+    // Salva elemento ativo antes do modal
+    const previousActive = document.activeElement;
+    firstBtn.focus();
 
     const cleanup = () => {
+      modal.setAttribute("hidden", "");
       yesBtn.removeEventListener("click", yesHandler);
       noBtn.removeEventListener("click", noHandler);
-      modal.setAttribute("hidden", "");
-      document.querySelector("main").removeAttribute("inert");
-      document.querySelector("header").removeAttribute("inert");
+      modal.removeEventListener("keydown", keyHandler);
+      overlay.removeEventListener("click", overlayHandler);
+      previousActive.focus(); // retorna foco para elemento anterior
     };
 
     const yesHandler = () => { cleanup(); resolve(true); };
@@ -394,24 +397,25 @@ function showConfirmationModal(message) {
     noBtn.addEventListener("click", noHandler);
 
     // Trava o foco dentro do modal
-    modal.addEventListener("keydown", e => {
-      const focusable = [yesBtn, noBtn];
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
+    const keyHandler = e => {
       if (e.key === "Tab") {
-        if (e.shiftKey && document.activeElement === first) {
+        if (e.shiftKey && document.activeElement === firstBtn) {
           e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
+          lastBtn.focus();
+        } else if (!e.shiftKey && document.activeElement === lastBtn) {
           e.preventDefault();
-          first.focus();
+          firstBtn.focus();
         }
       } else if (e.key === "Escape") { // Esc fecha modal
         cleanup();
         resolve(false);
       }
-    });
+    };
+    modal.addEventListener("keydown", keyHandler);
+
+    // Bloqueia clique na overlay
+    const overlayHandler = e => e.stopPropagation();
+    overlay.addEventListener("click", overlayHandler);
   });
 }
 
