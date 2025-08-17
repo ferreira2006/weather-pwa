@@ -123,6 +123,7 @@ const UI = {
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
+    // Atualiza icon para Weather Icons
     dom.iconEl.className = `weather-icon ${data.weather[0].main.toLowerCase()}`;
 
     dom.weatherDiv.hidden = false;
