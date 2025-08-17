@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
   <title>Clima Atual</title>
+
+  <!-- CSS do app -->
   <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Weather Icons via CDN (versão 2.0.10) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
 </head>
 <body class="light">
 <noscript>
@@ -52,11 +57,12 @@
   <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
     <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
     <div id="weather-content" class="info">
-      <!-- Botão de favoritar dentro do card, pequeno e redondo -->
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
-          <span id="weather-fav-icon" class="not-favorited"></span>
-        </button>
-        <h2 id="city-name">Carregando cidade...</h2>
+      <!-- Botão de favoritar dentro do card -->
+      <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
+        <!-- Heart.svg local -->
+        <img id="weather-fav-icon" src="assets/icons/heart.svg" alt="Favorito" class="not-favorited">
+      </button>
+      <h2 id="city-name">Carregando cidade...</h2>
       <div id="temp" class="temp">-- °C</div>
       <div id="desc" class="desc">Aguardando dados...</div>
       <div id="details" class="details">--</div>
