@@ -369,15 +369,22 @@ body.dark #fav-icon.not-favorited { color: #555; }
 
 /* -------- MODAL -------- */
 #confirm-modal {
-  position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10000;
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
   font-family: Arial, sans-serif;
 }
 #confirm-modal[hidden] { display: none; }
 
 #confirm-modal .modal-overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(3px); z-index: 10001;
+  backdrop-filter: blur(3px);
+  z-index: 10001;
 }
 
 #confirm-modal .modal-content {
@@ -386,7 +393,8 @@ body.dark #fav-icon.not-favorited { color: #555; }
   color: var(--modal-text);
   padding: 25px 30px;
   border-radius: 12px;
-  max-width: 400px; width: 90%;
+  max-width: 400px;
+  width: 90%;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   z-index: 10002;
   text-align: center;
@@ -396,35 +404,48 @@ body.dark #fav-icon.not-favorited { color: #555; }
 #confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
 
 #confirm-modal .modal-buttons {
-  display: flex; justify-content: center; gap: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
 }
 
 #confirm-modal button {
-  min-width: 80px; padding: 10px 15px; font-size: 1rem;
-  border: none; border-radius: 8px;
-  cursor: pointer; transition: all 0.3s ease;
+  min-width: 80px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   background-color: var(--modal-button-bg);
   color: var(--modal-button-text);
   border: 1px solid var(--modal-button-border);
 }
 
-#confirm-modal button:hover { transform: scale(1.05); }
-
-/* -------- VARIÁVEIS DE TEMA PARA MODAL -------- */
-#confirm-modal.light {
-  --modal-bg: #fff;
-  --modal-text: #000;
-  --modal-button-bg: #eee;
-  --modal-button-text: #000;
-  --modal-button-border: #000;
+#confirm-modal button:hover,
+#confirm-modal button:focus {
+  transform: scale(1.05);
+  background-color: var(--modal-button-bg-hover);
+  outline: none;
 }
 
-#confirm-modal.dark {
+/* -------- VARIÁVEIS DE TEMA PARA MODAL -------- */
+body.light #confirm-modal {
+  --modal-bg: #fff;
+  --modal-text: #000;
+  --modal-button-bg: #ff9800;
+  --modal-button-bg-hover: #e68a00;
+  --modal-button-text: #fff;
+  --modal-button-border: #ff9800;
+}
+
+body.dark #confirm-modal {
   --modal-bg: #222;
   --modal-text: #fff;
-  --modal-button-bg: #333;
+  --modal-button-bg: #1e90ff;
+  --modal-button-bg-hover: #63a4ff;
   --modal-button-text: #fff;
-  --modal-button-border: #fff;
+  --modal-button-border: #1e90ff;
 }
 
 /* -------- RESPONSIVIDADE -------- */
