@@ -372,10 +372,19 @@ function showConfirmationModal(message) {
     const yesBtn = modal.querySelector("#confirm-yes");
     const noBtn = modal.querySelector("#confirm-no");
 
+    // Desativa o resto da página
+    document.querySelector("main").setAttribute("inert", "");
+    document.querySelector("header").setAttribute("inert", "");
+
+    // Força foco inicial no botão "Sim"
+    yesBtn.focus();
+
     const cleanup = () => {
       yesBtn.removeEventListener("click", yesHandler);
       noBtn.removeEventListener("click", noHandler);
       modal.setAttribute("hidden", "");
+      document.querySelector("main").removeAttribute("inert");
+      document.querySelector("header").removeAttribute("inert");
     };
 
     const yesHandler = () => { cleanup(); resolve(true); };
@@ -383,6 +392,26 @@ function showConfirmationModal(message) {
 
     yesBtn.addEventListener("click", yesHandler);
     noBtn.addEventListener("click", noHandler);
+
+    // Trava o foco dentro do modal
+    modal.addEventListener("keydown", e => {
+      const focusable = [yesBtn, noBtn];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.key === "Tab") {
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      } else if (e.key === "Escape") { // Esc fecha modal
+        cleanup();
+        resolve(false);
+      }
+    });
   });
 }
 
