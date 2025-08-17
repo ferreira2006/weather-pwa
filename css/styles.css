@@ -62,7 +62,7 @@ body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 /* -------- INPUTS -------- */
-input[type="text"], select {
+select {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -74,19 +74,17 @@ input[type="text"], select {
   transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
 }
 
-body.light input[type="text"], body.light select {
+body.light select {
   color: var(--input-text-light);
   background-color: var(--input-bg-light);
 }
-body.light input[type="text"]:focus, body.light select:focus { background-color: #fff; color: #000; }
-body.light input[type="text"]::placeholder { color: #666; opacity: 1; }
+body.light select:focus { background-color: #fff; color: #000; }
 
-body.dark input[type="text"], body.dark select {
+body.dark select {
   color: var(--input-text-dark);
   background-color: var(--input-bg-dark);
 }
-body.dark input[type="text"]:focus, body.dark select:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
-body.dark input[type="text"]::placeholder { color: rgba(255,255,255,0.6); }
+body.dark select:focus { background-color: var(--input-bg-dark); color: var(--input-text-dark); }
 
 /* -------- FOCO VISÍVEL ACESSÍVEL -------- */
 :focus-visible { outline: 3px solid var(--button-bg); outline-offset: 3px; }
@@ -153,7 +151,7 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   cursor: not-allowed;
 }
 
-#state-city-search-btn, #search-btn {
+#state-city-search-btn {
   padding: 12px 20px;
   font-size: 1rem;
   border: none;
@@ -167,15 +165,15 @@ main { width: 100%; max-width: 600px; display: flex; flex-direction: column; ali
   user-select: none;
 }
 
-#state-city-search-btn:hover:not(:disabled), #search-btn:hover:not(:disabled),
-#state-city-search-btn:focus:not(:disabled), #search-btn:focus:not(:disabled) {
+#state-city-search-btn:hover:not(:disabled), 
+#state-city-search-btn:focus:not(:disabled) {
   background-color: var(--button-bg-hover);
   box-shadow: 0 0 12px var(--button-shadow-hover);
   outline: none;
   transform: scale(1.05);
 }
 
-#state-city-search-btn:disabled, #search-btn:disabled {
+#state-city-search-btn:disabled {
   background-color: var(--button-bg-disabled);
   cursor: not-allowed;
   opacity: 0.7;
