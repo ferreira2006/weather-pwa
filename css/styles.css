@@ -317,41 +317,28 @@ body.dark #toast { background-color:var(--toast-bg-dark); color:var(--toast-text
   100% { transform: scale(1.2); }
 }
 
-/* Botão de favorito dentro do card de clima */
+/* Botão de favoritar dentro do card */
 #fav-btn {
-  position: absolute; /* fica sobre o card */
+  position: absolute; /* ou relative ao container do card */
   top: 10px;
   right: 10px;
+  background: var(--primary-color, #0077ff);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
   width: 35px;
   height: 35px;
-  border-radius: 50%;
-  border: none;
-  background-color: var(--primary-color, #0077ff); /* mantém a cor do app */
-  color: #fff;
   font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.25);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 3px 5px rgba(0,0,0,0.2);
-  transition: transform 0.2s ease-in-out, background-color 0.2s;
-  padding: 0;
+  transition: opacity 0.3s ease-in-out, transform 0.2s;
+  z-index: 10;
 }
 
-#fav-btn:hover {
-  transform: scale(1.1);
-  background-color: var(--primary-hover-color, #005fcc);
-}
-
-/* Esconde o texto "Favoritar" dentro do card */
-#fav-btn span:not(.favorited):not(.not-favorited) {
-  display: none;
-}
-
-/* Mantém o ícone do coração visível */
-#fav-icon {
-  font-size: 18px;
-}
 
 /* Botão flutuante "Voltar ao topo" */
 #scroll-top-btn {
