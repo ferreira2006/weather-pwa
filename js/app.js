@@ -293,15 +293,17 @@ const App = {
   },
 
   updateFavButton() {
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    if (favorites.includes(currentCity.toLowerCase())) {
-      favIcon.classList.add("favorited");
-      favIcon.classList.remove("not-favorited");
-    } else {
-      favIcon.classList.remove("favorited");
-      favIcon.classList.add("not-favorited");
-    }
-  },
+  const favorites = Storage.getFavorites().map(c => c.toLowerCase());
+  if (favorites.includes(currentCity.toLowerCase())) {
+    favIcon.src = "assets/icons/heart-on.svg";
+    favIcon.classList.add("favorited");
+    favIcon.classList.remove("not-favorited");
+  } else {
+    favIcon.src = "assets/icons/heart-off.svg";
+    favIcon.classList.remove("favorited");
+    favIcon.classList.add("not-favorited");
+  }
+},
 
   init() {
     dom.weatherDiv.classList.add("loading");
