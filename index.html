@@ -23,27 +23,28 @@
 
 <main>
   <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
-  <section id="state-city-section" aria-label="Seleção de estado e município">
-    <h2>Buscar por Estado e Município</h2>
-    <div id="state-city-container" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
-      <select id="state-select" aria-label="Selecione o estado" required>
-        <option value="">Selecione o estado</option>
-      </select>
+<section id="state-city-section" aria-label="Seleção de estado e município">
+  <h2>Buscar por Estado e Município</h2>
+  <div id="state-city-container" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+    <select id="state-select" aria-label="Selecione o estado" required>
+      <option value="">Selecione o estado</option>
+    </select>
 
-      <select id="city-select" aria-label="Selecione o município" required disabled>
-        <option value="">Selecione o município</option>
-      </select>
+    <select id="city-select" aria-label="Selecione o município" required disabled>
+      <option value="">Selecione o município</option>
+    </select>
 
-      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
-        Buscar
-      </button>
-    </div>
-  </section>
-<section id="buttons-section" aria-label="Botões de Ação">
-  <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
-      <span id="fav-icon" class="not-favorited"></span> Favoritar
-  </button>
+    <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
+      Buscar
+    </button>
+
+    <!-- Botão de favoritos agora junto aos selects e botão de busca -->
+    <button id="state-city-fav-btn" type="button" aria-label="Adicionar município aos favoritos" disabled>
+      <span id="state-city-fav-icon" class="not-favorited">🤍</span> Favoritar
+    </button>
+  </div>
 </section>
+  
   <!-- Cidades favoritas -->
   <section id="favorites-section" aria-label="Cidades favoritas">
     <h2>Cidades Favoritas</h2>
