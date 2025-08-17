@@ -1,7 +1,8 @@
+// ===== CONFIG =====
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// ===== UTILS ======
+// ===== UTILS =====
 const Utils = {
   capitalizeCityName(city) {
     return city
@@ -21,38 +22,28 @@ const Utils = {
 const dom = {
   favBtn: document.getElementById("fav-btn"),
   themeToggle: document.getElementById("theme-toggle"),
-
   weatherDiv: document.getElementById("weather"),
   weatherContent: document.getElementById("weather-content"),
   weatherError: document.getElementById("weather-error"),
-
   cityNameEl: document.getElementById("city-name"),
   iconEl: document.getElementById("icon"),
   tempEl: document.getElementById("temp"),
   descEl: document.getElementById("desc"),
   detailsEl: document.getElementById("details"),
-  spinner: document.getElementById("spinner"),
-
   historyListEl: document.getElementById("history-list"),
   favoritesListEl: document.getElementById("favorites-list"),
-
   toast: document.getElementById("toast"),
-
-  // IBGE selects
   stateSelect: document.getElementById("state-select"),
   citySelect: document.getElementById("city-select"),
   stateCitySearchBtn: document.getElementById("state-city-search-btn"),
-
-  // Scroll top button
   scrollTopBtn: document.getElementById("scroll-top-btn")
 };
 
 // ===== STATE =====
 let currentCityValid = false;
-let firstLoad = true;
 let currentCity = "";
 
-// ===== API =====
+// ===== WEATHER API =====
 const WeatherAPI = {
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
@@ -71,17 +62,14 @@ const Storage = {
   getHistory: () => JSON.parse(localStorage.getItem("weatherHistory")) || [],
   saveHistory(city) {
     const formattedCity = Utils.capitalizeCityName(city);
-    let history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
+    const history = this.getHistory().filter(c => c.toLowerCase() !== formattedCity.toLowerCase());
     history.unshift(formattedCity);
     localStorage.setItem("weatherHistory", JSON.stringify(history.slice(0, maxHistoryItems)));
   },
-
   getFavorites: () => JSON.parse(localStorage.getItem("weatherFavorites")) || [],
   saveFavorites(favorites) { localStorage.setItem("weatherFavorites", JSON.stringify(favorites)); },
-
   getTheme: () => localStorage.getItem("theme") || "light",
   saveTheme: theme => localStorage.setItem("theme", theme),
-
   getLastCity: () => localStorage.getItem("lastCity"),
   saveLastCity: city => localStorage.setItem("lastCity", city)
 };
@@ -103,42 +91,29 @@ const UI = {
   setDynamicBackground(weather) {
     const classes = ["bg-clear", "bg-clouds", "bg-rain", "bg-thunderstorm", "bg-snow"];
     document.body.classList.remove(...classes);
-    weather = weather.toLowerCase();
-    let key = weather.includes("cloud") ? "clouds" :
-              (weather.includes("rain") || weather.includes("drizzle")) ? "rain" :
-              weather.includes("thunderstorm") ? "thunderstorm" :
-              weather.includes("snow") ? "snow" : "clear";
+    const key = weather.toLowerCase().includes("cloud") ? "clouds" :
+                weather.toLowerCase().includes("rain") || weather.toLowerCase().includes("drizzle") ? "rain" :
+                weather.toLowerCase().includes("thunderstorm") ? "thunderstorm" :
+                weather.toLowerCase().includes("snow") ? "snow" : "clear";
     document.body.classList.add(`bg-${key}`);
   },
 
   setWeatherIcon(mainWeather) {
     const map = {
-      clear: ["wi", "wi-day-sunny"],
-      clouds: ["wi", "wi-cloudy"],
-      rain: ["wi", "wi-rain"],
-      drizzle: ["wi", "wi-sprinkle"],
-      thunderstorm: ["wi", "wi-thunderstorm"],
-      snow: ["wi", "wi-snow"],
-      mist: ["wi", "wi-fog"],
-      smoke: ["wi", "wi-smoke"],
-      haze: ["wi", "wi-day-haze"],
-      dust: ["wi", "wi-dust"],
-      fog: ["wi", "wi-fog"],
-      sand: ["wi", "wi-sandstorm"],
-      ash: ["wi", "wi-volcano"],
-      squall: ["wi", "wi-strong-wind"],
-      tornado: ["wi", "wi-tornado"]
+      clear: ["wi", "wi-day-sunny"], clouds: ["wi", "wi-cloudy"], rain: ["wi", "wi-rain"],
+      drizzle: ["wi", "wi-sprinkle"], thunderstorm: ["wi", "wi-thunderstorm"], snow: ["wi", "wi-snow"],
+      mist: ["wi", "wi-fog"], smoke: ["wi", "wi-smoke"], haze: ["wi", "wi-day-haze"], dust: ["wi", "wi-dust"],
+      fog: ["wi", "wi-fog"], sand: ["wi", "wi-sandstorm"], ash: ["wi", "wi-volcano"],
+      squall: ["wi", "wi-strong-wind"], tornado: ["wi", "wi-tornado"]
     };
-
     const classes = map[mainWeather.toLowerCase()] || ["wi", "wi-day-sunny"];
-    dom.iconEl.className = "weather-icon";  // reseta a classe
-    dom.iconEl.classList.add(...classes);    // adiciona cada classe separadamente
+    dom.iconEl.className = "weather-icon";
+    dom.iconEl.classList.add(...classes);
   },
 
   showWeather(data) {
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
-    dom.weatherError.style.opacity = 0;
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
@@ -148,16 +123,13 @@ const UI = {
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
 
     this.setWeatherIcon(data.weather[0].main);
-
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
     currentCity = data.name;
-    firstLoad = false;
-    App.updateButtonsState();
-    App.updateFavButton();
+    App.updateUIState();
     this.setDynamicBackground(data.weather[0].main);
   },
 
@@ -165,14 +137,13 @@ const UI = {
     document.body.classList.add("error");
     dom.weatherError.textContent = message;
     dom.weatherError.style.display = "block";
-    dom.weatherError.style.opacity = "1";
     dom.weatherContent.style.display = "none";
     dom.iconEl.style.display = "none";
     dom.weatherDiv.hidden = false;
     dom.weatherDiv.focus();
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
     currentCityValid = false;
-    App.updateButtonsState();
+    App.updateUIState();
   },
 
   renderList(listEl, items, clickCallback, removeCallback) {
@@ -197,11 +168,11 @@ const UI = {
     Storage.getFavorites().forEach(city => {
       const li = document.createElement("li");
       li.tabIndex = 0;
-      li.title = "Clique para buscar. Pressione Shift+Enter ou Delete para remover dos favoritos.";
+      li.title = "Clique para buscar. Shift+Enter ou Delete para remover.";
 
       const citySpan = document.createElement("span");
       citySpan.textContent = city;
-      Object.assign(citySpan.style, { cursor: "pointer" });
+      citySpan.style.cursor = "pointer";
       citySpan.addEventListener("click", () => App.handleCitySelect(city));
       li.appendChild(citySpan);
 
@@ -230,6 +201,7 @@ const UI = {
   },
 
   setDynamicBackgroundFromCurrentIcon() {
+    if (!dom.iconEl) return;
     const mainClass = [...dom.iconEl.classList].find(c => c !== "weather-icon");
     this.setDynamicBackground(mainClass || "clear");
   }
@@ -254,8 +226,6 @@ const App = {
       Storage.saveHistory(normalizedCity);
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
-      this.updateButtonsState();
-      this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
   },
@@ -268,7 +238,6 @@ const App = {
       Storage.saveHistory(data.name);
       UI.renderHistory();
       Storage.saveLastCity(data.name);
-      this.updateButtonsState();
     } catch (err) {
       UI.showError(err.message);
       if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
@@ -290,37 +259,31 @@ const App = {
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
-    this.updateButtonsState();
-    this.updateFavButton();
+    this.updateUIState();
   },
 
   async removeFavorite(city) {
-    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+    const confirmed = await showConfirmationModal(`Remover "${city}" dos favoritos?`);
     if (!confirmed) return;
     const favorites = Storage.getFavorites().filter(c => c.toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
     UI.showToast(`"${city}" removido dos favoritos.`);
-    this.updateButtonsState();
-    this.updateFavButton();
+    this.updateUIState();
   },
 
-  updateButtonsState() {
+  updateUIState() {
+    // Atualiza botão favorito
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
-  },
 
-  updateFavButton() {
-    const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     if (favorites.includes(currentCity.toLowerCase())) {
       favIcon.textContent = "❤️";
-      favIcon.classList.remove("not-favorited");
-      favIcon.classList.add("favorited");
+      favIcon.classList.replace("not-favorited","favorited");
     } else {
       favIcon.textContent = "🤍";
-      favIcon.classList.remove("favorited");
-      favIcon.classList.add("not-favorited");
+      favIcon.classList.replace("favorited","not-favorited");
     }
   },
 
@@ -329,7 +292,7 @@ const App = {
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
-    this.updateButtonsState();
+    this.updateUIState();
 
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
@@ -349,6 +312,7 @@ const App = {
     } else {
       this.handleCitySelect("São Miguel do Oeste");
     }
+    dom.weatherDiv.classList.remove("loading");
   }
 };
 
