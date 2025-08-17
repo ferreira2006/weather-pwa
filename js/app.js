@@ -39,10 +39,16 @@ const dom = {
   favoritesListEl: document.getElementById("favorites-list"),
 
   toast: document.getElementById("toast"),
+
+  // IBGE selects
+  stateSelect: document.getElementById("state-select"),
+  citySelect: document.getElementById("city-select"),
+  stateCitySearchBtn: document.getElementById("state-city-search-btn")
 };
 
 // ===== STATE =====
 let currentCityValid = false;
+let firstLoad = true;
 
 // ===== API =====
 const WeatherAPI = {
@@ -347,40 +353,101 @@ const App = {
       this.handleCitySelect(city);
     });
 
-    dom.cityInput.addEventListener("input", () => { currentCityValid = false; this.updateButtonsState(); });
-    dom.cityInput.addEventListener("click", () => { dom.cityInput.value = ""; currentCityValid = false; this.updateButtonsState(); });
-    dom.favBtn.addEventListener("click", () => { const city = Utils.normalizeCityInput(dom.cityInput.value); if (city) this.addFavorite(city); });
+    dom.cityInput.addEventListener("input", () => this.updateButtonsState());
+    dom.favBtn.addEventListener("click", () => this.addFavorite(dom.cityInput.value));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
+
+    // Inicializa IBGE selects
+    IBGE.init();
 
     const lastCity = Storage.getLastCity();
     if (lastCity) this.handleCitySelect(lastCity);
-    else if (navigator.geolocation) navigator.geolocation.getCurrentPosition(
-      pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
-      () => { UI.showError("Não foi possível obter sua localização."); this.handleCitySelect("São Miguel do Oeste"); }
-    );
-    else this.handleCitySelect("São Miguel do Oeste");
+    else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => this.fetchByCoords(pos.coords.latitude, pos.coords.longitude),
+        () => this.handleCitySelect("São Miguel do Oeste"));
+    } else {
+      this.handleCitySelect("São Miguel do Oeste");
+    }
   }
 };
 
-// ===== MODAL =====
+// ===== CONFIRM MODAL =====
 function showConfirmationModal(message) {
   return new Promise(resolve => {
     const modal = document.getElementById("confirm-modal");
-    const desc = document.getElementById("confirm-modal-desc");
-    const yesBtn = document.getElementById("confirm-yes");
-    const noBtn = document.getElementById("confirm-no");
+    modal.querySelector("p").textContent = message;
+    modal.removeAttribute("hidden");
 
-    desc.textContent = message;
-    modal.hidden = false;
-    modal.focus();
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
 
-    const cleanUp = () => { yesBtn.removeEventListener("click", onYes); noBtn.removeEventListener("click", onNo); };
-    const onYes = () => { cleanUp(); modal.hidden = true; resolve(true); };
-    const onNo = () => { cleanUp(); modal.hidden = true; resolve(false); };
+    const cleanup = () => {
+      yesBtn.removeEventListener("click", yesHandler);
+      noBtn.removeEventListener("click", noHandler);
+      modal.setAttribute("hidden", "");
+    };
 
-    yesBtn.addEventListener("click", onYes);
-    noBtn.addEventListener("click", onNo);
+    const yesHandler = () => { cleanup(); resolve(true); };
+    const noHandler = () => { cleanup(); resolve(false); };
+
+    yesBtn.addEventListener("click", yesHandler);
+    noBtn.addEventListener("click", noHandler);
   });
 }
 
-window.onload = () => App.init();
+// ===== IBGE SELECTS =====
+const IBGE = {
+  async init() {
+    try {
+      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
+      const states = await res.json();
+      states.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.nome;
+        dom.stateSelect.appendChild(opt);
+      });
+      dom.stateSelect.addEventListener("change", () => this.onStateChange());
+      dom.citySelect.addEventListener("change", () => this.updateSearchButtonState());
+      dom.stateCitySearchBtn.addEventListener("click", () => this.onSearchClick());
+      this.updateSearchButtonState();
+    } catch {
+      UI.showToast("Erro ao carregar estados do IBGE.");
+    }
+  },
+
+  async onStateChange() {
+    const stateId = dom.stateSelect.value;
+    dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
+    dom.citySelect.disabled = true;
+    dom.stateCitySearchBtn.disabled = true;
+
+    if (!stateId) return;
+
+    try {
+      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
+      const cities = await res.json();
+      cities.forEach(city => {
+        const option = document.createElement("option");
+        option.value = city.nome;
+        option.textContent = city.nome;
+        dom.citySelect.appendChild(option);
+      });
+      dom.citySelect.disabled = false;
+    } catch {
+      UI.showToast("Erro ao carregar municípios do IBGE.");
+    }
+  },
+
+  updateSearchButtonState() {
+    dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
+  },
+
+  onSearchClick() {
+    const city = dom.citySelect.value;
+    if (city) App.handleCitySelect(city);
+  }
+};
+
+// ===== INIT APP =====
+window.addEventListener("load", () => App.init());
