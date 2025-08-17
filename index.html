@@ -24,26 +24,26 @@
 <main>
 
   <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
- <section id="state-city-section" aria-label="Seleção de estado e município">
-  <h2>Buscar por Estado e Município</h2>
-  <div id="state-city-container" class="state-city-container">
-    <select id="state-select" aria-label="Selecione o estado" required>
-      <option value="">Selecione o estado</option>
-    </select>
+  <section id="state-city-section" aria-label="Seleção de estado e município">
+    <h2>Buscar por Estado e Município</h2>
+    <div id="state-city-container" class="state-city-container">
+      <select id="state-select" aria-label="Selecione o estado" required>
+        <option value="">Selecione o estado</option>
+      </select>
 
-    <select id="city-select" aria-label="Selecione o município" required disabled>
-      <option value="">Selecione o município</option>
-    </select>
+      <select id="city-select" aria-label="Selecione o município" required disabled>
+        <option value="">Selecione o município</option>
+      </select>
 
-    <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
-      Buscar
-    </button>
+      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
+        Buscar
+      </button>
 
-    <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
-      <span id="fav-icon" class="not-favorited"></span> Favoritar
-    </button>
-  </div>
-</section>
+      <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
+        <span id="fav-icon" class="not-favorited"></span> Favoritar
+      </button>
+    </div>
+  </section>
   
   <!-- Cidades favoritas -->
   <section id="favorites-section" aria-label="Cidades favoritas">
@@ -56,6 +56,12 @@
     <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
     <div id="weather-content" class="info">
       <h2 id="city-name">Carregando cidade...</h2>
+
+      <!-- Botão de favoritar dentro do card, pequeno e redondo -->
+      <button id="weather-fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
+        <span id="weather-fav-icon" class="not-favorited">🤍</span>
+      </button>
+
       <div id="temp" class="temp">-- °C</div>
       <div id="desc" class="desc">Aguardando dados...</div>
       <div id="details" class="details">--</div>
