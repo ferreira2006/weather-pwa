@@ -305,7 +305,16 @@ const App = {
 
     IBGE.init();
 
-    window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display=window.scrollY>150?"block":"none"; });
+    // ===== Scroll-Top Botão =====
+    window.addEventListener("scroll",()=>{
+      if(window.scrollY>150){
+        dom.scrollTopBtn.style.display="block";
+        dom.scrollTopBtn.classList.add("show-scroll-btn");
+      }else{
+        dom.scrollTopBtn.classList.remove("show-scroll-btn");
+        setTimeout(()=>{ dom.scrollTopBtn.style.display="none"; },300);
+      }
+    });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
     const lastCity = Storage.getLastCity();
@@ -333,9 +342,17 @@ function showConfirmationModal(message){
     const previousActive=document.activeElement;
     lastBtn.focus();
 
-    const cleanup=()=>{ modal.setAttribute("hidden",""); yesBtn.removeEventListener("click",yesHandler); noBtn.removeEventListener("click",noHandler); modal.removeEventListener("keydown",keyHandler); overlay.removeEventListener("click",overlayHandler); previousActive.focus(); };
+    const cleanup=()=>{ 
+      modal.setAttribute("hidden",""); 
+      yesBtn.removeEventListener("click",yesHandler); 
+      noBtn.removeEventListener("click",noHandler); 
+      modal.removeEventListener("keydown",keyHandler); 
+      overlay.removeEventListener("click",overlayHandler); 
+      previousActive.focus(); 
+    };
     const yesHandler=()=>{ cleanup(); resolve(true); };
     const noHandler=()=>{ cleanup(); resolve(false); };
+
     yesBtn.addEventListener("click",yesHandler);
     noBtn.addEventListener("click",noHandler);
 
