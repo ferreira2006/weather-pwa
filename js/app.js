@@ -19,6 +19,8 @@ const Utils = {
 
 // ===== DOM ELEMENTS =====
 const dom = {
+  cityInput: document.getElementById("city-input"),
+  searchBtn: document.getElementById("search-btn"),
   favBtn: document.getElementById("fav-btn"),
   themeToggle: document.getElementById("theme-toggle"),
 
@@ -84,6 +86,8 @@ const Storage = {
 
 // ===== UI =====
 const UI = {
+  isValidCityInput(city) { return city && Utils.validCityRegex.test(Utils.normalizeCityInput(city)); },
+
   showToast(message, duration = 3000) {
     const t = dom.toast;
     t.textContent = message;
@@ -156,6 +160,7 @@ const UI = {
       });
       listEl.appendChild(li);
     });
+    this.updateThemeColors();
   },
 
   renderHistory() { this.renderList(dom.historyListEl, Storage.getHistory(), city => App.handleCitySelect(city)); },
@@ -181,12 +186,15 @@ const UI = {
 
       dom.favoritesListEl.appendChild(li);
     });
+    this.updateThemeColors();
   },
 
   toggleThemeColors() {
     document.body.classList.toggle("dark");
     document.body.classList.toggle("light");
     Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+    this.updateThemeColors();
+    this.updateThemeToggleButton();
     this.setDynamicBackgroundFromCurrentIcon();
   },
 
@@ -194,7 +202,35 @@ const UI = {
     const saved = Storage.getTheme();
     document.body.classList.add(saved);
     document.body.classList.remove(saved === "dark" ? "light" : "dark");
+    this.updateThemeColors();
+    this.updateThemeToggleButton();
     this.setDynamicBackgroundFromCurrentIcon();
+  },
+
+  updateThemeToggleButton() {
+    const isDark = document.body.classList.contains("dark");
+    dom.themeToggle.textContent = isDark ? "Modo Claro" : "Modo Escuro";
+    dom.themeToggle.setAttribute("aria-pressed", isDark);
+  },
+
+  updateThemeColors() {
+    const root = getComputedStyle(document.documentElement);
+    const isDark = document.body.classList.contains("dark");
+    const textColor = isDark ? root.getPropertyValue('--input-text-dark').trim() : root.getPropertyValue('--input-text-light').trim();
+    const bgColor = isDark ? root.getPropertyValue('--input-bg-dark').trim() : root.getPropertyValue('--input-bg-light').trim();
+    const buttonBg = root.getPropertyValue('--button-bg').trim();
+
+    dom.cityInput.style.color = textColor;
+    dom.cityInput.style.backgroundColor = bgColor;
+
+    [dom.searchBtn, dom.favBtn].forEach(btn => { btn.style.backgroundColor = buttonBg; btn.style.color = isDark ? '#ddd' : '#fff'; });
+    [...dom.historyListEl.children, ...dom.favoritesListEl.children].forEach(li => { li.style.backgroundColor = buttonBg; li.style.color = isDark ? '#ddd' : '#fff'; });
+
+    dom.detailsEl.style.color = isDark ? '#ddd' : '#000';
+    dom.weatherError.style.color = isDark ? '#ffbaba' : '#b00000';
+    dom.weatherError.style.backgroundColor = isDark ? '#5c0000' : '#ffdede';
+    dom.themeToggle.style.color = isDark ? '#ddd' : '#000';
+    dom.themeToggle.style.borderColor = isDark ? '#ddd' : '#000';
   },
 
   setDynamicBackgroundFromCurrentIcon() {
@@ -214,9 +250,10 @@ dom.favBtn.prepend(favIcon);
 const App = {
   async handleCitySelect(city) {
     const normalizedCity = Utils.normalizeCityInput(city);
-    if (!normalizedCity) return;
+    if (!normalizedCity || (normalizedCity.toLowerCase() === dom.cityInput.value.trim().toLowerCase() && currentCityValid)) return;
     dom.weatherDiv.classList.add("loading");
     try {
+      dom.cityInput.value = normalizedCity;
       const data = await WeatherAPI.fetchByCity(normalizedCity);
       UI.showWeather(data);
       Storage.saveHistory(normalizedCity);
@@ -226,6 +263,21 @@ const App = {
       this.updateFavButton();
     } catch (err) { UI.showError(err.message || "Erro ao buscar o clima"); }
     finally { dom.weatherDiv.classList.remove("loading"); }
+  },
+
+  async fetchByCoords(lat, lon) {
+    dom.weatherDiv.classList.add("loading");
+    try {
+      const data = await WeatherAPI.fetchByCoords(lat, lon);
+      UI.showWeather(data);
+      Storage.saveHistory(data.name);
+      UI.renderHistory();
+      Storage.saveLastCity(data.name);
+      this.updateButtonsState();
+    } catch (err) {
+      UI.showError(err.message);
+      if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
+    } finally { dom.weatherDiv.classList.remove("loading"); }
   },
 
   addFavorite(city) {
@@ -247,7 +299,9 @@ const App = {
     this.updateFavButton();
   },
 
-  removeFavorite(city) {
+  async removeFavorite(city) {
+    const confirmed = await showConfirmationModal(`Tem certeza que deseja remover "${city}" dos favoritos?`);
+    if (!confirmed) return;
     const favorites = Storage.getFavorites().filter(c => c.toLowerCase() !== city.toLowerCase());
     Storage.saveFavorites(favorites);
     UI.renderFavorites();
@@ -257,15 +311,22 @@ const App = {
   },
 
   updateButtonsState() {
-    const city = dom.citySelect.value;
+    const city = dom.cityInput.value.trim();
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
-    const canAddFavorite = currentCityValid && city && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
-    dom.stateCitySearchBtn.disabled = !city;
+    const canAddFavorite = currentCityValid && city && UI.isValidCityInput(city) && !favorites.includes(city.toLowerCase()) && favorites.length < 5;
+
+    dom.searchBtn.disabled = true; // Sempre desabilitado, pois a busca agora é pelo select IBGE
     dom.favBtn.disabled = !canAddFavorite;
+
+    dom.favBtn.title = !canAddFavorite
+      ? favorites.includes(city.toLowerCase()) ? `"${Utils.capitalizeCityName(city)}" já está nos favoritos.` : "Limite de 5 cidades favoritas atingido."
+      : "";
+
+    this.updateFavButton();
   },
 
   updateFavButton() {
-    const city = Utils.normalizeCityInput(dom.citySelect.value);
+    const city = Utils.normalizeCityInput(dom.cityInput.value);
     const favorites = Storage.getFavorites().map(c => c.toLowerCase());
     if (favorites.includes(city.toLowerCase())) {
       favIcon.textContent = "❤️";
@@ -285,7 +346,10 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    dom.favBtn.addEventListener("click", () => this.addFavorite(dom.citySelect.value));
+    // Removemos submit antigo da cidade
+    // document.getElementById("search-box").addEventListener("submit", ...);
+
+    dom.favBtn.addEventListener("click", () => this.addFavorite(dom.cityInput.value));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
     // Inicializa IBGE selects
@@ -299,23 +363,35 @@ const App = {
     } else {
       this.handleCitySelect("São Miguel do Oeste");
     }
-  },
 
-  async fetchByCoords(lat, lon) {
-    dom.weatherDiv.classList.add("loading");
-    try {
-      const data = await WeatherAPI.fetchByCoords(lat, lon);
-      UI.showWeather(data);
-      Storage.saveHistory(data.name);
-      UI.renderHistory();
-      Storage.saveLastCity(data.name);
-      this.updateButtonsState();
-    } catch (err) {
-      UI.showError(err.message);
-      if (!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste");
-    } finally { dom.weatherDiv.classList.remove("loading"); }
+    // Inicializa botão voltar ao topo
+    BackToTop.init();
   }
 };
+
+// ===== CONFIRM MODAL =====
+function showConfirmationModal(message) {
+  return new Promise(resolve => {
+    const modal = document.getElementById("confirm-modal");
+    modal.querySelector("p").textContent = message;
+    modal.removeAttribute("hidden");
+
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
+
+    const cleanup = () => {
+      yesBtn.removeEventListener("click", yesHandler);
+      noBtn.removeEventListener("click", noHandler);
+      modal.setAttribute("hidden", "");
+    };
+
+    const yesHandler = () => { cleanup(); resolve(true); };
+    const noHandler = () => { cleanup(); resolve(false); };
+
+    yesBtn.addEventListener("click", yesHandler);
+    noBtn.addEventListener("click", noHandler);
+  });
+}
 
 // ===== IBGE SELECTS =====
 const IBGE = {
@@ -330,7 +406,7 @@ const IBGE = {
         dom.stateSelect.appendChild(opt);
       });
       dom.stateSelect.addEventListener("change", () => this.onStateChange());
-      dom.citySelect.addEventListener("change", () => App.updateButtonsState());
+      dom.citySelect.addEventListener("change", () => this.updateSearchButtonState());
       dom.stateCitySearchBtn.addEventListener("click", () => this.onSearchClick());
       this.updateSearchButtonState();
     } catch {
@@ -371,20 +447,45 @@ const IBGE = {
   }
 };
 
-// ===== BOTÃO "VOLTAR AO TOPO" =====
-const scrollBtn = document.getElementById("scroll-top-btn");
+// ===== BACK TO TOP BUTTON =====
+const BackToTop = {
+  init() {
+    const btn = document.createElement("button");
+    btn.id = "back-to-top-btn";
+    btn.textContent = "↑ Topo";
+    Object.assign(btn.style, {
+      position: "fixed",
+      bottom: "20px",
+      right: "20px",
+      padding: "10px 15px",
+      fontSize: "1rem",
+      borderRadius: "8px",
+      border: "none",
+      cursor: "pointer",
+      display: "none",
+      zIndex: 9999,
+      backgroundColor: "#4facfe",
+      color: "#fff",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.2)"
+    });
+    document.body.appendChild(btn);
 
-window.addEventListener("scroll", () => {
-  if (window.scrollY > 150) {
-    scrollBtn.style.display = "block";
-  } else {
-    scrollBtn.style.display = "none";
+    window.addEventListener("scroll", () => {
+      btn.style.display = window.scrollY > 150 ? "block" : "none";
+    });
+
+    btn.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    const observer = new MutationObserver(() => {
+      const isDark = document.body.classList.contains("dark");
+      btn.style.backgroundColor = isDark ? "#555" : "#4facfe";
+      btn.style.color = isDark ? "#ddd" : "#fff";
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] });
   }
-});
-
-scrollBtn.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+};
 
 // ===== INIT APP =====
 window.addEventListener("load", () => App.init());
