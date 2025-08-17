@@ -323,12 +323,13 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
 }
 #history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
 #history-list, #favorites-list {
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
+   list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center; /* centraliza os itens horizontalmente */
 }
 #history-list li, #favorites-list li {
   background: var(--button-bg);
