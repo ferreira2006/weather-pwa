@@ -1,15 +1,9 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
 const maxHistoryItems = 5;
 
-// ===== UTILITÁRIOS =====
 const Utils = {
   capitalizeCityName(city) {
-    return city
-      .toLowerCase()
-      .split(' ')
-      .filter(Boolean)
-      .map(w => w[0].toUpperCase() + w.slice(1))
-      .join(' ');
+    return city.toLowerCase().split(' ').filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
   },
   showToast(msg) {
     const toast = document.getElementById('toast');
@@ -19,7 +13,6 @@ const Utils = {
   },
 };
 
-// ===== ELEMENTOS =====
 const searchBox = document.getElementById('search-box');
 const searchBtn = document.getElementById('search-btn');
 const favBtn = document.getElementById('fav-btn');
@@ -61,7 +54,6 @@ citySelect.addEventListener('change', () => {
 searchBox.insertBefore(stateSelect, searchBtn);
 searchBox.insertBefore(citySelect, searchBtn);
 
-// ===== FUNÇÕES DE SELECT =====
 function updateCityOptions() {
   const state = stateSelect.value;
   let cities = [];
@@ -93,14 +85,13 @@ async function fetchWeather(city) {
   }
 }
 
-// ===== EXIBIÇÃO =====
 function showWeather(data) {
   document.body.classList.remove('error');
   weatherContent.style.display = 'block';
   weatherError.style.display = 'none';
 
   cityNameEl.textContent = Utils.capitalizeCityName(data.name);
-  tempEl.textContent = data.temp.toFixed(1);
+  tempEl.textContent = data.temp.toFixed(1) + " °C";
   descEl.textContent = data.description;
   detailsEl.innerHTML = `Umidade: ${data.humidity}%<br>Vento: ${data.wind} m/s`;
 
