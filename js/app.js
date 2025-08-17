@@ -122,6 +122,7 @@ const UI = {
 
     const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.sys.country}`;
     dom.cityNameEl.textContent = `${data.name}${stateAbbrDisplay}`;
+
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.main.feels_like)}ºC<br/>Umidade: ${data.main.humidity}%<br/>Vento: ${data.wind.speed} m/s`;
@@ -158,7 +159,9 @@ const UI = {
       li.textContent = item.state ? `${item.city} (${item.state})` : item.city;
       li.title = "Clique para buscar.";
       li.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
-      li.addEventListener("keydown", e => { if(e.key==="Enter") App.handleCitySelect(item.city, item.state, true); });
+      li.addEventListener("keydown", e => {
+        if (e.key === "Enter") App.handleCitySelect(item.city, item.state, true);
+      });
       dom.historyListEl.appendChild(li);
     });
   },
@@ -183,12 +186,20 @@ const UI = {
       const removeBtn = document.createElement("button");
       removeBtn.textContent = "×";
       Object.assign(removeBtn.style, { marginLeft:"8px", cursor:"pointer", background:"transparent", border:"none", fontWeight:"bold", fontSize:"1.2rem", lineHeight:"1", padding:"0" });
-      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(displayText, cityName); });
+      removeBtn.addEventListener("click", e => { 
+        e.stopPropagation(); 
+        const modalText = state ? `${cityName} (${state})` : cityName;
+        App.removeFavorite(modalText, cityName);
+      });
       li.appendChild(removeBtn);
 
+      // --- Keyboard shortcuts for li ---
       li.addEventListener("keydown", e => {
         if (e.key === "Enter") App.handleCitySelect(cityName, state, true);
-        if (e.key === "Delete" || e.key === "Backspace" || (e.key === "Enter" && e.shiftKey)) App.removeFavorite(displayText, cityName);
+        if (e.key === "Delete" || e.key === "Backspace" || (e.key === "Enter" && e.shiftKey)) {
+          const modalText = state ? `${cityName} (${state})` : cityName;
+          App.removeFavorite(modalText, cityName);
+        }
       });
 
       dom.favoritesListEl.appendChild(li);
@@ -196,11 +207,12 @@ const UI = {
   },
 
   toggleThemeColors() {
-    document.body.classList.toggle("dark");
+   document.body.classList.toggle("dark");
     document.body.classList.toggle("light");
     Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
     this.setDynamicBackgroundFromCurrentIcon();
 
+    // Atualiza classe do modal
     const modal = document.getElementById("confirm-modal");
     modal.classList.remove("dark","light");
     modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
@@ -212,6 +224,7 @@ const UI = {
     document.body.classList.remove(saved === "dark" ? "light" : "dark");
     this.setDynamicBackgroundFromCurrentIcon();
 
+    // Aplica também ao modal
     const modal = document.getElementById("confirm-modal");
     modal.classList.remove("dark","light");
     modal.classList.add(saved);
@@ -256,6 +269,7 @@ const App = {
 
   async fetchByCoords(lat, lon) {
     dom.weatherDiv.classList.add("loading");
+
     try {
       const data = await WeatherAPI.fetchByCoords(lat, lon);
       currentStateAbbr = "";
@@ -318,6 +332,7 @@ const App = {
 
   init() {
     dom.weatherDiv.classList.add("loading");
+
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
@@ -325,6 +340,7 @@ const App = {
 
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
+
     IBGE.init();
 
     window.addEventListener("scroll", () => {
@@ -357,9 +373,14 @@ function showConfirmationModal(message) {
     const yesBtn = modal.querySelector("#confirm-yes");
     const noBtn = modal.querySelector("#confirm-no");
     const focusable = [yesBtn, noBtn];
-    const firstBtn = focusable[0];
-    const lastBtn = focusable[focusable.length - 1];
+
+    const firstBtn = focusable[0]; // "Sim" (laranja)
+    const lastBtn = focusable[focusable.length - 1]; // "Não" (azul)
+
+    // Salva elemento ativo antes do modal
     const previousActive = document.activeElement;
+
+    // Foco inicial no "Não"
     lastBtn.focus();
 
     const cleanup = () => {
@@ -368,21 +389,33 @@ function showConfirmationModal(message) {
       noBtn.removeEventListener("click", noHandler);
       modal.removeEventListener("keydown", keyHandler);
       overlay.removeEventListener("click", overlayHandler);
-      previousActive.focus();
+      previousActive.focus(); // retorna foco para elemento anterior
     };
 
     const yesHandler = () => { cleanup(); resolve(true); };
     const noHandler = () => { cleanup(); resolve(false); };
+
     yesBtn.addEventListener("click", yesHandler);
     noBtn.addEventListener("click", noHandler);
 
+    // Trava o foco dentro do modal
     const keyHandler = e => {
       if (e.key === "Tab") {
-        if (e.shiftKey && document.activeElement === firstBtn) { e.preventDefault(); lastBtn.focus(); }
-        else if (!e.shiftKey && document.activeElement === lastBtn) { e.preventDefault(); firstBtn.focus(); }
-      } else if (e.key === "Escape") { cleanup(); resolve(false); }
+        if (e.shiftKey && document.activeElement === firstBtn) {
+          e.preventDefault();
+          lastBtn.focus();
+        } else if (!e.shiftKey && document.activeElement === lastBtn) {
+          e.preventDefault();
+          firstBtn.focus();
+        }
+      } else if (e.key === "Escape") { // Esc fecha modal
+        cleanup();
+        resolve(false);
+      }
     };
     modal.addEventListener("keydown", keyHandler);
+
+    // Bloqueia clique na overlay (não fecha clicando fora)
     const overlayHandler = e => e.stopPropagation();
     overlay.addEventListener("click", overlayHandler);
   });
@@ -415,6 +448,7 @@ const IBGE = {
     dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
     dom.citySelect.disabled = true;
     dom.stateCitySearchBtn.disabled = true;
+
     if (!stateId) return;
 
     try {
