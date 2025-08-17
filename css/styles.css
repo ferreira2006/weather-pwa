@@ -403,32 +403,15 @@ body.dark #fav-icon.not-favorited { color: #555; }
 #confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
 #confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
 
-#confirm-modal .modal-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
+#confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
 #confirm-modal button {
-  min-width: 80px;
-  padding: 10px 15px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background-color: var(--modal-button-bg);
-  color: var(--modal-button-text);
-  border: 1px solid var(--modal-button-border);
+  min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
+  cursor:pointer; user-select:none; transition: background-color 0.3s;
 }
-
-#confirm-modal button:hover,
-#confirm-modal button:focus {
-  transform: scale(1.05);
-  background-color: var(--modal-button-bg-hover);
-  outline: none;
-}
-
+#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
+#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
+#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
+#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#d32f2f; outline:none; }
 /* -------- VARIÁVEIS DE TEMA PARA MODAL (COLORIDOS) -------- */
 body.light #confirm-modal {
   --modal-bg: #fff;
