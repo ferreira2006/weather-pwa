@@ -15,9 +15,9 @@
   --text-light: #000;
   --text-dark: #ddd;
   --input-text-light: #000;
-  --input-text-dark: #555; /* cinza escuro */
+  --input-text-dark: #555;
   --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: #fff; /* branco para selects dark */
+  --input-bg-dark: #fff;
   --input-border-focus: var(--button-bg);
 
   --button-bg: #ff9800;
@@ -62,7 +62,7 @@ body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
 body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
 /* -------- INPUTS, SELECTS E BUTTONS -------- */
-input[type="text"], select {
+ select {
   flex: 1;
   min-width: 150px;
   min-height: 40px;
@@ -188,6 +188,9 @@ body.dark #weather {
 #weather[hidden] { display: none !important; }
 #weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
 #weather-content { grid-column: 2; }
+#state-abbr { font-weight: bold; margin-left: 5px; }
+
+/* -------- WEATHER ERROR -------- */
 #weather-error {
   display: none;
   grid-column: 1/-1;
@@ -240,13 +243,10 @@ body.error #weather-content { display: none; }
   z-index: 5;
 }
 body.dark #weather.loading::before { background: var(--loading-bg-dark); }
-#weather.loading #spinner {
-  opacity: 0.85;
-  transform: scale(1);
-}
+#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
 #weather.loading #weather-content { visibility: hidden; }
 
-/* -------- WEATHER ICONS -------- */
+/* -------- WEATHER ICONS E ANIMAÇÕES -------- */
 .weather-icon {
   font-size: 100px;
   line-height: 1;
@@ -254,31 +254,22 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
   color: #fff;
   transition: color 0.5s, transform 0.5s;
 }
-
-/* Principais */
 .weather-icon.clear { animation: rotateSlow 120s linear infinite; }
 .weather-icon.clouds { animation: floatClouds 20s ease-in-out infinite; }
 .weather-icon.rain { animation: rainAnim 3s linear infinite; }
 .weather-icon.drizzle { animation: drizzleAnim 2.5s linear infinite; }
 .weather-icon.thunderstorm { animation: thunderAnim 2s ease-in-out infinite alternate; }
 .weather-icon.snow { animation: snowAnim 15s linear infinite; }
-
-/* Nebulosos / Esfumados */
 .weather-icon.mist,
 .weather-icon.fog,
 .weather-icon.haze,
 .weather-icon.smoke { animation: floatMist 12s ease-in-out infinite; }
-
-/* Partículas / Poeira */
 .weather-icon.dust,
 .weather-icon.sand,
 .weather-icon.ash { animation: dustAnim 8s linear infinite; }
-
-/* Ventos / Tempestades */
 .weather-icon.squall { animation: squallAnim 3s ease-in-out infinite alternate; }
 .weather-icon.tornado { animation: tornadoAnim 1.5s linear infinite; }
 
-/* -------- KEYFRAMES -------- */
 @keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes floatClouds { 0%,100%{transform:translateY(0);} 50%{transform:translateY(8px);} }
 @keyframes rainAnim { 0%{transform:translateY(0);} 100%{transform:translateY(10px);} }
@@ -290,10 +281,7 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 @keyframes squallAnim { 0%{transform:rotate(-5deg);} 50%{transform:rotate(5deg);} 100%{transform:rotate(-5deg);} }
 @keyframes tornadoAnim { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
 
-/* -------- PREFERS REDUCED MOTION -------- */
-@media (prefers-reduced-motion: reduce) {
-  .weather-icon { animation: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { .weather-icon { animation: none !important; } }
 
 /* -------- INFO CLIMA -------- */
 .info { display: flex; flex-direction: column; justify-content: center; }
@@ -302,17 +290,61 @@ body.dark #weather.loading::before { background: var(--loading-bg-dark); }
 .details { font-size: 1rem; font-weight: 400; line-height: 1.6; color: inherit; }
 
 /* -------- TOAST -------- */
-#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px); padding: 10px 20px; border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease; z-index: 9999; }
-#toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+}
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
 body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
 body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
 
 /* -------- HISTÓRICO E FAVORITOS -------- */
-#history-section, #favorites-section { width: 100%; max-width: 600px; margin-bottom: 30px; background: rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; box-shadow:0 4px 12px rgba(0,0,0,0.15);}
+#history-section, #favorites-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
 #history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
-#history-list, #favorites-list { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:8px; }
-#history-list li, #favorites-list li { background: var(--button-bg); color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; transition:background-color 0.3s, transform 0.2s; flex:0 0 auto; }
-#history-list li:hover, #favorites-list li:hover, #history-list li:focus, #favorites-list li:focus { background-color: var(--button-bg-hover); transform:scale(1.05); outline:none; }
+#history-list, #favorites-list {
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+#history-list li, #favorites-list li {
+  background: var(--button-bg);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background-color 0.3s, transform 0.2s;
+  flex:0 0 auto;
+}
+#history-list li:hover, #favorites-list li:hover,
+#history-list li:focus, #favorites-list li:focus {
+  background-color: var(--button-bg-hover);
+  transform:scale(1.05);
+  outline:none;
+}
 
 /* -------- FAVORITOS (CORAÇÃO) -------- */
 #fav-icon { font-size:1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select:none; }
@@ -320,7 +352,19 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
 body.dark #fav-icon.not-favorited { color: #555; }
 #fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
 @keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
-#fav-btn { position:absolute; top:10px; right:10px; background: var(--button-bg); color:#fff; border:none; border-radius:50%; width:35px; height:35px; font-size:18px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 5px rgba(0,0,0,0.25); transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s; }
+#fav-btn {
+  position:absolute; top:10px; right:10px;
+  background: var(--button-bg);
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:35px; height:35px;
+  font-size:18px; font-weight:bold;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 5px rgba(0,0,0,0.25);
+  transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s;
+}
 #fav-btn:hover, #fav-btn:focus { transform:scale(1.1); background-color: var(--button-bg-hover); outline:none; }
 
 /* -------- MODAL -------- */
@@ -340,25 +384,14 @@ body.dark #fav-icon.not-favorited { color: #555; }
 #confirm-modal .modal-buttons { display:flex; justify-content:center; gap:20px; }
 #confirm-modal button {
   min-width: 80px; padding:10px 15px; font-size:1rem; border:none; border-radius:8px;
-  cursor:pointer; user-select:none; transition: background-color 0.3s;
+  cursor:pointer; transition: all 0.3s ease;
 }
-#confirm-modal button#confirm-yes { background-color:#4caf50; color:#fff; }
-#confirm-modal button#confirm-yes:hover, #confirm-modal button#confirm-yes:focus { background-color:#45a045; outline:none; }
-#confirm-modal button#confirm-no { background-color:#f44336; color:#fff; }
-#confirm-modal button#confirm-no:hover, #confirm-modal button#confirm-no:focus { background-color:#d32f2f; outline:none; }
-
-/* -------- BOTÃO FLUTUANTE -------- */
-#scroll-top-btn {
-  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
-  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
-  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
-  transition: transform 0.3s ease, background-color 0.3s;
-}
-#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
+#confirm-modal button:hover { transform:scale(1.05); }
 
 /* -------- RESPONSIVIDADE -------- */
 @media (max-width:640px){
   #weather { grid-template-columns: 1fr; grid-template-rows: auto auto; min-height: auto; }
   .weather-icon { justify-self:center; margin-bottom:15px; }
   .state-city-container { flex-direction: column; }
+  #history-list li, #favorites-list li { flex:1 1 100%; text-align:center; }
 }
