@@ -350,16 +350,6 @@ const App = {
     UI.renderFavorites();
     this.updateButtonsState();
 
-    // Remove busca antiga do input, não usamos mais searchBtn
-    /*
-    document.getElementById("search-box").addEventListener("submit", e => {
-      e.preventDefault();
-      const city = Utils.normalizeCityInput(dom.cityInput.value);
-      if (!UI.isValidCityInput(city)) return UI.showToast("Informe uma cidade válida."); 
-      this.handleCitySelect(city);
-    });
-    */
-
     dom.cityInput?.addEventListener("input", () => this.updateButtonsState());
     dom.favBtn?.addEventListener("click", () => this.addFavorite(dom.cityInput.value));
     dom.themeToggle?.addEventListener("click", () => UI.toggleThemeColors());
