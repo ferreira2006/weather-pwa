@@ -20,13 +20,11 @@
 
 <header>
   <h1>Clima Atual</h1>
-  <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
-    🌑
-  </button>
+  <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">🌑</button>
 </header>
 
 <main>
-  <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
+  <!-- Seção de estados e municípios -->
   <section id="state-city-section" aria-label="Seleção de estado e município">
     <h2>Buscar por Estado e Município</h2>
     <div id="state-city-container" class="state-city-container">
@@ -38,9 +36,7 @@
         <option value="">Selecione o município</option>
       </select>
 
-      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
-        Buscar
-      </button>
+      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>Buscar</button>
     </div>
   </section>
   
@@ -57,9 +53,7 @@
       <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
         <span id="fav-icon" class="not-favorited"></span>
       </button>
-      <h2 id="city-name">
-        Carregando cidade... <span id="state-abbr"></span>
-      </h2>
+      <h2 id="city-name">Carregando cidade... <span id="state-abbr"></span></h2>
       <div id="temp" class="temp">-- °C</div>
       <div id="desc" class="desc">Aguardando dados...</div>
       <div id="details" class="details">--</div>
@@ -71,9 +65,7 @@
   <!-- Previsão para os próximos dias -->
   <section id="forecast-section" aria-label="Previsão para os próximos dias">
     <h2>Próximos Dias</h2>
-    <div id="forecast" class="forecast-container">
-      <!-- JS vai gerar 5 cards aqui -->
-    </div>
+    <div id="forecast" class="forecast-container"></div>
   </section>
 
   <!-- Histórico de pesquisas -->
@@ -103,21 +95,7 @@
 <!-- Botão flutuante para voltar ao topo -->
 <button id="scroll-top-btn" aria-label="Voltar ao topo">↑</button>
 
+<!-- JS externo -->
 <script src="js/app.js"></script>
-<script>
-// ===== Mini teste forecast dinâmico =====
-const forecastContainer = document.getElementById('forecast');
-const forecastDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
-forecastDays.forEach(day => {
-  const card = document.createElement('div');
-  card.classList.add('forecast-card');
-  card.innerHTML = `
-    <div class="forecast-day">${day}</div>
-    <div class="forecast-icon wi wi-day-sunny"></div>
-    <div class="forecast-temp">--°C</div>
-  `;
-  forecastContainer.appendChild(card);
-});
-</script>
 </body>
 </html>
