@@ -343,25 +343,29 @@ const App = {
     this.updateUIState();
   },
 
-  updateUIState(){
-    const history = Storage.getHistory();
-    const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
+  updateUIState() {
+  const history = Storage.getHistory();
+  const favorites = Storage.getFavorites().filter(c => c && (typeof c === "string" ? c : c.city))
+                   .map(c => (typeof c === "string" ? c : c.city).toLowerCase());
 
-    dom.clearHistoryBtn.disabled = history.length === 0;
+  dom.clearHistoryBtn.disabled = history.length === 0;
 
-    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
-    dom.favBtn.disabled = !canAddFavorite;
+  const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+  dom.favBtn.disabled = !canAddFavorite;
 
-    if(favorites.includes(currentCity.toLowerCase())){
-      favIcon.textContent="❤️";
-      favIcon.classList.replace("not-favorited","favorited");
-    } else {
-      favIcon.textContent="🤍";
-      favIcon.classList.replace("favorited","not-favorited");
-    }
+  if (favorites.includes(currentCity.toLowerCase())) {
+    favIcon.textContent = "❤️";
+    favIcon.classList.replace("not-favorited", "favorited");
+  } else {
+    favIcon.textContent = "🤍";
+    favIcon.classList.replace("favorited", "not-favorited");
+  }
 
-    dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
-  },
+  // Habilita o botão de busca se houver alguma cidade selecionada
+  dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
+  // Opcional: também habilitar o select de cidade se houver opções
+  dom.citySelect.disabled = dom.citySelect.options.length <= 1;
+},
 
   async init(){
     dom.weatherDiv.classList.add("loading");
@@ -428,18 +432,29 @@ const IBGE = {
         const uf = dom.stateSelect.value;
         dom.citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
         dom.citySelect.disabled = true; // desabilita enquanto carrega
+        dom.stateCitySearchBtn.disabled = true;
+
         if (!uf) return;
 
-        const r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
-        const cities = await r2.json();
-        cities.forEach(c => {
-          const opt = document.createElement("option");
-          opt.value = c.nome;
-          opt.textContent = c.nome;
-          dom.citySelect.appendChild(opt);
-        });
+        try {
+          const r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+          const cities = await r2.json();
+          cities.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c.nome;
+            opt.textContent = c.nome;
+            dom.citySelect.appendChild(opt);
+          });
 
-        dom.citySelect.disabled = false; // habilita após preencher
+          dom.citySelect.disabled = false;
+          // Se houver pelo menos uma cidade, habilita o botão
+          if (dom.citySelect.options.length > 1) {
+            dom.stateCitySearchBtn.disabled = false;
+          }
+        } catch (err) {
+          console.error("Erro ao carregar cidades:", err);
+          dom.citySelect.disabled = true;
+        }
       });
 
       // Buscar ao clicar no botão
