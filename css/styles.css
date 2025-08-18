@@ -149,22 +149,17 @@ header {
   margin-bottom: 20px;
 }
 h1 { margin: 0; font-weight: 700; font-size: 2rem; }
+
+/* Botão de tema */
 #theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  min-width: 110px;
-  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  background: #ff9800;
+  color: #fff;
 }
-#theme-toggle:hover, #theme-toggle:focus {
-  background-color: var(--button-bg);
-  color: white;
-  border-color: var(--button-bg);
-  outline: none;
+#theme-toggle:hover {
+  background: #e68900;
 }
 
 /* -------- MAIN -------- */
