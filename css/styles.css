@@ -358,20 +358,20 @@ body.dark #fav-icon.not-favorited { color: #555; }
   z-index: 10000;
   font-family: Arial, sans-serif;
 }
-
 #confirm-modal[hidden] { display: none; }
 
 #confirm-modal .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3); /* menos blur, menos transparência */
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
   z-index: 10001;
 }
 
 #confirm-modal .modal-content {
   position: relative;
-  background-color: #fff; /* fundo sólido */
-  color: #000;
+  background-color: var(--modal-bg);
+  color: var(--modal-text);
   padding: 25px 30px;
   border-radius: 12px;
   max-width: 400px;
@@ -403,7 +403,7 @@ body.dark #fav-icon.not-favorited { color: #555; }
 
 /* -------- CORES DOS BOTÕES -------- */
 #confirm-modal button#confirm-yes {
-  background-color: #ff9800; 
+  background-color: #ff9800; /* laranja */
   color: #fff;
   border-color: #ff9800;
 }
@@ -414,14 +414,25 @@ body.dark #fav-icon.not-favorited { color: #555; }
 }
 
 #confirm-modal button#confirm-no {
-  background-color: #f44336; /* vermelho antigo */
+  background-color: #1e90ff; /* azul */
   color: #fff;
-  border-color: #f44336;
+  border-color: #1e90ff;
 }
 #confirm-modal button#confirm-no:hover,
 #confirm-modal button#confirm-no:focus {
-  background-color: #e53935;
+  background-color: #63a4ff;
   outline: none;
+}
+
+/* -------- VARIÁVEIS DE TEMA -------- */
+body.light #confirm-modal {
+  --modal-bg: #fff;
+  --modal-text: #000;
+}
+
+body.dark #confirm-modal {
+  --modal-bg: #333; /* fundo dark mais claro */
+  --modal-text: #fff;
 }
 
 /* -------- RESPONSIVIDADE -------- */
@@ -433,32 +444,19 @@ body.dark #fav-icon.not-favorited { color: #555; }
   #confirm-modal .modal-buttons {
     flex-direction: column;
   }
-  #confirm-modal button { width: 100%; }
+  #confirm-modal button {
+    width: 100%;
+  }
 }
-/* -------- BOTÃO SCROLL TOP -------- */
+
+/* -------- BOTÃO FLUTUANTE -------- */
 #scroll-top-btn {
-  position: fixed;
-  bottom: 40px;
-  right: 40px;
-  width: 50px;
-  height: 50px;
-  border: none;
-  border-radius: 50%;
-  background-color: var(--button-bg);
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  display: none;
-  align-items: center;
-  justify-content: center;
+  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
+  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
   transition: transform 0.3s ease, background-color 0.3s;
 }
-#scroll-top-btn:hover, #scroll-top-btn:focus {
-  transform: scale(1.1);
-  background-color: var(--button-bg-hover);
-  outline: none;
-}
+#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
 
 /* -------- MEDIA QUERIES -------- */
 @media (max-width: 480px){
