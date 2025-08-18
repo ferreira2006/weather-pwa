@@ -31,7 +31,8 @@ const dom = {
   stateSelect: document.getElementById("state-select"),
   citySelect: document.getElementById("city-select"),
   stateCitySearchBtn: document.getElementById("state-city-search-btn"),
-  scrollTopBtn: document.getElementById("scroll-top-btn")
+  scrollTopBtn: document.getElementById("scroll-top-btn"),
+  clearHistoryBtn: document.getElementById("clear-history-btn")
 };
 
 // ===== STATE =====
@@ -188,17 +189,17 @@ const UI = {
   },
 
   toggleThemeColors() {
-     document.body.classList.toggle("dark");
-  document.body.classList.toggle("light");
-  Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
-  this.setDynamicBackgroundFromCurrentIcon();
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+    this.setDynamicBackgroundFromCurrentIcon();
 
-  // Atualiza o texto do botão
-  dom.themeToggle.textContent = document.body.classList.contains("dark") ? "Modo Claro" : "Modo Escuro";
+    // Atualiza o texto do botão
+    dom.themeToggle.textContent = document.body.classList.contains("dark") ? "Modo Claro" : "Modo Escuro";
 
-  const modal = document.getElementById("confirm-modal");
-  modal.classList.remove("dark","light");
-  modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark","light");
+    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
   },
 
   applySavedTheme() {
@@ -283,14 +284,21 @@ const App = {
   },
 
   updateUIState(){
+    const history = Storage.getHistory();
     const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
-    const canAddFavorite=currentCityValid&&currentCity&&!favorites.includes(currentCity.toLowerCase())&&favorites.length<5;
-    dom.favBtn.disabled=!canAddFavorite;
 
+    // Botão limpar histórico habilitado
+    dom.clearHistoryBtn.disabled = history.length === 0;
+
+    // Botão favoritar habilitado
+    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+    dom.favBtn.disabled = !canAddFavorite;
+
+    // Atualiza ícone do coração
     if(favorites.includes(currentCity.toLowerCase())){
       favIcon.textContent="❤️";
       favIcon.classList.replace("not-favorited","favorited");
-    }else{
+    } else {
       favIcon.textContent="🤍";
       favIcon.classList.replace("favorited","not-favorited");
     }
@@ -298,6 +306,7 @@ const App = {
 
   init(){
     dom.weatherDiv.classList.add("loading");
+
     UI.applySavedTheme();
     UI.renderHistory();
     UI.renderFavorites();
@@ -308,88 +317,58 @@ const App = {
 
     IBGE.init();
 
-    window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display=window.scrollY>150?"block":"none"; });
+    // Botão voltar ao topo
+    window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
     // ===== Botão limpar histórico =====
-const clearHistoryBtn = document.getElementById("clear-history-btn");
+    async function showHistoryConfirmationModal(message){
+      return new Promise(resolve=>{
+        const modal=document.getElementById("confirm-modal");
+        const overlay=modal.querySelector(".modal-overlay");
+        modal.querySelector("p").textContent=message;
+        modal.removeAttribute("hidden");
+        const yesBtn=modal.querySelector("#confirm-yes");
+        const noBtn=modal.querySelector("#confirm-no");
+        const focusable=[yesBtn,noBtn];
+        const firstBtn=focusable[0];
+        const lastBtn=focusable[focusable.length-1];
+        const previousActive=document.activeElement;
+        lastBtn.focus();
+        const cleanup=()=>{
+          modal.setAttribute("hidden","");
+          yesBtn.removeEventListener("click",yesHandler);
+          noBtn.removeEventListener("click",noHandler);
+          modal.removeEventListener("keydown",keyHandler);
+          overlay.removeEventListener("click",overlayHandler);
+          previousActive.focus();
+        };
+        const yesHandler=()=>{cleanup(); resolve(true);};
+        const noHandler=()=>{cleanup(); resolve(false);};
+        yesBtn.addEventListener("click",yesHandler);
+        noBtn.addEventListener("click",noHandler);
+        const keyHandler=e=>{
+          if(e.key==="Tab"){
+            if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
+            else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); }
+          } else if(e.key==="Escape"){ cleanup(); resolve(false); }
+        };
+        modal.addEventListener("keydown",keyHandler);
+        const overlayHandler=e=>e.stopPropagation();
+        overlay.addEventListener("click",overlayHandler);
+      });
+    }
 
-async function showHistoryConfirmationModal(message) {
-  return new Promise(resolve => {
-    const modal = document.getElementById("confirm-modal");
-    const overlay = modal.querySelector(".modal-overlay");
-    modal.querySelector("p").textContent = message;
-    modal.removeAttribute("hidden");
-
-    const yesBtn = modal.querySelector("#confirm-yes");
-    const noBtn = modal.querySelector("#confirm-no");
-    const focusable = [yesBtn, noBtn];
-    const firstBtn = focusable[0];
-    const lastBtn = focusable[focusable.length - 1];
-    const previousActive = document.activeElement;
-    lastBtn.focus();
-
-    const cleanup = () => {
-      modal.setAttribute("hidden", "");
-      yesBtn.removeEventListener("click", yesHandler);
-      noBtn.removeEventListener("click", noHandler);
-      modal.removeEventListener("keydown", keyHandler);
-      overlay.removeEventListener("click", overlayHandler);
-      previousActive.focus();
-    };
-
-    const yesHandler = () => { cleanup(); resolve(true); };
-    const noHandler = () => { cleanup(); resolve(false); };
-
-    yesBtn.addEventListener("click", yesHandler);
-    noBtn.addEventListener("click", noHandler);
-
-    const keyHandler = e => {
-      if (e.key === "Tab") {
-        if (e.shiftKey && document.activeElement === firstBtn) { e.preventDefault(); lastBtn.focus(); }
-        else if (!e.shiftKey && document.activeElement === lastBtn) { e.preventDefault(); firstBtn.focus(); }
-      } else if (e.key === "Escape") { cleanup(); resolve(false); }
-    };
-
-    modal.addEventListener("keydown", keyHandler);
-    const overlayHandler = e => e.stopPropagation();
-    overlay.addEventListener("click", overlayHandler);
-  });
-}
-
-// Atualiza estado dos botões
-function updateUIState() {
-  const history = Storage.getHistory();
-  const favorites = Storage.getFavorites().filter(c => c && (typeof c === "string" ? c : c.city));
-
-  // Botão limpar histórico habilitado só se houver histórico
-  clearHistoryBtn.disabled = history.length === 0;
-
-  // Botão favoritar habilitado só se menos de 5 favoritos e cidade não favoritada
-  const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
-  dom.favBtn.disabled = !canAddFavorite;
-
-  // Atualiza ícone do coração
-  if (favorites.includes(currentCity.toLowerCase())) {
-    favIcon.textContent = "❤️";
-    favIcon.classList.replace("not-favorited","favorited");
-  } else {
-    favIcon.textContent = "🤍";
-    favIcon.classList.replace("favorited","not-favorited");
+    dom.clearHistoryBtn.addEventListener("click", async ()=>{
+      const confirmed=await showHistoryConfirmationModal("Deseja realmente limpar todo o histórico?");
+      if(!confirmed) return;
+      localStorage.removeItem("weatherHistory");
+      UI.renderHistory();
+      UI.showToast("Histórico limpo!");
+      this.updateUIState();
+    });
   }
-}
-
-// Evento limpar histórico
-clearHistoryBtn.addEventListener("click", async () => {
-  const confirmed = await showHistoryConfirmationModal("Deseja realmente limpar todo o histórico?");
-  if (!confirmed) return;
-
-  localStorage.removeItem("weatherHistory");
-  UI.renderHistory();
-  UI.showToast("Histórico limpo!");
-  updateUIState();
-});
-
+};
 
 // ===== CONFIRM MODAL =====
 function showConfirmationModal(message){
@@ -405,29 +384,33 @@ function showConfirmationModal(message){
     const lastBtn=focusable[focusable.length-1];
     const previousActive=document.activeElement;
     lastBtn.focus();
-
-    const cleanup=()=>{ 
-      modal.setAttribute("hidden",""); 
-      yesBtn.removeEventListener("click",yesHandler); 
-      noBtn.removeEventListener("click",noHandler); 
-      modal.removeEventListener("keydown",keyHandler); 
-      overlay.removeEventListener("click",overlayHandler); 
-      previousActive.focus(); 
+    const cleanup=()=>{
+      modal.setAttribute("hidden","");
+      yesBtn.removeEventListener("click",yesHandler);
+      noBtn.removeEventListener("click",noHandler);
+      modal.removeEventListener("keydown",keyHandler);
+      overlay.removeEventListener("click",overlayHandler);
+      previousActive.focus();
     };
     const yesHandler=()=>{ cleanup(); resolve(true); };
     const noHandler=()=>{ cleanup(); resolve(false); };
     yesBtn.addEventListener("click",yesHandler);
     noBtn.addEventListener("click",noHandler);
-
     const keyHandler=e=>{
-      if(e.key==="Tab"){ 
-        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); } 
-        else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); } 
-      } else if(e.key==="Escape"){ cleanup(); resolve(false); }
+      if(e.key==="Tab"){
+        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
+                else if(!e.shiftKey && document.activeElement === lastBtn){ 
+          e.preventDefault(); 
+          firstBtn.focus(); 
+        }
+      } else if(e.key === "Escape"){ 
+        cleanup(); 
+        resolve(false); 
+      }
     };
-    modal.addEventListener("keydown",keyHandler);
-    const overlayHandler=e=>e.stopPropagation();
-    overlay.addEventListener("click",overlayHandler);
+    modal.addEventListener("keydown", keyHandler);
+    const overlayHandler = e => e.stopPropagation();
+    overlay.addEventListener("click", overlayHandler);
   });
 }
 
@@ -435,46 +418,57 @@ function showConfirmationModal(message){
 const IBGE = {
   async init(){
     try{
-      const res=await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-      const states=await res.json();
-      states.forEach(s=>{
-        const opt=document.createElement("option");
-        opt.value=s.id; opt.textContent=s.nome; opt.dataset.uf=s.sigla;
+      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
+      const states = await res.json();
+      states.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id; 
+        opt.textContent = s.nome; 
+        opt.dataset.uf = s.sigla;
         dom.stateSelect.appendChild(opt);
       });
-      dom.stateSelect.addEventListener("change",()=>this.onStateChange());
-      dom.citySelect.addEventListener("change",()=>this.updateSearchButtonState());
-      dom.stateCitySearchBtn.addEventListener("click",()=>this.onSearchClick());
+      dom.stateSelect.addEventListener("change", ()=>this.onStateChange());
+      dom.citySelect.addEventListener("change", ()=>this.updateSearchButtonState());
+      dom.stateCitySearchBtn.addEventListener("click", ()=>this.onSearchClick());
       this.updateSearchButtonState();
-    }catch{ UI.showToast("Erro ao carregar estados do IBGE."); }
+    } catch {
+      UI.showToast("Erro ao carregar estados do IBGE.");
+    }
   },
 
   async onStateChange(){
-    const stateId=dom.stateSelect.value;
-    dom.citySelect.innerHTML='<option value="">Selecione o município</option>';
-    dom.citySelect.disabled=true;
-    dom.stateCitySearchBtn.disabled=true;
+    const stateId = dom.stateSelect.value;
+    dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
+    dom.citySelect.disabled = true;
+    dom.stateCitySearchBtn.disabled = true;
     if(!stateId) return;
 
     try{
-      const res=await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
-      const cities=await res.json();
-      cities.forEach(city=>{
-        const option=document.createElement("option");
-        option.value=city.nome; option.textContent=city.nome;
+      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
+      const cities = await res.json();
+      cities.forEach(city => {
+        const option = document.createElement("option");
+        option.value = city.nome; 
+        option.textContent = city.nome;
         dom.citySelect.appendChild(option);
       });
-      dom.citySelect.disabled=false;
-    }catch{ UI.showToast("Erro ao carregar municípios do IBGE."); }
+      dom.citySelect.disabled = false;
+    } catch {
+      UI.showToast("Erro ao carregar municípios do IBGE.");
+    }
   },
 
-  updateSearchButtonState(){ dom.stateCitySearchBtn.disabled=!dom.citySelect.value; },
+  updateSearchButtonState(){ 
+    dom.stateCitySearchBtn.disabled = !dom.citySelect.value; 
+  },
+
   onSearchClick(){
-    const city=dom.citySelect.value;
-    const stateAbbr=dom.stateSelect.selectedOptions[0]?.dataset.uf||"";
-    if(city) App.handleCitySelect(city,stateAbbr,true);
+    const city = dom.citySelect.value;
+    const stateAbbr = dom.stateSelect.selectedOptions[0]?.dataset.uf || "";
+    if(city) App.handleCitySelect(city, stateAbbr, true);
   }
 };
 
 // ===== INIT APP =====
-window.addEventListener("load",()=>App.init());
+window.addEventListener("load", ()=>App.init());
+
