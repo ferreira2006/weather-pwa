@@ -53,12 +53,12 @@ const WeatherAPI = {
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`);
     if (!res.ok) throw new Error("Previsão não disponível para esta cidade");
-    return res.json();
+    return res.json(); // Espera que o backend já retorne data.daily com 5 dias
   },
   async fetchByCoords(lat, lon) {
     const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=6`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
-    return res.json();
+    return res.json(); // Espera que o backend já retorne data.daily com 5 dias
   }
 };
 
@@ -138,7 +138,7 @@ const UI = {
     App.updateUIState();
     this.setDynamicBackground(data.weather[0].main);
 
-    // Render 5 dias
+    // Render 5 dias de forecast
     this.renderForecast(data.daily || data.forecast);
   },
 
