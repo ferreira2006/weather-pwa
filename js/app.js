@@ -311,25 +311,85 @@ const App = {
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display=window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
-    // ===== ADICIONA AQUI =====
-  const clearHistoryBtn = document.getElementById("clear-history-btn");
-  clearHistoryBtn.addEventListener("click", async () => {
-    const confirmed = await showConfirmationModal("Deseja realmente limpar todo o histórico?");
-    if (!confirmed) return;
-    localStorage.removeItem("weatherHistory");
-    UI.renderHistory();
-    UI.showToast("Histórico limpo!");
-  });
+    // ===== Botão limpar histórico =====
+const clearHistoryBtn = document.getElementById("clear-history-btn");
 
-    const lastCity = Storage.getLastCity();
-    if(lastCity) this.handleCitySelect(lastCity).finally(()=>dom.weatherDiv.classList.remove("loading"));
-    else if(navigator.geolocation){
-      navigator.geolocation.getCurrentPosition(pos=>this.fetchByCoords(pos.coords.latitude,pos.coords.longitude),
-        ()=>this.handleCitySelect("São Miguel do Oeste").finally(()=>dom.weatherDiv.classList.remove("loading"))
-      );
-    }else this.handleCitySelect("São Miguel do Oeste").finally(()=>dom.weatherDiv.classList.remove("loading"));
+async function showHistoryConfirmationModal(message) {
+  return new Promise(resolve => {
+    const modal = document.getElementById("confirm-modal");
+    const overlay = modal.querySelector(".modal-overlay");
+    modal.querySelector("p").textContent = message;
+    modal.removeAttribute("hidden");
+
+    const yesBtn = modal.querySelector("#confirm-yes");
+    const noBtn = modal.querySelector("#confirm-no");
+    const focusable = [yesBtn, noBtn];
+    const firstBtn = focusable[0];
+    const lastBtn = focusable[focusable.length - 1];
+    const previousActive = document.activeElement;
+    lastBtn.focus();
+
+    const cleanup = () => {
+      modal.setAttribute("hidden", "");
+      yesBtn.removeEventListener("click", yesHandler);
+      noBtn.removeEventListener("click", noHandler);
+      modal.removeEventListener("keydown", keyHandler);
+      overlay.removeEventListener("click", overlayHandler);
+      previousActive.focus();
+    };
+
+    const yesHandler = () => { cleanup(); resolve(true); };
+    const noHandler = () => { cleanup(); resolve(false); };
+
+    yesBtn.addEventListener("click", yesHandler);
+    noBtn.addEventListener("click", noHandler);
+
+    const keyHandler = e => {
+      if (e.key === "Tab") {
+        if (e.shiftKey && document.activeElement === firstBtn) { e.preventDefault(); lastBtn.focus(); }
+        else if (!e.shiftKey && document.activeElement === lastBtn) { e.preventDefault(); firstBtn.focus(); }
+      } else if (e.key === "Escape") { cleanup(); resolve(false); }
+    };
+
+    modal.addEventListener("keydown", keyHandler);
+    const overlayHandler = e => e.stopPropagation();
+    overlay.addEventListener("click", overlayHandler);
+  });
+}
+
+// Atualiza estado dos botões
+function updateUIState() {
+  const history = Storage.getHistory();
+  const favorites = Storage.getFavorites().filter(c => c && (typeof c === "string" ? c : c.city));
+
+  // Botão limpar histórico habilitado só se houver histórico
+  clearHistoryBtn.disabled = history.length === 0;
+
+  // Botão favoritar habilitado só se menos de 5 favoritos e cidade não favoritada
+  const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+  dom.favBtn.disabled = !canAddFavorite;
+
+  // Atualiza ícone do coração
+  if (favorites.includes(currentCity.toLowerCase())) {
+    favIcon.textContent = "❤️";
+    favIcon.classList.replace("not-favorited","favorited");
+  } else {
+    favIcon.textContent = "🤍";
+    favIcon.classList.replace("favorited","not-favorited");
   }
-};
+}
+
+// Evento limpar histórico
+clearHistoryBtn.addEventListener("click", async () => {
+  const confirmed = await showHistoryConfirmationModal("Deseja realmente limpar todo o histórico?");
+  if (!confirmed) return;
+
+  localStorage.removeItem("weatherHistory");
+  UI.renderHistory();
+  UI.showToast("Histórico limpo!");
+  updateUIState();
+});
+
 
 // ===== CONFIRM MODAL =====
 function showConfirmationModal(message){
