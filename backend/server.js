@@ -14,82 +14,61 @@ if (!API_KEY) {
 
 app.use(cors());
 
-// Cache simples em memória
-// { key: { timestamp: <ms>, data: <JSON> } }
-const cache = {};
-const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
-
-function getCacheKey({ city, lat, lon }) {
-  if (city) return `city:${city.toLowerCase()}`;
-  if (lat && lon) return `coords:${lat},${lon}`;
-  return null;
-}
-
-async function fetchCurrentWeather({ city, lat, lon }) {
-  let url;
-  if (lat && lon) {
-    url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
-  } else if (city) {
-    url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
-  } else {
-    throw { status: 400, message: 'Parâmetros inválidos. Use lat+lon ou city.' };
-  }
-
-  const response = await fetch(url);
-  const data = await response.json();
-  if (!response.ok) throw { status: response.status, message: data.message || "Erro na API de clima" };
+// Função para buscar clima atual
+async function fetchCurrentWeather(city) {
+  const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (res.status !== 200) throw new Error(data.message || 'Erro na API do OpenWeather');
   return data;
 }
 
+// Função para buscar forecast 5 dias usando One Call
 async function fetchForecast(lat, lon) {
-  const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&appid=${API_KEY}&units=metric&lang=pt_br`;
-  const response = await fetch(url);
-  const data = await response.json();
-  if (!response.ok) throw { status: response.status, message: data.message || "Erro na API de forecast" };
-  return data;
+  const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&units=metric&lang=pt_br&appid=${API_KEY}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if (res.cod && res.cod !== 200) throw new Error(data.message || 'Erro no forecast');
+  return data.daily.slice(0, 6); // Retorna 6 dias (hoje + 5 dias)
 }
 
-// Endpoint unificado com cache
+// Endpoint principal
 app.get('/weather', async (req, res) => {
   const { city, lat, lon } = req.query;
-  const key = getCacheKey({ city, lat, lon });
-
-  if (key && cache[key] && (Date.now() - cache[key].timestamp < CACHE_DURATION)) {
-    return res.json(cache[key].data);
-  }
 
   try {
-    const current = await fetchCurrentWeather({ city, lat, lon });
-    const latitude = current.coord.lat;
-    const longitude = current.coord.lon;
+    let currentData, dailyForecast;
 
-    const forecastData = await fetchForecast(latitude, longitude);
-
-    const result = {
-      name: current.name,
-      sys: { country: current.sys.country },
-      main: {
-        temp: current.main.temp,
-        feels_like: current.main.feels_like,
-        humidity: current.main.humidity
-      },
-      wind: { speed: current.wind.speed },
-      weather: current.weather,
-      daily: forecastData.daily // forecast 5 dias
-    };
-
-    if (key) {
-      cache[key] = { timestamp: Date.now(), data: result };
+    if (city) {
+      currentData = await fetchCurrentWeather(city);
+      dailyForecast = await fetchForecast(currentData.coord.lat, currentData.coord.lon);
+    } else if (lat && lon) {
+      const coordCityUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+      const coordRes = await fetch(coordCityUrl);
+      currentData = await coordRes.json();
+      if (coordRes.status !== 200) throw new Error(currentData.message || 'Erro na API do OpenWeather');
+      dailyForecast = await fetchForecast(lat, lon);
+    } else {
+      return res.status(400).json({ error: 'Parâmetros inválidos. Use city ou lat+lon.' });
     }
 
-    res.json(result);
+    // Retorna dados já preparados para o app
+    res.json({
+      name: currentData.name,
+      sys: currentData.sys,
+      coord: currentData.coord,
+      main: currentData.main,
+      weather: currentData.weather,
+      wind: currentData.wind,
+      forecast: dailyForecast
+    });
 
   } catch (err) {
     console.error("Erro no servidor:", err);
-    res.status(err.status || 500).json({ error: err.message || 'Erro interno do servidor.' });
+    res.status(500).json({ error: err.message || 'Erro interno do servidor.' });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor híbrido com cache rodando na porta ${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
