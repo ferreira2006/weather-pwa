@@ -346,62 +346,21 @@ function showConfirmationModal(message){
     yesBtn.addEventListener("click",yesHandler);
     noBtn.addEventListener("click",noHandler);
 
-    const keyHandler=e=>{
-      if(e.key==="Tab"){ 
-        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); } 
-        else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); } 
-      } else if(e.key==="Escape"){ cleanup(); resolve(false); }
-    };
-    modal.addEventListener("keydown",keyHandler);
-    const overlayHandler=e=>e.stopPropagation();
-    overlay.addEventListener("click",overlayHandler);
-  });
-}
-
-// ===== IBGE SELECTS =====
-const IBGE = {
-  async init(){
-    try{
-      const res=await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-      const states=await res.json();
-      states.forEach(s=>{
-        const opt=document.createElement("option");
-        opt.value=s.id; opt.textContent=s.nome; opt.dataset.uf=s.sigla;
-        dom.stateSelect.appendChild(opt);
-      });
-      dom.stateSelect.addEventListener("change",()=>this.onStateChange());
-      dom.citySelect.addEventListener("change",()=>this.updateSearchButtonState());
-      dom.stateCitySearchBtn.addEventListener("click",()=>this.onSearchClick());
-      this.updateSearchButtonState();
-    }catch{ UI.showToast("Erro ao carregar estados do IBGE."); }
-  },
-
-  async onStateChange(){
-    const stateId=dom.stateSelect.value;
-    dom.citySelect.innerHTML='<option value="">Selecione o município</option>';
-    dom.citySelect.disabled=true;
-    dom.stateCitySearchBtn.disabled=true;
-    if(!stateId) return;
-
-    try{
-      const res=await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
-      const cities=await res.json();
-      cities.forEach(city=>{
-        const option=document.createElement("option");
-        option.value=city.nome; option.textContent=city.nome;
-        dom.citySelect.appendChild(option);
-      });
-      dom.citySelect.disabled=false;
-    }catch{ UI.showToast("Erro ao carregar municípios do IBGE."); }
-  },
-
-  updateSearchButtonState(){ dom.stateCitySearchBtn.disabled=!dom.citySelect.value; },
-  onSearchClick(){
-    const city=dom.citySelect.value;
-    const stateAbbr=dom.stateSelect.selectedOptions[0]?.dataset.uf||"";
-    if(city) App.handleCitySelect(city,stateAbbr,true);
+    const keyHandler = e => {
+  if(e.key === "Tab") { 
+    if(e.shiftKey && document.activeElement === firstBtn) { 
+      e.preventDefault(); 
+      lastBtn.focus(); 
+    } else if(!e.shiftKey && document.activeElement === lastBtn) { 
+      e.preventDefault(); 
+      firstBtn.focus(); 
+    } 
+  } else if(e.key === "Escape") { 
+    cleanup(); 
+    resolve(false); 
   }
 };
+modal.addEventListener("keydown", keyHandler);
 
-// ===== INIT APP =====
-window.addEventListener("load",()=>App.init());
+const overlayHandler = e => e.stopPropagation();
+overlay.addEventListener("click", overlayHandler);
