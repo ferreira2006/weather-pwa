@@ -1,318 +1,508 @@
-/* =======================================================
-   VARIÁVEIS CSS
-   ======================================================= */
 :root {
   /* -------- GRADIENTES DE FUNDO -------- */
   --bg-gradient-light-clear: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   --bg-gradient-light-clouds: linear-gradient(135deg, #757f9a 0%, #d7dde8 100%);
-  --bg-gradient-light-rain: linear-gradient(135deg, #396afc 0%, #2948ff 100%);
+  --bg-gradient-light-rain: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
   --bg-gradient-light-thunderstorm: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-light-snow: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-  --bg-gradient-light-drizzle: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-  --bg-gradient-light-default: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
-
-  --bg-gradient-dark-clear: linear-gradient(135deg, #141e30 0%, #243b55 100%);
-  --bg-gradient-dark-clouds: linear-gradient(135deg, #232526 0%, #414345 100%);
-  --bg-gradient-dark-rain: linear-gradient(135deg, #000428 0%, #004e92 100%);
-  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
-  --bg-gradient-dark-snow: linear-gradient(135deg, #83a4d4 0%, #b6fbff 100%);
-  --bg-gradient-dark-drizzle: linear-gradient(135deg, #3a6073 0%, #16222a 100%);
-  --bg-gradient-dark-default: linear-gradient(135deg, #232526 0%, #414345 100%);
+  --bg-gradient-light-snow: linear-gradient(135deg, #e6dada 0%, #274046 100%);
+  --bg-gradient-dark-clear: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  --bg-gradient-dark-clouds: linear-gradient(135deg, #434343 0%, #000000 100%);
+  --bg-gradient-dark-rain: linear-gradient(135deg, #000046 0%, #1cb5e0 100%);
+  --bg-gradient-dark-thunderstorm: linear-gradient(135deg, #1e130c 0%, #9a8478 100%);
+  --bg-gradient-dark-snow: linear-gradient(135deg, #6e7f80 0%, #2f4b4a 100%);
 
   /* -------- CORES -------- */
-  --text-light: #333;
-  --text-dark: #f5f5f5;
-  --card-bg-light: rgba(255, 255, 255, 0.9);
-  --card-bg-dark: rgba(255, 255, 255, 0.15);
-  --shadow-light: rgba(0, 0, 0, 0.1);
-  --shadow-dark: rgba(0, 0, 0, 0.6);
+  --text-light: #000;
+  --text-dark: #ddd;
+  --input-text-light: #000;
+  --input-text-dark: #555;
+  --input-bg-light: rgba(255, 255, 255, 0.9);
+  --input-bg-dark: #fff;
+  --input-border-focus: var(--button-bg);
 
-  /* -------- INPUTS -------- */
-  --input-bg-light: #fff;
-  --input-text-light: #333;
-  --input-bg-dark: #222;   /* corrigido (antes era #fff) */
-  --input-text-dark: #ddd; /* corrigido (antes era #555) */
+  --button-bg: #ff9800;
+  --button-bg-hover: #e68a00;
+  --button-bg-disabled: #ffa733;
+  --button-shadow-hover: #ffb74d;
+
+  --toast-bg-light: rgba(0,0,0,0.85);
+  --toast-text-light: #fff;
+  --toast-bg-dark: rgba(255,255,255,0.9);
+  --toast-text-dark: #000;
+
+  --loading-bg-light: rgba(255,255,255,0.35);
+  --loading-bg-dark: rgba(255,255,255,0.15);
 }
 
-/* =======================================================
-   BASE
-   ======================================================= */
+/* -------- BODY E TEMAS -------- */
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background 0.75s ease, color 0.75s ease;
+  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
+  padding: 20px;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  transition: background 0.5s ease, color 0.3s ease;
-}
-
-body.light {
-  color: var(--text-light);
-  background: var(--bg-gradient-light-default);
-}
-
-body.dark {
-  color: var(--text-dark);
-  background: var(--bg-gradient-dark-default);
-}
-
-.container {
-  max-width: 900px;
-  width: 100%;
-  padding: 20px;
-}
-
-/* =======================================================
-   TEMA TOGGLE
-   ======================================================= */
-#theme-toggle {
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.6rem;
-  cursor: pointer;
-  display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
+body.light { color: var(--text-light); }
+body.dark { color: var(--text-dark); }
 
-#theme-toggle:hover {
-  transform: scale(1.1);
-}
+/* -------- BACKGROUNDS POR CONDIÇÃO -------- */
+body.light.bg-clear { background: var(--bg-gradient-light-clear); }
+body.light.bg-clouds { background: var(--bg-gradient-light-clouds); }
+body.light.bg-rain { background: var(--bg-gradient-light-rain); }
+body.light.bg-thunderstorm { background: var(--bg-gradient-light-thunderstorm); }
+body.light.bg-snow { background: var(--bg-gradient-light-snow); }
 
-body.light #theme-toggle {
-  background: #ff9800;
-  color: #fff;
-}
+body.dark.bg-clear { background: var(--bg-gradient-dark-clear); }
+body.dark.bg-clouds { background: var(--bg-gradient-dark-clouds); }
+body.dark.bg-rain { background: var(--bg-gradient-dark-rain); }
+body.dark.bg-thunderstorm { background: var(--bg-gradient-dark-thunderstorm); }
+body.dark.bg-snow { background: var(--bg-gradient-dark-snow); }
 
-body.dark #theme-toggle {
-  background: #333;
-  color: #ff9800;
-}
-
-/* =======================================================
-   FORMULÁRIO
-   ======================================================= */
-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-input, select, button {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+/* -------- INPUTS, SELECTS E BUTTONS -------- */
+select {
+  flex: 1;
+  min-width: 150px;
+  min-height: 40px;
+  padding: 12px 15px;
   font-size: 1rem;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  outline: none;
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, border-color 0.3s;
+  cursor: pointer;
 }
-
-body.light select, body.light input {
-  background-color: var(--input-bg-light);
+body.light input, body.light select {
   color: var(--input-text-light);
+  background-color: var(--input-bg-light);
 }
-
-body.dark select, body.dark input {
+body.light input:focus, body.light select:focus {
+  background-color: #fff;
+  color: #000;
+}
+body.dark select {
+  color: var(--input-text-dark);
+  background-color: var(--input-bg-dark);
+}
+body.dark select:focus {
   background-color: var(--input-bg-dark);
   color: var(--input-text-dark);
 }
 
-button {
-  background: #2196f3;
-  color: #fff;
+button, #state-city-search-btn {
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-}
-
-button:hover {
-  background: #1976d2;
-}
-
-/* =======================================================
-   WEATHER CARD
-   ======================================================= */
-#weather {
-  text-align: center;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 10px var(--shadow-light);
-}
-
-body.dark #weather {
-  background: var(--card-bg-dark);
-  box-shadow: 0 4px 12px var(--shadow-dark);
-}
-
-#weather h2 {
-  margin: 0;
-}
-
-#weather-icon {
-  font-size: 3rem;
-  margin: 10px 0;
-}
-
-#weather p {
-  margin: 4px 0;
-}
-
-/* =======================================================
-   FORECAST CARDS (5 dias)
-   ======================================================= */
-#forecast {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.forecast-card {
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  background: var(--card-bg-light);
-  box-shadow: 0 2px 6px var(--shadow-light);
-  transition: transform 0.2s ease;
-}
-
-.forecast-card:hover {
-  transform: translateY(-4px);
-}
-
-body.dark .forecast-card {
-  background: var(--card-bg-dark);
-  box-shadow: 0 2px 8px var(--shadow-dark);
-}
-
-.forecast-card .day {
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-
-.forecast-card .temp {
   font-size: 1rem;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+#state-city-search-btn {
+  padding: 12px 20px;
+  min-width: 110px;
+  min-height: 40px;
+  background-color: var(--button-bg);
+  color: #fff;
+}
+#state-city-search-btn:hover:not(:disabled),
+#state-city-search-btn:focus:not(:disabled) {
+  background-color: var(--button-bg-hover);
+  box-shadow: 0 0 12px var(--button-shadow-hover);
+  transform: scale(1.05);
+}
+#state-city-search-btn:disabled {
+  background-color: var(--button-bg-disabled);
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
-/* =======================================================
-   HISTÓRICO / FAVORITOS
-   ======================================================= */
-#history, #favorites {
-  margin: 20px 0;
+/* -------- CONTAINER DE ESTADO E MUNICÍPIO -------- */
+#state-city-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-#history ul, #favorites ul {
-  list-style: none;
-  padding: 0;
+@media (max-width: 480px) {
+  #state-city-container select,
+  #state-city-container button {
+    flex: 1 1 100%;
+  }
 }
 
-#history li, #favorites li {
+/* -------- FOCO VISÍVEL -------- */
+:focus-visible {
+  outline: 3px solid var(--button-bg);
+  outline-offset: 3px;
+}
+
+/* -------- HEADER -------- */
+header {
+  width: 100%;
+  max-width: 600px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 10px;
-  margin: 4px 0;
-  border-radius: 6px;
-  background: var(--card-bg-light);
-  box-shadow: 0 2px 6px var(--shadow-light);
+  margin-bottom: 20px;
 }
+h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 
-body.dark #history li, body.dark #favorites li {
-  background: var(--card-bg-dark);
-  box-shadow: 0 2px 6px var(--shadow-dark);
-}
-
-/* =======================================================
-   MODAL
-   ======================================================= */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
+/* ===== Botão de troca de tema ===== */
+#theme-toggle {
+  background: #ff9800;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.6rem; /* aumentei para igualar o coração/lixeira */
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  line-height: 1;      /* ajuda a centralizar verticalmente */
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
-.modal.active {
-  visibility: visible;
-  opacity: 1;
+#theme-toggle:hover {
+  transform: scale(1.2);
 }
 
-.modal-content {
-  background: var(--card-bg-light);
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 400px;
+/* Responsividade: centraliza em telas pequenas */
+@media (max-width: 640px) {
+  #theme-toggle {
+    margin: 10px auto;
+    display: block;
+  }
+}
+
+/* -------- MAIN -------- */
+main {
   width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+/* -------- WEATHER CARD -------- */
+#weather {
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 25px 30px;
+  width: 100%;
+  max-width: 600px;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  grid-gap: 25px;
+  align-items: center;
+  position: relative;
+  min-height: 260px;
+  transition: background 0.75s ease, color 0.75s ease;
+  color: inherit;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+body.dark #weather {
+  background: rgba(255,255,255,0.1);
+  box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+}
+#weather[hidden] { display: none !important; }
+#weather:focus { outline: 3px solid var(--button-bg); outline-offset: 4px; }
+#weather-content { grid-column: 2; }
+#state-abbr { font-weight: bold; margin-left: 5px; }
+
+/* -------- WEATHER ERROR -------- */
+#weather-error {
+  display: none;
+  grid-column: 1/-1;
+  color: #b00020;
+  font-weight: 700;
   text-align: center;
-}
-
-body.dark .modal-content {
-  background: var(--card-bg-dark);
-}
-
-/* =======================================================
-   TOAST (notificação)
-   ======================================================= */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #323232;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  background-color: rgba(255,0,0,0.1);
+  min-height: 100px;
+  align-self: center;
+  justify-self: center;
+  font-size: 1.1rem;
+  transition: opacity 0.3s ease;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
 }
-
-.toast.show {
+body.error #weather-error {
+  display: block;
   opacity: 1;
   pointer-events: auto;
+  background-color: rgba(176,0,32,0.15);
+}
+body.error #weather-content { display: none; }
+
+/* -------- LOADING SPINNER -------- */
+#spinner {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.3s ease;
+  z-index: 10;
+}
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+#weather.loading::before {
+  content:"";
+  position: absolute;
+  inset:0;
+  background: var(--loading-bg-light);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  z-index: 5;
+}
+body.dark #weather.loading::before { background: var(--loading-bg-dark); }
+#weather.loading #spinner { opacity: 0.85; transform: scale(1); }
+#weather.loading #weather-content { visibility: hidden; }
+
+/* -------- WEATHER ICONS -------- */
+.weather-icon { font-size: 5rem; }
+
+/* -------- INFO CLIMA -------- */
+.info { display: flex; flex-direction: column; justify-content: center; }
+.temp { font-size: 4rem; font-weight: 700; margin: 0; line-height: 1; }
+.desc { font-size: 1.5rem; font-weight: 500; text-transform: capitalize; margin: 5px 0 15px; font-style: italic; color: inherit; }
+.details { font-size: 1rem; font-weight: 400; line-height: 1.6; color: inherit; }
+
+/* -------- TOAST -------- */
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+}
+#toast.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+body.light #toast { background-color: var(--toast-bg-light); color: var(--toast-text-light); }
+body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-text-dark); }
+
+/* -------- HISTÓRICO E FAVORITOS -------- */
+#history-section, #favorites-section {
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 30px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+#history-section h2, #favorites-section h2 { margin-top:0; font-size:1.2rem; }
+#history-list, #favorites-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+#history-list li, #favorites-list li {
+  background: var(--button-bg);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:background-color 0.3s, transform 0.2s;
+  flex:0 0 auto;
+}
+#history-list li:hover, #favorites-list li:hover,
+#history-list li:focus, #favorites-list li:focus {
+  background-color: var(--button-bg-hover);
+  transform:scale(1.05);
+  outline:none;
 }
 
-/* =======================================================
-   BOTÃO VOLTAR AO TOPO
-   ======================================================= */
-#back-to-top {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #2196f3;
+#clear-history-btn {
+  background-color: orange;
   color: #fff;
   border: none;
   border-radius: 50%;
-  width: 45px;
-  height: 45px;
-  font-size: 1.4rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  float: right;
+  margin-top: -5px;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#clear-history-btn:hover {
+  background-color: darkorange;
+  transform: scale(1.1);
+}
+
+/* Responsividade: centraliza o botão em telas menores */
+@media (max-width: 640px) {
+  #clear-history-btn {
+    float: none;
+    display: block;
+    margin: 10px auto 0;
+  }
+}
+/* -------- FAVORITOS (CORAÇÃO) -------- */
+#fav-icon { font-size:1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select:none; }
+#fav-icon.not-favorited { color: #fff; }
+body.dark #fav-icon.not-favorited { color: #555; }
+#fav-icon.favorited { color: red; transform: scale(1.2); animation: heart-pop 0.25s ease forwards; }
+@keyframes heart-pop { 0%{transform:scale(1);}50%{transform:scale(1.4);}100%{transform:scale(1.2);} }
+#fav-btn {
+  position:absolute; top:10px; right:10px;
+  background: var(--button-bg);
+  color:#fff;
+  border:none;
+  border-radius:50%;
+  width:35px; height:35px;
+  font-size:18px; font-weight:bold;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 5px rgba(0,0,0,0.25);
+  transition: opacity 0.3s ease-in-out, transform 0.2s, background-color 0.3s;
+}
+#fav-btn:hover, #fav-btn:focus { transform:scale(1.1); background-color: var(--button-bg-hover); outline:none; }
+
+/* -------- MODAL -------- */
+#confirm-modal {
+  position: fixed;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  opacity: 0;
-  visibility: hidden;
+  z-index: 10000;
+  font-family: Arial, sans-serif;
+}
+#confirm-modal[hidden] { display: none; }
+
+#confirm-modal .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(3px);
+  z-index: 10001;
+}
+
+#confirm-modal .modal-content {
+  position: relative;
+  background-color: var(--modal-bg);
+  color: var(--modal-text);
+  padding: 25px 30px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  z-index: 10002;
+  text-align: center;
+}
+
+#confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
+#confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
+
+#confirm-modal .modal-buttons {
+  display:flex;
+  justify-content:center;
+  gap:20px;
+}
+
+#confirm-modal button {
+  min-width: 80px;
+  padding:10px 15px;
+  font-size:1rem;
+  border-radius:8px;
+  cursor:pointer;
+  user-select:none;
   transition: all 0.3s ease;
+  border: 1px solid transparent;
 }
 
-#back-to-top.show {
-  opacity: 1;
-  visibility: visible;
+/* -------- CORES DOS BOTÕES -------- */
+#confirm-modal button#confirm-yes {
+  background-color: #ff9800; /* laranja */
+  color: #fff;
+  border-color: #ff9800;
+}
+#confirm-modal button#confirm-yes:hover,
+#confirm-modal button#confirm-yes:focus {
+  background-color: #e68a00;
+  outline: none;
 }
 
-#back-to-top:hover {
-  background: #1976d2;
+#confirm-modal button#confirm-no {
+  background-color: #1e90ff; /* azul */
+  color: #fff;
+  border-color: #1e90ff;
+}
+#confirm-modal button#confirm-no:hover,
+#confirm-modal button#confirm-no:focus {
+  background-color: #63a4ff;
+  outline: none;
+}
+
+/* -------- VARIÁVEIS DE TEMA -------- */
+body.light #confirm-modal {
+  --modal-bg: #fff;
+  --modal-text: #000;
+}
+
+body.dark #confirm-modal {
+  --modal-bg: #333; /* fundo dark mais claro */
+  --modal-text: #fff;
+}
+
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width: 640px) {
+  #confirm-modal .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+  #confirm-modal .modal-buttons {
+    flex-direction: column;
+  }
+  #confirm-modal button {
+    width: 100%;
+  }
+}
+
+/* -------- BOTÃO FLUTUANTE -------- */
+#scroll-top-btn {
+  position:fixed; bottom:40px; right:40px; width:50px; height:50px; border:none; border-radius:50%;
+  background-color:var(--button-bg); color:#fff; font-size:24px; cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,0.3); display:none; align-items:center; justify-content:center;
+  transition: transform 0.3s ease, background-color 0.3s;
+}
+#scroll-top-btn:hover, #scroll-top-btn:focus { transform:scale(1.1); background-color:var(--button-bg-hover); outline:none; }
+
+/* -------- MEDIA QUERIES -------- */
+@media (max-width: 480px){
+  #weather { grid-template-columns: 1fr; text-align:center; }
+  #weather-content { grid-column:1/-1; }
+  .weather-icon { font-size:4rem; }
+  .temp { font-size:3rem; }
+  .desc { font-size:1.2rem; }
+  .details { font-size:0.9rem; }
+  header { flex-direction: column; gap: 12px; }
 }
