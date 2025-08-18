@@ -6,6 +6,9 @@
   <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
   <title>Clima Atual</title>
 
+  <!-- Pré-carregar fonte do Weather Icons -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/font/weathericons-regular-webfont.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
   <!-- Weather Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css">
   <link rel="stylesheet" href="css/styles.css">
@@ -13,7 +16,7 @@
 <body class="light">
 <noscript>
   <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0">
-    ⚠️ O JavaScript está desativado. Algumas funcionalidades não funcionarão.
+    ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão.
   </div>
 </noscript>
 
@@ -25,14 +28,25 @@
 </header>
 
 <main>
+
   <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
   <section id="state-city-section" aria-label="Seleção de estado e município">
     <h2>Buscar por Estado e Município</h2>
     <div id="state-city-container" class="state-city-container">
-      <!-- JS vai gerar selects aqui -->
+      <select id="state-select" aria-label="Selecione o estado" required>
+        <option value="">Selecione o estado</option>
+      </select>
+
+      <select id="city-select" aria-label="Selecione o município" required disabled>
+        <option value="">Selecione o município</option>
+      </select>
+
+      <button id="state-city-search-btn" type="button" aria-label="Buscar clima do município" disabled>
+        Buscar
+      </button>
     </div>
   </section>
-
+  
   <!-- Cidades favoritas -->
   <section id="favorites-section" aria-label="Cidades favoritas">
     <h2>Cidades Favoritas</h2>
@@ -41,26 +55,21 @@
 
   <!-- Card do clima -->
   <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
-    <div id="icon" class="weather-icon" aria-hidden="true"></div>
+    <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
     <div id="weather-content" class="info">
+      <!-- Botão de favoritar dentro do card -->
       <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos">
         <span id="fav-icon" class="not-favorited"></span>
       </button>
-      <h2 id="city-name">Carregando cidade... <span id="state-abbr"></span></h2>
+      <h2 id="city-name">
+        Carregando cidade... <span id="state-abbr"></span>
+      </h2>
       <div id="temp" class="temp">-- °C</div>
       <div id="desc" class="desc">Aguardando dados...</div>
       <div id="details" class="details">--</div>
     </div>
     <div id="weather-error" class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"></div>
     <div id="spinner"></div>
-  </section>
-
-  <!-- Previsão para os próximos dias -->
-  <section id="forecast-section" aria-label="Previsão para os próximos dias">
-    <h2>Próximos Dias</h2>
-    <div id="forecast-cards" class="forecast-container">
-      <!-- JS vai gerar 5 cards aqui -->
-    </div>
   </section>
 
   <!-- Histórico de pesquisas -->
@@ -86,10 +95,10 @@
     </div>
   </div>
 </div>
-
+  
 <!-- Botão flutuante para voltar ao topo -->
 <button id="scroll-top-btn" aria-label="Voltar ao topo">↑</button>
-
+  
 <script src="js/app.js"></script>
 </body>
 </html>
