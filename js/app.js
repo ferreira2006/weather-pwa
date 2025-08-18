@@ -237,27 +237,18 @@ Storage.saveHistory(cityName, currentStateAbbr);
     });
   },
 
-  toggleThemeColors() {
-    document.body.classList.toggle("dark");
-    document.body.classList.toggle("light");
-    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
-    this.setDynamicBackgroundFromCurrentIcon();
-
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
-  },
-
-  applySavedTheme() {
-    const saved = Storage.getTheme();
-    document.body.classList.add(saved);
-    document.body.classList.remove(saved==="dark"?"light":"dark");
-    this.setDynamicBackgroundFromCurrentIcon();
-
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(saved);
-  },
+  toggleThemeColors: function() {
+  const isDark = document.body.classList.toggle("dark");
+  const theme = isDark ? "dark" : "light";
+  Storage.saveTheme(theme);
+  updateThemeButton();
+},
+applySavedTheme: function() {
+  const theme = Storage.getTheme();
+  if(theme === "dark") document.body.classList.add("dark");
+  else document.body.classList.remove("dark");
+  updateThemeButton();
+}
 
   setDynamicBackgroundFromCurrentIcon() {
     if(!dom.iconEl) return;
