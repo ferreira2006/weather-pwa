@@ -51,7 +51,7 @@ let currentStateAbbr = "";
 // ===== WEATHER API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`); // pega 6 dias: hoje + 5
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`);
     if (!res.ok) throw new Error("Previsão não disponível para esta cidade");
     return res.json();
   },
@@ -122,7 +122,7 @@ const UI = {
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.sys.country}`;
+    const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.sys?.country || ""}`;
     dom.cityNameEl.textContent = `${data.name}${stateAbbrDisplay}`;
     dom.tempEl.textContent = `${Math.round(data.main.temp)}ºC`;
     dom.descEl.textContent = data.weather[0].description;
@@ -138,14 +138,13 @@ const UI = {
     App.updateUIState();
     this.setDynamicBackground(data.weather[0].main);
 
-    // ===== Previsão 5 dias =====
-    this.renderForecast(data.daily || data.forecast); // adapta para o formato do backend
+    // Previsão 5 dias
+    this.renderForecast(data.daily || data.forecast);
   },
 
   renderForecast(dailyData) {
     dom.forecastContainer.innerHTML = "";
     if (!dailyData || dailyData.length < 2) return;
-    // Ignora o primeiro dia (hoje)
     for (let i = 1; i <= 5 && i < dailyData.length; i++) {
       const day = dailyData[i];
       const card = document.createElement("div");
@@ -221,9 +220,6 @@ const UI = {
     document.body.classList.toggle("light");
     Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
     this.setDynamicBackgroundFromCurrentIcon();
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
   },
 
   applySavedTheme() {
@@ -231,9 +227,6 @@ const UI = {
     document.body.classList.add(saved);
     document.body.classList.remove(saved==="dark"?"light":"dark");
     this.setDynamicBackgroundFromCurrentIcon();
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(saved);
   },
 
   setDynamicBackgroundFromCurrentIcon() {
@@ -264,7 +257,14 @@ function showConfirmationModal(message){
     const lastBtn=focusable[focusable.length-1];
     const previousActive=document.activeElement;
     lastBtn.focus();
-    const cleanup=()=>{ modal.setAttribute("hidden",""); yesBtn.removeEventListener("click",yesHandler); noBtn.removeEventListener("click",noHandler); modal.removeEventListener("keydown",keyHandler); overlay.removeEventListener("click",overlayHandler); previousActive.focus(); };
+    const cleanup=()=>{
+      modal.setAttribute("hidden","");
+      yesBtn.removeEventListener("click",yesHandler);
+      noBtn.removeEventListener("click",noHandler);
+      modal.removeEventListener("keydown",keyHandler);
+      overlay.removeEventListener("click",overlayHandler);
+      previousActive.focus();
+    };
     const yesHandler=()=>{ cleanup(); resolve(true); };
     const noHandler=()=>{ cleanup(); resolve(false); };
     yesBtn.addEventListener("click",yesHandler);
@@ -357,9 +357,12 @@ const App = {
       favIcon.textContent="🤍";
       favIcon.classList.replace("favorited","not-favorited");
     }
+
+    // habilitar botão de busca do select IBGE
+    dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
   },
 
-  init(){
+  async init(){
     dom.weatherDiv.classList.add("loading");
 
     UI.applySavedTheme();
@@ -371,7 +374,10 @@ const App = {
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => { UI.toggleThemeColors(); updateThemeButton(); });
 
-    IBGE.init();
+    // Carregar IBGE e depois tentar lastCity
+    await IBGE.init();
+    const lastCity = Storage.getLastCity();
+    if(lastCity) await this.handleCitySelect(lastCity);
 
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
@@ -384,6 +390,9 @@ const App = {
       UI.showToast("Histórico limpo!");
       this.updateUIState();
     });
+
+    // atualização do botão de busca quando cidade muda
+    dom.citySelect.addEventListener("change",()=>{ this.updateUIState(); });
   }
 };
 
@@ -395,56 +404,32 @@ const IBGE = {
       const states = await res.json();
       states.forEach(s=>{
         const opt = document.createElement("option");
-        opt.value = s.id;
-        opt.textContent = s.nome;
-        opt.dataset.sigla = s.sigla;
+        opt.value=s.sigla;
+        opt.textContent=s.nome;
         dom.stateSelect.appendChild(opt);
       });
 
-      dom.stateSelect.addEventListener("change", async () => {
-        const stateId = dom.stateSelect.value;
-        currentStateAbbr = dom.stateSelect.selectedOptions[0].dataset.sigla;
-        dom.citySelect.innerHTML = '<option value="">Carregando cidades...</option>';
-        dom.citySelect.disabled = true;
-
-        if (!stateId) {
-          dom.citySelect.innerHTML = '<option value="">Selecione um estado primeiro</option>';
-          dom.citySelect.disabled = true;
-          return;
-        }
-
-        try {
-          const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
-          const cities = await res.json();
-          dom.citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
-          cities.forEach(c=>{
-            const opt = document.createElement("option");
-            opt.value = c.nome;
-            opt.textContent = c.nome;
-            dom.citySelect.appendChild(opt);
-          });
-          dom.citySelect.disabled = false;
-        } catch(err) {
-          dom.citySelect.innerHTML = '<option value="">Erro ao carregar cidades</option>';
-        }
+      dom.stateSelect.addEventListener("change", async ()=>{
+        const uf = dom.stateSelect.value;
+        dom.citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
+        if(!uf) return;
+        const r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+        const cities = await r2.json();
+        cities.forEach(c=>{
+          const opt = document.createElement("option");
+          opt.value=c.nome;
+          opt.textContent=c.nome;
+          dom.citySelect.appendChild(opt);
+        });
       });
 
-      dom.stateCitySearchBtn.addEventListener("click", () => {
+      dom.stateCitySearchBtn.addEventListener("click", ()=>{
         const city = dom.citySelect.value;
-        if (!city) {
-          UI.showToast("Selecione uma cidade.");
-          return;
-        }
-        App.handleCitySelect(city, currentStateAbbr, true);
+        if(city) App.handleCitySelect(city,dom.stateSelect.value,true);
       });
-
-    } catch(err) {
-      UI.showToast("Erro ao carregar estados do IBGE.");
-    }
+    }catch(err){ console.error("Erro ao inicializar IBGE:", err); }
   }
 };
 
 // ===== INICIALIZAÇÃO =====
-document.addEventListener("DOMContentLoaded", () => {
-  App.init();
-});
+document.addEventListener("DOMContentLoaded", ()=>App.init());
