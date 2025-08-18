@@ -322,20 +322,23 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
   outline:none;
 }
 
-/* Botão limpar histórico */
 #clear-history-btn {
-  background: transparent;
+  background-color: orange;
+  color: #fff;
   border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   font-size: 1.2rem;
   cursor: pointer;
   float: right;
-  margin-top: -5px; /* alinha com o título */
-  transition: transform 0.2s ease, color 0.2s ease;
+  margin-top: -5px;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 #clear-history-btn:hover {
-  transform: scale(1.2);
-  color: #ff9800;
+  background-color: darkorange;
+  transform: scale(1.1);
 }
 
 /* Responsividade: centraliza o botão em telas menores */
@@ -346,7 +349,6 @@ body.dark #toast { background-color: var(--toast-bg-dark); color: var(--toast-te
     margin: 10px auto 0;
   }
 }
-
 /* -------- FAVORITOS (CORAÇÃO) -------- */
 #fav-icon { font-size:1.4rem; transition: color 0.25s ease, transform 0.2s ease; user-select:none; }
 #fav-icon.not-favorited { color: #fff; }
