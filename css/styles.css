@@ -157,11 +157,12 @@ h1 { margin: 0; font-weight: 700; font-size: 2rem; }
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  font-size: 1.2rem;
+  font-size: 1.6rem; /* aumentei para igualar o coração/lixeira */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;      /* ajuda a centralizar verticalmente */
   transition: transform 0.2s ease, background 0.2s ease;
 }
 
