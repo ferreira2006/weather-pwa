@@ -358,20 +358,20 @@ body.dark #fav-icon.not-favorited { color: #555; }
   z-index: 10000;
   font-family: Arial, sans-serif;
 }
+
 #confirm-modal[hidden] { display: none; }
 
 #confirm-modal .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.3); /* menos blur, menos transparência */
   z-index: 10001;
 }
 
 #confirm-modal .modal-content {
   position: relative;
-  background-color: var(--modal-bg);
-  color: var(--modal-text);
+  background-color: #fff; /* fundo sólido */
+  color: #000;
   padding: 25px 30px;
   border-radius: 12px;
   max-width: 400px;
@@ -381,28 +381,78 @@ body.dark #fav-icon.not-favorited { color: #555; }
   text-align: center;
 }
 
-#confirm-modal p { margin-bottom: 20px; font-size: 1rem; }
-#confirm-modal button { margin: 0 10px; padding: 8px 18px; min-width: 90px; border-radius: 8px; font-size: 1rem; }
-#confirm-yes { background-color: #ff4b5c; color:#fff; }
-#confirm-no { background-color:#bbb; color:#222; }
-#confirm-yes:hover, #confirm-no:hover { opacity:0.85; }
+#confirm-modal h2 { margin-top: 0; font-size: 1.5rem; }
+#confirm-modal p { margin: 20px 0; font-size: 1.1rem; }
 
+#confirm-modal .modal-buttons {
+  display:flex;
+  justify-content:center;
+  gap:20px;
+}
+
+#confirm-modal button {
+  min-width: 80px;
+  padding:10px 15px;
+  font-size:1rem;
+  border-radius:8px;
+  cursor:pointer;
+  user-select:none;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+/* -------- CORES DOS BOTÕES -------- */
+#confirm-modal button#confirm-yes {
+  background-color: #ff9800; 
+  color: #fff;
+  border-color: #ff9800;
+}
+#confirm-modal button#confirm-yes:hover,
+#confirm-modal button#confirm-yes:focus {
+  background-color: #e68a00;
+  outline: none;
+}
+
+#confirm-modal button#confirm-no {
+  background-color: #f44336; /* vermelho antigo */
+  color: #fff;
+  border-color: #f44336;
+}
+#confirm-modal button#confirm-no:hover,
+#confirm-modal button#confirm-no:focus {
+  background-color: #e53935;
+  outline: none;
+}
+
+/* -------- RESPONSIVIDADE -------- */
+@media (max-width: 640px) {
+  #confirm-modal .modal-content {
+    width: 95%;
+    padding: 20px;
+  }
+  #confirm-modal .modal-buttons {
+    flex-direction: column;
+  }
+  #confirm-modal button { width: 100%; }
+}
 /* -------- BOTÃO SCROLL TOP -------- */
 #scroll-top-btn {
   position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 45px; height: 45px;
-  border-radius: 50%;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
   border: none;
+  border-radius: 50%;
   background-color: var(--button-bg);
   color: #fff;
   font-size: 24px;
   cursor: pointer;
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   display: none;
-  transition: transform 0.25s, opacity 0.25s;
-  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, background-color 0.3s;
 }
 #scroll-top-btn:hover, #scroll-top-btn:focus {
   transform: scale(1.1);
