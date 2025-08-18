@@ -311,26 +311,38 @@ const App = {
   },
 
   init(){
-    dom.weatherDiv.classList.add("loading");
+     dom.weatherDiv.classList.add("loading");
 
-    UI.applySavedTheme();
-    UI.renderHistory();
-    UI.renderFavorites();
-    this.updateUIState();
+  // Aplica o tema salvo
+  UI.applySavedTheme();
+  // Atualiza o botão de tema com emoji e hint ao iniciar
+  updateThemeButton();
 
-    dom.favBtn.addEventListener("click",()=>this.addFavorite(currentCity));
-    
-    dom.themeToggle.addEventListener("click", () => {
-      document.body.classList.toggle("dark");
-      document.body.classList.toggle("light");
-      Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+  // Renderiza histórico e favoritos
+  UI.renderHistory();
+  UI.renderFavorites();
 
-      UI.setDynamicBackgroundFromCurrentIcon();
-      updateThemeButton();
+  this.updateUIState();
 
-      const modal = document.getElementById("confirm-modal");
-       modal.classList.remove("dark","light");
-       modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
+  // Evento do botão de favoritos
+  dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
+
+  // Evento do botão de tema
+  dom.themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+
+    // Salva o tema atual
+    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+
+    // Atualiza fundo dinâmico e botão de tema
+    UI.setDynamicBackgroundFromCurrentIcon();
+    updateThemeButton();
+
+    // Atualiza modal de confirmação para o tema atual
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark", "light");
+    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
     });
     
     IBGE.init();
