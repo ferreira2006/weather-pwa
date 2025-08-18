@@ -138,7 +138,7 @@ const UI = {
     App.updateUIState();
     this.setDynamicBackground(data.weather[0].main);
 
-    // Previsão 5 dias
+    // Render 5 dias
     this.renderForecast(data.daily || data.forecast);
   },
 
@@ -291,11 +291,6 @@ function showConfirmationModal(message){
   });
 }
 
-// ===== HISTÓRICO =====
-async function showHistoryConfirmationModal(message){
-  return showConfirmationModal(message);
-}
-
 // ===== APP =====
 const App = {
   async handleCitySelect(city,stateAbbr="",isIBGECity=false){
@@ -353,29 +348,27 @@ const App = {
     this.updateUIState();
   },
 
-  updateUIState() {
-  const history = Storage.getHistory();
-  const favorites = Storage.getFavorites().filter(c => c && (typeof c === "string" ? c : c.city))
-                   .map(c => (typeof c === "string" ? c : c.city).toLowerCase());
+  updateUIState(){
+    const history = Storage.getHistory();
+    const favorites = Storage.getFavorites().filter(c => c && (typeof c === "string" ? c : c.city))
+                     .map(c => (typeof c === "string" ? c : c.city).toLowerCase());
 
-  dom.clearHistoryBtn.disabled = history.length === 0;
+    dom.clearHistoryBtn.disabled = history.length === 0;
 
-  const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
-  dom.favBtn.disabled = !canAddFavorite;
+    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+    dom.favBtn.disabled = !canAddFavorite;
 
-  if (favorites.includes(currentCity.toLowerCase())) {
-    favIcon.textContent = "❤️";
-    favIcon.classList.replace("not-favorited", "favorited");
-  } else {
-    favIcon.textContent = "🤍";
-    favIcon.classList.replace("favorited", "not-favorited");
-  }
+    if (favorites.includes(currentCity.toLowerCase())) {
+      favIcon.textContent = "❤️";
+      favIcon.classList.replace("not-favorited", "favorited");
+    } else {
+      favIcon.textContent = "🤍";
+      favIcon.classList.replace("favorited", "not-favorited");
+    }
 
-  // Habilita o botão de busca se houver alguma cidade selecionada
-  dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
-  // Opcional: também habilitar o select de cidade se houver opções
-  dom.citySelect.disabled = dom.citySelect.options.length <= 1;
-},
+    dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
+    dom.citySelect.disabled = dom.citySelect.options.length <= 1;
+  },
 
   async init(){
     dom.weatherDiv.classList.add("loading");
@@ -389,10 +382,8 @@ const App = {
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => { UI.toggleThemeColors(); updateThemeButton(); });
 
-    // Carregar IBGE
     await IBGE.init();
 
-    // Primeira busca automática: geolocalização + fallback
     try {
       if(navigator.geolocation){
         navigator.geolocation.getCurrentPosition(
@@ -406,77 +397,48 @@ const App = {
       await this.handleCitySelect("São Miguel do Oeste","SC");
     }
 
-    // Eventos adicionais
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
     dom.clearHistoryBtn.addEventListener("click", async ()=>{
-      const confirmed = await showHistoryConfirmationModal("Deseja realmente limpar todo o histórico?");
+      const confirmed = await showConfirmationModal("Deseja realmente limpar todo o histórico?");
       if(!confirmed) return;
       localStorage.removeItem("weatherHistory");
       UI.renderHistory();
-      UI.showToast("Histórico limpo!");
       this.updateUIState();
     });
-
-    dom.citySelect.addEventListener("change",()=>{ this.updateUIState(); });
   }
 };
 
 // ===== IBGE =====
 const IBGE = {
-  async init() {
-    try {
-      // Carregar estados
-      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-      const states = await res.json();
-      states.forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s.sigla;
-        opt.textContent = s.nome;
-        dom.stateSelect.appendChild(opt);
+  async init(){
+    try{
+      const statesRes = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados");
+      const states = await statesRes.json();
+      states.sort((a,b)=>a.nome.localeCompare(b.nome));
+      dom.stateSelect.innerHTML = '<option value="">Selecione o Estado</option>';
+      states.forEach(s=>{const o=document.createElement("option");o.value=s.sigla;o.textContent=s.nome;dom.stateSelect.appendChild(o);});
+
+      dom.stateSelect.addEventListener("change",async()=>{
+        dom.citySelect.innerHTML = '<option value="">Carregando...</option>';
+        const stateCode = dom.stateSelect.value;
+        if(!stateCode) return;
+        const citiesRes = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateCode}/municipios`);
+        const cities = await citiesRes.json();
+        dom.citySelect.innerHTML = '<option value="">Selecione a Cidade</option>';
+        cities.forEach(c=>{const o=document.createElement("option");o.value=c.nome;o.textContent=c.nome;dom.citySelect.appendChild(o);});
+        App.updateUIState();
       });
 
-      // Quando o estado mudar, carregar cidades
-      dom.stateSelect.addEventListener("change", async () => {
-        const uf = dom.stateSelect.value;
-        dom.citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
-        dom.citySelect.disabled = true; // desabilita enquanto carrega
-        dom.stateCitySearchBtn.disabled = true;
-
-        if (!uf) return;
-
-        try {
-          const r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
-          const cities = await r2.json();
-          cities.forEach(c => {
-            const opt = document.createElement("option");
-            opt.value = c.nome;
-            opt.textContent = c.nome;
-            dom.citySelect.appendChild(opt);
-          });
-
-          dom.citySelect.disabled = false;
-          // Se houver pelo menos uma cidade, habilita o botão
-          if (dom.citySelect.options.length > 1) {
-            dom.stateCitySearchBtn.disabled = false;
-          }
-        } catch (err) {
-          console.error("Erro ao carregar cidades:", err);
-          dom.citySelect.disabled = true;
-        }
-      });
-
-      // Buscar ao clicar no botão
-      dom.stateCitySearchBtn.addEventListener("click", () => {
+      dom.stateCitySearchBtn.addEventListener("click",()=>{
         const city = dom.citySelect.value;
-        if (city) App.handleCitySelect(city, dom.stateSelect.value, true);
+        const state = dom.stateSelect.value;
+        if(city) App.handleCitySelect(city,state,true);
       });
-    } catch (err) {
-      console.error("Erro ao inicializar IBGE:", err);
-    }
+    }catch(e){ console.error("Erro ao carregar IBGE",e); }
   }
 };
 
 // ===== INICIALIZAÇÃO =====
-document.addEventListener("DOMContentLoaded", ()=>App.init());
+document.addEventListener("DOMContentLoaded",()=>App.init());
