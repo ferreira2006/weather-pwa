@@ -128,28 +128,28 @@ const UI = {
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.list[0].main.feels_like)}ºC<br/>Umidade: ${data.list[0].main.humidity}%<br/>Vento: ${data.list[0].wind.speed} m/s`;
 
     // Previsão 5 dias às 12h
-    const forecastContainer = dom.weatherContent.querySelector("#forecast") || dom.weatherContent;
-    forecastContainer.innerHTML = "";
-    const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
-    previsoesDiarias.forEach(item => {
-      const dateObj = new Date(item.dt_txt);
-      const dateFormatted = dateObj.toLocaleDateString("pt-BR");
-      const dayWeek = dateObj.toLocaleDateString("pt-BR",{ weekday:"long" });
-      const temp = Math.round(item.main.temp);
-      const desc = item.weather[0].description;
-      const icon = item.weather[0].icon;
+   const forecastContainer = dom.weatherContent.querySelector(".forecast-cards");
+forecastContainer.innerHTML = "";
 
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h3>${dateFormatted}</h3>
-        <p class="dia-semana">${dayWeek}</p>
-        <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
-        <p><strong>${temp}°C</strong></p>
-        <p>${desc}</p>
-      `;
-      forecastContainer.appendChild(card);
-    });
+const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
+
+previsoesDiarias.forEach(item => {
+  const dateObj = new Date(item.dt_txt);
+  const dayWeek = dateObj.toLocaleDateString("pt-BR",{ weekday:"short" });
+  const temp = Math.round(item.main.temp);
+  const desc = item.weather[0].description;
+  const icon = item.weather[0].icon;
+
+  const card = document.createElement("div");
+  card.className = "forecast-card"; // ⚡ importante, deve bater com o CSS
+  card.innerHTML = `
+    <div class="forecast-day">${dayWeek}</div>
+    <div class="forecast-icon"><img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}"></div>
+    <div class="forecast-temp">${temp}°C</div>
+    <div class="forecast-desc">${desc}</div>
+  `;
+  forecastContainer.appendChild(card);
+});
 
     this.setWeatherIcon(data.list[0].weather[0].main);
     dom.weatherDiv.hidden = false;
