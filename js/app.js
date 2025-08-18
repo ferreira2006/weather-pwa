@@ -143,30 +143,30 @@ const UI = {
   },
 
   renderForecast(dailyData) {
-  dom.forecastContainer.innerHTML = "";
-  if (!dailyData || dailyData.length < 2) return;
+    dom.forecastContainer.innerHTML = "";
+    if (!dailyData || dailyData.length < 2) return;
 
-  for (let i = 1; i <= 5 && i < dailyData.length; i++) {
-    const day = dailyData[i];
-    const dateObj = new Date(day.dt * 1000);
-    const dateFormatted = dateObj.toLocaleDateString("pt-BR");
-    const weekday = dateObj.toLocaleDateString("pt-BR", { weekday: "long" });
-    const temp = Math.round(day.temp.day);
-    const desc = day.weather[0].description;
-    const icon = day.weather[0].icon;
+    for (let i = 1; i <= 5 && i < dailyData.length; i++) {
+      const day = dailyData[i];
+      const dateObj = new Date(day.dt * 1000);
+      const dateFormatted = dateObj.toLocaleDateString("pt-BR");
+      const weekday = dateObj.toLocaleDateString("pt-BR", { weekday: "long" });
+      const temp = Math.round(day.temp.day);
+      const desc = day.weather[0].description;
+      const icon = day.weather[0].icon;
 
-    const card = document.createElement("div");
-    card.className = "forecast-card";
-    card.innerHTML = `
-      <div class="forecast-date">${dateFormatted}</div>
-      <div class="forecast-weekday">${weekday}</div>
-      <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
-      <div class="forecast-temp">${temp}ºC</div>
-      <div class="forecast-desc">${desc}</div>
-    `;
-    dom.forecastContainer.appendChild(card);
-  }
-}
+      const card = document.createElement("div");
+      card.className = "forecast-card";
+      card.innerHTML = `
+        <div class="forecast-date">${dateFormatted}</div>
+        <div class="forecast-weekday">${weekday}</div>
+        <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
+        <div class="forecast-temp">${temp}ºC</div>
+        <div class="forecast-desc">${desc}</div>
+      `;
+      dom.forecastContainer.appendChild(card);
+    }
+  },
 
   showError(message) {
     document.body.classList.add("error");
