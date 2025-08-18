@@ -26,7 +26,6 @@
 </header>
 
 <main>
-
   <!-- ===== SEÇÃO DE ESTADOS E MUNICÍPIOS ===== -->
   <section id="state-city-section" aria-label="Seleção de estado e município">
     <h2>Buscar por Estado e Município</h2>
@@ -105,5 +104,20 @@
 <button id="scroll-top-btn" aria-label="Voltar ao topo">↑</button>
 
 <script src="js/app.js"></script>
+<script>
+// ===== Mini teste forecast dinâmico =====
+const forecastContainer = document.getElementById('forecast');
+const forecastDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+forecastDays.forEach(day => {
+  const card = document.createElement('div');
+  card.classList.add('forecast-card');
+  card.innerHTML = `
+    <div class="forecast-day">${day}</div>
+    <div class="forecast-icon wi wi-day-sunny"></div>
+    <div class="forecast-temp">--°C</div>
+  `;
+  forecastContainer.appendChild(card);
+});
+</script>
 </body>
 </html>
