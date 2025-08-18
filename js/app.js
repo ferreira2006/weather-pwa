@@ -127,25 +127,23 @@ const UI = {
     dom.iconEl.style.display = "block";
 
     const cityName = data.city?.name || "Cidade desconhecida";
-const stateOrCountry = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ""}`;
-dom.cityNameEl.textContent = `${cityName}${stateOrCountry}`;
+    const stateOrCountry = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ""}`;
+    dom.cityNameEl.textContent = `${cityName}${stateOrCountry}`;
 
-// Ao salvar histórico
-Storage.saveHistory(cityName, currentStateAbbr);
+    Storage.saveHistory(cityName, currentStateAbbr);
 
     dom.tempEl.textContent = `${Math.round(data.list[0].main.temp)}ºC`;
     dom.descEl.textContent = data.list[0].weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.list[0].main.feels_like)}ºC<br/>Umidade: ${data.list[0].main.humidity}%<br/>Vento: ${data.list[0].wind.speed} m/s`;
 
     // Forecast 5 dias às 12h
-    const forecastContainer = dom.weatherContent.querySelector("#forecast") || (() => {
-      const fc = document.createElement("div");
-      fc.id = "forecast";
-      fc.className = "forecast-container";
-      dom.weatherContent.appendChild(fc);
-      return fc;
-    })();
-
+    let forecastContainer = dom.weatherContent.querySelector("#forecast");
+    if(!forecastContainer){
+      forecastContainer = document.createElement("div");
+      forecastContainer.id = "forecast";
+      forecastContainer.className = "forecast-container";
+      dom.weatherContent.appendChild(forecastContainer);
+    }
     forecastContainer.innerHTML = "";
     const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
 
@@ -238,17 +236,18 @@ Storage.saveHistory(cityName, currentStateAbbr);
   },
 
   toggleThemeColors: function() {
-  const isDark = document.body.classList.toggle("dark");
-  const theme = isDark ? "dark" : "light";
-  Storage.saveTheme(theme);
-  updateThemeButton();
-},
-applySavedTheme: function() {
-  const theme = Storage.getTheme();
-  if(theme === "dark") document.body.classList.add("dark");
-  else document.body.classList.remove("dark");
-  updateThemeButton();
-}
+    const isDark = document.body.classList.toggle("dark");
+    const theme = isDark ? "dark" : "light";
+    Storage.saveTheme(theme);
+    updateThemeButton();
+  },
+
+  applySavedTheme: function() {
+    const theme = Storage.getTheme();
+    if(theme === "dark") document.body.classList.add("dark");
+    else document.body.classList.remove("dark");
+    updateThemeButton();
+  },
 
   setDynamicBackgroundFromCurrentIcon() {
     if(!dom.iconEl) return;
@@ -256,7 +255,6 @@ applySavedTheme: function() {
     this.setDynamicBackground(mainClass || "clear");
   }
 };
-
 
 // ===== FAVORITE ICON =====
 const favIcon = document.createElement("span");
@@ -325,14 +323,11 @@ const App = {
     const history = Storage.getHistory();
     const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
 
-    // Botão limpar histórico habilitado
     dom.clearHistoryBtn.disabled = history.length === 0;
 
-    // Botão favoritar habilitado
     const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
 
-    // Atualiza ícone do coração
     if(favorites.includes(currentCity.toLowerCase())){
       favIcon.textContent="❤️";
       favIcon.classList.replace("not-favorited","favorited");
@@ -365,11 +360,12 @@ const App = {
       this.updateUIState();
     });
 
-    // Inicializa cidade por geolocalização ou São Paulo
     const inicializaCidade = async (cidade) => {
       dom.citySelect.value = cidade;
       await this.handleCitySelect(cidade);
     };
+
+    IBGE.init(); // Popula selects de estados e cidades
 
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(
@@ -416,14 +412,8 @@ function showConfirmationModal(message){
     const keyHandler=e=>{
       if(e.key==="Tab"){
         if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
-                else if(!e.shiftKey && document.activeElement === lastBtn){ 
-          e.preventDefault(); 
-          firstBtn.focus(); 
-        }
-      } else if(e.key === "Escape"){ 
-        cleanup(); 
-        resolve(false); 
-      }
+        else if(!e.shiftKey && document.activeElement === lastBtn){ e.preventDefault(); firstBtn.focus(); }
+      } else if(e.key === "Escape"){ cleanup(); resolve(false); }
     };
     modal.addEventListener("keydown", keyHandler);
     const overlayHandler = e => e.stopPropagation();
@@ -437,6 +427,7 @@ const IBGE = {
     try{
       const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
       const states = await res.json();
+      dom.stateSelect.innerHTML = '<option value="">Selecione o estado</option>';
       states.forEach(s => {
         const opt = document.createElement("option");
         opt.value = s.id; 
@@ -485,7 +476,6 @@ const IBGE = {
     if(city) App.handleCitySelect(city, stateAbbr, true);
   }
 };
-
 
 // ===== INIT APP =====
 window.addEventListener("load", ()=>App.init());
