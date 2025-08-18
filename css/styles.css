@@ -476,32 +476,31 @@ body.dark #confirm-modal {
 /* ===== FORECAST CARDS ===== */
 #forecast-container {
   display: flex;
-  gap: 8px;
-  margin-top: 15px;
+  justify-content: space-between;
   flex-wrap: wrap;
-  justify-content: center;
+  margin-top: 16px;
+  gap: 8px;
 }
 
 .forecast-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(6px);
-  border-radius: 12px;
-  padding: 8px 10px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 8px;
+  width: calc(20% - 8px);
   text-align: center;
-  flex: 1 1 80px; /* compacto e responsivo */
-  max-width: 100px;
-  transition: transform 0.2s, background 0.2s;
-  cursor: default;
+  font-size: 0.85rem;
+  color: var(--text-color);
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s;
 }
 
 .forecast-card:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.15);
 }
 
 .forecast-card .weather-icon {
-  font-size: 1.3rem;
-  margin-bottom: 4px;
+  font-size: 1.5rem;
+  margin: 4px 0;
 }
 
 .forecast-card div {
