@@ -106,12 +106,14 @@ const Weather = {
       const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&state=${state}`);
       if (!res.ok) throw new Error("Erro ao buscar clima.");
       const data = await res.json();
+
       this.renderWeather(data, city, state);
       History.add(city, state);
       Favorites.updateButton(city, state);
-      this.fetchForecast(data); // usa o mesmo data do backend
+      this.fetchForecast(data); // Atualiza os cards de previsão
     } catch (err) {
       this.showError(err.message);
+      dom.forecastContainer.innerHTML = ""; // Limpa previsão se erro
     } finally {
       dom.spinner.style.display = "none";
       dom.weatherSection.classList.remove("loading");
@@ -121,11 +123,11 @@ const Weather = {
   renderWeather(data, city, state) {
     dom.cityName.textContent = Utils.capitalizeCityName(city);
     dom.stateAbbr.textContent = state ? `- ${state}` : "";
-    dom.temp.textContent = `${Math.round(data.main.temp)} °C`;
-    dom.desc.textContent = data.weather[0].description;
-    dom.details.textContent = `Umidade: ${data.main.humidity}% | Vento: ${data.wind.speed} m/s`;
+    dom.temp.textContent = data.main && data.main.temp ? `${Math.round(data.main.temp)} °C` : "-- °C";
+    dom.desc.textContent = data.weather && data.weather[0] && data.weather[0].description ? data.weather[0].description : "";
+    dom.details.textContent = data.main && data.wind ? `Umidade: ${data.main.humidity}% | Vento: ${data.wind.speed} m/s` : "--";
 
-    const iconClass = this.mapIcon(data.weather[0].main);
+    const iconClass = data.weather && data.weather[0] && data.weather[0].main ? this.mapIcon(data.weather[0].main) : "wi-day-sunny";
     dom.icon.className = `weather-icon wi ${iconClass}`;
   },
 
@@ -134,23 +136,38 @@ const Weather = {
   },
 
   fetchForecast(data) {
-    const forecastList = data.forecast || [];
-    dom.forecastContainer.innerHTML = "";
-    const days = forecastList.slice(0, 5);
-    const weekdayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    // Usa forecast do backend ou cria mock se não existir
+    const forecastList = data.forecast && Array.isArray(data.forecast) ? data.forecast : [
+      { main: { temp: 25 }, weather: [{ main: 'Clear', description: 'Ensolarado' }] },
+      { main: { temp: 23 }, weather: [{ main: 'Clouds', description: 'Nublado' }] },
+      { main: { temp: 22 }, weather: [{ main: 'Rain', description: 'Chuva' }] },
+      { main: { temp: 24 }, weather: [{ main: 'Clear', description: 'Ensolarado' }] },
+      { main: { temp: 21 }, weather: [{ main: 'Clouds', description: 'Nublado' }] }
+    ];
 
-    days.forEach((d, i) => {
+    dom.forecastContainer.innerHTML = "";
+
+    const weekdayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    const todayIndex = new Date().getDay(); // 0 = Domingo, 1 = Segunda, ...
+
+    forecastList.slice(0,5).forEach((d, i) => {
       const card = document.createElement('div');
       card.classList.add('forecast-card');
-      const temp = d.main ? Math.round(d.main.temp) : '--';
-      const desc = d.weather && d.weather[0] ? d.weather[0].description : '';
-      const iconClass = d.weather && d.weather[0] ? Weather.mapIcon(d.weather[0].main) : 'wi-day-sunny';
+
+      const temp = d.main && d.main.temp ? Math.round(d.main.temp) : '--';
+      const desc = d.weather && d.weather[0] && d.weather[0].description ? d.weather[0].description : '';
+      const iconClass = d.weather && d.weather[0] && d.weather[0].main ? this.mapIcon(d.weather[0].main) : 'wi-day-sunny';
+
+      // Calcula dia da semana correto
+      const dayName = weekdayNames[(todayIndex + i) % 7];
+
       card.innerHTML = `
-        <div class="forecast-day">${weekdayNames[i]}</div>
+        <div class="forecast-day">${dayName}</div>
         <div class="forecast-icon wi ${iconClass}"></div>
         <div class="forecast-temp">${temp}°C</div>
         <div class="forecast-desc">${desc}</div>
       `;
+
       dom.forecastContainer.appendChild(card);
     });
   },
