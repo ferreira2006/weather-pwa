@@ -21,7 +21,7 @@
 <header>
   <h1>Clima Atual</h1>
   <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
-    Modo Escuro
+    🌑
   </button>
 </header>
 
@@ -72,7 +72,7 @@
   <!-- Previsão para os próximos dias -->
   <section id="forecast-section" aria-label="Previsão para os próximos dias">
     <h2>Próximos Dias</h2>
-    <div id="forecast-cards" class="forecast-cards">
+    <div id="forecast" class="forecast-container">
       <!-- JS vai gerar 5 cards aqui -->
     </div>
   </section>
@@ -105,20 +105,5 @@
 <button id="scroll-top-btn" aria-label="Voltar ao topo">↑</button>
 
 <script src="js/app.js"></script>
-<script>
-// ===== JS para gerar 5 cards de previsão =====
-const forecastCardsContainer = document.getElementById('forecast-cards');
-const forecastDays = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex']; // Exemplo, pode ser dinâmico
-forecastDays.forEach(day => {
-  const card = document.createElement('div');
-  card.classList.add('forecast-card');
-  card.innerHTML = `
-    <div class="forecast-day">${day}</div>
-    <div class="forecast-icon wi wi-day-sunny"></div>
-    <div class="forecast-temp">--°C</div>
-  `;
-  forecastCardsContainer.appendChild(card);
-});
-</script>
 </body>
 </html>
