@@ -140,7 +140,7 @@ const UI = {
     let forecastContainer = dom.weatherContent.querySelector("#forecast");
     if(!forecastContainer){
       forecastContainer = document.createElement("div");
-      forecastContainer.id = "forecast";
+      forecastContainer.id = "forecast-section";
       forecastContainer.className = "forecast-container";
       dom.weatherContent.appendChild(forecastContainer);
     }
