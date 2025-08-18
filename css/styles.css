@@ -473,40 +473,62 @@ body.dark #confirm-modal {
   --modal-text: #fff;
 }
 
-/* ===== CARDS DE PREVISÃO ===== */
-.forecast-cards-container {
+/* ===== FORECAST CARDS ===== */
+#forecast-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
+  margin-top: 15px;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .forecast-card {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-    padding: 10px;
-    text-align: center;
-    flex: 1 1 100px;
-}
-.forecast-card:hover {
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 8px 10px;
+  text-align: center;
+  flex: 1 1 80px; /* compacto e responsivo */
+  max-width: 100px;
+  transition: transform 0.2s, background 0.2s;
+  cursor: default;
 }
 
-.forecast-card .forecast-date {
-  font-size: 0.9rem;
-  margin-bottom: 5px;
+.forecast-card:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.15);
 }
-.forecast-card .forecast-icon {
-  font-size: 2rem;
-  margin-bottom: 5px;
+
+.forecast-card .weather-icon {
+  font-size: 1.3rem;
+  margin-bottom: 4px;
 }
-.forecast-card .forecast-temp {
-  font-weight: 700;
-  margin-bottom: 3px;
-}
-.forecast-card .forecast-desc {
+
+.forecast-card div {
   font-size: 0.8rem;
-  font-style: italic;
+  color: #fff;
+  line-height: 1.2;
+}
+
+body.dark .forecast-card {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 480px) {
+  #forecast-container {
+    gap: 5px;
+  }
+  .forecast-card {
+    flex: 1 1 60px;
+    max-width: 70px;
+    padding: 6px 8px;
+  }
+  .forecast-card .weather-icon {
+    font-size: 1.1rem;
+  }
+  .forecast-card div {
+    font-size: 0.7rem;
+  }
 }
 
 /* -------- RESPONSIVIDADE -------- */
