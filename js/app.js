@@ -411,36 +411,45 @@ const App = {
 
 // ===== IBGE =====
 const IBGE = {
-  async init(){
-    try{
+  async init() {
+    try {
+      // Carregar estados
       const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
       const states = await res.json();
-      states.forEach(s=>{
+      states.forEach(s => {
         const opt = document.createElement("option");
-        opt.value=s.sigla;
-        opt.textContent=s.nome;
+        opt.value = s.sigla;
+        opt.textContent = s.nome;
         dom.stateSelect.appendChild(opt);
       });
 
-      dom.stateSelect.addEventListener("change", async ()=>{
+      // Quando o estado mudar, carregar cidades
+      dom.stateSelect.addEventListener("change", async () => {
         const uf = dom.stateSelect.value;
         dom.citySelect.innerHTML = '<option value="">Selecione a cidade</option>';
-        if(!uf) return;
+        dom.citySelect.disabled = true; // desabilita enquanto carrega
+        if (!uf) return;
+
         const r2 = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
         const cities = await r2.json();
-        cities.forEach(c=>{
+        cities.forEach(c => {
           const opt = document.createElement("option");
-          opt.value=c.nome;
-          opt.textContent=c.nome;
+          opt.value = c.nome;
+          opt.textContent = c.nome;
           dom.citySelect.appendChild(opt);
         });
+
+        dom.citySelect.disabled = false; // habilita após preencher
       });
 
-      dom.stateCitySearchBtn.addEventListener("click", ()=>{ 
+      // Buscar ao clicar no botão
+      dom.stateCitySearchBtn.addEventListener("click", () => {
         const city = dom.citySelect.value;
-        if(city) App.handleCitySelect(city,dom.stateSelect.value,true); 
+        if (city) App.handleCitySelect(city, dom.stateSelect.value, true);
       });
-    }catch(err){ console.error("Erro ao inicializar IBGE:", err); }
+    } catch (err) {
+      console.error("Erro ao inicializar IBGE:", err);
+    }
   }
 };
 
