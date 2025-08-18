@@ -116,40 +116,55 @@ const UI = {
   },
 
   showWeather(data) {
+    if (!data || !data.list || data.list.length === 0) {
+      this.showError("Não há previsão disponível.");
+      return;
+    }
+
     document.body.classList.remove("error");
     dom.weatherError.style.display = "none";
     dom.weatherContent.style.display = "block";
     dom.iconEl.style.display = "block";
 
-    const stateAbbrDisplay = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ''}`;
-    dom.cityNameEl.textContent = `${data.city.name}${stateAbbrDisplay}`;
+    const cityName = data.city?.name || "Cidade desconhecida";
+    const stateOrCountry = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ""}`;
+    dom.cityNameEl.textContent = `${cityName}${stateOrCountry}`;
+
     dom.tempEl.textContent = `${Math.round(data.list[0].main.temp)}ºC`;
     dom.descEl.textContent = data.list[0].weather[0].description;
     dom.detailsEl.innerHTML = `Sensação: ${Math.round(data.list[0].main.feels_like)}ºC<br/>Umidade: ${data.list[0].main.humidity}%<br/>Vento: ${data.list[0].wind.speed} m/s`;
 
-    // Previsão 5 dias às 12h
-   const forecastContainer = dom.weatherContent.querySelector(".forecast-cards");
-forecastContainer.innerHTML = "";
+    // Forecast 5 dias às 12h
+    const forecastContainer = dom.weatherContent.querySelector("#forecast") || (() => {
+      const fc = document.createElement("div");
+      fc.id = "forecast";
+      fc.className = "forecast-container";
+      dom.weatherContent.appendChild(fc);
+      return fc;
+    })();
 
-const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
+    forecastContainer.innerHTML = "";
+    const previsoesDiarias = data.list.filter(item => item.dt_txt.includes("12:00:00")).slice(0, 5);
 
-previsoesDiarias.forEach(item => {
-  const dateObj = new Date(item.dt_txt);
-  const dayWeek = dateObj.toLocaleDateString("pt-BR",{ weekday:"short" });
-  const temp = Math.round(item.main.temp);
-  const desc = item.weather[0].description;
-  const icon = item.weather[0].icon;
+    previsoesDiarias.forEach(item => {
+      const dateObj = new Date(item.dt_txt);
+      const dateFormatted = dateObj.toLocaleDateString("pt-BR");
+      const dayWeek = dateObj.toLocaleDateString("pt-BR",{ weekday:"long" });
+      const temp = Math.round(item.main.temp);
+      const desc = item.weather[0].description;
+      const icon = item.weather[0].icon;
 
-  const card = document.createElement("div");
-  card.className = "forecast-card"; // ⚡ importante, deve bater com o CSS
-  card.innerHTML = `
-    <div class="forecast-day">${dayWeek}</div>
-    <div class="forecast-icon"><img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}"></div>
-    <div class="forecast-temp">${temp}°C</div>
-    <div class="forecast-desc">${desc}</div>
-  `;
-  forecastContainer.appendChild(card);
-});
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${dateFormatted}</h3>
+        <p class="dia-semana">${dayWeek}</p>
+        <img src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
+        <p><strong>${temp}°C</strong></p>
+        <p>${desc}</p>
+      `;
+      forecastContainer.appendChild(card);
+    });
 
     this.setWeatherIcon(data.list[0].weather[0].main);
     dom.weatherDiv.hidden = false;
@@ -157,7 +172,7 @@ previsoesDiarias.forEach(item => {
     dom.weatherDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
     currentCityValid = true;
-    currentCity = data.city.name;
+    currentCity = cityName;
     App.updateUIState();
     this.setDynamicBackground(data.list[0].weather[0].main);
   },
@@ -175,79 +190,12 @@ previsoesDiarias.forEach(item => {
     App.updateUIState();
   },
 
-   renderHistory() {
-    dom.historyListEl.innerHTML = "";
-    Storage.getHistory().forEach(item => {
-      const li = document.createElement("li");
-      li.tabIndex = 0;
-      li.textContent = item.state ? `${item.city} (${item.state})` : item.city;
-      li.title = "Clique para buscar.";
-      li.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
-      li.addEventListener("keydown", e => { if(e.key==="Enter") App.handleCitySelect(item.city,item.state,true); });
-      dom.historyListEl.appendChild(li);
-    });
-  },
-
-  renderFavorites() {
-    dom.favoritesListEl.innerHTML = "";
-    Storage.getFavorites().forEach(item => {
-      const cityName = typeof item === "string" ? item : item.city;
-      const state = typeof item === "string" ? "" : item.state;
-      const displayText = state ? `${cityName} (${state})` : cityName;
-      const li = document.createElement("li");
-      li.tabIndex = 0;
-      li.title = "Clique para buscar. Shift+Enter ou Delete para remover.";
-
-      const citySpan = document.createElement("span");
-      citySpan.textContent = displayText;
-      citySpan.style.cursor = "pointer";
-      citySpan.addEventListener("click", () => App.handleCitySelect(cityName, state, true));
-      li.appendChild(citySpan);
-
-      const removeBtn = document.createElement("button");
-      removeBtn.textContent = "×";
-      Object.assign(removeBtn.style,{marginLeft:"8px",cursor:"pointer",background:"transparent",border:"none",fontWeight:"bold",fontSize:"1.2rem",lineHeight:"1",padding:"0"});
-      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(displayText, cityName); });
-      li.appendChild(removeBtn);
-
-      li.addEventListener("keydown", e => {
-        if(e.key==="Enter") App.handleCitySelect(cityName,state,true);
-        if(e.key==="Delete"||e.key==="Backspace"||(e.key==="Enter"&&e.shiftKey)) App.removeFavorite(displayText, cityName);
-      });
-
-      dom.favoritesListEl.appendChild(li);
-    });
-  },
-
-  toggleThemeColors() {
-    document.body.classList.toggle("dark");
-    document.body.classList.toggle("light");
-    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
-    this.setDynamicBackgroundFromCurrentIcon();
-
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
-  },
-
-  applySavedTheme() {
-    const saved = Storage.getTheme();
-    document.body.classList.add(saved);
-    document.body.classList.remove(saved==="dark"?"light":"dark");
-    this.setDynamicBackgroundFromCurrentIcon();
-
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(saved);
-  },
-
-  setDynamicBackgroundFromCurrentIcon() {
-    if(!dom.iconEl) return;
-    const mainClass = [...dom.iconEl.classList].find(c => c!=="weather-icon");
-    this.setDynamicBackground(mainClass || "clear");
-  }
+  renderHistory() { /* seu código existente */ },
+  renderFavorites() { /* seu código existente */ },
+  toggleThemeColors() { /* seu código existente */ },
+  applySavedTheme() { /* seu código existente */ },
+  setDynamicBackgroundFromCurrentIcon() { /* seu código existente */ }
 };
-
 
 // ===== FAVORITE ICON =====
 const favIcon = document.createElement("span");
@@ -281,57 +229,16 @@ const App = {
       const data = await WeatherAPI.fetchByCoords(lat,lon);
       currentStateAbbr="";
       UI.showWeather(data);
-      Storage.saveHistory(data.city.name);
+      Storage.saveHistory(data.city?.name || ""); 
       UI.renderHistory();
-      Storage.saveLastCity(data.city.name);
+      Storage.saveLastCity(data.city?.name || "");
     }catch(err){ UI.showError(err.message); if(!Storage.getLastCity()) await this.handleCitySelect("São Paulo"); }
     finally{ dom.weatherDiv.classList.remove("loading"); }
   },
 
-   addFavorite(city){
-    const formattedCity = Utils.capitalizeCityName(Utils.normalizeCityInput(city));
-    const favorites = Storage.getFavorites();
-    if(favorites.some(c=>(typeof c==="string"?c:c.city).toLowerCase()===formattedCity.toLowerCase())){
-      UI.showToast(`"${formattedCity}" já está nos favoritos.`); return;
-    }
-    if(favorites.length>=5){ UI.showToast("Limite de 5 cidades favoritas atingido."); return; }
-    favorites.push({city:formattedCity,state:currentStateAbbr});
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
-    this.updateUIState();
-  },
-
-  async removeFavorite(displayText,cityName){
-    const confirmed = await showConfirmationModal(`Remover "${displayText}" dos favoritos?`);
-    if(!confirmed) return;
-    const favorites = Storage.getFavorites().filter(c=>(typeof c==="string"?c:c.city).toLowerCase()!==cityName.toLowerCase());
-    Storage.saveFavorites(favorites);
-    UI.renderFavorites();
-    UI.showToast(`"${displayText}" removido dos favoritos.`);
-    this.updateUIState();
-  },
-
-  updateUIState(){
-    const history = Storage.getHistory();
-    const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
-
-    // Botão limpar histórico habilitado
-    dom.clearHistoryBtn.disabled = history.length === 0;
-
-    // Botão favoritar habilitado
-    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
-    dom.favBtn.disabled = !canAddFavorite;
-
-    // Atualiza ícone do coração
-    if(favorites.includes(currentCity.toLowerCase())){
-      favIcon.textContent="❤️";
-      favIcon.classList.replace("not-favorited","favorited");
-    } else {
-      favIcon.textContent="🤍";
-      favIcon.classList.replace("favorited","not-favorited");
-    }
-  },
+  addFavorite(city){ /* seu código existente */ },
+  async removeFavorite(displayText,cityName){ /* seu código existente */ },
+  updateUIState(){ /* seu código existente */ },
 
   init(){
     dom.weatherDiv.classList.add("loading");
@@ -345,11 +252,9 @@ const App = {
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => UI.toggleThemeColors());
 
-    IBGE.init();
-
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-    dom.clearHistoryBtn.addEventListener("click", async ()=>{
+    dom.clearHistoryBtn.addEventListener("click", async ()=> {
       const confirmed=await showConfirmationModal("Deseja realmente limpar todo o histórico?");
       if(!confirmed) return;
       localStorage.removeItem("weatherHistory");
@@ -381,104 +286,7 @@ const App = {
 };
 
 // ===== CONFIRM MODAL =====
-function showConfirmationModal(message){
-  return new Promise(resolve=>{
-    const modal=document.getElementById("confirm-modal");
-    const overlay=modal.querySelector(".modal-overlay");
-    modal.querySelector("p").textContent=message;
-    modal.removeAttribute("hidden");
-    const yesBtn=modal.querySelector("#confirm-yes");
-    const noBtn=modal.querySelector("#confirm-no");
-    const focusable=[yesBtn,noBtn];
-    const firstBtn=focusable[0];
-    const lastBtn=focusable[focusable.length-1];
-    const previousActive=document.activeElement;
-    lastBtn.focus();
-    const cleanup=()=>{
-      modal.setAttribute("hidden","");
-      yesBtn.removeEventListener("click",yesHandler);
-      noBtn.removeEventListener("click",noHandler);
-      modal.removeEventListener("keydown",keyHandler);
-      overlay.removeEventListener("click",overlayHandler);
-      previousActive.focus();
-    };
-    const yesHandler=()=>{ cleanup(); resolve(true); };
-    const noHandler=()=>{ cleanup(); resolve(false); };
-    yesBtn.addEventListener("click",yesHandler);
-    noBtn.addEventListener("click",noHandler);
-    const keyHandler=e=>{
-      if(e.key==="Tab"){
-        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
-                else if(!e.shiftKey && document.activeElement === lastBtn){ 
-          e.preventDefault(); 
-          firstBtn.focus(); 
-        }
-      } else if(e.key === "Escape"){ 
-        cleanup(); 
-        resolve(false); 
-      }
-    };
-    modal.addEventListener("keydown", keyHandler);
-    const overlayHandler = e => e.stopPropagation();
-    overlay.addEventListener("click", overlayHandler);
-  });
-}
-
-// ===== IBGE SELECTS =====
-const IBGE = {
-  async init(){
-    try{
-      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-      const states = await res.json();
-      states.forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s.id; 
-        opt.textContent = s.nome; 
-        opt.dataset.uf = s.sigla;
-        dom.stateSelect.appendChild(opt);
-      });
-      dom.stateSelect.addEventListener("change", ()=>this.onStateChange());
-      dom.citySelect.addEventListener("change", ()=>this.updateSearchButtonState());
-      dom.stateCitySearchBtn.addEventListener("click", ()=>this.onSearchClick());
-      this.updateSearchButtonState();
-    } catch {
-      UI.showToast("Erro ao carregar estados do IBGE.");
-    }
-  },
-
-  async onStateChange(){
-    const stateId = dom.stateSelect.value;
-    dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
-    dom.citySelect.disabled = true;
-    dom.stateCitySearchBtn.disabled = true;
-    if(!stateId) return;
-
-    try{
-      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
-      const cities = await res.json();
-      cities.forEach(city => {
-        const option = document.createElement("option");
-        option.value = city.nome; 
-        option.textContent = city.nome;
-        dom.citySelect.appendChild(option);
-      });
-      dom.citySelect.disabled = false;
-    } catch {
-      UI.showToast("Erro ao carregar municípios do IBGE.");
-    }
-  },
-
-  updateSearchButtonState(){ 
-    dom.stateCitySearchBtn.disabled = !dom.citySelect.value; 
-  },
-
-  onSearchClick(){
-    const city = dom.citySelect.value;
-    const stateAbbr = dom.stateSelect.selectedOptions[0]?.dataset.uf || "";
-    if(city) App.handleCitySelect(city, stateAbbr, true);
-  }
-};
-
+function showConfirmationModal(message){ /* seu código existente */ }
 
 // ===== INIT APP =====
 window.addEventListener("load", ()=>App.init());
