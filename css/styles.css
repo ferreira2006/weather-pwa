@@ -150,16 +150,31 @@ header {
 }
 h1 { margin: 0; font-weight: 700; font-size: 2rem; }
 
-/* Botão de tema */
+/* ===== Botão de troca de tema ===== */
 #theme-toggle {
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-weight: 600;
   background: #ff9800;
-  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
+
 #theme-toggle:hover {
-  background: #e68900;
+  transform: scale(1.2);
+}
+
+/* Responsividade: centraliza em telas pequenas */
+@media (max-width: 640px) {
+  #theme-toggle {
+    margin: 10px auto;
+    display: block;
+  }
 }
 
 /* -------- MAIN -------- */
