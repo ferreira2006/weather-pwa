@@ -156,7 +156,7 @@ const UI = {
       const icon = item.weather[0].icon;
 
       const card = document.createElement("div");
-      card.className = "card";
+      card.className = "forecast-card";
       card.innerHTML = `
         <h3>${dateFormatted}</h3>
         <p class="dia-semana">${dayWeek}</p>
