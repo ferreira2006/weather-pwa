@@ -1,6 +1,5 @@
 // ===== CONFIG =====
 const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-const forecastUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const maxHistoryItems = 5;
 
 // ===== DOM ELEMENTS =====
@@ -25,7 +24,7 @@ const dom = {
   toast: document.getElementById("toast"),
   themeToggle: document.getElementById("theme-toggle"),
   scrollTopBtn: document.getElementById("scroll-top-btn"),
-  forecastContainer: document.getElementById("forecast-cards"), // mudado para #forecast-cards
+  forecastContainer: document.getElementById("forecast-cards"),
 };
 
 // ===== UTILS =====
@@ -110,7 +109,7 @@ const Weather = {
       this.renderWeather(data, city, state);
       History.add(city, state);
       Favorites.updateButton(city, state);
-      this.fetchForecast(city, state);
+      this.fetchForecast(data); // usa o mesmo data do backend
     } catch (err) {
       this.showError(err.message);
     } finally {
@@ -126,17 +125,7 @@ const Weather = {
     dom.desc.textContent = data.weather[0].description;
     dom.details.textContent = `Umidade: ${data.main.humidity}% | Vento: ${data.wind.speed} m/s`;
 
-    const map = {
-      Clear: "wi-day-sunny",
-      Clouds: "wi-cloudy",
-      Rain: "wi-rain",
-      Drizzle: "wi-sprinkle",
-      Thunderstorm: "wi-thunderstorm",
-      Snow: "wi-snow",
-      Mist: "wi-fog"
-    };
-
-    const iconClass = map[data.weather[0].main] || "wi-day-sunny";
+    const iconClass = this.mapIcon(data.weather[0].main);
     dom.icon.className = `weather-icon wi ${iconClass}`;
   },
 
@@ -144,37 +133,26 @@ const Weather = {
     dom.error.textContent = msg;
   },
 
-  async fetchForecast(city, state) {
-    try {
-      const res = await fetch(`${forecastUrl}?city=${encodeURIComponent(city)}&state=${state}`);
-      if (!res.ok) throw new Error("Erro ao buscar previsão.");
-      const data = await res.json();
+  fetchForecast(data) {
+    const forecastList = data.forecast || [];
+    dom.forecastContainer.innerHTML = "";
+    const days = forecastList.slice(0, 5);
+    const weekdayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-      // fallback se não houver lista
-      const forecastList = data.list || [];
-
-      // renderiza usando a lógica do mini teste
-      dom.forecastContainer.innerHTML = "";
-      const days = forecastList.slice(0, 5);
-      const weekdayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-
-      days.forEach((d, i) => {
-        const card = document.createElement('div');
-        card.classList.add('forecast-card');
-        const temp = d.main ? Math.round(d.main.temp) : '--';
-        const desc = d.weather && d.weather[0] ? d.weather[0].description : '';
-        const iconClass = d.weather && d.weather[0] ? Weather.mapIcon(d.weather[0].main) : 'wi-day-sunny';
-        card.innerHTML = `
-          <div class="forecast-day">${weekdayNames[i]}</div>
-          <div class="forecast-icon wi ${iconClass}"></div>
-          <div class="forecast-temp">${temp}°C</div>
-          <div class="forecast-desc">${desc}</div>
-        `;
-        dom.forecastContainer.appendChild(card);
-      });
-    } catch (err) {
-      console.error("Forecast error:", err);
-    }
+    days.forEach((d, i) => {
+      const card = document.createElement('div');
+      card.classList.add('forecast-card');
+      const temp = d.main ? Math.round(d.main.temp) : '--';
+      const desc = d.weather && d.weather[0] ? d.weather[0].description : '';
+      const iconClass = d.weather && d.weather[0] ? Weather.mapIcon(d.weather[0].main) : 'wi-day-sunny';
+      card.innerHTML = `
+        <div class="forecast-day">${weekdayNames[i]}</div>
+        <div class="forecast-icon wi ${iconClass}"></div>
+        <div class="forecast-temp">${temp}°C</div>
+        <div class="forecast-desc">${desc}</div>
+      `;
+      dom.forecastContainer.appendChild(card);
+    });
   },
 
   mapIcon(condition) {
