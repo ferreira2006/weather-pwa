@@ -32,14 +32,17 @@ const dom = {
   citySelect: document.getElementById("city-select"),
   stateCitySearchBtn: document.getElementById("state-city-search-btn"),
   scrollTopBtn: document.getElementById("scroll-top-btn"),
-  clearHistoryBtn: document.getElementById("clear-history-btn")
+  clearHistoryBtn: document.getElementById("clear-history-btn"),
+  forecastContainer: document.getElementById("forecast-container") // <--- novo container para forecast
 };
 
-// ===== THEME BUTTON =====
+// ===== BOTÃO DE TEMA COM EMOJI =====
 function updateThemeButton() {
   const isDark = document.body.classList.contains("dark");
   dom.themeToggle.textContent = isDark ? "☀️" : "🌑";
-  dom.themeToggle.title = isDark ? "Modo claro" : "Modo escuro";
+  dom.themeToggle.title = isDark 
+      ? "Modo claro" 
+      : "Modo escuro";
 }
 
 // ===== STATE =====
@@ -50,7 +53,7 @@ let currentStateAbbr = "";
 // ===== WEATHER API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`); // busca 6 dias (hoje + 5 próximos)
     if (!res.ok) throw new Error("Previsão não disponível para esta cidade");
     return res.json();
   },
@@ -136,6 +139,52 @@ const UI = {
     currentCity = data.name;
     App.updateUIState();
     this.setDynamicBackground(data.weather[0].main);
+
+    // === Renderiza forecast dos próximos 5 dias ===
+    if(data.daily) { 
+      UI.renderForecast(data.daily.slice(1,6)); // pega os próximos 5 dias
+    } else {
+      dom.forecastContainer.innerHTML = "";
+    }
+  },
+
+  renderForecast(dailyArray) {
+    dom.forecastContainer.innerHTML = "";
+    dailyArray.forEach(day => {
+      const card = document.createElement("div");
+      card.className = "forecast-card";
+
+      const date = new Date(day.dt * 1000);
+      const dayName = date.toLocaleDateString('pt-BR',{ weekday:'short' });
+
+      const icon = document.createElement("i");
+      icon.classList.add("weather-icon");
+      const map = {
+        Clear: "wi-day-sunny",
+        Clouds: "wi-cloudy",
+        Rain: "wi-rain",
+        Drizzle: "wi-sprinkle",
+        Thunderstorm: "wi-thunderstorm",
+        Snow: "wi-snow",
+        Mist: "wi-fog",
+        Smoke: "wi-smoke",
+        Haze: "wi-day-haze",
+        Dust: "wi-dust",
+        Fog: "wi-fog",
+        Sand: "wi-sandstorm",
+        Ash: "wi-volcano",
+        Squall: "wi-strong-wind",
+        Tornado: "wi-tornado"
+      };
+      const weatherMain = day.weather[0].main;
+      icon.classList.add(map[weatherMain] || "wi-day-sunny");
+
+      card.innerHTML = `<div>${dayName}</div>`;
+      card.appendChild(icon);
+      card.innerHTML += `<div>${Math.round(day.temp.min)}º / ${Math.round(day.temp.max)}º</div>`;
+
+      dom.forecastContainer.appendChild(card);
+    });
   },
 
   showError(message) {
