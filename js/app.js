@@ -33,7 +33,7 @@ const dom = {
   stateCitySearchBtn: document.getElementById("state-city-search-btn"),
   scrollTopBtn: document.getElementById("scroll-top-btn"),
   clearHistoryBtn: document.getElementById("clear-history-btn"),
-  forecastContainer: document.getElementById("forecast-container") // container para os 5 cards
+  forecastContainer: document.getElementById("forecast-container")
 };
 
 // ===== THEME =====
@@ -313,8 +313,10 @@ const App = {
       Storage.saveHistory(data.name);
       UI.renderHistory();
       Storage.saveLastCity(data.name);
-    }catch(err){ UI.showError(err.message); if(!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste"); }
-    finally{ dom.weatherDiv.classList.remove("loading"); }
+    }catch(err){
+      UI.showError(err.message);
+      if(!Storage.getLastCity()) await this.handleCitySelect("São Miguel do Oeste","SC");
+    }finally{ dom.weatherDiv.classList.remove("loading"); }
   },
 
   addFavorite(city){
@@ -358,7 +360,6 @@ const App = {
       favIcon.classList.replace("favorited","not-favorited");
     }
 
-    // habilitar botão de busca do select IBGE
     dom.stateCitySearchBtn.disabled = !dom.citySelect.value;
   },
 
@@ -374,11 +375,24 @@ const App = {
     dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
     dom.themeToggle.addEventListener("click", () => { UI.toggleThemeColors(); updateThemeButton(); });
 
-    // Carregar IBGE e depois tentar lastCity
+    // Carregar IBGE
     await IBGE.init();
-    const lastCity = Storage.getLastCity();
-    if(lastCity) await this.handleCitySelect(lastCity);
 
+    // Primeira busca automática: geolocalização + fallback
+    try {
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          pos => this.fetchByCoords(pos.coords.latitude,pos.coords.longitude),
+          async () => await this.handleCitySelect("São Miguel do Oeste","SC")
+        );
+      } else {
+        await this.handleCitySelect("São Miguel do Oeste","SC");
+      }
+    } catch(e){
+      await this.handleCitySelect("São Miguel do Oeste","SC");
+    }
+
+    // Eventos adicionais
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
@@ -391,7 +405,6 @@ const App = {
       this.updateUIState();
     });
 
-    // atualização do botão de busca quando cidade muda
     dom.citySelect.addEventListener("change",()=>{ this.updateUIState(); });
   }
 };
@@ -423,9 +436,9 @@ const IBGE = {
         });
       });
 
-      dom.stateCitySearchBtn.addEventListener("click", ()=>{
+      dom.stateCitySearchBtn.addEventListener("click", ()=>{ 
         const city = dom.citySelect.value;
-        if(city) App.handleCitySelect(city,dom.stateSelect.value,true);
+        if(city) App.handleCitySelect(city,dom.stateSelect.value,true); 
       });
     }catch(err){ console.error("Erro ao inicializar IBGE:", err); }
   }
