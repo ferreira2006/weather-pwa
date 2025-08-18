@@ -35,13 +35,11 @@ const dom = {
   clearHistoryBtn: document.getElementById("clear-history-btn")
 };
 
-// ===== BOTÃO DE TEMA COM EMOJI =====
+// ===== THEME BUTTON =====
 function updateThemeButton() {
   const isDark = document.body.classList.contains("dark");
   dom.themeToggle.textContent = isDark ? "☀️" : "🌑";
-  dom.themeToggle.title = isDark 
-      ? "Modo claro" 
-      : "Modo escuro";
+  dom.themeToggle.title = isDark ? "Modo claro" : "Modo escuro";
 }
 
 // ===== STATE =====
@@ -52,12 +50,12 @@ let currentStateAbbr = "";
 // ===== WEATHER API =====
 const WeatherAPI = {
   async fetchByCity(city) {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=6`);
     if (!res.ok) throw new Error("Previsão não disponível para esta cidade");
     return res.json();
   },
   async fetchByCoords(lat, lon) {
-    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=1`);
+    const res = await fetch(`${backendUrl}?lat=${lat}&lon=${lon}&days=6`);
     if (!res.ok) throw new Error("Não foi possível obter o clima para sua localização.");
     return res.json();
   }
@@ -153,6 +151,62 @@ const UI = {
     App.updateUIState();
   },
 
+  renderForecast(dailyData) {
+    let forecastContainer = document.getElementById("forecast-container");
+    if (!forecastContainer) {
+        forecastContainer = document.createElement("div");
+        forecastContainer.id = "forecast-container";
+        forecastContainer.style.display = "flex";
+        forecastContainer.style.gap = "10px";
+        forecastContainer.style.marginTop = "20px";
+        forecastContainer.style.flexWrap = "wrap";
+        dom.weatherContent.appendChild(forecastContainer);
+    }
+    forecastContainer.innerHTML = "";
+
+    const next5Days = dailyData.slice(1, 6);
+
+    next5Days.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "forecast-card";
+        card.style.flex = "1 1 100px";
+        card.style.padding = "10px";
+        card.style.borderRadius = "10px";
+        card.style.background = "rgba(255,255,255,0.1)";
+        card.style.textAlign = "center";
+
+        const date = new Date(day.dt * 1000);
+        const options = { weekday: "short", day: "numeric", month: "short" };
+        const dayName = date.toLocaleDateString("pt-BR", options);
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "wi weather-icon";
+        const map = {
+            clear: "wi-day-sunny", clouds: "wi-cloudy", rain: "wi-rain", drizzle: "wi-sprinkle",
+            thunderstorm: "wi-thunderstorm", snow: "wi-snow", mist: "wi-fog", smoke: "wi-smoke",
+            haze: "wi-day-haze", dust: "wi-dust", fog: "wi-fog", sand: "wi-sandstorm",
+            ash: "wi-volcano", squall: "wi-strong-wind", tornado: "wi-tornado"
+        };
+        const mainWeather = day.weather[0].main.toLowerCase();
+        iconSpan.classList.add(map[mainWeather] || "wi-day-sunny");
+        iconSpan.style.fontSize = "1.5rem";
+        card.appendChild(iconSpan);
+
+        const dayEl = document.createElement("div");
+        dayEl.textContent = dayName;
+        dayEl.style.marginTop = "5px";
+        card.appendChild(dayEl);
+
+        const tempEl = document.createElement("div");
+        tempEl.textContent = `${Math.round(day.temp.day)}ºC`;
+        tempEl.style.fontWeight = "bold";
+        tempEl.style.marginTop = "5px";
+        card.appendChild(tempEl);
+
+        forecastContainer.appendChild(card);
+    });
+  },
+
   renderHistory() {
     dom.historyListEl.innerHTML = "";
     Storage.getHistory().forEach(item => {
@@ -244,7 +298,13 @@ const App = {
     try{
       const query = isIBGECity?`${normalizedCity},BR`:normalizedCity;
       const data = await WeatherAPI.fetchByCity(query);
-      UI.showWeather(data);
+
+      // Card principal
+      UI.showWeather(data.current);
+
+      // Próximos 5 dias
+      UI.renderForecast(data.daily);
+
       Storage.saveHistory(normalizedCity,stateAbbr);
       UI.renderHistory();
       Storage.saveLastCity(normalizedCity);
@@ -257,7 +317,8 @@ const App = {
     try{
       const data = await WeatherAPI.fetchByCoords(lat,lon);
       currentStateAbbr="";
-      UI.showWeather(data);
+      UI.showWeather(data.current);
+      UI.renderForecast(data.daily);
       Storage.saveHistory(data.name);
       UI.renderHistory();
       Storage.saveLastCity(data.name);
@@ -293,14 +354,10 @@ const App = {
     const history = Storage.getHistory();
     const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
 
-    // Botão limpar histórico habilitado
     dom.clearHistoryBtn.disabled = history.length === 0;
-
-    // Botão favoritar habilitado
     const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
     dom.favBtn.disabled = !canAddFavorite;
 
-    // Atualiza ícone do coração
     if(favorites.includes(currentCity.toLowerCase())){
       favIcon.textContent="❤️";
       favIcon.classList.replace("not-favorited","favorited");
@@ -311,83 +368,29 @@ const App = {
   },
 
   init(){
-     dom.weatherDiv.classList.add("loading");
-
-  // Aplica o tema salvo
-  UI.applySavedTheme();
-  // Atualiza o botão de tema com emoji e hint ao iniciar
-  updateThemeButton();
-
-  // Renderiza histórico e favoritos
-  UI.renderHistory();
-  UI.renderFavorites();
-
-  this.updateUIState();
-
-  // Evento do botão de favoritos
-  dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
-
-  // Evento do botão de tema
-  dom.themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("dark");
-    document.body.classList.toggle("light");
-
-    // Salva o tema atual
-    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
-
-    // Atualiza fundo dinâmico e botão de tema
-    UI.setDynamicBackgroundFromCurrentIcon();
+    dom.weatherDiv.classList.add("loading");
+    UI.applySavedTheme();
     updateThemeButton();
+    UI.renderHistory();
+    UI.renderFavorites();
+    this.updateUIState();
 
-    // Atualiza modal de confirmação para o tema atual
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark", "light");
-    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
+    dom.favBtn.addEventListener("click", () => this.addFavorite(currentCity));
+    dom.themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      document.body.classList.toggle("light");
+      Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+      UI.setDynamicBackgroundFromCurrentIcon();
+      updateThemeButton();
+      const modal = document.getElementById("confirm-modal");
+      modal.classList.remove("dark", "light");
+      modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
     });
-    
+
     IBGE.init();
 
-    // Botão voltar ao topo
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display = window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-
-    // ===== Botão limpar histórico =====
-    async function showHistoryConfirmationModal(message){
-      return new Promise(resolve=>{
-        const modal=document.getElementById("confirm-modal");
-        const overlay=modal.querySelector(".modal-overlay");
-        modal.querySelector("p").textContent=message;
-        modal.removeAttribute("hidden");
-        const yesBtn=modal.querySelector("#confirm-yes");
-        const noBtn=modal.querySelector("#confirm-no");
-        const focusable=[yesBtn,noBtn];
-        const firstBtn=focusable[0];
-        const lastBtn=focusable[focusable.length-1];
-        const previousActive=document.activeElement;
-        lastBtn.focus();
-        const cleanup=()=>{
-          modal.setAttribute("hidden","");
-          yesBtn.removeEventListener("click",yesHandler);
-          noBtn.removeEventListener("click",noHandler);
-          modal.removeEventListener("keydown",keyHandler);
-          overlay.removeEventListener("click",overlayHandler);
-          previousActive.focus();
-        };
-        const yesHandler=()=>{cleanup(); resolve(true);};
-        const noHandler=()=>{cleanup(); resolve(false);};
-        yesBtn.addEventListener("click",yesHandler);
-        noBtn.addEventListener("click",noHandler);
-        const keyHandler=e=>{
-          if(e.key==="Tab"){
-            if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
-            else if(!e.shiftKey&&document.activeElement===lastBtn){ e.preventDefault(); firstBtn.focus(); }
-          } else if(e.key==="Escape"){ cleanup(); resolve(false); }
-        };
-        modal.addEventListener("keydown",keyHandler);
-        const overlayHandler=e=>e.stopPropagation();
-        overlay.addEventListener("click",overlayHandler);
-      });
-    }
 
     dom.clearHistoryBtn.addEventListener("click", async ()=>{
       const confirmed=await showHistoryConfirmationModal("Deseja realmente limpar todo o histórico?");
@@ -400,105 +403,5 @@ const App = {
   }
 };
 
-// ===== CONFIRM MODAL =====
-function showConfirmationModal(message){
-  return new Promise(resolve=>{
-    const modal=document.getElementById("confirm-modal");
-    const overlay=modal.querySelector(".modal-overlay");
-    modal.querySelector("p").textContent=message;
-    modal.removeAttribute("hidden");
-    const yesBtn=modal.querySelector("#confirm-yes");
-    const noBtn=modal.querySelector("#confirm-no");
-    const focusable=[yesBtn,noBtn];
-    const firstBtn=focusable[0];
-    const lastBtn=focusable[focusable.length-1];
-    const previousActive=document.activeElement;
-    lastBtn.focus();
-    const cleanup=()=>{
-      modal.setAttribute("hidden","");
-      yesBtn.removeEventListener("click",yesHandler);
-      noBtn.removeEventListener("click",noHandler);
-      modal.removeEventListener("keydown",keyHandler);
-      overlay.removeEventListener("click",overlayHandler);
-      previousActive.focus();
-    };
-    const yesHandler=()=>{ cleanup(); resolve(true); };
-    const noHandler=()=>{ cleanup(); resolve(false); };
-    yesBtn.addEventListener("click",yesHandler);
-    noBtn.addEventListener("click",noHandler);
-    const keyHandler=e=>{
-      if(e.key==="Tab"){
-        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
-                else if(!e.shiftKey && document.activeElement === lastBtn){ 
-          e.preventDefault(); 
-          firstBtn.focus(); 
-        }
-      } else if(e.key === "Escape"){ 
-        cleanup(); 
-        resolve(false); 
-      }
-    };
-    modal.addEventListener("keydown", keyHandler);
-    const overlayHandler = e => e.stopPropagation();
-    overlay.addEventListener("click", overlayHandler);
-  });
-}
-
-// ===== IBGE SELECTS =====
-const IBGE = {
-  async init(){
-    try{
-      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-      const states = await res.json();
-      states.forEach(s => {
-        const opt = document.createElement("option");
-        opt.value = s.id; 
-        opt.textContent = s.nome; 
-        opt.dataset.uf = s.sigla;
-        dom.stateSelect.appendChild(opt);
-      });
-      dom.stateSelect.addEventListener("change", ()=>this.onStateChange());
-      dom.citySelect.addEventListener("change", ()=>this.updateSearchButtonState());
-      dom.stateCitySearchBtn.addEventListener("click", ()=>this.onSearchClick());
-      this.updateSearchButtonState();
-    } catch {
-      UI.showToast("Erro ao carregar estados do IBGE.");
-    }
-  },
-
-  async onStateChange(){
-    const stateId = dom.stateSelect.value;
-    dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
-    dom.citySelect.disabled = true;
-    dom.stateCitySearchBtn.disabled = true;
-    if(!stateId) return;
-
-    try{
-      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
-      const cities = await res.json();
-      cities.forEach(city => {
-        const option = document.createElement("option");
-        option.value = city.nome; 
-        option.textContent = city.nome;
-        dom.citySelect.appendChild(option);
-      });
-      dom.citySelect.disabled = false;
-    } catch {
-      UI.showToast("Erro ao carregar municípios do IBGE.");
-    }
-  },
-
-  updateSearchButtonState(){ 
-    dom.stateCitySearchBtn.disabled = !dom.citySelect.value; 
-  },
-
-  onSearchClick(){
-    const city = dom.citySelect.value;
-    const stateAbbr = dom.stateSelect.selectedOptions[0]?.dataset.uf || "";
-    if(city) App.handleCitySelect(city, stateAbbr, true);
-  }
-};
-
 // ===== INIT APP =====
 window.addEventListener("load", ()=>App.init());
-
