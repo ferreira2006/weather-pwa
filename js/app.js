@@ -188,14 +188,17 @@ const UI = {
   },
 
   toggleThemeColors() {
-    document.body.classList.toggle("dark");
-    document.body.classList.toggle("light");
-    Storage.saveTheme(document.body.classList.contains("dark")?"dark":"light");
-    this.setDynamicBackgroundFromCurrentIcon();
+     document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+  Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+  this.setDynamicBackgroundFromCurrentIcon();
 
-    const modal = document.getElementById("confirm-modal");
-    modal.classList.remove("dark","light");
-    modal.classList.add(document.body.classList.contains("dark")?"dark":"light");
+  // Atualiza o texto do botão
+  dom.themeToggle.textContent = document.body.classList.contains("dark") ? "Modo Claro" : "Modo Escuro";
+
+  const modal = document.getElementById("confirm-modal");
+  modal.classList.remove("dark","light");
+  modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
   },
 
   applySavedTheme() {
