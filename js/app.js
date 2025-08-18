@@ -53,7 +53,7 @@ let currentStateAbbr = "";
 const WeatherAPI = {
   async fetchByCity(city) {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}&days=1`);
-    if (!res.ok) throw new Error("Cidade não encontrada");
+    if (!res.ok) throw new Error("Previsão não disponível para esta cidade");
     return res.json();
   },
   async fetchByCoords(lat, lon) {
