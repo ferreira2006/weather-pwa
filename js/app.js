@@ -311,6 +311,16 @@ const App = {
     window.addEventListener("scroll",()=>{ dom.scrollTopBtn.style.display=window.scrollY>150?"block":"none"; });
     dom.scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
 
+    // ===== ADICIONA AQUI =====
+  const clearHistoryBtn = document.getElementById("clear-history-btn");
+  clearHistoryBtn.addEventListener("click", async () => {
+    const confirmed = await showConfirmationModal("Deseja realmente limpar todo o histórico?");
+    if (!confirmed) return;
+    localStorage.removeItem("weatherHistory");
+    UI.renderHistory();
+    UI.showToast("Histórico limpo!");
+  });
+
     const lastCity = Storage.getLastCity();
     if(lastCity) this.handleCitySelect(lastCity).finally(()=>dom.weatherDiv.classList.remove("loading"));
     else if(navigator.geolocation){
