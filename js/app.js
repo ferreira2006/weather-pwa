@@ -127,8 +127,11 @@ const UI = {
     dom.iconEl.style.display = "block";
 
     const cityName = data.city?.name || "Cidade desconhecida";
-    const stateOrCountry = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ""}`;
-    dom.cityNameEl.textContent = `${cityName}${stateOrCountry}`;
+const stateOrCountry = currentStateAbbr ? `, ${currentStateAbbr}` : `, ${data.city?.country || ""}`;
+dom.cityNameEl.textContent = `${cityName}${stateOrCountry}`;
+
+// Ao salvar histórico
+Storage.saveHistory(cityName, currentStateAbbr);
 
     dom.tempEl.textContent = `${Math.round(data.list[0].main.temp)}ºC`;
     dom.descEl.textContent = data.list[0].weather[0].description;
