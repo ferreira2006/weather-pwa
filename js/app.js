@@ -38,7 +38,7 @@ const dom = {
 // ===== BOTÃO DE TEMA COM EMOJI =====
 function updateThemeButton() {
   const isDark = document.body.classList.contains("dark");
-  dom.themeToggle.textContent = isDark ? "🌞" : "🌙";
+  dom.themeToggle.textContent = isDark ? "☀️" : "🌑";
   dom.themeToggle.title = isDark 
       ? "Modo claro" 
       : "Modo escuro";
