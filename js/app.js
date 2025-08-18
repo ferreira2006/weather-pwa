@@ -333,7 +333,14 @@ function showConfirmationModal(message){
     const previousActive=document.activeElement;
     lastBtn.focus();
 
-    const cleanup=()=>{ modal.setAttribute("hidden",""); yesBtn.removeEventListener("click",yesHandler); noBtn.removeEventListener("click",noHandler); modal.removeEventListener("keydown",keyHandler); overlay.removeEventListener("click",overlayHandler); previousActive.focus(); };
+    const cleanup=()=>{ 
+      modal.setAttribute("hidden",""); 
+      yesBtn.removeEventListener("click",yesHandler); 
+      noBtn.removeEventListener("click",noHandler); 
+      modal.removeEventListener("keydown",keyHandler); 
+      overlay.removeEventListener("click",overlayHandler); 
+      previousActive.focus(); 
+    };
     const yesHandler=()=>{ cleanup(); resolve(true); };
     const noHandler=()=>{ cleanup(); resolve(false); };
     yesBtn.addEventListener("click",yesHandler);
