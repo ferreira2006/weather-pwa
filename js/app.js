@@ -175,12 +175,79 @@ previsoesDiarias.forEach(item => {
     App.updateUIState();
   },
 
-  renderHistory() { /* igual ao seu código existente */ },
-  renderFavorites() { /* igual ao seu código existente */ },
-  toggleThemeColors() { /* igual ao seu código existente */ },
-  applySavedTheme() { /* igual ao seu código existente */ },
-  setDynamicBackgroundFromCurrentIcon() { /* igual ao seu código existente */ }
+   renderHistory() {
+    dom.historyListEl.innerHTML = "";
+    Storage.getHistory().forEach(item => {
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.textContent = item.state ? `${item.city} (${item.state})` : item.city;
+      li.title = "Clique para buscar.";
+      li.addEventListener("click", () => App.handleCitySelect(item.city, item.state, true));
+      li.addEventListener("keydown", e => { if(e.key==="Enter") App.handleCitySelect(item.city,item.state,true); });
+      dom.historyListEl.appendChild(li);
+    });
+  },
+
+  renderFavorites() {
+    dom.favoritesListEl.innerHTML = "";
+    Storage.getFavorites().forEach(item => {
+      const cityName = typeof item === "string" ? item : item.city;
+      const state = typeof item === "string" ? "" : item.state;
+      const displayText = state ? `${cityName} (${state})` : cityName;
+      const li = document.createElement("li");
+      li.tabIndex = 0;
+      li.title = "Clique para buscar. Shift+Enter ou Delete para remover.";
+
+      const citySpan = document.createElement("span");
+      citySpan.textContent = displayText;
+      citySpan.style.cursor = "pointer";
+      citySpan.addEventListener("click", () => App.handleCitySelect(cityName, state, true));
+      li.appendChild(citySpan);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.textContent = "×";
+      Object.assign(removeBtn.style,{marginLeft:"8px",cursor:"pointer",background:"transparent",border:"none",fontWeight:"bold",fontSize:"1.2rem",lineHeight:"1",padding:"0"});
+      removeBtn.addEventListener("click", e => { e.stopPropagation(); App.removeFavorite(displayText, cityName); });
+      li.appendChild(removeBtn);
+
+      li.addEventListener("keydown", e => {
+        if(e.key==="Enter") App.handleCitySelect(cityName,state,true);
+        if(e.key==="Delete"||e.key==="Backspace"||(e.key==="Enter"&&e.shiftKey)) App.removeFavorite(displayText, cityName);
+      });
+
+      dom.favoritesListEl.appendChild(li);
+    });
+  },
+
+  toggleThemeColors() {
+    document.body.classList.toggle("dark");
+    document.body.classList.toggle("light");
+    Storage.saveTheme(document.body.classList.contains("dark") ? "dark" : "light");
+    this.setDynamicBackgroundFromCurrentIcon();
+
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark","light");
+    modal.classList.add(document.body.classList.contains("dark") ? "dark" : "light");
+  },
+
+  applySavedTheme() {
+    const saved = Storage.getTheme();
+    document.body.classList.add(saved);
+    document.body.classList.remove(saved==="dark"?"light":"dark");
+    this.setDynamicBackgroundFromCurrentIcon();
+
+    const modal = document.getElementById("confirm-modal");
+    modal.classList.remove("dark","light");
+    modal.classList.add(saved);
+  },
+
+  setDynamicBackgroundFromCurrentIcon() {
+    if(!dom.iconEl) return;
+    const mainClass = [...dom.iconEl.classList].find(c => c!=="weather-icon");
+    this.setDynamicBackground(mainClass || "clear");
+  }
 };
+
 
 // ===== FAVORITE ICON =====
 const favIcon = document.createElement("span");
@@ -221,9 +288,50 @@ const App = {
     finally{ dom.weatherDiv.classList.remove("loading"); }
   },
 
-  addFavorite(city){ /* igual ao seu código existente */ },
-  async removeFavorite(displayText,cityName){ /* igual ao seu código existente */ },
-  updateUIState(){ /* igual ao seu código existente */ },
+   addFavorite(city){
+    const formattedCity = Utils.capitalizeCityName(Utils.normalizeCityInput(city));
+    const favorites = Storage.getFavorites();
+    if(favorites.some(c=>(typeof c==="string"?c:c.city).toLowerCase()===formattedCity.toLowerCase())){
+      UI.showToast(`"${formattedCity}" já está nos favoritos.`); return;
+    }
+    if(favorites.length>=5){ UI.showToast("Limite de 5 cidades favoritas atingido."); return; }
+    favorites.push({city:formattedCity,state:currentStateAbbr});
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`"${formattedCity}" adicionado aos favoritos!`);
+    this.updateUIState();
+  },
+
+  async removeFavorite(displayText,cityName){
+    const confirmed = await showConfirmationModal(`Remover "${displayText}" dos favoritos?`);
+    if(!confirmed) return;
+    const favorites = Storage.getFavorites().filter(c=>(typeof c==="string"?c:c.city).toLowerCase()!==cityName.toLowerCase());
+    Storage.saveFavorites(favorites);
+    UI.renderFavorites();
+    UI.showToast(`"${displayText}" removido dos favoritos.`);
+    this.updateUIState();
+  },
+
+  updateUIState(){
+    const history = Storage.getHistory();
+    const favorites = Storage.getFavorites().filter(c=>c&&(typeof c==="string"?c:c.city)).map(c=>(typeof c==="string"?c:c.city).toLowerCase());
+
+    // Botão limpar histórico habilitado
+    dom.clearHistoryBtn.disabled = history.length === 0;
+
+    // Botão favoritar habilitado
+    const canAddFavorite = currentCityValid && currentCity && !favorites.includes(currentCity.toLowerCase()) && favorites.length < 5;
+    dom.favBtn.disabled = !canAddFavorite;
+
+    // Atualiza ícone do coração
+    if(favorites.includes(currentCity.toLowerCase())){
+      favIcon.textContent="❤️";
+      favIcon.classList.replace("not-favorited","favorited");
+    } else {
+      favIcon.textContent="🤍";
+      favIcon.classList.replace("favorited","not-favorited");
+    }
+  },
 
   init(){
     dom.weatherDiv.classList.add("loading");
@@ -273,10 +381,104 @@ const App = {
 };
 
 // ===== CONFIRM MODAL =====
-function showConfirmationModal(message){ /* igual ao seu código existente */ }
+function showConfirmationModal(message){
+  return new Promise(resolve=>{
+    const modal=document.getElementById("confirm-modal");
+    const overlay=modal.querySelector(".modal-overlay");
+    modal.querySelector("p").textContent=message;
+    modal.removeAttribute("hidden");
+    const yesBtn=modal.querySelector("#confirm-yes");
+    const noBtn=modal.querySelector("#confirm-no");
+    const focusable=[yesBtn,noBtn];
+    const firstBtn=focusable[0];
+    const lastBtn=focusable[focusable.length-1];
+    const previousActive=document.activeElement;
+    lastBtn.focus();
+    const cleanup=()=>{
+      modal.setAttribute("hidden","");
+      yesBtn.removeEventListener("click",yesHandler);
+      noBtn.removeEventListener("click",noHandler);
+      modal.removeEventListener("keydown",keyHandler);
+      overlay.removeEventListener("click",overlayHandler);
+      previousActive.focus();
+    };
+    const yesHandler=()=>{ cleanup(); resolve(true); };
+    const noHandler=()=>{ cleanup(); resolve(false); };
+    yesBtn.addEventListener("click",yesHandler);
+    noBtn.addEventListener("click",noHandler);
+    const keyHandler=e=>{
+      if(e.key==="Tab"){
+        if(e.shiftKey&&document.activeElement===firstBtn){ e.preventDefault(); lastBtn.focus(); }
+                else if(!e.shiftKey && document.activeElement === lastBtn){ 
+          e.preventDefault(); 
+          firstBtn.focus(); 
+        }
+      } else if(e.key === "Escape"){ 
+        cleanup(); 
+        resolve(false); 
+      }
+    };
+    modal.addEventListener("keydown", keyHandler);
+    const overlayHandler = e => e.stopPropagation();
+    overlay.addEventListener("click", overlayHandler);
+  });
+}
 
 // ===== IBGE SELECTS =====
-const IBGE = { /* igual ao seu código existente */ };
+const IBGE = {
+  async init(){
+    try{
+      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
+      const states = await res.json();
+      states.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id; 
+        opt.textContent = s.nome; 
+        opt.dataset.uf = s.sigla;
+        dom.stateSelect.appendChild(opt);
+      });
+      dom.stateSelect.addEventListener("change", ()=>this.onStateChange());
+      dom.citySelect.addEventListener("change", ()=>this.updateSearchButtonState());
+      dom.stateCitySearchBtn.addEventListener("click", ()=>this.onSearchClick());
+      this.updateSearchButtonState();
+    } catch {
+      UI.showToast("Erro ao carregar estados do IBGE.");
+    }
+  },
+
+  async onStateChange(){
+    const stateId = dom.stateSelect.value;
+    dom.citySelect.innerHTML = '<option value="">Selecione o município</option>';
+    dom.citySelect.disabled = true;
+    dom.stateCitySearchBtn.disabled = true;
+    if(!stateId) return;
+
+    try{
+      const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${stateId}/municipios`);
+      const cities = await res.json();
+      cities.forEach(city => {
+        const option = document.createElement("option");
+        option.value = city.nome; 
+        option.textContent = city.nome;
+        dom.citySelect.appendChild(option);
+      });
+      dom.citySelect.disabled = false;
+    } catch {
+      UI.showToast("Erro ao carregar municípios do IBGE.");
+    }
+  },
+
+  updateSearchButtonState(){ 
+    dom.stateCitySearchBtn.disabled = !dom.citySelect.value; 
+  },
+
+  onSearchClick(){
+    const city = dom.citySelect.value;
+    const stateAbbr = dom.stateSelect.selectedOptions[0]?.dataset.uf || "";
+    if(city) App.handleCitySelect(city, stateAbbr, true);
+  }
+};
+
 
 // ===== INIT APP =====
 window.addEventListener("load", ()=>App.init());
