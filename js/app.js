@@ -25,7 +25,7 @@ const dom = {
   toast: document.getElementById("toast"),
   themeToggle: document.getElementById("theme-toggle"),
   scrollTopBtn: document.getElementById("scroll-top-btn"),
-  forecastContainer: document.getElementById("forecast-container"),
+  forecastContainer: document.getElementById("forecast-cards"), // mudado para #forecast-cards
 };
 
 // ===== UTILS =====
@@ -150,44 +150,31 @@ const Weather = {
       if (!res.ok) throw new Error("Erro ao buscar previsão.");
       const data = await res.json();
 
-      if (!data.list || data.list.length === 0) {
-        this.showError("Não há previsão disponível.");
-        return;
-      }
+      // fallback se não houver lista
+      const forecastList = data.list || [];
 
-      this.renderForecast(data);
+      // renderiza usando a lógica do mini teste
+      dom.forecastContainer.innerHTML = "";
+      const days = forecastList.slice(0, 5);
+      const weekdayNames = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+
+      days.forEach((d, i) => {
+        const card = document.createElement('div');
+        card.classList.add('forecast-card');
+        const temp = d.main ? Math.round(d.main.temp) : '--';
+        const desc = d.weather && d.weather[0] ? d.weather[0].description : '';
+        const iconClass = d.weather && d.weather[0] ? Weather.mapIcon(d.weather[0].main) : 'wi-day-sunny';
+        card.innerHTML = `
+          <div class="forecast-day">${weekdayNames[i]}</div>
+          <div class="forecast-icon wi ${iconClass}"></div>
+          <div class="forecast-temp">${temp}°C</div>
+          <div class="forecast-desc">${desc}</div>
+        `;
+        dom.forecastContainer.appendChild(card);
+      });
     } catch (err) {
       console.error("Forecast error:", err);
     }
-  },
-
-  renderForecast(data) {
-    dom.forecastContainer.innerHTML = "";
-    const daily = {};
-
-    data.list.forEach(item => {
-      const date = item.dt_txt.split(" ")[0];
-      if (!daily[date]) daily[date] = item;
-    });
-
-    const days = Object.values(daily).slice(0, 5);
-
-    days.forEach(d => {
-      const card = document.createElement("div");
-      card.classList.add("forecast-card");
-
-      const date = new Date(d.dt_txt);
-      const day = date.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "numeric" });
-
-      card.innerHTML = `
-        <div class="forecast-date">${day}</div>
-        <i class="wi ${Weather.mapIcon(d.weather[0].main)} forecast-icon"></i>
-        <div class="forecast-temp">${Math.round(d.main.temp)} °C</div>
-        <div class="forecast-desc">${d.weather[0].description}</div>
-      `;
-
-      dom.forecastContainer.appendChild(card);
-    });
   },
 
   mapIcon(condition) {
