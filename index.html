@@ -1,162 +1,205 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Previsão do Tempo - SMOeste</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #6ec1e4, #a8d5e2);
-      color: #0d3b66;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-      color: #0d3b66;
-      text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
-    }
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-    }
-    .card {
-       background: rgba(255, 255, 255, 0.25); /* fundo mais opaco para contraste */
-  border: 1px solid rgba(255,255,255,0.2); /* leve borda para destacar */
-  border-radius: 16px;
-  padding: 15px;
-  width: 230px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  backdrop-filter: blur(6px);
-  transition: transform 0.2s;
-  color: #ffffff;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .card h2 {
-      margin: 5px 0 12px 0;
-      font-size: 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      padding-bottom: 5px;
-    }
-    .horario {
-      margin: 8px 0;
-  padding: 6px 8px;
-  background: rgba(150, 130, 250, 0.2); /* cor leve para destaque */
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #ffffff;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-    }
-    .horario strong {
-      display: inline-block;
-      width: 50px;
-    }
-    .horario img {
-      width: 24px;
-      height: 24px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Previsão do Tempo - SMOeste</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #6ec1e4, #a8d5e2);
+    color: #0d3b66;
+    text-align: center;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #0d3b66;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+  }
+  .cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .card {
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 15px;
+    flex: 0 1 auto; /* ajusta ao conteúdo */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, box-shadow 0.3s;
+    color: #0d3b66;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+  }
+  .card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+  .card h2 {
+    margin: 5px 0 12px 0;
+    font-size: 18px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 5px;
+  }
+  .horario {
+    margin: 8px 0;
+    padding: 6px 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #0d3b66;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .horario:hover { transform: translateX(3px); }
+  .horario strong { width: 50px; flex-shrink: 0; }
+  .horario img { width: 24px; height: 24px; flex-shrink: 0; }
+
+  .horario span.temp {
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+
+  .tooltip {
+    position: fixed;
+    z-index: 9999;
+    background-color: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    transform: translateY(10px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  }
+
+  @media (max-width: 600px) {
+    .card { width: 90%; }
+    .horario { font-size: 13px; gap: 6px; }
+    h1 { font-size: 24px; }
+  }
+</style>
 </head>
 <body>
-  <h1>Previsão do Tempo - São Miguel do Oeste</h1>
-  <div id="cards" class="cards"></div>
+<h1>Previsão do Tempo - São Miguel do Oeste</h1>
+<div id="cards" class="cards"></div>
 
-  <script>
-    const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
-    const city = "São Miguel do Oeste";
+<script>
+const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+const city = "São Miguel do Oeste";
 
-    function capitalizeWords(str) {
-      return str
-    .split(' ') // separa por espaços
-    .map(word => 
-      word
-        .split('-') // separa por hífen
-        .map(part => part.charAt(0).toUpperCase() + part.slice(1)) // capitaliza cada parte
-        .join('-') // junta as partes de volta com hífen
-    )
-    .join(' '); // junta as palavras de volta com espaço
-    }
+function capitalizeWords(str) {
+  return str.split(' ').map(word => word.split('-').map(part => part.charAt(0).toUpperCase()+part.slice(1)).join('-')).join(' ');
+}
 
-    async function carregarPrevisao() {
-      try {
-        const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-        if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
-        const dados = await resp.json();
-        if (!dados.list) throw new Error("Resposta inesperada do backend");
+function climaGradient(desc) {
+  const d = desc.toLowerCase();
+  if (d.includes("céu limpo") || d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
+  if (d.includes("nuvens") || d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+  if (d.includes("chuva") || d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
+  if (d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
+  if (d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
+  if (d.includes("névoa") || d.includes("neblina") || d.includes("fumaça") || d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
+  return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+}
 
-        const horarios = [6, 12, 18];
-        const diasMap = new Map();
+async function carregarPrevisao() {
+  try {
+    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
+    const dados = await resp.json();
+    if (!dados.list) throw new Error("Resposta inesperada do backend");
 
-        // Agrupar previsões por dia
-        dados.list.forEach(item => {
-          const data = new Date(item.dt * 1000);
-          const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-            weekday: "long" // dia da semana por extenso
-          }).format(data));
-          const dataLocal = new Intl.DateTimeFormat("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric"
-          }).format(data);
+    const agora = new Date();
+    const horariosPadrao = [6,12,18];
+    const diasMap = new Map();
 
-          const horaLocal = new Intl.DateTimeFormat("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-            hour: "numeric",
-            hour12: false
-          }).format(data);
+    dados.list.forEach(item => {
+      const data = new Date(item.dt*1000);
+      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
 
-          if (horarios.includes(parseInt(horaLocal, 10))) {
-            if (!diasMap.has(dataLocal)) diasMap.set(dataLocal, { diaSemana, horarios: [] });
-            diasMap.get(dataLocal).horarios.push({
-              hora: horaLocal,
-              desc: item.weather[0].description,
-              temp: Math.round(item.main.temp),
-              icon: item.weather[0].icon
-            });
-          }
+      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+      if(isHoje && horaLocal <= agora.getHours()) return; 
+      if(!isHoje && !horariosPadrao.includes(horaLocal)) return; 
+
+      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana,horarios:[]});
+      diasMap.get(dataLocalStr).horarios.push({
+        hora: horaLocal,
+        desc: item.weather[0].description,
+        temp: Math.round(item.main.temp),
+        feels_like: Math.round(item.main.feels_like),
+        humidity: item.main.humidity,
+        pop: Math.round((item.pop||0)*100),
+        icon: item.weather[0].icon
+      });
+    });
+
+    const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
+    const cardsDiv = document.getElementById("cards");
+    cardsDiv.innerHTML = "";
+
+    const tooltip = document.createElement("div");
+    tooltip.className="tooltip";
+    document.body.appendChild(tooltip);
+
+    diasOrdenados.forEach(dia=>{
+      const previsoesDia = diasMap.get(dia).horarios;
+      const diaSemana = diasMap.get(dia).diaSemana;
+      const card = document.createElement("div");
+      card.className="card";
+      const titulo=document.createElement("h2");
+      titulo.textContent=`${diaSemana} - ${dia}`;
+      card.appendChild(titulo);
+
+      previsoesDia.forEach(p=>{
+        const horarioDiv=document.createElement("div");
+        horarioDiv.className="horario";
+        horarioDiv.style.background=climaGradient(p.desc);
+        horarioDiv.innerHTML=`<strong>${p.hora}h</strong>
+<img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+<span>${capitalizeWords(p.desc)} |</span> <span class="temp">${p.temp}°C</span>`;
+
+        horarioDiv.addEventListener("mousemove", e=>{
+          tooltip.innerHTML=`Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
+          tooltip.style.opacity=1;
+          const offsetX=12, offsetY=12;
+          let left=e.clientX+offsetX, top=e.clientY+offsetY;
+          if(left + tooltip.offsetWidth > window.innerWidth) left=window.innerWidth-tooltip.offsetWidth-4;
+          if(top + tooltip.offsetHeight > window.innerHeight) top=window.innerHeight-tooltip.offsetHeight-4;
+          tooltip.style.left=left+"px";
+          tooltip.style.top=top+"px";
         });
+        horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
 
-        // Limitar a hoje + próximos 3 dias
-        const diasOrdenados = Array.from(diasMap.keys()).slice(0, 4);
+        card.appendChild(horarioDiv);
+      });
 
-        const cardsDiv = document.getElementById("cards");
-        cardsDiv.innerHTML = "";
+      cardsDiv.appendChild(card);
+    });
 
-        diasOrdenados.forEach(dia => {
-          const previsoesDia = diasMap.get(dia).horarios;
-          const diaSemana = diasMap.get(dia).diaSemana;
-          const card = document.createElement("div");
-          card.className = "card";
+  } catch(err){ 
+    console.error("Erro ao carregar previsão:",err); 
+    document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`; 
+  }
+}
 
-          card.innerHTML = `<h2>${diaSemana} - ${dia}</h2>` + previsoesDia.map(p => `
-            <div class="horario">
-              <strong>${p.hora}h</strong>
-              <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
-              ${capitalizeWords(p.desc)} | ${p.temp}°C
-            </div>
-          `).join("");
-
-          cardsDiv.appendChild(card);
-        });
-
-      } catch (err) {
-        console.error("Erro ao carregar previsão:", err);
-        document.getElementById("cards").innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
-      }
-    }
-
-    carregarPrevisao();
-  </script>
+carregarPrevisao();
+</script>
 </body>
 </html>
