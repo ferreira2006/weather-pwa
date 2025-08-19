@@ -24,22 +24,32 @@
     gap: 20px;
     margin-top: 20px;
   }
-  .card {
-    background: rgba(255,255,255,0.85);
-    border: 1px solid rgba(0,0,0,0.05);
-    border-radius: 16px;
-    padding: 15px;
-    flex: 1 1 auto;          /* cresce conforme espaço disponível */
-    max-width: 45%;          /* desktop: no máximo 2 cards por linha */
-    min-width: 200px;        /* não muito estreito */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    backdrop-filter: blur(6px);
-    transition: transform 0.2s, box-shadow 0.3s;
-    color: #0d3b66;
-    display: flex;
-    flex-direction: column;
-    word-wrap: break-word;
-  }
+ .card {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 16px;
+  padding: 15px;
+  flex: 1 1 calc(30% - 20px); /* desktop: até 3 por linha, considerando gap */
+  max-width: calc(30% - 20px);
+  min-width: 200px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s, box-shadow 0.3s;
+  color: #0d3b66;
+  display: flex;
+  flex-direction: column;
+  word-wrap: break-word;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .card { flex: 1 1 calc(45% - 20px); max-width: calc(45% - 20px); } /* 2 cards por linha */
+}
+
+/* Celular */
+@media (max-width: 600px) {
+  .card { flex: 1 1 100%; max-width: 100%; } /* 1 card por linha */
+}
   .card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
   .card h2 {
     margin: 5px 0 12px 0;
