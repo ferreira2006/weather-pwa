@@ -29,12 +29,13 @@
     border: 1px solid rgba(0,0,0,0.05);
     border-radius: 16px;
     padding: 15px;
-    flex: 0 1 auto; /* ajusta ao conteúdo */
+    flex: 1 1 auto;          /* cresce conforme espaço disponível */
+    max-width: 45%;          /* desktop: no máximo 2 cards por linha */
+    min-width: 200px;        /* não muito estreito */
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     backdrop-filter: blur(6px);
     transition: transform 0.2s, box-shadow 0.3s;
     color: #0d3b66;
-    position: relative;
     display: flex;
     flex-direction: column;
     word-wrap: break-word;
@@ -65,11 +66,7 @@
   .horario:hover { transform: translateX(3px); }
   .horario strong { width: 50px; flex-shrink: 0; }
   .horario img { width: 24px; height: 24px; flex-shrink: 0; }
-
-  .horario span.temp {
-    margin-right: 6px;
-    flex-shrink: 0;
-  }
+  .horario span.temp { margin-right: 6px; flex-shrink: 0; }
 
   .tooltip {
     position: fixed;
@@ -87,8 +84,9 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   }
 
+  /* Responsividade */
   @media (max-width: 600px) {
-    .card { width: 90%; }
+    .card { width: 90%; max-width: none; } /* celular: card ocupa quase toda largura */
     .horario { font-size: 13px; gap: 6px; }
     h1 { font-size: 24px; }
   }
