@@ -10,10 +10,10 @@
     color: #0d3b66;
     text-align: center;
     padding: 20px;
-    font-size: 16px;
+    font-size: 18px; /* fonte base maior */
   }
   h1 {
-    font-size: 32px;
+    font-size: 36px;
     margin-bottom: 20px;
     color: #0d3b66;
     text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
@@ -29,7 +29,7 @@
     background: rgba(255,255,255,0.85);
     border: 1px solid rgba(0,0,0,0.05);
     border-radius: 16px;
-    padding: 15px;
+    padding: 20px;
     flex: 1 1 45%; /* Desktop/Tablet: 2 cards por linha */
     max-width: 45%;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -39,6 +39,7 @@
     display: flex;
     flex-direction: column;
     word-wrap: break-word;
+    font-size: 20px; /* fonte maior dentro do card */
   }
   .card:hover { 
     transform: translateY(-6px) scale(1.02); 
@@ -46,18 +47,18 @@
   }
   .card h2 {
     margin: 5px 0 12px 0;
-    font-size: 20px;
+    font-size: 26px; /* título maior */
     border-bottom: 1px solid rgba(0,0,0,0.1);
     padding-bottom: 5px;
   }
   .horario {
-    margin: 8px 0;
-    padding: 6px 10px;
-    border-radius: 10px;
+    margin: 10px 0;
+    padding: 8px 12px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 16px;
+    gap: 12px; /* mais espaço entre elementos */
+    font-size: 22px; /* hora, descrição e temperatura grandes */
     color: #0d3b66;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -67,9 +68,9 @@
     text-overflow: ellipsis;
   }
   .horario:hover { transform: translateX(3px); }
-  .horario strong { width: 50px; flex-shrink: 0; }
-  .horario img { width: 24px; height: 24px; flex-shrink: 0; }
-  .horario span.temp { margin-right: 10px; flex-shrink: 0; }
+  .horario strong { width: 60px; flex-shrink: 0; }
+  .horario img { width: 32px; height: 32px; flex-shrink: 0; }
+  .horario span.temp { margin-right: 12px; flex-shrink: 0; }
   .horario span.desc { flex: 1; white-space: nowrap; }
 
   .tooltip {
@@ -79,7 +80,7 @@
     color: #fff;
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 12px;
+    font-size: 14px; /* tooltip maior */
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -89,15 +90,19 @@
   }
 
   /* Celular pequeno: 1 card por linha */
-  @media (max-width: 1000px) {
+  @media (max-width: 550px) {
     .card {
       flex: 1 1 100%;
       max-width: 100%;
+      font-size: 24px; /* ainda maior no celular */
     }
-    body { font-size: 18px; }
-    h1 { font-size: 28px; }
-    .card h2 { font-size: 18px; }
-    .horario { font-size: 15px; gap: 6px; }
+    body { font-size: 20px; }
+    h1 { font-size: 30px; }
+    .card h2 { font-size: 22px; }
+    .horario { font-size: 24px; gap: 10px; }
+    .horario strong { width: 70px; }
+    .horario img { width: 36px; height: 36px; }
+    .horario span.temp { margin-right: 14px; }
   }
 </style>
 </head>
