@@ -16,6 +16,7 @@ if (!API_KEY) {
 
 app.use(cors());
 
+// ===== ROTA WEATHER =====
 app.get('/weather', async (req, res) => {
   const { lat, lon, city } = req.query;
 
@@ -24,6 +25,35 @@ app.get('/weather', async (req, res) => {
     url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
   } else if (city) {
     url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  } else {
+    return res.status(400).json({ error: 'Parâmetros inválidos. Use lat+lon ou city.' });
+  }
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (response.status !== 200) {
+      return res.status(response.status).json({ error: data.message || 'Erro na API do OpenWeather' });
+    }
+
+    res.json(data);
+
+  } catch (error) {
+    console.error("Erro no servidor:", error);
+    res.status(500).json({ error: 'Erro interno do servidor.' });
+  }
+});
+
+// ===== ROTA FORECAST =====
+app.get('/forecast', async (req, res) => {
+  const { lat, lon, city } = req.query;
+
+  let url;
+  if (lat && lon) {
+    url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  } else if (city) {
+    url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
   } else {
     return res.status(400).json({ error: 'Parâmetros inválidos. Use lat+lon ou city.' });
   }
