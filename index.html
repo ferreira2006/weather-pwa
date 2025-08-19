@@ -10,7 +10,7 @@
     color: #0d3b66;
     text-align: center;
     padding: 20px;
-    font-size: 16px; /* fonte base */
+    font-size: 16px;
   }
   h1 {
     font-size: 32px;
@@ -26,32 +26,20 @@
     margin-top: 20px;
   }
   .card {
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 16px;
-  padding: 15px;
-  flex: 1 1 45%; /* desktop/tablet: 2 cards por linha */
-  max-width: 45%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  backdrop-filter: blur(6px);
-  transition: transform 0.2s, box-shadow 0.3s;
-  color: #0d3b66;
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-}
-
-/* Celular: 1 card por linha */
-@media (max-width: 600px) {
-  .card {
-    flex: 1 1 100%;
-    max-width: 100%;
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 15px;
+    flex: 1 1 45%; /* Desktop/Tablet: 2 cards por linha */
+    max-width: 45%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, box-shadow 0.3s;
+    color: #0d3b66;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
   }
-  body { font-size: 18px; }
-  h1 { font-size: 28px; }
-  .card h2 { font-size: 18px; }
-  .horario { font-size: 15px; gap: 6px; }
-}
   .card:hover { 
     transform: translateY(-6px) scale(1.02); 
     box-shadow: 0 6px 16px rgba(0,0,0,0.2); 
@@ -100,8 +88,12 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   }
 
-  /* Ajustes para celular */
-  @media (max-width: 600px) {
+  /* Celular pequeno: 1 card por linha */
+  @media (max-width: 480px) {
+    .card {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
     body { font-size: 18px; }
     h1 { font-size: 28px; }
     .card h2 { font-size: 18px; }
