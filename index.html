@@ -87,8 +87,6 @@ async function carregarPrevisao() {
       const hojeData = diasMap.get(hojeStr);
       const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
       const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
-      if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana:"Amanhã",horarios:[]});
-      const amanhaData = diasMap.get(amanhaStr);
 
       [0,3].forEach(hora=>{
         const previsaoReal = dados.list.find(item=>{
@@ -132,8 +130,25 @@ async function carregarPrevisao() {
       previsoesDia.forEach(p=>{
         const horarioDiv = document.createElement("div");
         horarioDiv.className="horario";
-        const label = p.fromTomorrow ? `${p.hora}h (amanhã)` : `${p.hora}h`;
-        horarioDiv.innerHTML = `<strong>${label}</strong> <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> <span class="desc">${capitalizeWords(p.desc)}</span> <span class="temp">${p.temp}°C</span>`;
+
+        if(p.fromTomorrow){
+          // Horários do dia seguinte
+          horarioDiv.innerHTML = `
+            <strong>${p.hora}h</strong> 
+            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
+            <span class="temp">${p.temp}°C</span>
+          `;
+        } else {
+          horarioDiv.innerHTML = `
+            <strong>${p.hora}h</strong> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
+            <span class="temp">${p.temp}°C</span>
+          `;
+        }
+
         horarioDiv.style.background = climaGradient(p.desc);
 
         horarioDiv.addEventListener("mousemove", e=>{
