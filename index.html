@@ -2,229 +2,200 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Previsão do Tempo</title>
   <style>
-    /* =================== Global =================== */
-    body { 
-      font-family: 'Inter', Arial, sans-serif; 
-      margin: 0; 
-      padding: 0; 
-      transition: background 0.5s ease; 
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6dd5ed, #2193b0);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
     }
-    h1 { text-align: center; margin: 20px; color: #222; }
-
-    /* =================== Cards =================== */
-    .container { 
-      display: flex; 
-      flex-wrap: wrap; 
-      justify-content: center; 
-      gap: 20px; 
-      padding: 20px; 
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2em;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
-    .card { 
-      background: rgba(255,255,255,0.85); 
-      border-radius: 20px; 
-      padding: 20px; 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
-      width: 240px; 
-      transition: transform 0.3s ease, box-shadow 0.3s ease; 
-      cursor: pointer; 
-      backdrop-filter: blur(6px);
+    #weather {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
     }
-    .card:hover { 
-      transform: translateY(-8px); 
-      box-shadow: 0 12px 28px rgba(0,0,0,0.25); 
+    .card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      padding: 20px;
+      width: 220px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s, background 0.3s;
+      position: relative;
     }
-    .card h2 { text-align: center; margin: 0 0 12px; color: #333; }
-    .horarios { display: flex; justify-content: space-around; }
-    .horario { text-align: center; position: relative; }
-    .horario img { width: 48px; height: 48px; margin-bottom: 6px; }
-    .tooltip { 
-      visibility: hidden; 
-      background-color: rgba(0,0,0,0.8); 
-      color: #fff; 
-      text-align: center; 
-      border-radius: 6px; 
-      padding: 6px; 
-      position: absolute; 
-      z-index: 1; 
-      bottom: 125%; 
-      left: 50%; 
-      transform: translateX(-50%); 
-      opacity: 0; 
-      transition: opacity 0.3s; 
-      font-size: 12px;
-      width: max-content;
-      max-width: 180px;
+    .card:hover {
+      transform: translateY(-10px);
+      background: rgba(255,255,255,0.2);
     }
-    .horario:hover .tooltip { visibility: visible; opacity: 1; }
-
-    /* =================== Responsividade =================== */
-    @media (max-width: 600px) {
-      .container { flex-direction: column; align-items: center; }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.2em;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 5px;
+    }
+    .forecast {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .forecast-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      position: relative;
+    }
+    .forecast-item:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .tooltip {
+      visibility: hidden;
+      width: 160px;
+      background: rgba(0,0,0,0.8);
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 110%;
+      left: 50%;
+      margin-left: -80px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .forecast-item:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .temp {
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      #weather { flex-direction: column; align-items: center; }
       .card { width: 90%; }
-      .horarios { flex-direction: column; gap: 10px; }
-      .horario { display: flex; align-items: center; gap: 10px; }
-      .horario img { width: 36px; height: 36px; }
-      .tooltip { font-size: 11px; }
     }
   </style>
 </head>
 <body>
   <h1>Previsão do Tempo</h1>
-  <div class="container" id="container"></div>
+  <div id="weather"></div>
 
   <script>
-    const container = document.getElementById("container");
+    const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+    const city = "São Paulo";
 
     async function fetchWeather() {
       try {
-        const resp = await fetch("https://weather-backend-hh3w.onrender.com/forecast");
+        const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+        if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
         const dados = await resp.json();
+        if (!dados.list) throw new Error("Resposta inesperada do backend");
         processarPrevisao(dados);
       } catch (err) {
         console.error("Erro ao buscar previsão:", err);
-        container.innerHTML = "<p>Erro ao carregar previsão.</p>";
       }
     }
 
     function processarPrevisao(dados) {
+      const container = document.getElementById("weather");
+      container.innerHTML = "";
+
       const diasMap = new Map();
       const agora = new Date();
+      const horaAtual = agora.getHours();
 
       dados.list.forEach(item => {
         const data = new Date(item.dt * 1000);
-        const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR", {
-          timeZone: "America/Sao_Paulo",
-          hour: "numeric", hour12: false
-        }).format(data));
+        const dia = data.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "numeric" });
+        const hora = data.getHours();
 
-        const dia = new Intl.DateTimeFormat("pt-BR", {
-          timeZone: "America/Sao_Paulo",
-          day: "2-digit", month: "2-digit", year: "numeric"
-        }).format(data);
-
+        if (!diasMap.has(dia)) diasMap.set(dia, []);
+        
         const isHoje = data.getDate() === agora.getDate();
 
-        // --- Mantém só os horários de interesse ---
-        if ([6, 12, 18, 21, 0, 3].includes(horaLocal)) {
-          // Descarta horários passados (exceto exceções)
-          if (isHoje) {
-            if (horaLocal < agora.getHours()) {
-              // ✅ Exceção: manter o 18h mesmo que já sejam 18–20h59
-              if (!(agora.getHours() >= 18 && agora.getHours() < 21 && horaLocal === 18)) {
-                return; 
-              }
+        if (isHoje) {
+          // mantém regras de exibição
+          if (horaAtual >= 21) {
+            if ([21,0,3].includes(hora) || data.getDate() > agora.getDate()) {
+              diasMap.get(dia).push({hora, data, item});
+            }
+          } else if (horaAtual >= 18) {
+            if ([18,21].includes(hora) || (hora === 0 && data.getDate() > agora.getDate())) {
+              diasMap.get(dia).push({hora, data, item});
+            }
+          } else if (horaAtual >= 15) {
+            if ([18,21].includes(hora) || (hora === 0 && data.getDate() > agora.getDate())) {
+              diasMap.get(dia).push({hora, data, item});
+            }
+          } else {
+            if ([6,12,18].includes(hora)) {
+              diasMap.get(dia).push({hora, data, item});
             }
           }
-
-          if (!diasMap.has(dia)) {
-            diasMap.set(dia, { horarios: [] });
+        } else {
+          if ([6,12,18].includes(hora)) {
+            diasMap.get(dia).push({hora, data, item});
           }
-
-          diasMap.get(dia).horarios.push({
-            hora: horaLocal,
-            desc: item.weather[0].description,
-            temp: Math.round(item.main.temp),
-            feels_like: Math.round(item.main.feels_like),
-            humidity: item.main.humidity,
-            pop: Math.round((item.pop || 0) * 100),
-            icon: item.weather[0].icon
-          });
         }
       });
 
-      // --- Ajuste especial para hoje ---
-      const hojeStr = new Intl.DateTimeFormat("pt-BR", {
-        timeZone: "America/Sao_Paulo",
-        day: "2-digit", month: "2-digit", year: "numeric"
-      }).format(agora);
-
-      if (diasMap.has(hojeStr)) {
-        const hojeData = diasMap.get(hojeStr);
-        const amanha = new Date(agora);
-        amanha.setDate(agora.getDate() + 1);
-        const amanhaStr = new Intl.DateTimeFormat("pt-BR", {
-          timeZone: "America/Sao_Paulo",
-          day: "2-digit", month: "2-digit", year: "numeric"
-        }).format(amanha);
-
-        if (agora.getHours() >= 15 && agora.getHours() < 21) {
-          adicionarHoraAmanha(dados, amanhaStr, hojeData, [0]);
-        }
-        if (agora.getHours() >= 21) {
-          adicionarHoraAmanha(dados, amanhaStr, hojeData, [0, 3]);
-        }
-      }
-
-      renderizarPrevisao(diasMap);
-    }
-
-    function adicionarHoraAmanha(dados, amanhaStr, hojeData, horas) {
-      horas.forEach(hora => {
-        const previsaoReal = dados.list.find(item => {
-          const data = new Date(item.dt * 1000);
-          const dataStr = new Intl.DateTimeFormat("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-            day: "2-digit", month: "2-digit", year: "numeric"
-          }).format(data);
-          const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR", {
-            timeZone: "America/Sao_Paulo",
-            hour: "numeric", hour12: false
-          }).format(data));
-          return dataStr === amanhaStr && horaLocal === hora;
-        });
-        if (previsaoReal) {
-          hojeData.horarios.push({
-            hora,
-            desc: previsaoReal.weather[0].description,
-            temp: Math.round(previsaoReal.main.temp),
-            feels_like: Math.round(previsaoReal.main.feels_like),
-            humidity: previsaoReal.main.humidity,
-            pop: Math.round((previsaoReal.pop || 0) * 100),
-            icon: previsaoReal.weather[0].icon,
-            fromTomorrow: true
-          });
-        }
-      });
-    }
-
-    function renderizarPrevisao(diasMap) {
-      container.innerHTML = "";
-      diasMap.forEach((dadosDia, dia) => {
+      diasMap.forEach((horarios, dia) => {
         const card = document.createElement("div");
         card.className = "card";
+        const h2 = document.createElement("h2");
+        h2.textContent = dia;
+        card.appendChild(h2);
 
-        const titulo = document.createElement("h2");
-        const dataObj = new Date(dia.split("/").reverse().join("-"));
-        const hoje = new Date();
-        let tituloTexto = dataObj.toDateString() === hoje.toDateString() ? "Hoje" :
-                          dataObj.toDateString() === new Date(hoje.setDate(hoje.getDate() + 1)).toDateString() ? "Amanhã" :
-                          dia;
-        titulo.textContent = tituloTexto;
-        card.appendChild(titulo);
+        const forecastDiv = document.createElement("div");
+        forecastDiv.className = "forecast";
 
-        const horariosDiv = document.createElement("div");
-        horariosDiv.className = "horarios";
+        horarios.slice(0,3).forEach(({hora, item}) => {
+          const forecastItem = document.createElement("div");
+          forecastItem.className = "forecast-item";
 
-        dadosDia.horarios.slice(0,3).forEach(h => {
-          const horarioDiv = document.createElement("div");
-          horarioDiv.className = "horario";
-          const horaStr = h.hora.toString().padStart(2,"0")+":00";
-          horarioDiv.innerHTML = `
-            <div>${horaStr}</div>
-            <img src="https://openweathermap.org/img/wn/${h.icon}@2x.png" alt="${h.desc}">
-            <div>${h.temp}°C</div>
-            <div class="tooltip">
-              ${h.desc}<br>
-              Sensação: ${h.feels_like}°C<br>
-              Umidade: ${h.humidity}%<br>
-              Chuva: ${h.pop}%
-            </div>`;
-          horariosDiv.appendChild(horarioDiv);
+          const time = document.createElement("span");
+          time.textContent = `${hora.toString().padStart(2,"0")}:00`;
+
+          const temp = document.createElement("span");
+          temp.className = "temp";
+          temp.textContent = `${Math.round(item.main.temp)}°C`;
+
+          const tooltip = document.createElement("div");
+          tooltip.className = "tooltip";
+          tooltip.innerHTML = `
+            Sensação: ${Math.round(item.main.feels_like)}°C<br>
+            Umidade: ${item.main.humidity}%<br>
+            Chuva: ${(item.pop * 100).toFixed(0)}%
+          `;
+
+          forecastItem.appendChild(time);
+          forecastItem.appendChild(temp);
+          forecastItem.appendChild(tooltip);
+
+          forecastDiv.appendChild(forecastItem);
         });
 
-        card.appendChild(horariosDiv);
+        card.appendChild(forecastDiv);
         container.appendChild(card);
       });
     }
