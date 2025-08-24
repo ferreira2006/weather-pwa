@@ -28,121 +28,128 @@
 <div id="cards" class="cards"></div>
 
 <script>
+const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+const city = "São Miguel do Oeste";
+
+function capitalizeWords(str) {
+  return str.split(' ').map(word => word.split('-').map(part => part.charAt(0).toUpperCase()+part.slice(1)).join('-')).join(' ');
+}
+
+function climaGradient(desc) {
+  const d = desc.toLowerCase();
+  if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
+  if(d.includes("nuvens")||d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+  if(d.includes("chuva")||d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
+  if(d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
+  if(d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
+  if(d.includes("névoa")||d.includes("neblina")||d.includes("fumaça")||d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
+  return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+}
+
 async function carregarPrevisao() {
   try {
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
+    if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
     const dados = await resp.json();
-    if (!dados.list) throw new Error("Resposta inesperada do backend");
+    if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     const agora = new Date();
-    const horariosPadrao = [6, 12, 18, 21];
+    const horariosPadrao = [6,12,18,21];
     const diasMap = new Map();
 
-    // Mapear dados do backend
     dados.list.forEach(item => {
-      const data = new Date(item.dt * 1000);
-      const dataLocalStr = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(data);
-      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", hour: "numeric", hour12: false }).format(data));
-      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long" }).format(data));
-      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(agora);
+      const data = new Date(item.dt*1000);
+      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
+      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
 
-      if (isHoje && horaLocal <= agora.getHours()) return;
-      if (!isHoje && !horariosPadrao.includes(horaLocal)) return;
+      if(isHoje && horaLocal <= agora.getHours()) return;
+      if(!isHoje && !horariosPadrao.includes(horaLocal)) return;
 
-      if (!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [] });
+      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[]});
       diasMap.get(dataLocalStr).horarios.push({
         hora: horaLocal,
         desc: item.weather[0].description,
         temp: Math.round(item.main.temp),
         feels_like: Math.round(item.main.feels_like),
         humidity: item.main.humidity,
-        pop: Math.round((item.pop || 0) * 100),
+        pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
         fromTomorrow: false
       });
     });
 
-    const hojeStr = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(agora);
+    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
     const hojeData = diasMap.get(hojeStr);
 
-    // Determinar próximos 3 horários do card de hoje
-    if (hojeData) {
+    if(hojeData){
       const proximosHorarios = [];
       const horaAtual = agora.getHours();
 
-      // Escolher horários de hoje
-      if (horaAtual < 15) {
-        proximosHorarios.push(...[15, 18, 21].filter(h => h > horaAtual));
-      } else if (horaAtual < 18) {
-        proximosHorarios.push(...[18, 21]);
-      } else if (horaAtual < 21) {
-        proximosHorarios.push(...[21]);
-      } else {
-        proximosHorarios.push(...[21]);
-      }
+      if(horaAtual < 15) proximosHorarios.push(...[15,18,21].filter(h=>h>horaAtual));
+      else if(horaAtual < 18) proximosHorarios.push(...[18,21]);
+      else if(horaAtual < 21) proximosHorarios.push(...[21]);
+      else proximosHorarios.push(...[21]);
 
-      // Adicionar horários do dia seguinte se necessário
-      const amanha = new Date(agora); amanha.setDate(agora.getDate() + 1);
-      const amanhaStr = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(amanha);
-      const horariosAmanha = (horaAtual < 15 || horaAtual >= 21) ? [0, 3] : [0];
+      const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
+      const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
+      const horariosAmanha = (horaAtual < 15 || horaAtual >= 21) ? [0,3] : [0];
 
-      proximosHorarios.forEach(h => {
-        const previsao = hojeData.horarios.find(p => p.hora === h);
-        if (previsao) previsao.selected = true;
+      proximosHorarios.forEach(h=>{
+        const previsao = hojeData.horarios.find(p=>p.hora===h);
+        if(previsao) previsao.selected = true;
       });
 
-      if (!diasMap.has(amanhaStr)) diasMap.set(amanhaStr, { diaSemana: capitalizeWords(new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long" }).format(amanha)), horarios: [] });
+      if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana: capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(amanha)), horarios: []});
 
-      horariosAmanha.forEach(h => {
-        const previsaoReal = dados.list.find(item => {
-          const data = new Date(item.dt * 1000);
-          const dataStr = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit", year: "numeric" }).format(data);
-          const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", hour: "numeric", hour12: false }).format(data));
-          return dataStr === amanhaStr && horaLocal === h;
+      horariosAmanha.forEach(h=>{
+        const previsaoReal = dados.list.find(item=>{
+          const data = new Date(item.dt*1000);
+          const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+          const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+          return dataStr===amanhaStr && horaLocal===h;
         });
-        if (previsaoReal) {
+        if(previsaoReal){
           diasMap.get(amanhaStr).horarios.push({
-            hora: h,
+            hora:h,
             desc: previsaoReal.weather[0].description,
             temp: Math.round(previsaoReal.main.temp),
             feels_like: Math.round(previsaoReal.main.feels_like),
             humidity: previsaoReal.main.humidity,
-            pop: Math.round((previsaoReal.pop || 0) * 100),
+            pop: Math.round((previsaoReal.pop||0)*100),
             icon: previsaoReal.weather[0].icon,
-            fromTomorrow: true,
-            selected: true
+            fromTomorrow:true,
+            selected:true
           });
         }
       });
 
-      // Filtrar apenas os selecionados
-      hojeData.horarios = hojeData.horarios.filter(p => p.selected);
+      hojeData.horarios = hojeData.horarios.filter(p=>p.selected);
     }
 
-    // Renderização
-    const diasOrdenados = Array.from(diasMap.keys()).slice(0, 4);
+    const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
     let tooltip = document.querySelector(".tooltip");
-    if (!tooltip) {
+    if(!tooltip){
       tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
+      tooltip.className="tooltip";
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.forEach(dia => {
-      const previsoesDia = diasMap.get(dia).horarios.slice(0, 3);
+    diasOrdenados.forEach(dia=>{
+      const previsoesDia = diasMap.get(dia).horarios.slice(0,3);
       const diaSemana = diasMap.get(dia).diaSemana;
-      const card = document.createElement("div"); card.className = "card";
-      const titulo = document.createElement("h2"); titulo.textContent = `${diaSemana} - ${dia}`; card.appendChild(titulo);
+      const card = document.createElement("div"); card.className="card";
+      const titulo = document.createElement("h2"); titulo.textContent=`${diaSemana} - ${dia}`; card.appendChild(titulo);
 
-      previsoesDia.forEach(p => {
+      previsoesDia.forEach(p=>{
         const horarioDiv = document.createElement("div");
-        horarioDiv.className = "horario";
+        horarioDiv.className="horario";
 
-        if (p.fromTomorrow) {
+        if(p.fromTomorrow){
           horarioDiv.innerHTML = `
             <strong>${p.hora}h</strong> 
             <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
@@ -161,15 +168,15 @@ async function carregarPrevisao() {
 
         horarioDiv.style.background = climaGradient(p.desc);
 
-        horarioDiv.addEventListener("mousemove", e => {
+        horarioDiv.addEventListener("mousemove", e=>{
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
-          let left = e.clientX + 12, top = e.clientY + 12;
-          if (left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
-          if (top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left + "px"; tooltip.style.top = top + "px";
+          let left = e.clientX+12, top = e.clientY+12;
+          if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
+          if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
+          tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
         });
-        horarioDiv.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+        horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
 
         card.appendChild(horarioDiv);
       });
@@ -177,14 +184,13 @@ async function carregarPrevisao() {
       cardsDiv.appendChild(card);
     });
 
-  } catch (err) {
+  } catch(err){
     console.error("Erro ao carregar previsão:", err);
-    document.getElementById("cards").innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
+    document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
 }
 
 carregarPrevisao();
 </script>
-
 </body>
 </html>
