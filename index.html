@@ -37,27 +37,28 @@ function capitalizeWords(str) {
 
 function climaGradient(desc) {
   const d = desc.toLowerCase();
-  if (d.includes("céu limpo") || d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
-  if (d.includes("nuvens") || d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
-  if (d.includes("chuva") || d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
-  if (d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
-  if (d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
-  if (d.includes("névoa") || d.includes("neblina") || d.includes("fumaça") || d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
+  if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
+  if(d.includes("nuvens")||d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+  if(d.includes("chuva")||d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
+  if(d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
+  if(d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
+  if(d.includes("névoa")||d.includes("neblina")||d.includes("fumaça")||d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
 async function carregarPrevisao() {
-  try {
+  try{
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
+    if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
     const dados = await resp.json();
-    if (!dados.list) throw new Error("Resposta inesperada do backend");
+    if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     const agora = new Date();
     const horariosPadrao = [6,12,18,21];
     const diasMap = new Map();
 
-    dados.list.forEach(item => {
+    // Mapear dados do backend
+    dados.list.forEach(item=>{
       const data = new Date(item.dt*1000);
       const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
       const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
@@ -80,27 +81,41 @@ async function carregarPrevisao() {
       });
     });
 
-    // Hoje pós-21h: adiciona 0h e 3h do dia seguinte
+    // Pós-21h: adicionar 0h e 3h do dia seguinte com dados reais
     const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
     if(diasMap.has(hojeStr) && agora.getHours() >= 21){
       const hojeData = diasMap.get(hojeStr);
       const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
       const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
-      if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana:"Amanhã", horarios:[]});
+      if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana:"Amanhã",horarios:[]});
+      const amanhaData = diasMap.get(amanhaStr);
 
-      const horariosExtras = [
-        {hora:0, desc:"N/A", temp:"N/A", feels_like:"N/A", humidity:"N/A", pop:0, icon:"01d", fromTomorrow:true},
-        {hora:3, desc:"N/A", temp:"N/A", feels_like:"N/A", humidity:"N/A", pop:0, icon:"01d", fromTomorrow:true}
-      ];
-      hojeData.horarios.push(...horariosExtras);
+      [0,3].forEach(hora=>{
+        const previsaoReal = dados.list.find(item=>{
+          const data = new Date(item.dt*1000);
+          const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+          const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+          return dataStr === amanhaStr && horaLocal === hora;
+        });
+        if(previsaoReal){
+          hojeData.horarios.push({
+            hora: hora,
+            desc: previsaoReal.weather[0].description,
+            temp: Math.round(previsaoReal.main.temp),
+            feels_like: Math.round(previsaoReal.main.feels_like),
+            humidity: previsaoReal.main.humidity,
+            pop: Math.round((previsaoReal.pop||0)*100),
+            icon: previsaoReal.weather[0].icon,
+            fromTomorrow: true
+          });
+        }
+      });
     }
 
-    // Limitar 3 horários por card (garantindo extras)
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
-    // Cria tooltip uma vez
     let tooltip = document.querySelector(".tooltip");
     if(!tooltip){
       tooltip = document.createElement("div");
@@ -116,7 +131,7 @@ async function carregarPrevisao() {
 
       previsoesDia.forEach(p=>{
         const horarioDiv = document.createElement("div");
-        horarioDiv.className = "horario";
+        horarioDiv.className="horario";
         const label = p.fromTomorrow ? `${p.hora}h (amanhã)` : `${p.hora}h`;
         horarioDiv.innerHTML = `<strong>${label}</strong> <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> <span class="desc">${capitalizeWords(p.desc)}</span> <span class="temp">${p.temp}°C</span>`;
         horarioDiv.style.background = climaGradient(p.desc);
@@ -124,9 +139,9 @@ async function carregarPrevisao() {
         horarioDiv.addEventListener("mousemove", e=>{
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
-          let left = e.clientX + 12, top = e.clientY + 12;
-          if(left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
-          if(top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
+          let left = e.clientX+12, top = e.clientY+12;
+          if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
+          if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
           tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
         });
         horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
@@ -139,7 +154,7 @@ async function carregarPrevisao() {
 
   } catch(err){
     console.error("Erro ao carregar previsão:", err);
-    document.getElementById("cards").innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
+    document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
 }
 
