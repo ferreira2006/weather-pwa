@@ -81,34 +81,34 @@ async function carregarPrevisao() {
       });
     });
 
-    // Pós-21h: adicionar 0h e 3h do dia seguinte com dados reais
-    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-    if(diasMap.has(hojeStr) && agora.getHours() >= 21){
-      const hojeData = diasMap.get(hojeStr);
-      const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
-      const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
+   // Pós-21h: adicionar 0h e 3h do dia seguinte com dados reais
+const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+if(diasMap.has(hojeStr) && agora.getHours() >= 21){
+  const hojeData = diasMap.get(hojeStr);
+  const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
+  const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
 
-      [0,3].forEach(hora=>{
-        const previsaoReal = dados.list.find(item=>{
-          const data = new Date(item.dt*1000);
-          const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
-          const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-          return dataStr === amanhaStr && horaLocal === hora;
-        });
-        if(previsaoReal){
-          hojeData.horarios.push({
-            hora: hora,
-            desc: previsaoReal.weather[0].description,
-            temp: Math.round(previsaoReal.main.temp),
-            feels_like: Math.round(previsaoReal.main.feels_like),
-            humidity: previsaoReal.main.humidity,
-            pop: Math.round((previsaoReal.pop||0)*100),
-            icon: previsaoReal.weather[0].icon,
-            fromTomorrow: true
-          });
-        }
+  [0,3].forEach(hora=>{
+    const previsaoReal = dados.list.find(item=>{
+      const data = new Date(item.dt*1000);
+      const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+      return dataStr === amanhaStr && horaLocal === hora;
+    });
+    if(previsaoReal){
+      hojeData.horarios.push({
+        hora: hora,
+        desc: previsaoReal.weather[0].description,
+        temp: Math.round(previsaoReal.main.temp),
+        feels_like: Math.round(previsaoReal.main.feels_like),
+        humidity: previsaoReal.main.humidity,
+        pop: Math.round((previsaoReal.pop||0)*100),
+        icon: previsaoReal.weather[0].icon,
+        fromTomorrow: true
       });
     }
+  });
+}
 
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
     const cardsDiv = document.getElementById("cards");
