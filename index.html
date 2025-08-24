@@ -81,31 +81,67 @@ async function carregarPrevisao() {
       });
     });
 
-   // Pós-21h: adicionar 0h e 3h do dia seguinte com dados reais
+   // Card de hoje: definir próximos 3 horários conforme regra
 const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-if(diasMap.has(hojeStr) && agora.getHours() >= 21){
+if(diasMap.has(hojeStr)){
   const hojeData = diasMap.get(hojeStr);
+  const horaAtual = agora.getHours();
+  const proximosHorarios = [];
+
   const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
   const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
 
-  [0,3].forEach(hora=>{
-    const previsaoReal = dados.list.find(item=>{
-      const data = new Date(item.dt*1000);
-      const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
-      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-      return dataStr === amanhaStr && horaLocal === hora;
-    });
-    if(previsaoReal){
-      hojeData.horarios.push({
-        hora: hora,
-        desc: previsaoReal.weather[0].description,
-        temp: Math.round(previsaoReal.main.temp),
-        feels_like: Math.round(previsaoReal.main.feels_like),
-        humidity: previsaoReal.main.humidity,
-        pop: Math.round((previsaoReal.pop||0)*100),
-        icon: previsaoReal.weather[0].icon,
-        fromTomorrow: true
+  if(horaAtual >= 15 && horaAtual < 18){
+    proximosHorarios.push(18,21,0);
+  } else if(horaAtual >= 18 && horaAtual < 21){
+    proximosHorarios.push(18,21,0);
+  } else if(horaAtual >= 21){
+    proximosHorarios.push(21,0,3);
+  }
+
+  proximosHorarios.forEach(hora=>{
+    let previsaoReal;
+    if(hora < 24){
+      // Hoje
+      previsaoReal = dados.list.find(item=>{
+        const data = new Date(item.dt*1000);
+        const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+        const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+        return dataStr === hojeStr && horaLocal === hora;
       });
+      if(previsaoReal){
+        hojeData.horarios.push({
+          hora: hora,
+          desc: previsaoReal.weather[0].description,
+          temp: Math.round(previsaoReal.main.temp),
+          feels_like: Math.round(previsaoReal.main.feels_like),
+          humidity: previsaoReal.main.humidity,
+          pop: Math.round((previsaoReal.pop||0)*100),
+          icon: previsaoReal.weather[0].icon,
+          fromTomorrow: false
+        });
+      }
+    } else {
+      // Amanhã (0h, 3h)
+      const horaAmanha = hora % 24;
+      previsaoReal = dados.list.find(item=>{
+        const data = new Date(item.dt*1000);
+        const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+        const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+        return dataStr === amanhaStr && horaLocal === horaAmanha;
+      });
+      if(previsaoReal){
+        hojeData.horarios.push({
+          hora: horaAmanha,
+          desc: previsaoReal.weather[0].description,
+          temp: Math.round(previsaoReal.main.temp),
+          feels_like: Math.round(previsaoReal.main.feels_like),
+          humidity: Math.round(previsaoReal.main.humidity),
+          pop: Math.round((previsaoReal.pop||0)*100),
+          icon: previsaoReal.weather[0].icon,
+          fromTomorrow: true
+        });
+      }
     }
   });
 }
