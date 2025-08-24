@@ -86,13 +86,17 @@ async function carregarPrevisao() {
     if (diasMap.has(hojeStr)) {
       const hojeData = diasMap.get(hojeStr);
       const maxHora = Math.max(...hojeData.horarios.map(h=>h.hora));
-      if(agora.getHours() >= 21 && maxHora < 24) {
+      if(agora.getHours() >= 21) {
         const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
         const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
         if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana:"Amanhã",horarios:[]});
-        diasMap.get(amanhaStr).horarios.push({
-          hora:0, desc:"N/A", temp:"N/A", feels_like:"N/A", humidity:"N/A", pop:0, icon:"01d"
-        });
+
+        // Adiciona horários 00h e 03h do dia seguinte
+        diasMap.get(amanhaStr).horarios.push({hora:0, desc:"N/A", temp:"N/A", feels_like:"N/A", humidity:"N/A", pop:0, icon:"01d"});
+        diasMap.get(amanhaStr).horarios.push({hora:3, desc:"N/A", temp:"N/A", feels_like:"N/A", humidity:"N/A", pop:0, icon:"01d"});
+
+        // Move esses horários para o card de hoje
+        hojeData.horarios.push(...diasMap.get(amanhaStr).horarios);
       }
     }
 
