@@ -10,7 +10,7 @@
     color: #0d3b66;
     text-align: center;
     padding: 20px;
-    font-size: 18px; /* fonte base maior */
+    font-size: 18px;
   }
   h1 {
     font-size: 36px;
@@ -26,85 +26,68 @@
     margin-top: 20px;
   }
   .card {
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 16px;
-  padding: 15px;
-  flex: 0 0 auto;       /* não força crescimento ou encolhimento */
-  min-width: 250px;     /* largura mínima do card */
-  max-width: 350px;     /* opcional: limita o tamanho máximo */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  backdrop-filter: blur(6px);
-  transition: transform 0.2s, box-shadow 0.3s;
-  color: #0d3b66;
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-}
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 16px;
+    padding: 15px;
+    flex: 0 0 auto;
+    min-width: 250px;
+    max-width: 350px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, box-shadow 0.3s;
+    color: #0d3b66;
+    display: flex;
+    flex-direction: column;
+    word-wrap: break-word;
+  }
   .card:hover { 
     transform: translateY(-6px) scale(1.02); 
     box-shadow: 0 6px 16px rgba(0,0,0,0.2); 
   }
   .card h2 {
     margin: 5px 0 12px 0;
-    font-size: 26px; /* título maior */
+    font-size: 26px;
     border-bottom: 1px solid rgba(0,0,0,0.1);
     padding-bottom: 5px;
   }
   .horario {
-  margin: 8px 0;
-  padding: 6px 10px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  color: #0d3b66;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  /* efeito de reflexo base */
-  background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0));
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3),
-              0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* brilho animado */
-.horario::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    120deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.4) 50%,
-    rgba(255,255,255,0) 100%
-  );
-  transform: skewX(-20deg);
-  transition: all 0.3s ease;
-}
-
-.horario:hover::after {
-  animation: shine 1s forwards;
-}
-
-@keyframes shine {
-  0% { left: -75%; }
-  100% { left: 125%; }
-}
+    margin: 8px 0;
+    padding: 6px 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    color: #0d3b66;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0));
+    box-shadow: inset 0 2px 4px rgba(255,255,255,0.3),
+                0 2px 6px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  }
+  .horario::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-20deg);
+    transition: all 0.3s ease;
+  }
+  .horario:hover::after { animation: shine 1s forwards; }
+  @keyframes shine { 0% { left: -75%; } 100% { left: 125%; } }
   .horario:hover { transform: translateX(3px); }
   .horario strong { width: 60px; flex-shrink: 0; }
   .horario img { width: 32px; height: 32px; flex-shrink: 0; }
   .horario span.temp { margin-right: 12px; flex-shrink: 0; }
   .horario span.desc { flex: 1; white-space: nowrap; }
-
   .tooltip {
     position: fixed;
     z-index: 9999;
@@ -112,7 +95,7 @@
     color: #fff;
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 14px; /* tooltip maior */
+    font-size: 14px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
@@ -120,14 +103,8 @@
     transform: translateY(10px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
   }
-
-  /* Celular pequeno: 1 card por linha */
   @media (max-width: 550px) {
-    .card {
-      flex: 1 1 100%;
-      max-width: 100%;
-      font-size: 24px; /* ainda maior no celular */
-    }
+    .card { flex: 1 1 100%; max-width: 100%; font-size: 24px; }
     body { font-size: 20px; }
     h1 { font-size: 30px; }
     .card h2 { font-size: 22px; }
@@ -147,7 +124,9 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
 function capitalizeWords(str) {
-  return str.split(' ').map(word => word.split('-').map(part => part.charAt(0).toUpperCase()+part.slice(1)).join('-')).join(' ');
+  return str.split(' ').map(word => 
+    word.split('-').map(part => part.charAt(0).toUpperCase()+part.slice(1)).join('-')
+  ).join(' ');
 }
 
 function climaGradient(desc) {
@@ -157,7 +136,8 @@ function climaGradient(desc) {
   if (d.includes("chuva") || d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
   if (d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
   if (d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
-  if (d.includes("névoa") || d.includes("neblina") || d.includes("fumaça") || d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
+  if (d.includes("névoa") || d.includes("neblina") || d.includes("fumaça") || d.includes("bruma")) 
+    return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
