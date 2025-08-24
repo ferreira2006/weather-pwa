@@ -81,14 +81,29 @@ async function carregarPrevisao() {
       });
     });
 
-    // Pós-21h: adicionar 0h e 3h do dia seguinte com dados reais
+    // Regras especiais para o dia de hoje
     const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-    if(diasMap.has(hojeStr) && agora.getHours() >= 21){
+    if(diasMap.has(hojeStr)){
       const hojeData = diasMap.get(hojeStr);
       const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
       const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
 
-      [0,3].forEach(hora=>{
+      if(agora.getHours() >= 15 && agora.getHours() < 18){
+        // 15h–17h59 → 18h, 21h (hoje) + 0h (amanhã)
+        adicionarHoraAmanha(dados, amanhaStr, hojeData, [0]);
+      }
+      if(agora.getHours() >= 18 && agora.getHours() < 21){
+        // 18h–20h59 → 18h, 21h (hoje) + 0h (amanhã)
+        adicionarHoraAmanha(dados, amanhaStr, hojeData, [0]);
+      }
+      if(agora.getHours() >= 21){
+        // ≥21h → 21h (hoje) + 0h e 3h (amanhã)
+        adicionarHoraAmanha(dados, amanhaStr, hojeData, [0,3]);
+      }
+    }
+
+    function adicionarHoraAmanha(dados, amanhaStr, hojeData, horas) {
+      horas.forEach(hora=>{
         const previsaoReal = dados.list.find(item=>{
           const data = new Date(item.dt*1000);
           const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
@@ -132,7 +147,6 @@ async function carregarPrevisao() {
         horarioDiv.className="horario";
 
         if(p.fromTomorrow){
-          // Horários do dia seguinte
           horarioDiv.innerHTML = `
             <strong>${p.hora}h</strong> 
             <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
