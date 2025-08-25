@@ -258,4 +258,5 @@ document.getElementById('buscarClimaBtn').addEventListener('click', () => {
 });
 
 // ======================= INICIALIZA =======================
-carregarPrevisao();
+carregarEstados(); // carrega estados do IBGE
+carregarPrevisao(); // carrega previsão da cidade padrão
