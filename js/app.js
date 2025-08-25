@@ -52,27 +52,34 @@ async function carregarPrevisao() {
       });
     });
 
-    // Card de hoje: pegar os próximos 3 horários do backend, completar com amanhã se necessário
-    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-    const hojeData = diasMap.get(hojeStr);
-    if(hojeData){
-      // Ordenar horários
-      let horariosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
-                          .filter(h => h.hora > agora.getHours()); // próximos horários do dia
+    // Card de hoje: pegar os 4 próximos horários
+    const hojeStr = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    }).format(agora);
 
-      // Completar com horários do dia seguinte se necessário
-      const diasOrdenados = Array.from(diasMap.keys()).sort();
-      const indiceHoje = diasOrdenados.indexOf(hojeStr);
-      const amanhaData = diasMap.get(diasOrdenados[indiceHoje+1]);
-      if(amanhaData){
-        let i = 0;
-        while(horariosHoje.length < 3 && i < amanhaData.horarios.length){
-          horariosHoje.push({...amanhaData.horarios[i], fromTomorrow:true});
-          i++;
-        }
+    const hojeData = diasMap.get(hojeStr);
+    if (hojeData) {
+      let horariosHoje = hojeData.horarios.sort((a, b) => a.hora - b.hora);
+      const proximos = [];
+      for (const h of horariosHoje) {
+        if (h.hora > agora.getHours()) proximos.push(h);
       }
 
-      hojeData.horarios = horariosHoje.slice(0,3);
+      const diasOrdenados = Array.from(diasMap.keys()).sort();
+      const indiceHoje = diasOrdenados.indexOf(hojeStr);
+      const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
+
+      let i = 0;
+      while (proximos.length < 4 && amanhaData && i < amanhaData.horarios.length) {
+        const nh = { ...amanhaData.horarios[i], fromTomorrow: true };
+        proximos.push(nh);
+        i++;
+      }
+
+      hojeData.horarios = proximos.slice(0, 4);
     }
 
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
@@ -86,7 +93,6 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    // Renderizar cards
     diasOrdenados.forEach(dia=>{
       const dataDia = diasMap.get(dia);
       const card = document.createElement("div"); card.className="card";
@@ -94,8 +100,7 @@ async function carregarPrevisao() {
 
       dataDia.horarios.forEach(p=>{
         if(!p) return;
-        const horarioDiv = document.createElement("div"); 
-        horarioDiv.className="horario";
+        const horarioDiv = document.createElement("div"); horarioDiv.className="horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
         if(p.fromTomorrow){
