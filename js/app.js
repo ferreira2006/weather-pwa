@@ -32,7 +32,7 @@ async function carregarPrevisao() {
     const horariosPadraoFuturos = [6,12,18]; // para os próximos dias
     const diasMap = new Map();
 
-    // Agrupar previsões por dia sem filtrar
+    // Agrupar previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
       const dataLocalStr = formatterData.format(data);
@@ -53,14 +53,14 @@ async function carregarPrevisao() {
       });
     });
 
-    const diasOrdenados = Array.from(diasMap.keys()).sort();
+    // Preparar card de hoje com 4 horários a partir da hora atual
     const hojeData = diasMap.get(hojeStr);
+    const diasOrdenados = Array.from(diasMap.keys()).sort();
 
-    // Preparar card de hoje com 4 próximos horários
     if (hojeData) {
       let proximos = hojeData.horarios
                              .sort((a,b) => a.hora - b.hora)
-                             .filter(h => h.hora >= agora.getHours());
+                             .filter(h => h.hora > agora.getHours());
 
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
@@ -76,72 +76,76 @@ async function carregarPrevisao() {
       hojeData.horarios = proximos.slice(0,4);
     }
 
-    // Aplicar filtro 6,12,18 apenas nos cards futuros
-    diasOrdenados.slice(1,4).forEach(dia => { // exclui hoje
-      const dataDia = diasMap.get(dia);
-      dataDia.horarios = dataDia.horarios
-                                 .filter(h => horariosPadraoFuturos.includes(h.hora))
-                                 .sort((a,b) => a.hora - b.hora);
-    });
-
     // Renderizar cards
-    const cardsDiv = document.getElementById("cards");
-    cardsDiv.innerHTML = "";
-
-    let tooltip = document.querySelector(".tooltip");
-    if(!tooltip){
-      tooltip = document.createElement("div");
-      tooltip.className="tooltip";
-      document.body.appendChild(tooltip);
-    }
-
-    diasOrdenados.slice(0,4).forEach(dia => {
-      const dataDia = diasMap.get(dia);
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const titulo = document.createElement("h2");
-      titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
-      card.appendChild(titulo);
-
-      dataDia.horarios.forEach(p => {
-        if(!p) return;
-        const horarioDiv = document.createElement("div");
-        horarioDiv.className = "horario";
-        horarioDiv.style.background = climaGradient(p.desc);
-
-        const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
-
-        horarioDiv.innerHTML = `
-          <strong>${p.hora}h</strong>
-          ${mostrarAmanha ? `<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>` : ""}
-          <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
-          <span class="desc">${capitalizeWords(p.desc)}</span>
-          <span class="temp">${p.temp}°C</span>
-        `;
-
-        // tooltip
-        horarioDiv.addEventListener("mousemove", e => {
-          tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
-          tooltip.style.opacity = 1;
-          let left = e.clientX + 12, top = e.clientY + 12;
-          if (left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
-          if (top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left + "px";
-          tooltip.style.top = top + "px";
-        });
-        horarioDiv.addEventListener("mouseleave", () => tooltip.style.opacity = 0);
-
-        card.appendChild(horarioDiv);
-      });
-
-      cardsDiv.appendChild(card);
-    });
+    renderCards(diasOrdenados, diasMap);
 
   } catch(err) {
     console.error("Erro ao carregar previsão:", err);
     document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
+}
+
+function renderCards(diasOrdenados, diasMap) {
+  const cardsDiv = document.getElementById("cards");
+  cardsDiv.innerHTML = "";
+
+  let tooltip = document.querySelector(".tooltip");
+  if(!tooltip){
+    tooltip = document.createElement("div");
+    tooltip.className="tooltip";
+    document.body.appendChild(tooltip);
+  }
+
+  diasOrdenados.slice(0,4).forEach(dia => {
+    const dataDia = diasMap.get(dia);
+
+    // Para dias futuros, aplicar apenas horários padrão
+    if(!dataDia.isToday) {
+      dataDia.horarios = dataDia.horarios
+                               .filter(h => [6,12,18].includes(h.hora))
+                               .sort((a,b) => a.hora - b.hora);
+    }
+
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const titulo = document.createElement("h2");
+    titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
+    card.appendChild(titulo);
+
+    dataDia.horarios.forEach(p => {
+      if(!p) return;
+      const horarioDiv = document.createElement("div");
+      horarioDiv.className = "horario";
+      horarioDiv.style.background = climaGradient(p.desc);
+
+      const mostrarAmanha = p.fromTomorrow;
+
+      horarioDiv.innerHTML = `
+        <strong>${p.hora}h</strong>
+        ${mostrarAmanha ? `<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>` : ""}
+        <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
+        <span class="desc">${capitalizeWords(p.desc)}</span>
+        <span class="temp">${p.temp}°C</span>
+      `;
+
+      // tooltip
+      horarioDiv.addEventListener("mousemove", e => {
+        tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
+        tooltip.style.opacity = 1;
+        let left = e.clientX + 12, top = e.clientY + 12;
+        if (left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
+        if (top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
+        tooltip.style.left = left + "px";
+        tooltip.style.top = top + "px";
+      });
+      horarioDiv.addEventListener("mouseleave", () => tooltip.style.opacity = 0);
+
+      card.appendChild(horarioDiv);
+    });
+
+    cardsDiv.appendChild(card);
+  });
 }
 
 carregarPrevisao();
