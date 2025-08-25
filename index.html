@@ -235,6 +235,11 @@ function displayWeather(data){
       day.times.map(t=>`<div class="time-block">${t.time} - ${t.temp}°C - ${t.desc}</div>`).join("");
     forecastContainer.appendChild(card);
   });
+
+  // ===== Testes automáticos =====
+  ["07:00", "11:00", "14:00", "16:00", "19:00", "22:00"].forEach(hora => {
+    console.log(`>> ${hora} → Card de hoje mostra:`, getCardHojeReal(hora));
+  });
 }
 
 carregarPrevisao();
