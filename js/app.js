@@ -93,17 +93,24 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-     diasOrdenados.forEach(dia=>{
+    diasOrdenados.forEach(dia=>{
       const dataDia = diasMap.get(dia);
-      const card = document.createElement("div"); card.className="card";
-      const titulo = document.createElement("h2"); titulo.textContent=`${dataDia.diaSemana} - ${dia}`; card.appendChild(titulo);
+      const card = document.createElement("div");
+      card.className = "card";
+      if(dia === hojeStr) card.classList.add("today"); // marca card de hoje
+
+      const titulo = document.createElement("h2");
+      titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
+      card.appendChild(titulo);
 
       dataDia.horarios.forEach(p=>{
         if(!p) return;
-        const horarioDiv = document.createElement("div"); horarioDiv.className="horario";
+        const horarioDiv = document.createElement("div");
+        horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        if(p.fromTomorrow){
+        // Mostrar "Amanhã" apenas para horários copiados para o card de hoje
+        if(p.fromTomorrow && dia === hojeStr){
           horarioDiv.innerHTML = `
             <strong>${p.hora}h</strong> 
             <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
@@ -126,7 +133,8 @@ async function carregarPrevisao() {
           let left = e.clientX+12, top = e.clientY+12;
           if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
           if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
+          tooltip.style.left = left+"px";
+          tooltip.style.top = top+"px";
         });
         horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
 
@@ -141,4 +149,5 @@ async function carregarPrevisao() {
     document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
 }
+
 carregarPrevisao();
