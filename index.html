@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Previsão do Tempo - São Miguel do Oeste</title>
+   <link rel="stylesheet" href="css/styles.css">
 <style>
   body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #6ec1e4, #a8d5e2); color: #0d3b66; text-align: center; padding: 20px; font-size: 18px; }
   h1 { font-size: 36px; margin-bottom: 20px; color: #0d3b66; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); }
@@ -57,6 +58,7 @@ async function carregarPrevisao() {
     const horariosPadraoFuturos = [6,12,18];
     const diasMap = new Map();
 
+    // Agrupar previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
       const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
@@ -64,13 +66,9 @@ async function carregarPrevisao() {
       const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
       const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
 
-      // filtrar horários
-      if(isHoje){
-        // não mostrar horários já passados
-        if(horaLocal <= agora.getHours()) return;
-      } else {
-        if(!horariosPadraoFuturos.includes(horaLocal)) return;
-      }
+      // Filtrar horários
+      if(isHoje && horaLocal <= agora.getHours()) return;
+      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[]});
       diasMap.get(dataLocalStr).horarios.push({
@@ -85,35 +83,30 @@ async function carregarPrevisao() {
       });
     });
 
-    // Ajuste para card de hoje: até 3 horários
+    // Card de hoje: pegar os 3 próximos horários do backend
     const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
     const hojeData = diasMap.get(hojeStr);
     if(hojeData){
-      const horaAtual = agora.getHours();
-      let horariosHoje = [];
+      let horariosHoje = hojeData.horarios
+        .sort((a,b)=>a.hora-b.hora); // ordem crescente
 
-      if(horaAtual < 6) horariosHoje = [6,12,18];
-      else if(horaAtual < 9) horariosHoje = [12,18,21];
-      else if(horaAtual < 12) horariosHoje = [12,18,21];
-      else if(horaAtual < 15) horariosHoje = [15,18,21];
-      else if(horaAtual < 18) horariosHoje = [18,21,0];
-      else if(horaAtual < 21) horariosHoje = [21,0,3];
-      else horariosHoje = [0,3,6];
+      // Se faltar 3, buscar do dia seguinte
+      const proximos = [];
+      for(const h of horariosHoje){
+        if(h.hora > agora.getHours()) proximos.push(h);
+      }
+      const diasOrdenados = Array.from(diasMap.keys()).sort();
+      const indiceHoje = diasOrdenados.indexOf(hojeStr);
+      const amanhaData = diasMap.get(diasOrdenados[indiceHoje+1]);
 
-      // mapear apenas horários disponíveis do backend
-      hojeData.horarios = horariosHoje.map(h => {
-        let match = hojeData.horarios.find(x => x.hora === h);
-        if(!match){
-          // buscar no próximo dia
-          for(const [key,v] of diasMap){
-            if(key !== hojeStr){
-              match = v.horarios.find(x=>x.hora===h);
-              if(match){ match.fromTomorrow=true; break; }
-            }
-          }
-        }
-        return match;
-      }).filter(Boolean);
+      let i = 0;
+      while(proximos.length < 3 && amanhaData && i < amanhaData.horarios.length){
+        const nh = {...amanhaData.horarios[i], fromTomorrow:true};
+        proximos.push(nh);
+        i++;
+      }
+
+      hojeData.horarios = proximos.slice(0,3);
     }
 
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
