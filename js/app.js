@@ -1,10 +1,12 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
+// Capitaliza palavras e trata hífens
 function capitalizeWords(str) {
   return str.split(' ').map(word => word.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')).join(' ');
 }
 
+// Define gradiente de fundo baseado na descrição do clima
 function climaGradient(desc) {
   const d = desc.toLowerCase();
   if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
@@ -16,6 +18,7 @@ function climaGradient(desc) {
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
+// Função principal para carregar previsão
 async function carregarPrevisao() {
   try {
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
@@ -32,7 +35,7 @@ async function carregarPrevisao() {
     const horariosPadraoFuturos = [6,12,18];
     const diasMap = new Map();
 
-    // Agrupar previsões por dia
+    // Agrupa previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
       const dataLocalStr = formatterData.format(data);
@@ -41,8 +44,8 @@ async function carregarPrevisao() {
       const isHoje = dataLocalStr === hojeStr;
 
       // Filtrar horários
-      if(isHoje && horaLocal <= agora.getHours()) return;
-      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal) && horaLocal >= 6) return;
+      if(isHoje && horaLocal <= agora.getHours()) return; // hoje: apenas horários futuros
+      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return; // próximos dias: só 6h,12h,18h
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
       diasMap.get(dataLocalStr).horarios.push({
@@ -53,7 +56,7 @@ async function carregarPrevisao() {
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
-        fromTomorrow: false
+        fromTomorrow: false // só ajustaremos para card de hoje
       });
     });
 
@@ -62,31 +65,25 @@ async function carregarPrevisao() {
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
     if (hojeData) {
-      const horaAtual = parseInt(formatterHora.format(agora));
+      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
+                                         .filter(h => h.hora > agora.getHours());
+      let proximos = [...proximosHoje];
 
-      // 1️⃣ Horários restantes de hoje
-      let proximos = hojeData.horarios
-        .sort((a,b)=>a.hora-b.hora)
-        .filter(h => h.hora > horaAtual);
-
-      // 2️⃣ Horários de amanhã (madrugada) se faltar
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-      if (amanhaData && proximos.length < 4) {
-        // Madrugada <6h
-        const horariosMadrugada = amanhaData.horarios
-          .filter(h => h.hora < 6)
-          .sort((a,b)=>a.hora-b.hora);
+      if(amanhaData && proximos.length < 4) {
+        // 1️⃣ Horários da madrugada (<6h) do dia seguinte
+        const horariosMadrugada = amanhaData.horarios.filter(h => h.hora < 6);
         horariosMadrugada.forEach(h => {
           if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
         });
 
-        // Horário das 6h se ainda faltar
-        const h6 = amanhaData.horarios.find(h => h.hora === 6);
-        if(h6 && proximos.length < 4) proximos.push({ ...h6, fromTomorrow: true });
+        // 2️⃣ Horário das 6h se ainda faltar
+        const horario6h = amanhaData.horarios.find(h => h.hora === 6);
+        if(horario6h && proximos.length < 4) proximos.push({ ...horario6h, fromTomorrow: true });
       }
 
-      hojeData.horarios = proximos.slice(0, 4);
+      hojeData.horarios = proximos.slice(0,4);
     }
 
     // Renderizar cards
@@ -125,6 +122,7 @@ async function carregarPrevisao() {
           <span class="temp">${p.temp}°C</span>
         `;
 
+        // tooltip
         horarioDiv.addEventListener("mousemove", e => {
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
