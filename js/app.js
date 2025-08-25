@@ -42,7 +42,7 @@ async function carregarPrevisao() {
 
       // Filtrar horários
       if(isHoje && horaLocal <= agora.getHours()) return;
-      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
+      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal) && horaLocal >= 6) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
       diasMap.get(dataLocalStr).horarios.push({
@@ -66,16 +66,18 @@ async function carregarPrevisao() {
                                          .filter(h => h.hora > agora.getHours());
       let proximos = [...proximosHoje];
 
-      // Adicionar TODOS os horários da madrugada do próximo dia se necessário
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-      if(proximos.length < 4 && amanhaData) {
+      if(amanhaData && proximos.length < 4) {
+        // 1️⃣ Horários da madrugada (<6h)
         const horariosMadrugada = amanhaData.horarios.filter(h => h.hora < 6);
-        let i = 0;
-        while(proximos.length < 4 && i < horariosMadrugada.length) {
-          proximos.push({ ...horariosMadrugada[i], fromTomorrow: true });
-          i++;
-        }
+        horariosMadrugada.forEach(h => {
+          if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
+        });
+
+        // 2️⃣ Horário das 6h se ainda faltar
+        const horario6h = amanhaData.horarios.find(h => h.hora === 6);
+        if(horario6h && proximos.length < 4) proximos.push({ ...horario6h, fromTomorrow: true });
       }
 
       hojeData.horarios = proximos.slice(0,4);
@@ -107,7 +109,6 @@ async function carregarPrevisao() {
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        // Mostrar "Amanhã" somente no card de hoje e horários da madrugada adicionados
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
@@ -118,7 +119,6 @@ async function carregarPrevisao() {
           <span class="temp">${p.temp}°C</span>
         `;
 
-        // Tooltip
         horarioDiv.addEventListener("mousemove", e => {
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
