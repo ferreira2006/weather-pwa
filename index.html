@@ -1,14 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Previsão do Tempo - São Miguel do Oeste</title>
-   <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-<h1>Previsão do Tempo - São Miguel do Oeste</h1>
-<div id="cards" class="cards"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Previsão do Tempo - São Miguel do Oeste</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <h1>Previsão do Tempo - São Miguel do Oeste</h1>
+    <div class="busca-clima">
+      <select id="estadoSelect">
+        <option value="">Selecione um estado</option>
+      </select>
 
-<script src="js/app.js"></script>
-</body>
+      <select id="municipioSelect" disabled>
+        <option value="">Selecione um município</option>
+      </select>
+
+      <button id="buscarClimaBtn" disabled>Buscar Clima</button>
+    </div>
+    <div id="cards" class="cards"></div>
+
+    <script src="js/app.js"></script>
+  </body>
 </html>
