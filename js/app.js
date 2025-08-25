@@ -62,12 +62,11 @@ async function carregarPrevisao() {
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
     if (hojeData) {
-      // Horários restantes do dia de hoje
       let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
                                          .filter(h => h.hora > agora.getHours());
       let proximos = [...proximosHoje];
 
-      // Adicionar horários da madrugada do próximo dia (<6h) se necessário
+      // Adicionar TODOS os horários da madrugada do próximo dia se necessário
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
       if(proximos.length < 4 && amanhaData) {
