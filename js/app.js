@@ -58,7 +58,8 @@ async function carregarPrevisao() {
         feels_like: Math.round(item.main.feels_like),
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
-        icon: item.weather[0].icon
+        icon: item.weather[0].icon,
+        fromTomorrow: false
       });
     });
 
@@ -84,12 +85,21 @@ async function carregarPrevisao() {
 
       let horariosParaRender = [...dataDia.horarios];
 
-      // Se for o card de hoje, adicionar horários da madrugada do dia seguinte para completar 4
+      // Se for o card de hoje, completar até 4 horários usando o próximo dia
       if(dataDia.isToday && horariosParaRender.length < 4 && diasMap.has(diasOrdenados[index+1])) {
         const proximoDia = diasMap.get(diasOrdenados[index+1]);
+        // madrugada = horas < 6
         const madrugada = proximoDia.horarios.filter(h => h.hora < 6);
         madrugada.forEach(h => h.fromTomorrow = true);
-        horariosParaRender = horariosParaRender.concat(madrugada).slice(0,4);
+        horariosParaRender = horariosParaRender.concat(madrugada);
+
+        // Se ainda não tiver 4, pegar próximos horários do próximo dia (sem marcar "Amanhã")
+        if(horariosParaRender.length < 4) {
+          const restantes = proximoDia.horarios.filter(h => h.hora >= 6);
+          horariosParaRender = horariosParaRender.concat(restantes);
+        }
+
+        horariosParaRender = horariosParaRender.slice(0,4);
       }
 
       horariosParaRender.forEach(p => {
