@@ -24,9 +24,9 @@ async function carregarPrevisao() {
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     const agora = new Date();
-    const formatterData = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" });
-    const formatterHora = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", hour:"numeric", hour12:false });
-    const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", weekday:"long" });
+    const formatterData = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" });
+    const formatterHora = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false });
+    const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
     const hojeStr = formatterData.format(agora);
 
     const horariosPadraoFuturos = [6,12,18];
@@ -61,20 +61,22 @@ async function carregarPrevisao() {
     const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
-    if(hojeData) {
+    if (hojeData) {
       // horários restantes de hoje
-      let proximos = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
-                                     .filter(h => h.hora > agora.getHours());
+      let proximos = hojeData.horarios.sort((a,b)=>a.hora-b.hora);
+
+      // preencher proximos com horários de hoje maiores que a hora atual
+      proximos = proximos.filter(h => h.hora > agora.getHours());
 
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
+
       if(amanhaData && proximos.length < 4) {
-        // adicionar madrugada do dia seguinte (0h, 3h, etc.)
-        amanhaData.horarios
-          .filter(h => h.hora < 6)
-          .forEach(h => {
-            if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
-          });
+        // pegar todos os horários da madrugada do dia seguinte (<6h) e ordenar
+        const madrugada = amanhaData.horarios.filter(h => h.hora < 6)
+                                             .sort((a,b) => a.hora - b.hora)
+                                             .map(h => ({ ...h, fromTomorrow: true }));
+        madrugada.forEach(h => { if(proximos.length < 4) proximos.push(h); });
 
         // se ainda faltar, adicionar 6h
         if(proximos.length < 4) {
@@ -112,7 +114,6 @@ async function carregarPrevisao() {
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        // mostrar "Amanhã" somente no card de hoje para horários da madrugada do dia seguinte
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
