@@ -113,7 +113,7 @@ async function carregarPrevisao() {
 }
 
 function renderCards(cards) {
-  const container = document.getElementById("previsao");
+  const container = document.getElementById("cards");
   container.innerHTML = "";
 
   cards.forEach(card => {
