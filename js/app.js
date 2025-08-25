@@ -93,48 +93,60 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.forEach(dia=>{
-      const dataDia = diasMap.get(dia);
-      const card = document.createElement("div"); card.className="card";
-      const titulo = document.createElement("h2"); titulo.textContent=`${dataDia.diaSemana} - ${dia}`; card.appendChild(titulo);
+    diasOrdenados.forEach(dia => {
+  const dataDia = diasMap.get(dia);
+  const card = document.createElement("div");
+  card.className = "card";
 
-      dataDia.horarios.forEach(p=>{
-        if(!p) return;
-        const horarioDiv = document.createElement("div"); horarioDiv.className="horario";
-        horarioDiv.style.background = climaGradient(p.desc);
+  // Adiciona a classe 'today' automaticamente se for o dia de hoje
+  if(dia === hojeStr) {
+    card.classList.add("today");
+  }
 
-        if(p.fromTomorrow){
-          horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong> 
-            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
-            <span class="desc">${capitalizeWords(p.desc)}</span> 
-            <span class="temp">${p.temp}°C</span>
-          `;
-        } else {
-          horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong> 
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
-            <span class="desc">${capitalizeWords(p.desc)}</span> 
-            <span class="temp">${p.temp}°C</span>
-          `;
-        }
+  const titulo = document.createElement("h2");
+  titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
+  card.appendChild(titulo);
 
-        horarioDiv.addEventListener("mousemove", e=>{
-          tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
-          tooltip.style.opacity = 1;
-          let left = e.clientX+12, top = e.clientY+12;
-          if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
-          if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
-        });
-        horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
+  dataDia.horarios.forEach(p => {
+    if(!p) return;
+    const horarioDiv = document.createElement("div");
+    horarioDiv.className = "horario";
+    horarioDiv.style.background = climaGradient(p.desc);
 
-        card.appendChild(horarioDiv);
-      });
+    if(p.fromTomorrow){
+      horarioDiv.innerHTML = `
+        <strong>${p.hora}h</strong> 
+        <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
+        <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+        <span class="desc">${capitalizeWords(p.desc)}</span> 
+        <span class="temp">${p.temp}°C</span>
+      `;
+    } else {
+      horarioDiv.innerHTML = `
+        <strong>${p.hora}h</strong> 
+        <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+        <span class="desc">${capitalizeWords(p.desc)}</span> 
+        <span class="temp">${p.temp}°C</span>
+      `;
+    }
 
-      cardsDiv.appendChild(card);
+    horarioDiv.addEventListener("mousemove", e => {
+      tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
+      tooltip.style.opacity = 1;
+      let left = e.clientX + 12, top = e.clientY + 12;
+      if(left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
+      if(top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
     });
+
+    horarioDiv.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+
+    card.appendChild(horarioDiv);
+  });
+
+  cardsDiv.appendChild(card);
+});
 
   } catch(err){
     console.error("Erro ao carregar previsão:", err);
