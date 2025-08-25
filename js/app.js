@@ -40,8 +40,7 @@ async function carregarPrevisao() {
       const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
       const isHoje = dataLocalStr === hojeStr;
 
-      // Filtrar horários
-      if(isHoje && horaLocal <= agora.getHours()) return;
+      // Filtrar horários: card de hoje pega todos futuros, outros seguem 6/12/18
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
@@ -57,35 +56,32 @@ async function carregarPrevisao() {
       });
     });
 
-    // Preparar card de hoje com 4 horários
-    const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
+    // Preparar card do dia de hoje
+    const hojeData = diasMap.get(hojeStr);
     if (hojeData) {
-      // horários restantes de hoje
-      let proximos = hojeData.horarios.sort((a,b)=>a.hora-b.hora);
+      // próximos horários de hoje
+      let proximos = hojeData.horarios
+                             .sort((a,b) => a.hora - b.hora)
+                             .filter(h => h.hora > agora.getHours());
 
-      // preencher proximos com horários de hoje maiores que a hora atual
-      proximos = proximos.filter(h => h.hora > agora.getHours());
-
+      // se faltar, pegar horários do dia seguinte
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
 
-      if(amanhaData && proximos.length < 4) {
-        // pegar todos os horários da madrugada do dia seguinte (<6h) e ordenar
-        const madrugada = amanhaData.horarios.filter(h => h.hora < 6)
+      if (amanhaData && proximos.length < 4) {
+        const horariosDiaSeguinte = amanhaData.horarios
                                              .sort((a,b) => a.hora - b.hora)
                                              .map(h => ({ ...h, fromTomorrow: true }));
-        madrugada.forEach(h => { if(proximos.length < 4) proximos.push(h); });
-
-        // se ainda faltar, adicionar 6h
-        if(proximos.length < 4) {
-          const h6 = amanhaData.horarios.find(h => h.hora === 6);
-          if(h6) proximos.push({ ...h6, fromTomorrow: true });
+        for (let h of horariosDiaSeguinte) {
+          if (proximos.length >= 4) break;
+          proximos.push(h);
         }
       }
 
       hojeData.horarios = proximos.slice(0,4);
+      hojeData.isToday = true;
     }
 
     // Renderizar cards
