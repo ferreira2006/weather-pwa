@@ -214,6 +214,29 @@ async function carregarPrevisao() {
   }
 }
 
+  // ===== DISPLAY =====
+let lastForecast = []; // <-- guardar globalmente para testes
+
+function displayWeather(data){
+  if(!data) return;
+  const {current,forecast}=data;
+
+  // salva para usar nos testes
+  lastForecast = forecast;
+
+  weatherContent.innerHTML=`<h2>${current.name}, ${current.sys.country}</h2>
+  <p>${current.weather[0].description} | ${Math.round(current.main.temp)}°C</p>`;
+
+  forecastContainer.innerHTML="";
+  forecast.forEach(day=>{
+    const card=document.createElement("div");
+    card.className="forecast-card";
+    card.innerHTML=`<h3>${day.date}</h3>`+
+      day.times.map(t=>`<div class="time-block">${t.time} - ${t.temp}°C - ${t.desc}</div>`).join("");
+    forecastContainer.appendChild(card);
+  });
+}
+
 carregarPrevisao();
 </script>
 </body>
