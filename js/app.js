@@ -58,33 +58,11 @@ async function carregarPrevisao() {
         feels_like: Math.round(item.main.feels_like),
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
-        icon: item.weather[0].icon,
-        fromTomorrow: false // padrão: falso
+        icon: item.weather[0].icon
       });
     });
 
-    // Preparar card de hoje com 4 horários
-    const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
-    if (hojeData) {
-      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora).filter(h => h.hora > agora.getHours());
-      let proximos = [...proximosHoje];
-
-      // adiciona madrugada do dia seguinte se não tiver 4
-      const indiceHoje = diasOrdenados.indexOf(hojeStr);
-      const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-      if(proximos.length < 4 && amanhaData) {
-        let i = 0;
-        while(proximos.length < 4 && i < amanhaData.horarios.length) {
-          const nh = { ...amanhaData.horarios[i], fromTomorrow: true }; // só para card de hoje
-          proximos.push(nh);
-          i++;
-        }
-      }
-      hojeData.horarios = proximos.slice(0,4);
-    }
-
-    // Renderizar cards
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
@@ -95,7 +73,7 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.slice(0,4).forEach(dia => {
+    diasOrdenados.slice(0,4).forEach((dia, index) => {
       const dataDia = diasMap.get(dia);
       const card = document.createElement("div");
       card.className = "card";
@@ -104,13 +82,21 @@ async function carregarPrevisao() {
       titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
       card.appendChild(titulo);
 
-      dataDia.horarios.forEach(p => {
-        if(!p) return;
+      let horariosParaRender = [...dataDia.horarios];
+
+      // Se for o card de hoje, adicionar horários da madrugada do dia seguinte para completar 4
+      if(dataDia.isToday && horariosParaRender.length < 4 && diasMap.has(diasOrdenados[index+1])) {
+        const proximoDia = diasMap.get(diasOrdenados[index+1]);
+        const madrugada = proximoDia.horarios.filter(h => h.hora < 6);
+        madrugada.forEach(h => h.fromTomorrow = true);
+        horariosParaRender = horariosParaRender.concat(madrugada).slice(0,4);
+      }
+
+      horariosParaRender.forEach(p => {
         const horarioDiv = document.createElement("div");
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        // mostrar "Amanhã" somente no card de hoje e horários da madrugada adicionados
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
