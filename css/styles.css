@@ -1,52 +1,143 @@
-body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #6ec1e4, #a8d5e2); color: #0d3b66; text-align: center; padding: 20px; font-size: 18px; }
-  h1 { font-size: 36px; margin-bottom: 20px; color: #0d3b66; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); }
-  
-  .cards {
-   display: flex;
+/* ===== Global ===== */
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #6ec1e4, #a8d5e2);
+  color: #0d3b66;
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+}
+
+h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #0d3b66;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
+}
+
+/* ===== Container de Cards ===== */
+.cards {
+  display: flex;
   flex-direction: column; /* empilha verticalmente */
   align-items: center;    /* centraliza horizontalmente */
-  gap: 20px;
+  gap: 20px;              /* espaço entre os cards */
   margin-top: 20px;
 }
 
+/* ===== Card ===== */
 .card {
   background: rgba(255,255,255,0.85);
   border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
   padding: 15px;
-  min-width: 250px;
+  width: 90%;
   max-width: 350px;
+  min-height: 120px;          /* garante altura mínima */
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   backdrop-filter: blur(6px);
+  transition: transform 0.2s, box-shadow 0.3s;
+  color: #0d3b66;
   display: flex;
-  flex-direction: column;
+  flex-direction: column;      /* horários de cima para baixo */
   word-wrap: break-word;
 }
 
-/* card de hoje */
+/* ===== Card de Hoje ===== */
 .card.today {
   border: 2px solid #0d3b66;
   box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  flex-grow: 1;       /* permite expandir se houver espaço */
   transform: scale(1.02);
-  transition: transform 0.2s, box-shadow 0.3s;
+  align-self: flex-start;      /* destaca card de hoje à esquerda */
 }
 
-/* hover */
+/* ===== Hover Card ===== */
 .card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
-  .card h2 { margin: 5px 0 12px 0; font-size: 26px; border-bottom: 1px solid rgba(0,0,0,0.1); padding-bottom: 5px; }
-  .horario { margin: 8px 0; padding: 6px 10px; border-radius: 10px; display: flex; align-items: center; gap: 8px; font-size: 18px; color: #0d3b66; cursor: pointer; transition: all 0.3s ease; position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0)); box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.1); }
-  .horario::after { content: ""; position: absolute; top: 0; left: -75%; width: 50%; height: 100%; background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%); transform: skewX(-20deg); transition: all 0.3s ease; }
-  .horario:hover::after { animation: shine 1s forwards; }
-  @keyframes shine { 0% { left: -75%; } 100% { left: 125%; } }
-  .horario:hover { transform: translateX(3px); }
-  .horario strong { width: 60px; flex-shrink: 0; }
-  .horario img { width: 32px; height: 32px; flex-shrink: 0; }
-  .horario span.temp { margin-right: 12px; flex-shrink: 0; }
-  .horario span.desc { flex: 1; white-space: nowrap; }
-  .tooltip { position: fixed; z-index: 9999; background-color: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; transform: translateY(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
-  @media (max-width: 550px) { .card { flex: 1 1 100%; max-width: 100%; font-size: 24px; } body { font-size: 20px; } h1 { font-size: 30px; } .card h2 { font-size: 22px; } .horario { font-size: 24px; gap: 10px; } .horario strong { width: 70px; } .horario img { width: 36px; height: 36px; } .horario span.temp { margin-right: 14px; } }
+/* ===== Título do Card ===== */
+.card h2 {
+  margin: 5px 0 12px 0;
+  font-size: 26px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 5px;
+}
+
+/* ===== Horário ===== */
+.horario {
+  margin: 10px 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  color: #0d3b66;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: normal;        /* permite quebra de linha */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0));
+  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* ===== Efeito Shine ===== */
+.horario::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-20deg);
+  transition: all 0.3s ease;
+}
+
+.horario:hover::after {
+  animation: shine 1s forwards;
+}
+
+@keyframes shine {
+  0% { left: -75%; }
+  100% { left: 125%; }
+}
+
+.horario:hover { transform: translateX(3px); }
+
+.horario strong { width: 60px; flex-shrink: 0; }
+.horario img { width: 32px; height: 32px; flex-shrink: 0; }
+.horario span.temp { margin-right: 12px; flex-shrink: 0; }
+.horario span.desc { flex: 1; }
+
+/* ===== Tooltip ===== */
+.tooltip {
+  position: fixed;
+  z-index: 9999;
+  background-color: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  transform: translateY(10px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+/* ===== Responsividade ===== */
+@media (max-width: 550px) {
+  .card { flex: 1 1 100%; max-width: 100%; font-size: 20px; }
+  body { font-size: 18px; }
+  h1 { font-size: 30px; }
+  .card h2 { font-size: 22px; }
+  .horario { font-size: 20px; gap: 10px; }
+  .horario strong { width: 70px; }
+  .horario img { width: 36px; height: 36px; }
+  .horario span.temp { margin-right: 14px; }
+}
