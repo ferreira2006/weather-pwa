@@ -2,9 +2,7 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
 function capitalizeWords(str) {
-  return str.split(' ').map(word => 
-    word.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')
-  ).join(' ');
+  return str.split(' ').map(word => word.split('-').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join('-')).join(' ');
 }
 
 function climaGradient(desc) {
@@ -32,7 +30,7 @@ async function carregarPrevisao() {
     // Agrupar previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
-      const dataLocalStr = new Intl.DateTimeFormat("pt-BR", {timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
       const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
       const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
       const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
@@ -54,29 +52,27 @@ async function carregarPrevisao() {
       });
     });
 
-    // Card de hoje: pegar os 4 próximos horários
-    const hojeStr = new Intl.DateTimeFormat("pt-BR", {timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+    // Card de hoje: pegar os próximos 3 horários do backend, completar com amanhã se necessário
+    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
     const hojeData = diasMap.get(hojeStr);
+    if(hojeData){
+      // Ordenar horários
+      let horariosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
+                          .filter(h => h.hora > agora.getHours()); // próximos horários do dia
 
-    if(hojeData) {
-      let horariosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora);
-      const proximos = [];
-      for(const h of horariosHoje) {
-        if(h.hora > agora.getHours()) proximos.push(h);
-      }
-
+      // Completar com horários do dia seguinte se necessário
       const diasOrdenados = Array.from(diasMap.keys()).sort();
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje+1]);
-
-      let i = 0;
-      while(proximos.length < 4 && amanhaData && i < amanhaData.horarios.length) {
-        const nh = {...amanhaData.horarios[i], fromTomorrow:true};
-        proximos.push(nh);
-        i++;
+      if(amanhaData){
+        let i = 0;
+        while(horariosHoje.length < 3 && i < amanhaData.horarios.length){
+          horariosHoje.push({...amanhaData.horarios[i], fromTomorrow:true});
+          i++;
+        }
       }
 
-      hojeData.horarios = proximos.slice(0,4);
+      hojeData.horarios = horariosHoje.slice(0,3);
     }
 
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
@@ -86,52 +82,48 @@ async function carregarPrevisao() {
     let tooltip = document.querySelector(".tooltip");
     if(!tooltip){
       tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
+      tooltip.className="tooltip";
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.forEach(dia => {
+    // Renderizar cards
+    diasOrdenados.forEach(dia=>{
       const dataDia = diasMap.get(dia);
-      const card = document.createElement("div");
-      card.className = "card";
-      const titulo = document.createElement("h2");
-      titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
-      card.appendChild(titulo);
+      const card = document.createElement("div"); card.className="card";
+      const titulo = document.createElement("h2"); titulo.textContent=`${dataDia.diaSemana} - ${dia}`; card.appendChild(titulo);
 
-      dataDia.horarios.forEach(p => {
+      dataDia.horarios.forEach(p=>{
         if(!p) return;
-        const horarioDiv = document.createElement("div");
-        horarioDiv.className = "horario";
+        const horarioDiv = document.createElement("div"); 
+        horarioDiv.className="horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
         if(p.fromTomorrow){
           horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong>
-            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span>
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
-            <span class="desc">${capitalizeWords(p.desc)}</span>
+            <strong>${p.hora}h</strong> 
+            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
             <span class="temp">${p.temp}°C</span>
           `;
         } else {
           horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong>
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
-            <span class="desc">${capitalizeWords(p.desc)}</span>
+            <strong>${p.hora}h</strong> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
             <span class="temp">${p.temp}°C</span>
           `;
         }
 
-        horarioDiv.addEventListener("mousemove", e => {
+        horarioDiv.addEventListener("mousemove", e=>{
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
           let left = e.clientX+12, top = e.clientY+12;
           if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
           if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left+"px";
-          tooltip.style.top = top+"px";
+          tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
         });
-
-        horarioDiv.addEventListener("mouseleave", () => { tooltip.style.opacity=0; });
+        horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
 
         card.appendChild(horarioDiv);
       });
@@ -139,9 +131,9 @@ async function carregarPrevisao() {
       cardsDiv.appendChild(card);
     });
 
-  } catch(err) {
+  } catch(err){
     console.error("Erro ao carregar previsão:", err);
-    document.getElementById("cards").innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
+    document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
 }
 
