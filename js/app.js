@@ -52,7 +52,7 @@ async function carregarPrevisao(cidadeEscolhida = city) {
     console.error('Erro ao carregar previsão:', err);
     document.getElementById(
       'cards'
-    ).innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
+    ).innerHTML = `<p>Não foi possível carregar a previsão para "${cidade}".</p>`;
   }
 }
 
