@@ -1,7 +1,6 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
-// ======================== Funções utilitárias ========================
 function capitalizeWords(str) {
   return str.split(' ').map(word => word.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')).join(' ');
 }
@@ -17,7 +16,6 @@ function climaGradient(desc) {
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
-// ======================== Carregar previsão ========================
 async function carregarPrevisao() {
   try {
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
@@ -34,7 +32,7 @@ async function carregarPrevisao() {
     const horariosPadraoFuturos = [6,12,18];
     const diasMap = new Map();
 
-    // ======================== Agrupar previsões ========================
+    // Agrupar previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
       const dataLocalStr = formatterData.format(data);
@@ -42,7 +40,7 @@ async function carregarPrevisao() {
       const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
       const isHoje = dataLocalStr === hojeStr;
 
-      // Filtro de horários
+      // Filtrar horários
       if(isHoje && horaLocal <= agora.getHours()) return;
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
@@ -59,34 +57,39 @@ async function carregarPrevisao() {
       });
     });
 
-    // ======================== Preparar card de hoje ========================
+    // Preparar card de hoje com 4 horários
     const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
     if(hojeData) {
+      // horários restantes de hoje
       let proximos = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
                                      .filter(h => h.hora > agora.getHours());
 
-      // Adiciona madrugada do dia seguinte (<6h) se faltar horários
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
       if(amanhaData && proximos.length < 4) {
-        amanhaData.horarios.filter(h => h.hora < 6).forEach(h => {
-          if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
-        });
+        // adicionar madrugada do dia seguinte (0h, 3h, etc.)
+        amanhaData.horarios
+          .filter(h => h.hora < 6)
+          .forEach(h => {
+            if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
+          });
 
-        const horario6h = amanhaData.horarios.find(h => h.hora === 6);
-        if(horario6h && proximos.length < 4) proximos.push({ ...horario6h, fromTomorrow: true });
+        // se ainda faltar, adicionar 6h
+        if(proximos.length < 4) {
+          const h6 = amanhaData.horarios.find(h => h.hora === 6);
+          if(h6) proximos.push({ ...h6, fromTomorrow: true });
+        }
       }
 
       hojeData.horarios = proximos.slice(0,4);
     }
 
-    // ======================== Renderização ========================
+    // Renderizar cards
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
-    // Tooltip único
     let tooltip = document.querySelector(".tooltip");
     if(!tooltip){
       tooltip = document.createElement("div");
@@ -94,7 +97,6 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    // Renderizar cada card
     diasOrdenados.slice(0,4).forEach(dia => {
       const dataDia = diasMap.get(dia);
       const card = document.createElement("div");
@@ -110,6 +112,7 @@ async function carregarPrevisao() {
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
+        // mostrar "Amanhã" somente no card de hoje para horários da madrugada do dia seguinte
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
