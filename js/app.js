@@ -41,7 +41,7 @@ async function carregarPrevisao() {
       const isHoje = dataLocalStr === hojeStr;
 
       // Filtrar horários
-      if(isHoje && horaLocal < agora.getHours()) return;
+      if(isHoje && horaLocal <= agora.getHours()) return;
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
@@ -53,30 +53,32 @@ async function carregarPrevisao() {
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
-        fromTomorrow: false
+        fromTomorrow: false // só ajustaremos para card de hoje
       });
     });
 
-    // Preparar card de hoje com até 4 horários
+    // Preparar card de hoje com 4 horários
     const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
+
     if (hojeData) {
-      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora).filter(h => h.hora >= agora.getHours());
+      // Horários restantes do dia de hoje
+      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
+                                         .filter(h => h.hora > agora.getHours());
       let proximos = [...proximosHoje];
 
-      // adiciona apenas horários da madrugada de amanhã (<6h)
+      // Adicionar horários da madrugada do próximo dia (<6h) se necessário
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
       if(proximos.length < 4 && amanhaData) {
+        const horariosMadrugada = amanhaData.horarios.filter(h => h.hora < 6);
         let i = 0;
-        while(proximos.length < 4 && i < amanhaData.horarios.length) {
-          const h = amanhaData.horarios[i];
-          if(h.hora < 6) { // só madrugada
-            proximos.push({...h, fromTomorrow:true});
-          }
+        while(proximos.length < 4 && i < horariosMadrugada.length) {
+          proximos.push({ ...horariosMadrugada[i], fromTomorrow: true });
           i++;
         }
       }
+
       hojeData.horarios = proximos.slice(0,4);
     }
 
@@ -106,7 +108,7 @@ async function carregarPrevisao() {
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        // mostrar "Amanhã" somente no card de hoje e horários da madrugada adicionados
+        // Mostrar "Amanhã" somente no card de hoje e horários da madrugada adicionados
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
@@ -117,7 +119,7 @@ async function carregarPrevisao() {
           <span class="temp">${p.temp}°C</span>
         `;
 
-        // tooltip
+        // Tooltip
         horarioDiv.addEventListener("mousemove", e => {
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
