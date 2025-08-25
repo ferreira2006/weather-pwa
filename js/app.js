@@ -24,22 +24,27 @@ async function carregarPrevisao() {
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     const agora = new Date();
+    const formatterData = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" });
+    const formatterHora = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", hour:"numeric", hour12:false });
+    const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", weekday:"long" });
+    const hojeStr = formatterData.format(agora);
+
     const horariosPadraoFuturos = [6,12,18];
     const diasMap = new Map();
 
     // Agrupar previsões por dia
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
-      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
-      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
-      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+      const dataLocalStr = formatterData.format(data);
+      const horaLocal = parseInt(formatterHora.format(data));
+      const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
+      const isHoje = dataLocalStr === hojeStr;
 
       // Filtrar horários
       if(isHoje && horaLocal <= agora.getHours()) return;
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
-      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[], isToday:isHoje});
+      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
       diasMap.get(dataLocalStr).horarios.push({
         hora: horaLocal,
         desc: item.weather[0].description,
@@ -48,41 +53,31 @@ async function carregarPrevisao() {
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
-        fromTomorrow: !isHoje
+        fromTomorrow: false // padrão: falso, só ajustaremos para card de hoje
       });
     });
 
-    // Card de hoje: pegar os 4 próximos horários
-    const hojeStr = new Intl.DateTimeFormat("pt-BR", {
-      timeZone: "America/Sao_Paulo",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric"
-    }).format(agora);
-
+    // Preparar card de hoje com 4 horários
     const hojeData = diasMap.get(hojeStr);
+    const diasOrdenados = Array.from(diasMap.keys()).sort();
     if (hojeData) {
-      let horariosHoje = hojeData.horarios.sort((a, b) => a.hora - b.hora);
-      const proximos = [];
-      for (const h of horariosHoje) {
-        if (h.hora > agora.getHours()) proximos.push(h);
-      }
+      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora).filter(h => h.hora > agora.getHours());
+      let proximos = [...proximosHoje];
 
-      const diasOrdenados = Array.from(diasMap.keys()).sort();
+      // adiciona madrugada do dia seguinte se não tiver 4
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-
-      let i = 0;
-      while (proximos.length < 4 && amanhaData && i < amanhaData.horarios.length) {
-        const nh = { ...amanhaData.horarios[i], fromTomorrow: true };
-        proximos.push(nh);
-        i++;
+      if(proximos.length < 4 && amanhaData) {
+        let i = 0;
+        while(proximos.length < 4 && i < amanhaData.horarios.length) {
+          proximos.push({ ...amanhaData.horarios[i], fromTomorrow: true });
+          i++;
+        }
       }
-
-      hojeData.horarios = proximos.slice(0, 4);
+      hojeData.horarios = proximos.slice(0,4);
     }
 
-    const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
+    // Renderizar cards
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
@@ -93,25 +88,22 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.forEach(dia => {
+    diasOrdenados.slice(0,4).forEach(dia => {
       const dataDia = diasMap.get(dia);
       const card = document.createElement("div");
       card.className = "card";
 
-      // título do card
       const titulo = document.createElement("h2");
       titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
       card.appendChild(titulo);
 
-      // monta cada horário do card
       dataDia.horarios.forEach(p => {
-        if (!p) return;
-
+        if(!p) return;
         const horarioDiv = document.createElement("div");
         horarioDiv.className = "horario";
         horarioDiv.style.background = climaGradient(p.desc);
 
-        // somente exibe "Amanhã" se for o card de hoje e o horário for da madrugada do próximo dia
+        // mostrar "Amanhã" somente no card de hoje e horários da madrugada adicionados
         const mostrarAmanha = dataDia.isToday && p.fromTomorrow;
 
         horarioDiv.innerHTML = `
@@ -129,10 +121,10 @@ async function carregarPrevisao() {
           let left = e.clientX + 12, top = e.clientY + 12;
           if (left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
           if (top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-          tooltip.style.left = left + "px"; 
+          tooltip.style.left = left + "px";
           tooltip.style.top = top + "px";
         });
-        horarioDiv.addEventListener("mouseleave", () => { tooltip.style.opacity = 0; });
+        horarioDiv.addEventListener("mouseleave", () => tooltip.style.opacity = 0);
 
         card.appendChild(horarioDiv);
       });
@@ -140,7 +132,7 @@ async function carregarPrevisao() {
       cardsDiv.appendChild(card);
     });
 
-  } catch(err){
+  } catch(err) {
     console.error("Erro ao carregar previsão:", err);
     document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
   }
