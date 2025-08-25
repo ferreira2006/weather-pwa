@@ -2,9 +2,9 @@ body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #6ec1
   h1 { font-size: 36px; margin-bottom: 20px; color: #0d3b66; text-shadow: 1px 1px 2px rgba(255,255,255,0.6); }
   
   .cards {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+   display: flex;
+  flex-direction: column; /* empilha verticalmente */
+  align-items: center;    /* centraliza horizontalmente */
   gap: 20px;
   margin-top: 20px;
 }
@@ -14,17 +14,13 @@ body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #6ec1
   border: 1px solid rgba(0,0,0,0.05);
   border-radius: 16px;
   padding: 15px;
-  flex: 0 0 auto;
   min-width: 250px;
   max-width: 350px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   backdrop-filter: blur(6px);
-  transition: transform 0.2s, box-shadow 0.3s, border 0.3s;
-  color: #0d3b66;
   display: flex;
   flex-direction: column;
   word-wrap: break-word;
-  height: auto;
 }
 
 /* card de hoje */
