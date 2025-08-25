@@ -29,19 +29,16 @@ async function carregarPrevisao() {
     const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
     const hojeStr = formatterData.format(agora);
 
-    const horariosPadraoFuturos = [6,12,18];
+    const horariosPadraoFuturos = [6,12,18]; // para os próximos dias
     const diasMap = new Map();
 
-    // Agrupar previsões por dia
+    // Agrupar previsões por dia sem filtrar
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
       const dataLocalStr = formatterData.format(data);
       const horaLocal = parseInt(formatterHora.format(data));
       const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
       const isHoje = dataLocalStr === hojeStr;
-
-      // Aplicar filtro somente nos dias futuros
-      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
       diasMap.get(dataLocalStr).horarios.push({
@@ -59,21 +56,33 @@ async function carregarPrevisao() {
     const diasOrdenados = Array.from(diasMap.keys()).sort();
     const hojeData = diasMap.get(hojeStr);
 
-    if(hojeData) {
-      // Selecionar os próximos 4 horários do dia de hoje sem excluir 0h e 3h
-      let proximos = hojeData.horarios.sort((a,b) => a.hora - b.hora);
+    // Preparar card de hoje com 4 próximos horários
+    if (hojeData) {
+      let proximos = hojeData.horarios
+                             .sort((a,b) => a.hora - b.hora)
+                             .filter(h => h.hora >= agora.getHours());
+
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
 
-      if(amanhaData && proximos.length < 4) {
-        amanhaData.horarios.sort((a,b) => a.hora - b.hora)
+      if (amanhaData && proximos.length < 4) {
+        amanhaData.horarios
+          .sort((a,b) => a.hora - b.hora)
           .forEach(h => {
-            if(proximos.length < 4) proximos.push({...h, fromTomorrow: true});
+            if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
           });
       }
 
       hojeData.horarios = proximos.slice(0,4);
     }
+
+    // Aplicar filtro 6,12,18 apenas nos cards futuros
+    diasOrdenados.slice(1,4).forEach(dia => { // exclui hoje
+      const dataDia = diasMap.get(dia);
+      dataDia.horarios = dataDia.horarios
+                                 .filter(h => horariosPadraoFuturos.includes(h.hora))
+                                 .sort((a,b) => a.hora - b.hora);
+    });
 
     // Renderizar cards
     const cardsDiv = document.getElementById("cards");
