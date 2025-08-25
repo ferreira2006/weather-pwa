@@ -29,7 +29,7 @@ async function carregarPrevisao() {
     const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
     const hojeStr = formatterData.format(agora);
 
-    const horariosPadraoFuturos = [6,12,18]; // para os próximos dias
+    const horariosPadraoFuturos = [6,12,18];
     const diasMap = new Map();
 
     // Agrupar previsões por dia
@@ -56,23 +56,19 @@ async function carregarPrevisao() {
       });
     });
 
-    // Preparar card de hoje com 4 horários a partir da hora atual
-    const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
+    const hojeData = diasMap.get(hojeStr);
 
-    if (hojeData) {
-      let proximos = hojeData.horarios
-                             .sort((a,b) => a.hora - b.hora)
-                             .filter(h => h.hora > agora.getHours());
-
+    if(hojeData) {
+      // Selecionar os próximos 4 horários do dia de hoje sem excluir 0h e 3h
+      let proximos = hojeData.horarios.sort((a,b) => a.hora - b.hora);
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
 
-      if (amanhaData && proximos.length < 4) {
-        amanhaData.horarios
-          .sort((a,b) => a.hora - b.hora)
+      if(amanhaData && proximos.length < 4) {
+        amanhaData.horarios.sort((a,b) => a.hora - b.hora)
           .forEach(h => {
-            if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
+            if(proximos.length < 4) proximos.push({...h, fromTomorrow: true});
           });
       }
 
