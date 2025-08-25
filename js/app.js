@@ -1,6 +1,7 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
+// Função para capitalizar palavras (ex.: "céu limpo" -> "Céu Limpo")
 function capitalizeWords(str) {
   return str.split(' ')
             .map(word => word.split('-')
@@ -9,6 +10,7 @@ function capitalizeWords(str) {
             .join(' ');
 }
 
+// Função que retorna um gradiente de fundo baseado na descrição do clima
 function climaGradient(desc) {
   const d = desc.toLowerCase();
   if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
@@ -22,18 +24,20 @@ function climaGradient(desc) {
 
 async function carregarPrevisao() {
   try {
+    // Buscar dados do backend
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
     if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
     const dados = await resp.json();
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     const agora = new Date();
+    // Formatadores para data, hora e dia da semana
     const formatterData = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" });
     const formatterHora = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false });
     const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
     const hojeStr = formatterData.format(agora);
 
-    const horariosPadraoFuturos = [6,12,18]; // Horários para cards futuros
+    const horariosPadraoFuturos = [6,12,18]; // Horários fixos para próximos dias
     const diasMap = new Map();
 
     // Agrupar previsões por dia
@@ -44,7 +48,7 @@ async function carregarPrevisao() {
       const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
       const isHoje = dataLocalStr === hojeStr;
 
-      // Aplicar filtro somente nos dias futuros
+      // Filtrar horários apenas para os próximos dias, mantendo todos os horários de hoje
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
@@ -65,10 +69,12 @@ async function carregarPrevisao() {
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
     if (hojeData) {
+      // Filtrar horários futuros do dia de hoje
       let proximos = hojeData.horarios
                              .sort((a,b) => a.hora - b.hora)
                              .filter(h => h.hora > agora.getHours());
 
+      // Preencher com horários do dia seguinte se houver menos de 4
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
 
@@ -83,10 +89,11 @@ async function carregarPrevisao() {
       hojeData.horarios = proximos.slice(0,4);
     }
 
-    // Renderizar cards
+    // Renderizar os cards
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
+    // Criar tooltip se ainda não existir
     let tooltip = document.querySelector(".tooltip");
     if(!tooltip){
       tooltip = document.createElement("div");
@@ -99,10 +106,12 @@ async function carregarPrevisao() {
       const card = document.createElement("div");
       card.className = "card";
 
+      // Título do card: dia da semana + data
       const titulo = document.createElement("h2");
       titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
       card.appendChild(titulo);
 
+      // Renderizar horários do dia
       dataDia.horarios.forEach(p => {
         if(!p) return;
         const horarioDiv = document.createElement("div");
@@ -119,7 +128,7 @@ async function carregarPrevisao() {
           <span class="temp">${p.temp}°C</span>
         `;
 
-        // tooltip
+        // Tooltip ao passar o mouse
         horarioDiv.addEventListener("mousemove", e => {
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
@@ -143,4 +152,5 @@ async function carregarPrevisao() {
   }
 }
 
+// Chamar função principal
 carregarPrevisao();
