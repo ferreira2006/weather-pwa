@@ -51,7 +51,7 @@ h1 {
 .card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-  border: 2px solid #0d3b66;
+ 
 }
 
 .card h2 {
