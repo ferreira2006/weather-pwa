@@ -124,14 +124,21 @@ h1 {
 
 /* Mobile: cards ocupam mais espaço */
 @media (max-width: 550px) {
+  .cards {
+    width: 100%;
+    max-width: 100%;
+  }
+
   .card {
     flex: 1 1 100%;
     max-width: 100%;
     font-size: 24px;
   }
+
   body { font-size: 20px; }
   h1 { font-size: 30px; }
   .card h2 { font-size: 22px; }
+
   .horario {
     font-size: 24px;
     gap: 10px;
