@@ -1,111 +1,141 @@
-// ===== CONFIG =====
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
-const themeToggle = document.getElementById("theme-toggle");
-const body = document.body;
-const stateSelect = document.getElementById("state-select");
-const citySelect = document.getElementById("city-select");
-const searchBtn = document.getElementById("state-city-search-btn");
-const weatherContent = document.getElementById("weather-content");
-const forecastContainer = document.getElementById("forecast");
-const spinner = document.getElementById("spinner");
-const toast = document.getElementById("toast");
-const historyList = document.getElementById("history-list");
-const favoritesList = document.getElementById("favorites-list");
-const clearHistoryBtn = document.getElementById("clear-history-btn");
-const confirmModal = document.getElementById("confirm-modal");
-const confirmYes = document.getElementById("confirm-yes");
-const confirmNo = document.getElementById("confirm-no");
-const scrollTopBtn = document.getElementById("scroll-top-btn");
+const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+const city = "São Miguel do Oeste";
 
-let history = JSON.parse(localStorage.getItem("history"))||[];
-let favorites = JSON.parse(localStorage.getItem("favorites"))||[];
-
-// ===== THEME =====
-themeToggle.addEventListener("click",()=>{
-  body.classList.toggle("light");
-  body.classList.toggle("dark");
-});
-
-// ===== TOAST =====
-function showToast(msg){
-  toast.textContent = msg;
-  toast.classList.add("show");
-  setTimeout(()=> toast.classList.remove("show"),2000);
+function capitalizeWords(str) {
+  return str.split(' ').map(word => word.split('-').map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join('-')).join(' ');
 }
 
-// ===== HISTORY & FAVORITES =====
-function renderHistory(){
-  historyList.innerHTML = "";
-  history.forEach(city=>{
-    const li=document.createElement("li");
-    li.textContent=city;
-    li.tabIndex=0;
-    li.onclick = ()=>fetchWeather(city);
-    historyList.appendChild(li);
-  });
-}
-function renderFavorites(){
-  favoritesList.innerHTML = "";
-  favorites.forEach(city=>{
-    const li=document.createElement("li");
-    li.textContent=city;
-    li.tabIndex=0;
-    li.onclick = ()=>fetchWeather(city);
-    favoritesList.appendChild(li);
-  });
-}
-clearHistoryBtn.addEventListener("click",()=>confirmModal.hidden=false);
-confirmYes.addEventListener("click",()=>{
-  history=[]; localStorage.setItem("history",JSON.stringify(history));
-  renderHistory(); confirmModal.hidden=true;
-});
-confirmNo.addEventListener("click",()=>confirmModal.hidden=true);
-
-// ===== SCROLL TOP =====
-window.addEventListener("scroll",()=>{scrollTopBtn.style.display=window.scrollY>200?"flex":"none";});
-scrollTopBtn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
-
-// ===== WEATHER FETCH =====
-searchBtn.addEventListener("click",()=>{
-  const city=citySelect.value;
-  if(city) fetchWeather(city);
-});
-
-async function fetchWeather(city){
-  spinner.style.opacity=1;
-  weatherContent.style.visibility="hidden";
-  try{
-    const res=await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
-    const data=await res.json();
-    displayWeather(data);
-    updateHistory(city);
-  }catch(err){ showToast("Erro ao buscar dados"); }
-  spinner.style.opacity=0;
-  weatherContent.style.visibility="visible";
+function climaGradient(desc) {
+  const d = desc.toLowerCase();
+  if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
+  if(d.includes("nuvens")||d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
+  if(d.includes("chuva")||d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
+  if(d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
+  if(d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
+  if(d.includes("névoa")||d.includes("neblina")||d.includes("fumaça")||d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
+  return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
-function updateHistory(city){
-  if(!history.includes(city)) history.unshift(city);
-  if(history.length>5) history.pop();
-  localStorage.setItem("history",JSON.stringify(history));
-  renderHistory();
+async function carregarPrevisao() {
+  try {
+    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
+    const dados = await resp.json();
+    if(!dados.list) throw new Error("Resposta inesperada do backend");
+
+    const agora = new Date();
+    const horariosPadraoFuturos = [6,12,18];
+    const diasMap = new Map();
+
+    // Agrupar previsões por dia
+    dados.list.forEach(item => {
+      const data = new Date(item.dt*1000);
+      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
+      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
+      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+
+      // Filtrar horários
+      if(isHoje && horaLocal <= agora.getHours()) return;
+      if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
+
+      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[]});
+      diasMap.get(dataLocalStr).horarios.push({
+        hora: horaLocal,
+        desc: item.weather[0].description,
+        temp: Math.round(item.main.temp),
+        feels_like: Math.round(item.main.feels_like),
+        humidity: item.main.humidity,
+        pop: Math.round((item.pop||0)*100),
+        icon: item.weather[0].icon,
+        fromTomorrow: !isHoje
+      });
+    });
+
+    // Card de hoje: pegar os 3 próximos horários do backend
+    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
+    const hojeData = diasMap.get(hojeStr);
+    if(hojeData){
+      let horariosHoje = hojeData.horarios
+        .sort((a,b)=>a.hora-b.hora); // ordem crescente
+
+      // Se faltar 3, buscar do dia seguinte
+      const proximos = [];
+      for(const h of horariosHoje){
+        if(h.hora > agora.getHours()) proximos.push(h);
+      }
+      const diasOrdenados = Array.from(diasMap.keys()).sort();
+      const indiceHoje = diasOrdenados.indexOf(hojeStr);
+      const amanhaData = diasMap.get(diasOrdenados[indiceHoje+1]);
+
+      let i = 0;
+      while(proximos.length < 3 && amanhaData && i < amanhaData.horarios.length){
+        const nh = {...amanhaData.horarios[i], fromTomorrow:true};
+        proximos.push(nh);
+        i++;
+      }
+
+      hojeData.horarios = proximos.slice(0,3);
+    }
+
+    const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
+    const cardsDiv = document.getElementById("cards");
+    cardsDiv.innerHTML = "";
+
+    let tooltip = document.querySelector(".tooltip");
+    if(!tooltip){
+      tooltip = document.createElement("div");
+      tooltip.className="tooltip";
+      document.body.appendChild(tooltip);
+    }
+
+    diasOrdenados.forEach(dia=>{
+      const dataDia = diasMap.get(dia);
+      const card = document.createElement("div"); card.className="card";
+      const titulo = document.createElement("h2"); titulo.textContent=`${dataDia.diaSemana} - ${dia}`; card.appendChild(titulo);
+
+      dataDia.horarios.forEach(p=>{
+        if(!p) return;
+        const horarioDiv = document.createElement("div"); horarioDiv.className="horario";
+        horarioDiv.style.background = climaGradient(p.desc);
+
+        if(p.fromTomorrow){
+          horarioDiv.innerHTML = `
+            <strong>${p.hora}h</strong> 
+            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
+            <span class="temp">${p.temp}°C</span>
+          `;
+        } else {
+          horarioDiv.innerHTML = `
+            <strong>${p.hora}h</strong> 
+            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
+            <span class="desc">${capitalizeWords(p.desc)}</span> 
+            <span class="temp">${p.temp}°C</span>
+          `;
+        }
+
+        horarioDiv.addEventListener("mousemove", e=>{
+          tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
+          tooltip.style.opacity = 1;
+          let left = e.clientX+12, top = e.clientY+12;
+          if(left+tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
+          if(top+tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
+          tooltip.style.left = left+"px"; tooltip.style.top = top+"px";
+        });
+        horarioDiv.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
+
+        card.appendChild(horarioDiv);
+      });
+
+      cardsDiv.appendChild(card);
+    });
+
+  } catch(err){
+    console.error("Erro ao carregar previsão:", err);
+    document.getElementById("cards").innerHTML=`<p>Não foi possível carregar a previsão.</p>`;
+  }
 }
 
-// ===== DISPLAY =====
-function displayWeather(data){
-  if(!data) return;
-  const {current,forecast}=data;
-  weatherContent.innerHTML=`<h2>${current.name}, ${current.sys.country}</h2>
-  <p>${current.weather[0].description} | ${Math.round(current.main.temp)}°C</p>`;
-  forecastContainer.innerHTML="";
-  forecast.forEach(day=>{
-    const card=document.createElement("div");
-    card.className="forecast-card";
-    card.innerHTML=`<h3>${day.date}</h3>`+day.times.map(t=>`<div class="time-block">${t.time} - ${t.temp}°C - ${t.desc}</div>`).join("");
-    forecastContainer.appendChild(card);
-  });
-}
-
-// ===== INIT =====
-renderHistory();
-renderFavorites();
+carregarPrevisao();
