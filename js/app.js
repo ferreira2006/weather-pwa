@@ -29,7 +29,7 @@ async function carregarPrevisao() {
     const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
     const hojeStr = formatterData.format(agora);
 
-    const horariosPadraoFuturos = [6,12,18];
+    const horariosPadraoFuturos = [6,12,18]; // para os próximos dias
     const diasMap = new Map();
 
     // Agrupar previsões por dia
@@ -40,7 +40,7 @@ async function carregarPrevisao() {
       const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
       const isHoje = dataLocalStr === hojeStr;
 
-      // Filtrar horários: card de hoje pega todos futuros, outros seguem 6/12/18
+      // Filtrar horários
       if(!isHoje && !horariosPadraoFuturos.includes(horaLocal)) return;
 
       if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
@@ -56,32 +56,29 @@ async function carregarPrevisao() {
       });
     });
 
+    // Preparar card de hoje com 4 horários
+    const hojeData = diasMap.get(hojeStr);
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
-    // Preparar card do dia de hoje
-    const hojeData = diasMap.get(hojeStr);
     if (hojeData) {
-      // próximos horários de hoje
+      // horários restantes de hoje
       let proximos = hojeData.horarios
                              .sort((a,b) => a.hora - b.hora)
                              .filter(h => h.hora > agora.getHours());
 
-      // se faltar, pegar horários do dia seguinte
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
 
       if (amanhaData && proximos.length < 4) {
-        const horariosDiaSeguinte = amanhaData.horarios
-                                             .sort((a,b) => a.hora - b.hora)
-                                             .map(h => ({ ...h, fromTomorrow: true }));
-        for (let h of horariosDiaSeguinte) {
-          if (proximos.length >= 4) break;
-          proximos.push(h);
-        }
+        // pegar todos os horários do dia seguinte em ordem crescente
+        amanhaData.horarios
+          .sort((a,b) => a.hora - b.hora)
+          .forEach(h => {
+            if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
+          });
       }
 
       hojeData.horarios = proximos.slice(0,4);
-      hojeData.isToday = true;
     }
 
     // Renderizar cards
@@ -120,6 +117,7 @@ async function carregarPrevisao() {
           <span class="temp">${p.temp}°C</span>
         `;
 
+        // tooltip
         horarioDiv.addEventListener("mousemove", e => {
           tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
           tooltip.style.opacity = 1;
