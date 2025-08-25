@@ -20,6 +20,7 @@
   .horario span.temp { margin-right: 12px; flex-shrink: 0; }
   .horario span.desc { flex: 1; white-space: nowrap; }
   .tooltip { position: fixed; z-index: 9999; background-color: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; transform: translateY(10px); box-shadow: 0 4px 10px rgba(0,0,0,0.4); }
+  @media (max-width: 550px) { .card { flex: 1 1 100%; max-width: 100%; font-size: 24px; } body { font-size: 20px; } h1 { font-size: 30px; } .card h2 { font-size: 22px; } .horario { font-size: 24px; gap: 10px; } .horario strong { width: 70px; } .horario img { width: 36px; height: 36px; } .horario span.temp { margin-right: 14px; } }
 </style>
 </head>
 <body>
@@ -45,9 +46,33 @@ function climaGradient(desc) {
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
-// === Variável global para testes ===
-let lastForecast = [];
+// ===== Função para gerar horários do card de hoje =====
+function getHorariosCardHoje(forecast) {
+  if (!forecast || !forecast[0]?.horarios) return [];
+  const agora = new Date();
+  const horaAtual = agora.getHours();
+  const hojeDataStr = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" }).format(agora);
 
+  let horariosHoje = forecast[0].horarios
+    .filter(p => {
+      const data = new Date(p.dt*1000);
+      const dataStr = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" }).format(data);
+      return dataStr === hojeDataStr && p.hora > horaAtual;
+    })
+    .map(p => p.hora);
+
+  // Completa com amanhã se faltar
+  const forecastAmanha = forecast[1]?.horarios || [];
+  let idx = 0;
+  while (horariosHoje.length < 3 && idx < forecastAmanha.length) {
+    horariosHoje.push(forecastAmanha[idx].hora);
+    idx++;
+  }
+
+  return horariosHoje.slice(0,3).map(h => `${h.toString().padStart(2,'0')}:00`);
+}
+
+// ===== Carregar previsões =====
 async function carregarPrevisao() {
   try {
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
@@ -55,77 +80,32 @@ async function carregarPrevisao() {
     const dados = await resp.json();
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
-    lastForecast = dados.list; // SALVAMOS PARA TESTES NO CONSOLE
-
-    const agora = new Date();
-    const horariosPadrao = [6,12,18,21];
+    // Agrupar por dias e horários
     const diasMap = new Map();
-
     dados.list.forEach(item => {
       const data = new Date(item.dt*1000);
-      const dataLocalStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
+      const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
       const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-      const diaSemana = capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data));
-      const isHoje = dataLocalStr === new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
 
-      if(isHoje && horaLocal <= agora.getHours()) return;
-      if(!isHoje && !horariosPadrao.includes(horaLocal)) return;
-
-      if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[]});
-      diasMap.get(dataLocalStr).horarios.push({
+      if(!diasMap.has(dataStr)) diasMap.set(dataStr, {diaSemana: capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(data)), horarios: []});
+      diasMap.get(dataStr).horarios.push({
+        dt: item.dt,
         hora: horaLocal,
         desc: item.weather[0].description,
         temp: Math.round(item.main.temp),
         feels_like: Math.round(item.main.feels_like),
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
-        icon: item.weather[0].icon,
-        fromTomorrow: false
+        icon: item.weather[0].icon
       });
     });
 
-    // Ajuste: hoje sempre mostra 3 horários
-    const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-    const hojeData = diasMap.get(hojeStr);
-    if(hojeData){
-      let horariosHoje = hojeData.horarios.filter(p=>p.hora>agora.getHours());
-      const amanha = new Date(agora); amanha.setDate(agora.getDate()+1);
-      const amanhaStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(amanha);
-      if(!diasMap.has(amanhaStr)) diasMap.set(amanhaStr,{diaSemana: capitalizeWords(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"}).format(amanha)), horarios: []});
-      const amanhaData = diasMap.get(amanhaStr);
-
-      if(horariosHoje.length<3){
-        const faltam = 3 - horariosHoje.length;
-        [0,3,6,9].some(h=>{
-          if(faltam<=0) return true;
-          const previsao = dados.list.find(item=>{
-            const data = new Date(item.dt*1000);
-            const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
-            const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-            return dataStr===amanhaStr && horaLocal===h;
-          });
-          if(previsao){
-            amanhaData.horarios.push({
-              hora:h,
-              desc: previsao.weather[0].description,
-              temp: Math.round(previsao.main.temp),
-              feels_like: Math.round(previsao.main.feels_like),
-              humidity: previsao.main.humidity,
-              pop: Math.round((previsao.pop||0)*100),
-              icon: previsao.weather[0].icon,
-              fromTomorrow:true
-            });
-            horariosHoje.push(amanhaData.horarios[amanhaData.horarios.length-1]);
-          }
-        });
-      }
-      hojeData.horarios = horariosHoje.slice(0,3);
-    }
-
+    // Ordenar dias
     const diasOrdenados = Array.from(diasMap.keys()).slice(0,4);
     const cardsDiv = document.getElementById("cards");
     cardsDiv.innerHTML = "";
 
+    // Tooltip
     let tooltip = document.querySelector(".tooltip");
     if(!tooltip){
       tooltip = document.createElement("div");
@@ -133,33 +113,23 @@ async function carregarPrevisao() {
       document.body.appendChild(tooltip);
     }
 
-    diasOrdenados.forEach(dia=>{
-      const previsoesDia = diasMap.get(dia).horarios.slice(0,3);
-      const diaSemana = diasMap.get(dia).diaSemana;
+    diasOrdenados.forEach((diaStr, index) => {
+      const dataDia = diasMap.get(diaStr);
+      const horarios = (index===0) ? getHorariosCardHoje([dataDia,...diasOrdenados.slice(1).map(d => diasMap.get(d))].map(d=>({horarios:d.horarios}))) 
+                                  : dataDia.horarios.filter(p=>[6,12,18].includes(p.hora));
       const card = document.createElement("div"); card.className="card";
-      const titulo = document.createElement("h2"); titulo.textContent=`${diaSemana} - ${dia}`; card.appendChild(titulo);
+      const titulo = document.createElement("h2"); titulo.textContent=`${dataDia.diaSemana} - ${diaStr}`; card.appendChild(titulo);
 
-      previsoesDia.forEach(p=>{
+      horarios.forEach(p => {
         const horarioDiv = document.createElement("div");
         horarioDiv.className="horario";
 
-        if(p.fromTomorrow){
-          horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong> 
-            <span style="font-size:0.8em; margin-left:4px;">Amanhã</span> 
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
-            <span class="desc">${capitalizeWords(p.desc)}</span> 
-            <span class="temp">${p.temp}°C</span>
-          `;
-        } else {
-          horarioDiv.innerHTML = `
-            <strong>${p.hora}h</strong> 
-            <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}"> 
-            <span class="desc">${capitalizeWords(p.desc)}</span> 
-            <span class="temp">${p.temp}°C</span>
-          `;
-        }
-
+        horarioDiv.innerHTML = `
+          <strong>${p.hora.toString().padStart(2,'0')}h</strong>
+          <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
+          <span class="desc">${capitalizeWords(p.desc)}</span>
+          <span class="temp">${p.temp}°C</span>
+        `;
         horarioDiv.style.background = climaGradient(p.desc);
 
         horarioDiv.addEventListener("mousemove", e=>{
@@ -184,30 +154,6 @@ async function carregarPrevisao() {
   }
 }
 
-// === Função para teste console ===
-function getCardHojeReal(horaStr) {
-  if(!lastForecast.length) {
-    console.warn("⚠️ Carregue os dados primeiro (carregarPrevisao já rodou)");
-    return [];
-  }
-  const agora = new Date();
-  const hora = parseInt(horaStr.split(":")[0]);
-  const hojeStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(agora);
-
-  const hojeTimes = lastForecast.filter(item => {
-    const data = new Date(item.dt*1000);
-    const dataStr = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"}).format(data);
-    const horaLocal = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(data));
-    return dataStr===hojeStr && horaLocal>agora.getHours();
-  }).map(i => {
-    const h = parseInt(new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false}).format(new Date(i.dt*1000)));
-    return `${h}:00`;
-  });
-
-  return hojeTimes.slice(0,3);
-}
-
-// Carrega previsão ao abrir
 carregarPrevisao();
 </script>
 </body>
