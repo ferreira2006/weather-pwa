@@ -1,5 +1,6 @@
+// ======================= CONFIGURAÇÕES =======================
+let city = 'São Miguel do Oeste'; // cidade padrão
 const backendUrl = 'https://weather-backend-hh3w.onrender.com/forecast';
-const city = 'São Miguel do Oeste';
 const horariosPadraoFuturos = [6, 12, 18]; // horários padrão para dias futuros
 
 // ======================= UTILITÁRIOS =======================
@@ -35,10 +36,12 @@ function climaGradient(desc) {
   return 'linear-gradient(90deg, #b0bec5, #90a4ae)';
 }
 
-// ======================= BUSCA PREVISÃO =======================
-async function carregarPrevisao() {
+// ======================= CARREGA PREVISÃO =======================
+async function carregarPrevisao(cidadeEscolhida = city) {
   try {
-    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    const resp = await fetch(
+      `${backendUrl}?city=${encodeURIComponent(cidadeEscolhida)}`
+    );
     if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
     const dados = await resp.json();
     if (!dados.list) throw new Error('Resposta inesperada do backend');
@@ -107,18 +110,17 @@ function prepararCards(diasMap) {
   const hojeStr = diasOrdenados[0];
   const hojeData = diasMap.get(hojeStr);
 
-  // --- Card de hoje: pegar próximos horários a partir da hora atual
+  // --- Card de hoje: próximos horários a partir da hora atual
   if (hojeData) {
     let proximos = hojeData.horarios
-      .filter((h) => h.hora > agora.getHours()) // somente horários futuros
+      .filter((h) => h.hora > agora.getHours())
       .sort((a, b) => a.hora - b.hora);
 
-    // completar com horários do dia seguinte se houver menos de 4
     const amanhaData = diasMap.get(diasOrdenados[1]);
     if (amanhaData && proximos.length < 4) {
       proximos.push(
         ...amanhaData.horarios
-          .filter((_, i) => i < 4 - proximos.length) // só completar até 4
+          .filter((_, i) => i < 4 - proximos.length)
           .sort((a, b) => a.hora - b.hora)
           .map((h) => ({ ...h, fromTomorrow: true }))
       );
@@ -127,7 +129,7 @@ function prepararCards(diasMap) {
     hojeData.horarios = proximos.slice(0, 4);
   }
 
-  // --- Dias futuros: aplicar filtro de horários padrão (6,12,18)
+  // --- Dias futuros: apenas horários padrão
   diasOrdenados.slice(1).forEach((dia) => {
     const dataDia = diasMap.get(dia);
     dataDia.horarios = dataDia.horarios
@@ -143,7 +145,6 @@ function renderCards(diasOrdenados, diasMap) {
   const cardsDiv = document.getElementById('cards');
   cardsDiv.innerHTML = '';
 
-  // --- Cria tooltip se não existir
   let tooltip = document.querySelector('.tooltip');
   if (!tooltip) {
     tooltip = document.createElement('div');
@@ -156,12 +157,10 @@ function renderCards(diasOrdenados, diasMap) {
     const card = document.createElement('div');
     card.className = 'card';
 
-    // título do card
     const titulo = document.createElement('h2');
     titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
     card.appendChild(titulo);
 
-    // horários
     dataDia.horarios.forEach((p) => {
       const hDiv = document.createElement('div');
       hDiv.className = 'horario';
@@ -203,17 +202,17 @@ function renderCards(diasOrdenados, diasMap) {
   });
 }
 
+// ======================= IBGE: ESTADOS E MUNICÍPIOS =======================
 async function carregarEstados() {
   const estadoSelect = document.getElementById('estadoSelect');
   const resp = await fetch(
     'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
   );
   const estados = await resp.json();
-  estados.sort((a, b) => a.nome.localeCompare(b.nome)); // ordena alfabeticamente
-
+  estados.sort((a, b) => a.nome.localeCompare(b.nome));
   estados.forEach((est) => {
     const option = document.createElement('option');
-    option.value = est.id; // usar o ID do estado
+    option.value = est.id;
     option.textContent = est.nome;
     estadoSelect.appendChild(option);
   });
@@ -228,8 +227,7 @@ async function carregarMunicipios(estadoId) {
     `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
   );
   const municipios = await resp.json();
-
-  municipios.sort((a, b) => a.nome.localeCompare(b.nome)); // ordena alfabeticamente
+  municipios.sort((a, b) => a.nome.localeCompare(b.nome));
   municipios.forEach((mun) => {
     const option = document.createElement('option');
     option.value = mun.nome;
@@ -240,6 +238,7 @@ async function carregarMunicipios(estadoId) {
   municipioSelect.disabled = false;
 }
 
+// ======================= EVENTOS =======================
 document.getElementById('estadoSelect').addEventListener('change', (e) => {
   const estadoId = e.target.value;
   if (estadoId) carregarMunicipios(estadoId);
@@ -253,8 +252,8 @@ document.getElementById('municipioSelect').addEventListener('change', (e) => {
 document.getElementById('buscarClimaBtn').addEventListener('click', () => {
   const cidadeEscolhida = document.getElementById('municipioSelect').value;
   if (cidadeEscolhida) {
-    city = cidadeEscolhida; // atualiza a cidade global
-    carregarPrevisao(city); // chama a função com a cidade selecionada
+    city = cidadeEscolhida; // atualiza cidade global
+    carregarPrevisao(city);
   }
 });
 
