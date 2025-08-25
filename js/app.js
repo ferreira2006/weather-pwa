@@ -53,7 +53,7 @@ async function carregarPrevisao() {
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
-        fromTomorrow: false // só ajustaremos para card de hoje
+        fromTomorrow: false
       });
     });
 
@@ -62,25 +62,31 @@ async function carregarPrevisao() {
     const diasOrdenados = Array.from(diasMap.keys()).sort();
 
     if (hojeData) {
-      let proximosHoje = hojeData.horarios.sort((a,b)=>a.hora-b.hora)
-                                         .filter(h => h.hora > agora.getHours());
-      let proximos = [...proximosHoje];
+      const horaAtual = parseInt(formatterHora.format(agora));
 
+      // 1️⃣ Horários restantes de hoje
+      let proximos = hojeData.horarios
+        .sort((a,b)=>a.hora-b.hora)
+        .filter(h => h.hora > horaAtual);
+
+      // 2️⃣ Horários de amanhã (madrugada) se faltar
       const indiceHoje = diasOrdenados.indexOf(hojeStr);
       const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-      if(amanhaData && proximos.length < 4) {
-        // 1️⃣ Horários da madrugada (<6h)
-        const horariosMadrugada = amanhaData.horarios.filter(h => h.hora < 6);
+      if (amanhaData && proximos.length < 4) {
+        // Madrugada <6h
+        const horariosMadrugada = amanhaData.horarios
+          .filter(h => h.hora < 6)
+          .sort((a,b)=>a.hora-b.hora);
         horariosMadrugada.forEach(h => {
           if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
         });
 
-        // 2️⃣ Horário das 6h se ainda faltar
-        const horario6h = amanhaData.horarios.find(h => h.hora === 6);
-        if(horario6h && proximos.length < 4) proximos.push({ ...horario6h, fromTomorrow: true });
+        // Horário das 6h se ainda faltar
+        const h6 = amanhaData.horarios.find(h => h.hora === 6);
+        if(h6 && proximos.length < 4) proximos.push({ ...h6, fromTomorrow: true });
       }
 
-      hojeData.horarios = proximos.slice(0,4);
+      hojeData.horarios = proximos.slice(0, 4);
     }
 
     // Renderizar cards
