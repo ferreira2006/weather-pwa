@@ -251,9 +251,10 @@ document.getElementById('municipioSelect').addEventListener('change', (e) => {
 });
 
 document.getElementById('buscarClimaBtn').addEventListener('click', () => {
-  const cidade = document.getElementById('municipioSelect').value;
-  if (cidade) {
-    carregarPrevisao(cidade); // a função atual do seu código, passando a cidade escolhida
+  const cidadeEscolhida = document.getElementById('municipioSelect').value;
+  if (cidadeEscolhida) {
+    city = cidadeEscolhida; // atualiza a cidade global
+    carregarPrevisao(city); // chama a função com a cidade selecionada
   }
 });
 
