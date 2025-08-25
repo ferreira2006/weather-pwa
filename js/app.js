@@ -2,7 +2,13 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 const city = "São Miguel do Oeste";
 
 function capitalizeWords(str) {
-  return str.split(' ').map(word => word.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')).join(' ');
+  return str
+    .split(' ')
+    .map(word => word
+      .split('-')
+      .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+      .join('-'))
+    .join(' ');
 }
 
 function climaGradient(desc) {
@@ -53,7 +59,7 @@ async function carregarPrevisao() {
         humidity: item.main.humidity,
         pop: Math.round((item.pop||0)*100),
         icon: item.weather[0].icon,
-        fromTomorrow: false // padrão: falso, só ajustaremos para card de hoje
+        fromTomorrow: false // padrão: falso
       });
     });
 
@@ -70,7 +76,8 @@ async function carregarPrevisao() {
       if(proximos.length < 4 && amanhaData) {
         let i = 0;
         while(proximos.length < 4 && i < amanhaData.horarios.length) {
-          proximos.push({ ...amanhaData.horarios[i], fromTomorrow: true });
+          const nh = { ...amanhaData.horarios[i], fromTomorrow: true }; // só para card de hoje
+          proximos.push(nh);
           i++;
         }
       }
