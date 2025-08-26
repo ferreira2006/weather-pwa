@@ -1,5 +1,5 @@
 const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
-const city = "São Miguel do Oeste";
+let city = "São Miguel do Oeste";
 const horariosPadraoFuturos = [6, 12, 18]; // para os próximos dias
 
 function capitalizeWords(str) {
@@ -20,7 +20,7 @@ function climaGradient(desc) {
 }
 
 // ======================= BUSCA E AGRUPA DADOS =======================
-async function carregarPrevisao() {
+async function carregarPrevisao(cidadeEscolhida = city) {
   try {
     const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
     if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
