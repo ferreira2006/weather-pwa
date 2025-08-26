@@ -160,4 +160,60 @@ function renderCards(diasOrdenados, diasMap) {
   });
 }
 
+// ======================= IBGE: ESTADOS E MUNICÍPIOS =======================
+async function carregarEstados() {
+  const estadoSelect = document.getElementById('estadoSelect');
+  const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
+  const estados = await resp.json();
+  estados.sort((a, b) => a.nome.localeCompare(b.nome));
+  estados.forEach((est) => {
+    const option = document.createElement('option');
+    option.value = est.id;
+    option.textContent = est.nome;
+    estadoSelect.appendChild(option);
+  });
+}
+
+async function carregarMunicipios(estadoId) {
+  const municipioSelect = document.getElementById('municipioSelect');
+  municipioSelect.innerHTML = `<option value="">Selecione um município</option>`;
+  municipioSelect.disabled = true;
+
+  const resp = await fetch(
+    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
+  );
+  const municipios = await resp.json();
+  municipios.sort((a, b) => a.nome.localeCompare(b.nome));
+  municipios.forEach((mun) => {
+    const option = document.createElement('option');
+    option.value = mun.nome;
+    option.textContent = mun.nome;
+    municipioSelect.appendChild(option);
+  });
+
+  municipioSelect.disabled = false;
+}
+
+// ======================= EVENTOS =======================
+document.getElementById('estadoSelect').addEventListener('change', (e) => {
+  const estadoId = e.target.value;
+  if (estadoId) carregarMunicipios(estadoId);
+});
+
+document.getElementById('municipioSelect').addEventListener('change', (e) => {
+  const btn = document.getElementById('buscarClimaBtn');
+  btn.disabled = !e.target.value;
+});
+
+document.getElementById('buscarClimaBtn').addEventListener('click', () => {
+  const cidadeEscolhida = document.getElementById('municipioSelect').value;
+  if (cidadeEscolhida) {
+    city = cidadeEscolhida; // atualiza cidade global
+    carregarPrevisao(city);
+  }
+});
+
+// ======================= INICIALIZA =======================
+carregarEstados(); // carrega estados do IBGE
+
 carregarPrevisao();
