@@ -240,18 +240,18 @@ async function carregarMunicipios(estadoId) {
 }
 
 // ======================= EVENTOS =======================
-document.getElementById('estadoSelect').addEventListener('change', e=>{
+document.getElementById('estado-select').addEventListener('change', e=>{
   const estadoId = e.target.value;
   if(estadoId) carregarMunicipios(estadoId);
 });
 
-document.getElementById('municipioSelect').addEventListener('change', e=>{
+document.getElementById('cidade-select').addEventListener('change', e=>{
   const btn = document.getElementById('buscarClimaBtn');
   btn.disabled = !e.target.value;
 });
 
 document.getElementById('buscarClimaBtn').addEventListener('click', ()=>{
-  const cidadeEscolhida = document.getElementById('municipioSelect').value;
+  const cidadeEscolhida = document.getElementById('cidade-select').value;
   if(cidadeEscolhida){
     city = cidadeEscolhida;
     carregarPrevisao(city);
