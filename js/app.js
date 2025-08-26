@@ -46,13 +46,17 @@ async function carregarPrevisao(cidadeEscolhida = city) {
     const dados = await resp.json();
     if (!dados.list) throw new Error('Resposta inesperada do backend');
 
+    // Atualiza o título da cidade no topo
+    const titulo = document.getElementById('tituloCidade');
+    if (titulo) titulo.textContent = `Previsão do Tempo - ${cidadeEscolhida}`;
+
     const diasMap = agruparPorDia(dados.list); // agrupa todos os horários por dia
     prepararCards(diasMap); // aplica regras e renderiza
   } catch (err) {
     console.error('Erro ao carregar previsão:', err);
     document.getElementById(
       'cards'
-    ).innerHTML = `<p>Não foi possível carregar a previsão para "${cidade}".</p>`;
+    ).innerHTML = `<p>Não foi possível carregar a previsão para "${cidadeEscolhida}".</p>`;
   }
 }
 
