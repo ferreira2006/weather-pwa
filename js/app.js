@@ -1,3 +1,4 @@
+// ======================= CONFIGURAÇÃO =======================
 const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 let city = "São Miguel do Oeste";
 const horariosPadraoFuturos = [6, 12, 18]; // para os próximos dias
@@ -11,154 +12,255 @@ function capitalizeWords(str) {
 
 function climaGradient(desc) {
   const d = desc.toLowerCase();
-  if(d.includes("céu limpo")||d.includes("limpo")) return "linear-gradient(90deg, #fff59d, #ffe57f)";
-  if(d.includes("nuvens")||d.includes("nublado")) return "linear-gradient(90deg, #b0bec5, #90a4ae)";
-  if(d.includes("chuva")||d.includes("garoa")) return "linear-gradient(90deg, #90caf9, #64b5f6)";
-  if(d.includes("trovoada")) return "linear-gradient(90deg, #ce93d8, #ba68c8)";
-  if(d.includes("neve")) return "linear-gradient(90deg, #e1f5fe, #b3e5fc)";
-  if(d.includes("névoa")||d.includes("neblina")||d.includes("fumaça")||d.includes("bruma")) return "linear-gradient(90deg, #f5f5dc, #e0dfc6)";
-  return "linear-gradient(90deg, #b0bec5, #90a4ae)";
-}
-
-// ======================= HISTÓRICO E FAVORITOS =======================
-let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-let history = JSON.parse(localStorage.getItem('history') || '[]');
-
-function addToHistory(cityName){
-  if(!history.includes(cityName)){
-    history.unshift(cityName);
-    if(history.length>10) history.pop();
-    localStorage.setItem('history', JSON.stringify(history));
-    renderHistory();
-  }
-}
-
-function renderHistory(){
-  const histDiv = document.getElementById('history-list');
-  if(!histDiv) return;
-  histDiv.innerHTML = '';
-  history.forEach(c=>{
-    const li = document.createElement('li');
-    li.textContent = c; li.tabIndex = 0;
-    li.addEventListener('click', ()=>carregarPrevisao(c));
-    histDiv.appendChild(li);
-  });
-}
-
-function renderFavorites(){
-  const favDiv = document.getElementById('favorites-list');
-  if(!favDiv) return;
-  favDiv.innerHTML = '';
-  favorites.forEach(c=>{
-    const li = document.createElement('li');
-    li.textContent = c; li.tabIndex = 0;
-    li.addEventListener('click', ()=>carregarPrevisao(c));
-    favDiv.appendChild(li);
-  });
+  if(d.includes("céu limpo")||d.includes("limpo")) return "clear";
+  if(d.includes("nuvens")||d.includes("nublado")) return "clouds";
+  if(d.includes("chuva")||d.includes("garoa")) return "rain";
+  if(d.includes("trovoada")) return "thunderstorm";
+  if(d.includes("neve")) return "snow";
+  return "clouds";
 }
 
 // ======================= DARK/LIGHT MODE =======================
-let theme = localStorage.getItem('theme') || 'light';
-document.body.classList.add(theme);
-const themeToggle = document.getElementById('theme-toggle');
-if(themeToggle){
-  themeToggle.addEventListener('click', ()=>{
-    theme = theme==='light'?'dark':'light';
-    document.body.classList.toggle('light');
-    document.body.classList.toggle('dark');
-    localStorage.setItem('theme', theme);
+const themeBtn = document.getElementById("theme-toggle");
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
+  themeBtn.setAttribute("aria-pressed", document.body.classList.contains("dark"));
+});
+
+// ======================= CARREGAR ESTADOS E MUNICÍPIOS =======================
+async function carregarEstados() {
+  const estadoSelect = document.getElementById('estado-select');
+  const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
+  const estados = await resp.json();
+  estados.sort((a,b)=>a.nome.localeCompare(b.nome));
+  estados.forEach(est => {
+    const opt = document.createElement('option');
+    opt.value = est.id;
+    opt.textContent = est.nome;
+    estadoSelect.appendChild(opt);
   });
 }
 
-// ======================= BUSCA E AGRUPA DADOS =======================
-async function carregarPrevisao(cidadeEscolhida = city) {
-  try {
-    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeEscolhida)}`);
-    if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
-    const dados = await resp.json();
-    if(!dados.list) throw new Error("Resposta inesperada do backend");
+async function carregarMunicipios(estadoId) {
+  const municipioSelect = document.getElementById('cidade-select');
+  municipioSelect.innerHTML = `<option value="">Selecione a cidade</option>`;
+  municipioSelect.disabled = true;
 
-    document.getElementById("tituloCidade").innerHTML = "Previsão do Tempo - " + cidadeEscolhida;
-    addToHistory(cidadeEscolhida);
-    const diasMap = agruparPorDia(dados.list);
-    prepararCards(diasMap);
-  } catch(err) {
-    console.error("Erro ao carregar previsão:", err);
-    document.getElementById("cards").innerHTML = `<p>Não foi possível carregar a previsão.</p>`;
+  const resp = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
+  const municipios = await resp.json();
+  municipios.sort((a,b)=>a.nome.localeCompare(b.nome));
+  municipios.forEach(mun => {
+    const opt = document.createElement('option');
+    opt.value = mun.nome;
+    opt.textContent = mun.nome;
+    municipioSelect.appendChild(opt);
+  });
+
+  municipioSelect.disabled = false;
+}
+
+// ======================= EVENTOS SELECTS =======================
+document.getElementById('estado-select').addEventListener('change', e => {
+  if(e.target.value) carregarMunicipios(e.target.value);
+});
+
+document.getElementById('cidade-select').addEventListener('change', e => {
+  document.getElementById('buscarClimaBtn').disabled = !e.target.value;
+});
+
+document.getElementById('buscarClimaBtn').addEventListener('click', () => {
+  const cidadeEscolhida = document.getElementById('cidade-select').value;
+  if(cidadeEscolhida){
+    city = cidadeEscolhida;
+    carregarPrevisao(city);
+    adicionarHistorico(city);
+  }
+});
+
+// ======================= HISTÓRICO =======================
+function adicionarHistorico(cidade) {
+  let history = JSON.parse(localStorage.getItem("history")||"[]");
+  if(!history.includes(cidade)){
+    history.unshift(cidade);
+    if(history.length>10) history.pop();
+    localStorage.setItem("history", JSON.stringify(history));
+    renderHistorico();
   }
 }
 
-// ======================= AGRUPA POR DIA =======================
-function agruparPorDia(list) {
+function renderHistorico() {
+  const historyList = document.getElementById("history-list");
+  const history = JSON.parse(localStorage.getItem("history")||"[]");
+  historyList.innerHTML = "";
+  history.forEach(cidade => {
+    const li = document.createElement("li");
+    li.tabIndex=0;
+    li.textContent = cidade;
+    li.addEventListener("click", ()=> {
+      city = cidade;
+      carregarPrevisao(cidade);
+    });
+    historyList.appendChild(li);
+  });
+}
+renderHistorico();
+
+// ======================= FAVORITOS =======================
+function carregarFavoritos() {
+  const favList = document.getElementById("favorites-list");
+  const favs = JSON.parse(localStorage.getItem("favorites")||"[]");
+  favList.innerHTML = "";
+  favs.forEach(cidade=>{
+    const li = document.createElement("li");
+    li.tabIndex=0;
+    li.textContent = cidade;
+    li.addEventListener("click", ()=>{
+      city = cidade;
+      carregarPrevisao(cidade);
+    });
+    li.addEventListener("contextmenu", e=>{
+      e.preventDefault();
+      abrirModalRemocao(cidade);
+    });
+    favList.appendChild(li);
+  });
+}
+function adicionarFavorito(cidade){
+  let favs = JSON.parse(localStorage.getItem("favorites")||"[]");
+  if(!favs.includes(cidade)){
+    favs.push(cidade);
+    localStorage.setItem("favorites", JSON.stringify(favs));
+    carregarFavoritos();
+    showToast(`${cidade} adicionada aos favoritos!`);
+  }
+}
+function removerFavorito(cidade){
+  let favs = JSON.parse(localStorage.getItem("favorites")||"[]");
+  favs = favs.filter(c=>c!==cidade);
+  localStorage.setItem("favorites", JSON.stringify(favs));
+  carregarFavoritos();
+}
+
+// ======================= MODAL =======================
+const modal = document.getElementById("confirm-modal");
+function abrirModalRemocao(cidade){
+  modal.hidden = false;
+  document.getElementById("confirm-yes").onclick = ()=>{
+    removerFavorito(cidade);
+    modal.hidden=true;
+  }
+  document.getElementById("confirm-no").onclick = ()=>{ modal.hidden=true; }
+}
+carregarFavoritos();
+
+// ======================= TOAST =======================
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),2500);
+}
+
+// ======================= PREVISÃO DO TEMPO =======================
+async function carregarPrevisao(cidadeEscolhida = city){
+  const weather = document.getElementById("weather");
+  weather.classList.add("loading");
+  try{
+    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeEscolhida)}`);
+    if(!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
+    const dados = await resp.json();
+    if(!dados.list) throw new Error("Dados inválidos");
+
+    document.getElementById("city-name").textContent = cidadeEscolhida;
+    const diasMap = agruparPorDia(dados.list);
+    prepararCards(diasMap);
+    atualizarWeatherCard(dados.list[0]); // mostra o primeiro horário no card principal
+  }catch(err){
+    console.error(err);
+    document.body.classList.add("error");
+    document.getElementById("weather-error").textContent = "Não foi possível carregar a previsão.";
+  }finally{
+    weather.classList.remove("loading");
+    document.body.classList.remove("error");
+  }
+}
+
+// ======================= AGRUPAR POR DIA =======================
+function agruparPorDia(list){
   const agora = new Date();
-  const formatterData = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric" });
-  const formatterHora = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false });
-  const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"long" });
+  const formatterData = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", day:"2-digit", month:"2-digit", year:"numeric"});
+  const formatterHora = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", hour:"numeric", hour12:false});
+  const formatterDiaSemana = new Intl.DateTimeFormat("pt-BR",{timeZone:"America/Sao_Paulo", weekday:"long"});
   const hojeStr = formatterData.format(agora);
 
   const diasMap = new Map();
 
-  list.forEach(item => {
-    const data = new Date(item.dt * 1000);
+  list.forEach(item=>{
+    const data = new Date(item.dt*1000);
     const dataLocalStr = formatterData.format(data);
     const horaLocal = parseInt(formatterHora.format(data));
     const diaSemana = capitalizeWords(formatterDiaSemana.format(data));
-    const isHoje = dataLocalStr === hojeStr;
+    const isHoje = dataLocalStr===hojeStr;
 
-    if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr, { diaSemana, horarios: [], isToday: isHoje });
-
+    if(!diasMap.has(dataLocalStr)) diasMap.set(dataLocalStr,{diaSemana, horarios:[], isToday:isHoje});
     diasMap.get(dataLocalStr).horarios.push({
-      hora: horaLocal,
-      desc: item.weather[0].description,
-      temp: Math.round(item.main.temp),
-      feels_like: Math.round(item.main.feels_like),
-      humidity: item.main.humidity,
-      pop: Math.round((item.pop||0)*100),
-      icon: item.weather[0].icon,
-      fromTomorrow: false
+      hora:horaLocal,
+      desc:item.weather[0].description,
+      temp:Math.round(item.main.temp),
+      feels_like:Math.round(item.main.feels_like),
+      humidity:item.main.humidity,
+      pop:Math.round((item.pop||0)*100),
+      icon:item.weather[0].icon,
+      fromTomorrow:false
     });
   });
-
   return diasMap;
 }
 
-// ======================= PREPARA HORÁRIOS DOS CARDS =======================
-function prepararCards(diasMap) {
+// ======================= PREPARAR CARDS =======================
+function prepararCards(diasMap){
   const agora = new Date();
   const diasOrdenados = Array.from(diasMap.keys()).sort();
   const hojeStr = diasOrdenados[0];
   const hojeData = diasMap.get(hojeStr);
 
-  if (hojeData) {
+  // HOJE
+  if(hojeData){
     let proximos = hojeData.horarios
-      .sort((a,b) => a.hora - b.hora)
-      .filter(h => h.hora > agora.getHours());
-
+      .sort((a,b)=>a.hora-b.hora)
+      .filter(h=>h.hora>agora.getHours());
     const indiceHoje = diasOrdenados.indexOf(hojeStr);
-    const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
-    if (amanhaData && proximos.length < 4) {
-      amanhaData.horarios
-        .sort((a,b) => a.hora - b.hora)
-        .forEach(h => { if(proximos.length<4) proximos.push({...h, fromTomorrow:true}); });
+    const amanhaData = diasMap.get(diasOrdenados[indiceHoje+1]);
+    if(amanhaData && proximos.length<4){
+      amanhaData.horarios.sort((a,b)=>a.hora-b.hora).forEach(h=>{
+        if(proximos.length<4) proximos.push({...h, fromTomorrow:true});
+      });
     }
-
     hojeData.horarios = proximos.slice(0,4);
   }
 
-  diasOrdenados.slice(1).forEach(dia => {
+  // FUTUROS
+  diasOrdenados.slice(1).forEach(dia=>{
     const dataDia = diasMap.get(dia);
     dataDia.horarios = dataDia.horarios
-      .filter(h => horariosPadraoFuturos.includes(h.hora))
-      .sort((a,b) => a.hora - b.hora);
+      .filter(h=>horariosPadraoFuturos.includes(h.hora))
+      .sort((a,b)=>a.hora-b.hora);
   });
 
-  renderCards(diasOrdenados, diasMap);
+  renderCards(diasOrdenados,diasMap);
 }
 
-// ======================= RENDERIZA CARDS =======================
-function renderCards(diasOrdenados, diasMap){
-  const cardsDiv = document.getElementById("cards");
-  cardsDiv.innerHTML = "";
+// ======================= RENDER CARDS =======================
+function renderCards(diasOrdenados,diasMap){
+  let cardsDiv = document.getElementById("cards");
+  if(!cardsDiv){
+    cardsDiv = document.createElement("div");
+    cardsDiv.id="cards";
+    cardsDiv.className="cards";
+    document.querySelector("main").appendChild(cardsDiv);
+  }
+  cardsDiv.innerHTML="";
 
   let tooltip = document.querySelector(".tooltip");
   if(!tooltip){
@@ -170,7 +272,7 @@ function renderCards(diasOrdenados, diasMap){
   diasOrdenados.slice(0,4).forEach(dia=>{
     const dataDia = diasMap.get(dia);
     const card = document.createElement("div");
-    card.className = "card";
+    card.className="card" + (dataDia.isToday?" today":"");
 
     const titulo = document.createElement("h2");
     titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
@@ -178,18 +280,19 @@ function renderCards(diasOrdenados, diasMap){
 
     dataDia.horarios.forEach(p=>{
       const horarioDiv = document.createElement("div");
-      horarioDiv.className = "horario";
-      horarioDiv.style.background = climaGradient(p.desc);
+      horarioDiv.className="horario";
+      horarioDiv.style.background = ""; // gradient definido pelo CSS via classe
 
-      horarioDiv.innerHTML = `
+      horarioDiv.innerHTML=`
         <strong>${p.hora}h</strong>
-        ${p.fromTomorrow ? `<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>` : ""}
+        ${p.fromTomorrow?'<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>':""}
         <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
         <span class="desc">${capitalizeWords(p.desc)}</span>
         <span class="temp">${p.temp}°C</span>
       `;
 
-      horarioDiv.addEventListener("mousemove", e=>{
+      // Tooltip
+      horarioDiv.addEventListener("mousemove",e=>{
         tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
         tooltip.style.opacity=1;
         let left=e.clientX+12, top=e.clientY+12;
@@ -198,7 +301,7 @@ function renderCards(diasOrdenados, diasMap){
         tooltip.style.left=left+"px";
         tooltip.style.top=top+"px";
       });
-      horarioDiv.addEventListener("mouseleave", ()=>tooltip.style.opacity=0);
+      horarioDiv.addEventListener("mouseleave",()=>tooltip.style.opacity=0);
 
       card.appendChild(horarioDiv);
     });
@@ -207,59 +310,21 @@ function renderCards(diasOrdenados, diasMap){
   });
 }
 
-// ======================= IBGE: ESTADOS E MUNICÍPIOS =======================
-async function carregarEstados() {
-  const estadoSelect = document.getElementById('estadoSelect');
-  const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
-  const estados = await resp.json();
-  estados.sort((a,b)=>a.nome.localeCompare(b.nome));
-  estados.forEach(est=>{
-    const option = document.createElement('option');
-    option.value = est.id;
-    option.textContent = est.nome;
-    estadoSelect.appendChild(option);
-  });
+// ======================= ATUALIZA CARD PRINCIPAL =======================
+function atualizarWeatherCard(item){
+  const weather = document.getElementById("weather");
+  document.getElementById("temp").textContent = `${Math.round(item.main.temp)}°C`;
+  document.getElementById("desc").textContent = capitalizeWords(item.weather[0].description);
+  document.getElementById("details").innerHTML = `Sensação: ${Math.round(item.main.feels_like)}°C<br>Umidade: ${item.main.humidity}%<br>Chuva: ${Math.round((item.pop||0)*100)}%`;
+
+  // Icon
+  const iconDiv = document.getElementById("icon");
+  const tipo = climaGradient(item.weather[0].description);
+  iconDiv.className = `weather-icon ${tipo}`;
+  document.body.classList.remove("bg-clear","bg-clouds","bg-rain","bg-thunderstorm","bg-snow");
+  document.body.classList.add(`bg-${tipo}`);
 }
-
-async function carregarMunicipios(estadoId) {
-  const municipioSelect = document.getElementById('municipioSelect');
-  municipioSelect.innerHTML = `<option value="">Selecione um município</option>`;
-  municipioSelect.disabled = true;
-
-  const resp = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
-  const municipios = await resp.json();
-  municipios.sort((a,b)=>a.nome.localeCompare(b.nome));
-  municipios.forEach(mun=>{
-    const option = document.createElement('option');
-    option.value = mun.nome;
-    option.textContent = mun.nome;
-    municipioSelect.appendChild(option);
-  });
-
-  municipioSelect.disabled=false;
-}
-
-// ======================= EVENTOS =======================
-document.getElementById('estado-select').addEventListener('change', e=>{
-  const estadoId = e.target.value;
-  if(estadoId) carregarMunicipios(estadoId);
-});
-
-document.getElementById('cidade-select').addEventListener('change', e=>{
-  const btn = document.getElementById('buscarClimaBtn');
-  btn.disabled = !e.target.value;
-});
-
-document.getElementById('buscarClimaBtn').addEventListener('click', ()=>{
-  const cidadeEscolhida = document.getElementById('cidade-select').value;
-  if(cidadeEscolhida){
-    city = cidadeEscolhida;
-    carregarPrevisao(city);
-  }
-});
 
 // ======================= INICIALIZA =======================
 carregarEstados();
 carregarPrevisao();
-renderFavorites();
-renderHistory();
