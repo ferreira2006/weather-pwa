@@ -27,6 +27,7 @@ async function carregarPrevisao(cidadeEscolhida = city) {
     const dados = await resp.json();
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
+    document.getElementById("tituloCidade").innerHTML = city;
     const diasMap = agruparPorDia(dados.list);
     prepararCards(diasMap);
   } catch(err) {
