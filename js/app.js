@@ -22,12 +22,12 @@ function climaGradient(desc) {
 // ======================= BUSCA E AGRUPA DADOS =======================
 async function carregarPrevisao(cidadeEscolhida = city) {
   try {
-    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeEscolhida)}`);
     if(!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
     const dados = await resp.json();
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
-    document.getElementById("tituloCidade").innerHTML = "Previsão do Tempo - " + city;
+    document.getElementById("tituloCidade").innerHTML = "Previsão do Tempo - " + cidadeEscolhida;
     const diasMap = agruparPorDia(dados.list);
     prepararCards(diasMap);
   } catch(err) {
