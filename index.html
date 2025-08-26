@@ -1,25 +1,109 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Previsão do Tempo - São Miguel do Oeste</title>
-    <link rel="stylesheet" href="css/styles.css" />
-    <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
-  </head>
-  <body>
-    <h1 id="tituloCidade">Previsão do Tempo - São Miguel do Oeste</h1>
-    <div class="select-container">
-      <select id="estadoSelect">
-        <option value="">Selecione um estado</option>
-      </select>
-      <select id="municipioSelect" disabled>
-        <option value="">Selecione um município</option>
-      </select>
-      <button id="buscarClimaBtn" disabled>Buscar</button>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clima Atual - Combinação</title>
+  <link rel="stylesheet" href="css/combined-styles.css">
+</head>
+<body class="light">
+
+  <header>
+    <h1>Clima Atual</h1>
+    <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
+      Modo Escuro
+    </button>
+  </header>
+
+  <main>
+    <!-- ===== App Antigo: Busca por input ===== -->
+    <section id="search-section-old" aria-label="Busca de cidades (input)">
+      <form id="search-box-old" role="search" aria-label="Busca de cidade">
+        <input
+          id="city-input-old"
+          name="city"
+          type="text"
+          list="city-suggestions"
+          placeholder="Digite a cidade"
+          aria-label="Digite o nome da cidade"
+          autocomplete="off"
+          required
+        />
+        <datalist id="city-suggestions">
+          <option value="São Miguel do Oeste">
+          <option value="Guaraciaba">
+          <option value="Descanso">
+          <!-- ...outras cidades -->
+        </datalist>
+        <button id="search-btn-old" type="submit" aria-label="Buscar clima da cidade" disabled>
+          Buscar
+        </button>
+        <button id="fav-btn-old" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
+          <span id="fav-icon-old" class="not-favorited"></span> Adicionar aos favoritos
+        </button>
+      </form>
+    </section>
+
+    <!-- ===== App Novo: Busca por selects ===== -->
+    <section id="search-section-new" aria-label="Busca de cidades (selects)">
+      <div class="select-container">
+        <select id="estado-select" aria-label="Selecione o estado">
+          <option value="">Selecione o estado</option>
+          <option value="SC">Santa Catarina</option>
+          <option value="PR">Paraná</option>
+          <!-- outros estados -->
+        </select>
+
+        <select id="cidade-select" aria-label="Selecione a cidade">
+          <option value="">Selecione a cidade</option>
+          <!-- cidades carregadas dinamicamente -->
+        </select>
+
+        <button id="buscarClimaBtn" disabled>Buscar Clima</button>
+      </div>
+    </section>
+
+    <!-- ===== Card de Clima (compartilhado visualmente) ===== -->
+    <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
+      <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
+      <div id="weather-content" class="info">
+        <h2 id="city-name">Carregando cidade...</h2>
+        <div id="temp" class="temp">-- °C</div>
+        <div id="desc" class="desc">Aguardando dados...</div>
+        <div id="details" class="details">--</div>
+      </div>
+      <div id="weather-error" class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"></div>
+      <div id="spinner"></div>
+    </section>
+
+    <!-- Histórico e Favoritos (App antigo) -->
+    <section id="favorites-section" aria-label="Cidades favoritas">
+      <h2>Cidades Favoritas</h2>
+      <ul id="favorites-list" role="list"></ul>
+    </section>
+
+    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
+      <h2>Últimas cidades pesquisadas</h2>
+      <ul id="history-list" role="list"></ul>
+    </section>
+  </main>
+
+  <!-- Toast de notificações -->
+  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- Modal de confirmação -->
+  <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
+    <div class="modal-overlay"></div>
+    <div class="modal-content" role="document" tabindex="0">
+      <h2 id="confirm-modal-title">Confirmação</h2>
+      <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
+      <div class="modal-buttons">
+        <button id="confirm-yes" type="button">Sim</button>
+        <button id="confirm-no" type="button">Não</button>
+      </div>
     </div>
+  </div>
 
-    <div id="cards" class="cards"></div>
-
-    <script src="js/app.js"></script>
-  </body>
+  <script src="js/combined-app.js"></script>
+</body>
 </html>
