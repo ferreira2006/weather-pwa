@@ -114,20 +114,21 @@ function prepararCards(diasMap) {
   const hojeStr = diasOrdenados[0];
   const hojeData = diasMap.get(hojeStr);
 
-  // --- Card de hoje: próximos horários a partir da hora atual
+  // --- Card de hoje: mostrar apenas horários de 6 em 6 horas
   if (hojeData) {
     let proximos = hojeData.horarios
-      .filter((h) => h.hora > agora.getHours())
+      .filter((h) => horariosPadraoFuturos.includes(h.hora) && h.hora > agora.getHours())
       .sort((a, b) => a.hora - b.hora);
 
-    const amanhaData = diasMap.get(diasOrdenados[1]);
-    if (amanhaData && proximos.length < 4) {
-      proximos.push(
-        ...amanhaData.horarios
-          .filter((_, i) => i < 4 - proximos.length)
-          .sort((a, b) => a.hora - b.hora)
-          .map((h) => ({ ...h, fromTomorrow: true }))
-      );
+    // Se não houver horários restantes no dia, pegar os horários padrão do dia seguinte
+    if (proximos.length === 0) {
+      const amanhaData = diasMap.get(diasOrdenados[1]);
+      if (amanhaData) {
+        proximos = amanhaData.horarios
+          .filter((h) => horariosPadraoFuturos.includes(h.hora))
+          .slice(0, 4)
+          .map((h) => ({ ...h, fromTomorrow: true }));
+      }
     }
 
     hojeData.horarios = proximos.slice(0, 4);
@@ -172,14 +173,8 @@ function renderCards(diasOrdenados, diasMap) {
 
       hDiv.innerHTML = `
         <strong>${p.hora}h</strong>
-        ${
-          p.fromTomorrow
-            ? `<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>`
-            : ''
-        }
-        <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${
-        p.desc
-      }">
+        ${p.fromTomorrow ? `<span style="font-size:0.8em; margin-left:4px;">Amanhã</span>` : ''}
+        <img src="https://openweathermap.org/img/wn/${p.icon}.png" alt="${p.desc}">
         <span class="desc">${capitalizeWords(p.desc)}</span>
         <span class="temp">${p.temp}°C</span>
       `;
@@ -209,9 +204,7 @@ function renderCards(diasOrdenados, diasMap) {
 // ======================= IBGE: ESTADOS E MUNICÍPIOS =======================
 async function carregarEstados() {
   const estadoSelect = document.getElementById('estadoSelect');
-  const resp = await fetch(
-    'https://servicodados.ibge.gov.br/api/v1/localidades/estados'
-  );
+  const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
   const estados = await resp.json();
   estados.sort((a, b) => a.nome.localeCompare(b.nome));
   estados.forEach((est) => {
