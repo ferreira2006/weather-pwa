@@ -146,4 +146,50 @@ h1 {
   .horario strong { width: 70px; }
   .horario img { width: 36px; height: 36px; }
   .horario span.temp { margin-right: 14px; }
+
+  select, #buscarClimaBtn {
+    font-size: 18px;
+    padding: 10px 14px;
+  }
 }
+
+/* ================= SELECTS E BOTÃO ================= */
+.select-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+select, #buscarClimaBtn {
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.2);
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background-color: rgba(255,255,255,0.9);
+  color: #0d3b66;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+select:focus, #buscarClimaBtn:hover {
+  border-color: #0d3b66;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+#buscarClimaBtn {
+  background: linear-gradient(135deg, #0d3b66, #145da0);
+  color: #fff;
+  font-weight: bold;
+  border: none;
+}
+
+#buscarClimaBtn:disabled {
+  background: rgba(13,59,102,0.5);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
