@@ -2,6 +2,7 @@ const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 let city = "São Miguel do Oeste";
 const horariosPadraoFuturos = [6, 12, 18]; // para os próximos dias
 
+// ======================= UTILITÁRIOS =======================
 function capitalizeWords(str) {
   return str.split(' ').map(word =>
     word.split('-').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('-')
@@ -19,6 +20,56 @@ function climaGradient(desc) {
   return "linear-gradient(90deg, #b0bec5, #90a4ae)";
 }
 
+// ======================= HISTÓRICO E FAVORITOS =======================
+let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+let history = JSON.parse(localStorage.getItem('history') || '[]');
+
+function addToHistory(cityName){
+  if(!history.includes(cityName)){
+    history.unshift(cityName);
+    if(history.length>10) history.pop();
+    localStorage.setItem('history', JSON.stringify(history));
+    renderHistory();
+  }
+}
+
+function renderHistory(){
+  const histDiv = document.getElementById('history-list');
+  if(!histDiv) return;
+  histDiv.innerHTML = '';
+  history.forEach(c=>{
+    const li = document.createElement('li');
+    li.textContent = c; li.tabIndex = 0;
+    li.addEventListener('click', ()=>carregarPrevisao(c));
+    histDiv.appendChild(li);
+  });
+}
+
+function renderFavorites(){
+  const favDiv = document.getElementById('favorites-list');
+  if(!favDiv) return;
+  favDiv.innerHTML = '';
+  favorites.forEach(c=>{
+    const li = document.createElement('li');
+    li.textContent = c; li.tabIndex = 0;
+    li.addEventListener('click', ()=>carregarPrevisao(c));
+    favDiv.appendChild(li);
+  });
+}
+
+// ======================= DARK/LIGHT MODE =======================
+let theme = localStorage.getItem('theme') || 'light';
+document.body.classList.add(theme);
+const themeToggle = document.getElementById('theme-toggle');
+if(themeToggle){
+  themeToggle.addEventListener('click', ()=>{
+    theme = theme==='light'?'dark':'light';
+    document.body.classList.toggle('light');
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', theme);
+  });
+}
+
 // ======================= BUSCA E AGRUPA DADOS =======================
 async function carregarPrevisao(cidadeEscolhida = city) {
   try {
@@ -28,6 +79,7 @@ async function carregarPrevisao(cidadeEscolhida = city) {
     if(!dados.list) throw new Error("Resposta inesperada do backend");
 
     document.getElementById("tituloCidade").innerHTML = "Previsão do Tempo - " + cidadeEscolhida;
+    addToHistory(cidadeEscolhida);
     const diasMap = agruparPorDia(dados.list);
     prepararCards(diasMap);
   } catch(err) {
@@ -77,39 +129,34 @@ function prepararCards(diasMap) {
   const hojeStr = diasOrdenados[0];
   const hojeData = diasMap.get(hojeStr);
 
-  // Card de hoje: pegar próximos horários a partir da hora atual
   if (hojeData) {
     let proximos = hojeData.horarios
-                           .sort((a,b) => a.hora - b.hora)
-                           .filter(h => h.hora > agora.getHours());
+      .sort((a,b) => a.hora - b.hora)
+      .filter(h => h.hora > agora.getHours());
 
-    // Completar com horários do dia seguinte se necessário
     const indiceHoje = diasOrdenados.indexOf(hojeStr);
     const amanhaData = diasMap.get(diasOrdenados[indiceHoje + 1]);
     if (amanhaData && proximos.length < 4) {
       amanhaData.horarios
         .sort((a,b) => a.hora - b.hora)
-        .forEach(h => {
-          if(proximos.length < 4) proximos.push({ ...h, fromTomorrow: true });
-        });
+        .forEach(h => { if(proximos.length<4) proximos.push({...h, fromTomorrow:true}); });
     }
 
     hojeData.horarios = proximos.slice(0,4);
   }
 
-  // Dias futuros: aplicar filtro de horários padrão
   diasOrdenados.slice(1).forEach(dia => {
     const dataDia = diasMap.get(dia);
     dataDia.horarios = dataDia.horarios
-                             .filter(h => horariosPadraoFuturos.includes(h.hora))
-                             .sort((a,b) => a.hora - b.hora);
+      .filter(h => horariosPadraoFuturos.includes(h.hora))
+      .sort((a,b) => a.hora - b.hora);
   });
 
   renderCards(diasOrdenados, diasMap);
 }
 
 // ======================= RENDERIZA CARDS =======================
-function renderCards(diasOrdenados, diasMap) {
+function renderCards(diasOrdenados, diasMap){
   const cardsDiv = document.getElementById("cards");
   cardsDiv.innerHTML = "";
 
@@ -120,7 +167,7 @@ function renderCards(diasOrdenados, diasMap) {
     document.body.appendChild(tooltip);
   }
 
-  diasOrdenados.slice(0,4).forEach(dia => {
+  diasOrdenados.slice(0,4).forEach(dia=>{
     const dataDia = diasMap.get(dia);
     const card = document.createElement("div");
     card.className = "card";
@@ -129,7 +176,7 @@ function renderCards(diasOrdenados, diasMap) {
     titulo.textContent = `${dataDia.diaSemana} - ${dia}`;
     card.appendChild(titulo);
 
-    dataDia.horarios.forEach(p => {
+    dataDia.horarios.forEach(p=>{
       const horarioDiv = document.createElement("div");
       horarioDiv.className = "horario";
       horarioDiv.style.background = climaGradient(p.desc);
@@ -142,17 +189,16 @@ function renderCards(diasOrdenados, diasMap) {
         <span class="temp">${p.temp}°C</span>
       `;
 
-      // Tooltip
-      horarioDiv.addEventListener("mousemove", e => {
+      horarioDiv.addEventListener("mousemove", e=>{
         tooltip.innerHTML = `Sensação: ${p.feels_like}°C<br>Umidade: ${p.humidity}%<br>Chuva: ${p.pop}%`;
-        tooltip.style.opacity = 1;
-        let left = e.clientX + 12, top = e.clientY + 12;
-        if (left + tooltip.offsetWidth > window.innerWidth) left = window.innerWidth - tooltip.offsetWidth - 4;
-        if (top + tooltip.offsetHeight > window.innerHeight) top = window.innerHeight - tooltip.offsetHeight - 4;
-        tooltip.style.left = left + "px";
-        tooltip.style.top = top + "px";
+        tooltip.style.opacity=1;
+        let left=e.clientX+12, top=e.clientY+12;
+        if(left+tooltip.offsetWidth>window.innerWidth) left=window.innerWidth-tooltip.offsetWidth-4;
+        if(top+tooltip.offsetHeight>window.innerHeight) top=window.innerHeight-tooltip.offsetHeight-4;
+        tooltip.style.left=left+"px";
+        tooltip.style.top=top+"px";
       });
-      horarioDiv.addEventListener("mouseleave", () => tooltip.style.opacity = 0);
+      horarioDiv.addEventListener("mouseleave", ()=>tooltip.style.opacity=0);
 
       card.appendChild(horarioDiv);
     });
@@ -166,8 +212,8 @@ async function carregarEstados() {
   const estadoSelect = document.getElementById('estadoSelect');
   const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
   const estados = await resp.json();
-  estados.sort((a, b) => a.nome.localeCompare(b.nome));
-  estados.forEach((est) => {
+  estados.sort((a,b)=>a.nome.localeCompare(b.nome));
+  estados.forEach(est=>{
     const option = document.createElement('option');
     option.value = est.id;
     option.textContent = est.nome;
@@ -180,41 +226,40 @@ async function carregarMunicipios(estadoId) {
   municipioSelect.innerHTML = `<option value="">Selecione um município</option>`;
   municipioSelect.disabled = true;
 
-  const resp = await fetch(
-    `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
-  );
+  const resp = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
   const municipios = await resp.json();
-  municipios.sort((a, b) => a.nome.localeCompare(b.nome));
-  municipios.forEach((mun) => {
+  municipios.sort((a,b)=>a.nome.localeCompare(b.nome));
+  municipios.forEach(mun=>{
     const option = document.createElement('option');
     option.value = mun.nome;
     option.textContent = mun.nome;
     municipioSelect.appendChild(option);
   });
 
-  municipioSelect.disabled = false;
+  municipioSelect.disabled=false;
 }
 
 // ======================= EVENTOS =======================
-document.getElementById('estadoSelect').addEventListener('change', (e) => {
+document.getElementById('estadoSelect').addEventListener('change', e=>{
   const estadoId = e.target.value;
-  if (estadoId) carregarMunicipios(estadoId);
+  if(estadoId) carregarMunicipios(estadoId);
 });
 
-document.getElementById('municipioSelect').addEventListener('change', (e) => {
+document.getElementById('municipioSelect').addEventListener('change', e=>{
   const btn = document.getElementById('buscarClimaBtn');
   btn.disabled = !e.target.value;
 });
 
-document.getElementById('buscarClimaBtn').addEventListener('click', () => {
+document.getElementById('buscarClimaBtn').addEventListener('click', ()=>{
   const cidadeEscolhida = document.getElementById('municipioSelect').value;
-  if (cidadeEscolhida) {
-    city = cidadeEscolhida; // atualiza cidade global
+  if(cidadeEscolhida){
+    city = cidadeEscolhida;
     carregarPrevisao(city);
   }
 });
 
 // ======================= INICIALIZA =======================
-carregarEstados(); // carrega estados do IBGE
-
+carregarEstados();
 carregarPrevisao();
+renderFavorites();
+renderHistory();
