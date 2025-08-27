@@ -22,9 +22,11 @@
 
   #cards-container {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 16px;
+  flex-direction: row; /* cards em linha */
+  gap: 12px;
+  margin-top: 16px;
+  overflow-x: auto; /* scroll horizontal se necessário */
+  padding-bottom: 10px; /* evita corte do card */
   }
 
   .card {
@@ -38,6 +40,7 @@
     width: fit-content;
     min-width: 240px;
     max-width: 100%;
+    flex: 0 0 auto; /* evita que o card encolha */
   }
 
   .day-title {
