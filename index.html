@@ -51,23 +51,59 @@
   }
 
   .hour {
+    position: relative;
     padding: 6px 10px;
     border-radius: 6px;
     color: #333;
     font-size: 14px;
     cursor: default;
     transition: transform 0.1s;
+    width: fit-content;
   }
 
   .hour:hover {
     transform: scale(1.05);
-    z-index: 1;
+    z-index: 2;
   }
 
-  .hour.sun { background: #FFF3B0; }      /* amarelo pastel para sol */
-  .hour.clouds { background: #D9D9D9; }   /* cinza claro para nublado */
-  .hour.rain { background: #B0D4FF; }     /* azul pastel para chuva */
-  .hour.storm { background: #C2B0FF; }    /* lilás claro para tempestade */
+  /* cores suaves */
+  .hour.sun { background: #FFF8C2; }      /* amarelo pastel para sol */
+  .hour.clouds { background: #E0E0E0; }   /* cinza claro para nublado */
+  .hour.rain { background: #C7E2FF; }     /* azul pastel para chuva */
+  .hour.storm { background: #D9C7FF; }    /* lilás claro para tempestade */
+
+  /* ===== TOOLTIP ESTILIZADO ===== */
+  .tooltip {
+    display: none;
+    position: absolute;
+    left: 105%;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #333;
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.4em;
+    padding: 8px 10px;
+    border-radius: 6px;
+    white-space: pre-line;
+    max-width: 220px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+
+  .hour:hover .tooltip {
+    display: block;
+  }
+
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent #333 transparent transparent;
+  }
 </style>
 </head>
 <body>
@@ -153,23 +189,26 @@ function gerarCards(previsao, cidade) {
     const horasContainer = document.createElement("div");
     horasContainer.className = "hours";
 
-    // horários desejados
     const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
     horariosDesejados.forEach(horaStr => {
       const item = horarios.find(h => h.dt_txt.includes(horaStr));
       if(item){
         const hourDiv = document.createElement("div");
         hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
-        hourDiv.title = `
-Temp: ${item.main.temp}°C
+        hourDiv.textContent = `${item.dt_txt.split(" ")[1].slice(0,5)} - ${item.weather[0].description}`;
+
+        // tooltip customizado
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        tooltip.textContent = 
+`Temp: ${item.main.temp}°C
 Sensação: ${item.main.feels_like}°C
 Mín: ${item.main.temp_min}°C
 Máx: ${item.main.temp_max}°C
 Umidade: ${item.main.humidity}%
-Vento: ${item.wind.speed} m/s
-Descrição: ${item.weather[0].description}
-        `;
-        hourDiv.textContent = `${item.dt_txt.split(" ")[1].slice(0,5)} - ${item.weather[0].description}`;
+Vento: ${item.wind.speed} m/s`;
+
+        hourDiv.appendChild(tooltip);
         horasContainer.appendChild(hourDiv);
       }
     });
