@@ -25,9 +25,10 @@
   }
   .card {
     background: #fff;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  padding: 5px 10px; /* menor padding */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  display: inline-block; /* card ajusta ao conteúdo */
   }
   .card-day {
     font-weight: bold;
@@ -35,13 +36,13 @@
   }
   .hour {
     display: flex;
-    justify-content: space-between;
-    padding: 8px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    color: #000;
+  justify-content: space-between;
+  padding: 4px 6px; /* menor padding */
+  border-radius: 6px;
+  margin-bottom: 3px; /* menor margem */
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  font-size: 14px; /* fonte menor */
   }
   .hour:hover {
     transform: scale(1.02);
