@@ -58,6 +58,9 @@
     font-size: 14px;
     cursor: default;
     transition: transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   .hour:hover {
@@ -70,10 +73,9 @@
   .hour.rain { background: #B0D4FF; }
   .hour.storm { background: #C2B0FF; }
 
-  /* Tooltip */
   .tooltip {
     visibility: hidden;
-    width: 160px;
+    width: 180px;
     background: rgba(0,0,0,0.9);
     color: #fff;
     text-align: left;
@@ -156,6 +158,15 @@ function mapIconToClass(main) {
   return "clouds";
 }
 
+function mapIconToEmoji(main) {
+  main = main.toLowerCase();
+  if (main.includes("rain")) return "🌧️";
+  if (main.includes("storm") || main.includes("thunder")) return "⛈️";
+  if (main.includes("cloud")) return "☁️";
+  if (main.includes("clear") || main.includes("sun")) return "☀️";
+  return "🌤️";
+}
+
 function diaSemanaPorExtenso(dataStr) {
   const diasSemana = [
     "domingo", "segunda-feira", "terça-feira",
@@ -196,11 +207,13 @@ function gerarCards(previsao, cidade) {
         const hourDiv = document.createElement("div");
         hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
-        // Texto principal: hora + descrição resumida
         const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
-        hourDiv.textContent = `${horaTxt} - ${item.weather[0].description}`;
+        const emoji = mapIconToEmoji(item.weather[0].main);
 
-        // Tooltip com dados complementares
+        // Hora + temperatura + emoji + descrição
+        hourDiv.innerHTML = `<strong>${horaTxt}</strong> - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
+
+        // Tooltip com sensação, umidade, vento
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
         tooltip.innerHTML = `
