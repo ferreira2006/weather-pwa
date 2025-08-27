@@ -51,16 +51,13 @@
   }
 
   .hour {
-    position: relative;
     padding: 6px 10px;
     border-radius: 6px;
     color: #333;
     font-size: 14px;
     cursor: default;
     transition: transform 0.1s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    position: relative;
   }
 
   .hour:hover {
@@ -68,30 +65,52 @@
     z-index: 1;
   }
 
-  .hour.sun { background: #FFF3B0; }
-  .hour.clouds { background: #D9D9D9; }
-  .hour.rain { background: #B0D4FF; }
-  .hour.storm { background: #C2B0FF; }
+  /* cores suaves conforme clima */
+  .hour.sun { background: #FFF7C2; }      
+  .hour.clouds { background: #E0E0E0; }   
+  .hour.rain { background: #C8E4FF; }     
+  .hour.storm { background: #D8C8FF; }    
 
+  /* tooltip estilizado */
   .tooltip {
     visibility: hidden;
-    width: 180px;
+    opacity: 0;
+    position: absolute;
+    left: 105%;
+    top: 50%;
+    transform: translateY(-50%);
     background: rgba(0,0,0,0.9);
     color: #fff;
-    text-align: left;
+    padding: 6px 10px;
     border-radius: 6px;
-    padding: 6px;
-    position: absolute;
-    z-index: 10;
-    top: 110%;
-    left: 50%;
-    transform: translateX(-50%);
     font-size: 12px;
-    white-space: normal;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    pointer-events: none;
   }
 
   .hour:hover .tooltip {
     visibility: visible;
+    opacity: 1;
+  }
+
+  /* Responsividade para telas menores */
+  @media (max-width: 600px) {
+    .card {
+      min-width: 90%;
+      padding: 14px;
+    }
+
+    .hour {
+      font-size: 16px;
+      padding: 8px 12px;
+    }
+
+    .tooltip {
+      font-size: 14px;
+      padding: 8px 12px;
+      width: 200px;
+    }
   }
 </style>
 </head>
@@ -167,13 +186,13 @@ function mapIconToEmoji(main) {
   return "🌤️";
 }
 
-function diaSemanaPorExtenso(dataStr) {
-  const diasSemana = [
-    "domingo", "segunda-feira", "terça-feira",
-    "quarta-feira", "quinta-feira", "sexta-feira", "sábado"
-  ];
-  const data = new Date(dataStr + "T00:00:00");
-  return diasSemana[data.getDay()];
+function formatarData(dia) {
+  const dateObj = new Date(dia);
+  const diasSemana = ["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
+  const diaSemana = diasSemana[dateObj.getDay()];
+  const diaNum = String(dateObj.getDate()).padStart(2,"0");
+  const mes = String(dateObj.getMonth()+1).padStart(2,"0");
+  return `${diaNum}/${mes} ${diaSemana}`;
 }
 
 function gerarCards(previsao, cidade) {
@@ -188,13 +207,9 @@ function gerarCards(previsao, cidade) {
     const card = document.createElement("div");
     card.className = "card";
 
-    const dataObj = new Date(dia + "T00:00:00");
-    const dataFormatada = dataObj.toLocaleDateString("pt-BR");
-    const diaSemana = diaSemanaPorExtenso(dia);
-
     const diaTitle = document.createElement("div");
     diaTitle.className = "day-title";
-    diaTitle.textContent = `${dataFormatada} (${diaSemana})`;
+    diaTitle.textContent = formatarData(dia);
     card.appendChild(diaTitle);
 
     const horasContainer = document.createElement("div");
@@ -207,13 +222,13 @@ function gerarCards(previsao, cidade) {
         const hourDiv = document.createElement("div");
         hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
-        const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
         const emoji = mapIconToEmoji(item.weather[0].main);
 
-        // Hora + temperatura + emoji + descrição
-        hourDiv.innerHTML = `<strong>${horaTxt}</strong> - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
+        // Hora, temperatura e descrição no horário
+        const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
+        hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
 
-        // Tooltip com sensação, umidade, vento
+        // Tooltip: sensação, umidade, vento
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
         tooltip.innerHTML = `
