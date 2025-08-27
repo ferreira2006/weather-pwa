@@ -36,7 +36,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     width: fit-content;
-    min-width: 220px;
+    min-width: 240px;
   }
 
   .day-title {
@@ -51,62 +51,47 @@
   }
 
   .hour {
-    position: relative;
     padding: 6px 10px;
     border-radius: 6px;
     color: #333;
     font-size: 14px;
     cursor: default;
     transition: transform 0.1s;
-    width: fit-content;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    position: relative;
   }
 
   .hour:hover {
     transform: scale(1.05);
-    z-index: 2;
+    z-index: 1;
   }
 
-  /* cores suaves */
-  .hour.sun { background: #FFF8C2; }
-  .hour.clouds { background: #E0E0E0; }
-  .hour.rain { background: #C7E2FF; }
-  .hour.storm { background: #D9C7FF; }
-  .hour.mist { background: #E5E5E5; }
+  /* cores suaves conforme clima */
+  .hour.sun { background: #FFF7C2; }      
+  .hour.clouds { background: #E0E0E0; }   
+  .hour.rain { background: #C8E4FF; }     
+  .hour.storm { background: #D8C8FF; }    
 
-  /* ===== TOOLTIP ESTILIZADO ===== */
+  /* tooltip estilizado */
   .tooltip {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
     position: absolute;
     left: 105%;
     top: 50%;
     transform: translateY(-50%);
-    background: #333;
+    background: rgba(0,0,0,0.9);
     color: #fff;
-    font-size: 13px;
-    line-height: 1.4em;
-    padding: 8px 10px;
+    padding: 6px 10px;
     border-radius: 6px;
-    white-space: pre-line;
-    max-width: 220px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    font-size: 12px;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    pointer-events: none;
   }
 
   .hour:hover .tooltip {
-    display: block;
-  }
-
-  .tooltip::after {
-    content: "";
-    position: absolute;
-    left: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-width: 6px;
-    border-style: solid;
-    border-color: transparent #333 transparent transparent;
+    visibility: visible;
+    opacity: 1;
   }
 </style>
 </head>
@@ -170,7 +155,6 @@ function mapIconToClass(main) {
   if (main.includes("storm") || main.includes("thunder")) return "storm";
   if (main.includes("cloud")) return "clouds";
   if (main.includes("clear") || main.includes("sun")) return "sun";
-  if (main.includes("mist") || main.includes("fog")) return "mist";
   return "clouds";
 }
 
@@ -180,8 +164,16 @@ function mapIconToEmoji(main) {
   if (main.includes("storm") || main.includes("thunder")) return "⛈️";
   if (main.includes("cloud")) return "☁️";
   if (main.includes("clear") || main.includes("sun")) return "☀️";
-  if (main.includes("mist") || main.includes("fog")) return "🌫️";
-  return "❓";
+  return "🌤️";
+}
+
+function formatarData(dia) {
+  const dateObj = new Date(dia);
+  const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const diaSemana = diasSemana[dateObj.getDay()];
+  const diaNum = String(dateObj.getDate()).padStart(2,"0");
+  const mes = String(dateObj.getMonth()+1).padStart(2,"0");
+  return `${diaNum}/${mes} (${diaSemana})`;
 }
 
 function gerarCards(previsao, cidade) {
@@ -198,7 +190,7 @@ function gerarCards(previsao, cidade) {
 
     const diaTitle = document.createElement("div");
     diaTitle.className = "day-title";
-    diaTitle.textContent = dia;
+    diaTitle.textContent = formatarData(dia);
     card.appendChild(diaTitle);
 
     const horasContainer = document.createElement("div");
@@ -209,23 +201,25 @@ function gerarCards(previsao, cidade) {
       const item = horarios.find(h => h.dt_txt.includes(horaStr));
       if(item){
         const hourDiv = document.createElement("div");
-        const climaClass = mapIconToClass(item.weather[0].main);
-        const climaEmoji = mapIconToEmoji(item.weather[0].main);
-        hourDiv.className = "hour " + climaClass;
-        hourDiv.innerHTML = `${climaEmoji} ${item.dt_txt.split(" ")[1].slice(0,5)} - ${item.weather[0].description}`;
+        hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
-        // tooltip customizado
+        // Ícone de clima
+        const emoji = mapIconToEmoji(item.weather[0].main);
+
+        // Texto no horário: hora + temperatura + ícone + descrição
+        const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
+        hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
+
+        // Tooltip estilizado
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
-        tooltip.textContent = 
-`Temp: ${item.main.temp}°C
-Sensação: ${item.main.feels_like}°C
-Mín: ${item.main.temp_min}°C
-Máx: ${item.main.temp_max}°C
-Umidade: ${item.main.humidity}%
-Vento: ${item.wind.speed} m/s`;
-
+        tooltip.innerHTML = `
+          Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
+          Umidade: ${item.main.humidity}%<br>
+          Vento: ${item.wind.speed} m/s
+        `;
         hourDiv.appendChild(tooltip);
+
         horasContainer.appendChild(hourDiv);
       }
     });
