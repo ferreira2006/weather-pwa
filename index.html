@@ -169,11 +169,11 @@ function mapIconToEmoji(main) {
 
 function formatarData(dia) {
   const dateObj = new Date(dia);
-  const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+  const diasSemana = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
   const diaSemana = diasSemana[dateObj.getDay()];
   const diaNum = String(dateObj.getDate()).padStart(2,"0");
   const mes = String(dateObj.getMonth()+1).padStart(2,"0");
-  return `${diaNum}/${mes} (${diaSemana})`;
+  return `${diaNum}/${mes} ${diaSemana}`;
 }
 
 function gerarCards(previsao, cidade) {
