@@ -31,12 +31,13 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 10px;
+    padding: 12px;
     background: #f5f5f5;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     width: fit-content;
-    min-width: 220px;
+    min-width: 240px;
+    max-width: 100%;
   }
 
   .day-title {
@@ -46,7 +47,7 @@
 
   .hours {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 6px;
   }
 
@@ -58,6 +59,7 @@
     cursor: default;
     transition: transform 0.1s;
     position: relative;
+    min-width: 120px;
   }
 
   .hour:hover {
@@ -87,6 +89,7 @@
     white-space: nowrap;
     transition: opacity 0.2s;
     pointer-events: none;
+    z-index: 10;
   }
 
   .hour:hover .tooltip {
@@ -94,22 +97,10 @@
     opacity: 1;
   }
 
-  /* Responsividade para telas menores */
-  @media (max-width: 600px) {
-    .card {
-      min-width: 90%;
-      padding: 14px;
-    }
-
+  @media (max-width: 500px) {
     .hour {
-      font-size: 16px;
-      padding: 8px 12px;
-    }
-
-    .tooltip {
-      font-size: 14px;
-      padding: 8px 12px;
-      width: 200px;
+      min-width: 100px;
+      font-size: 13px;
     }
   }
 </style>
@@ -224,11 +215,11 @@ function gerarCards(previsao, cidade) {
 
         const emoji = mapIconToEmoji(item.weather[0].main);
 
-        // Hora, temperatura e descrição no horário
+        // hora + temperatura + ícone + descrição
         const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
         hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
 
-        // Tooltip: sensação, umidade, vento
+        // tooltip: sensação + umidade + vento
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
         tooltip.innerHTML = `
