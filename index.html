@@ -1,107 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
-  <title>Clima Atual</title>
-  <link rel="stylesheet" href="css/styles.css">
+<meta charset="UTF-8">
+<title>App de Previsão do Tempo</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f0f2f5;
+  }
+  h1 {
+    text-align: center;
+  }
+  select, button {
+    padding: 8px;
+    margin: 5px;
+    font-size: 16px;
+  }
+  #cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .card-day {
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .hour {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+    color: #000;
+  }
+  .hour:hover {
+    transform: scale(1.02);
+  }
+
+  /* Cores por clima */
+  .weather-clear { background: #FFD700; color: #000; } /* amarelo */
+  .weather-clouds { background: #B0C4DE; color: #000; } /* cinza azulado */
+  .weather-rain { background: #1E90FF; color: #fff; } /* azul */
+  .weather-snow { background: #F0FFFF; color: #000; } /* branco/azulado */
+  .weather-atmosphere { background: #A0522D; color: #fff; } /* marrom */
+</style>
 </head>
-<body class="light">
-<noscript> <div class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"> ⚠️ O JavaScript está desativado no seu navegador. Algumas funcionalidades do Clima Atual não funcionarão. </div> </noscript>
-  
-  <header>
-    <h1>Clima Atual</h1>
-    <button id="theme-toggle" type="button" aria-label="Alternar tema claro/escuro" aria-pressed="false">
-      Modo Escuro
-    </button>
-  </header>
+<body>
 
-  <main>
-    <!-- Busca de cidades -->
-    <section id="search-section" aria-label="Busca de cidades">
-      <form id="search-box" role="search" aria-label="Busca de cidade">
-        <input
-          id="city-input"
-          name="city"
-          type="text"
-          list="city-suggestions"
-          placeholder="Digite a cidade"
-          aria-label="Digite o nome da cidade"
-          autocomplete="off"
-          required
-        />
-        <datalist id="city-suggestions">
-          <option value="Anchieta">
-          <option value="Bandeirante">
-          <option value="Barra Bonita">
-          <option value="Belmonte">
-          <option value="Descanso">
-          <option value="Dionísio Cerqueira">
-          <option value="Guaraciaba">
-          <option value="Guarujá do Sul">
-          <option value="Iporã do Oeste">
-          <option value="Itapiranga">
-          <option value="Mondaí">
-          <option value="Palma Sola">
-          <option value="Paraíso">
-          <option value="Princesa">
-          <option value="Santa Helena">
-          <option value="São João do Oeste">
-          <option value="São José do Cedro">
-          <option value="São Miguel do Oeste">
-        </datalist>
-        <button id="search-btn" type="submit" aria-label="Buscar clima da cidade" disabled>
-          Buscar
-        </button>
-        <button id="fav-btn" type="button" aria-label="Adicionar cidade aos favoritos" disabled>
-          <span id="fav-icon" class="not-favorited"></span> Adicionar aos favoritos
-        </button>
-      </form>
-    </section>
+<h1 id="titulo">Previsão do tempo</h1>
 
-    <!-- Cidades favoritas -->
-    <section id="favorites-section" aria-label="Cidades favoritas">
-      <h2>Cidades Favoritas</h2>
-      <ul id="favorites-list" role="list"></ul>
-    </section>
+<div>
+  <select id="selectEstado">
+    <option value="">Selecione um estado</option>
+  </select>
 
-    <!-- Card do clima -->
-    <section id="weather" class="loading" role="region" aria-live="polite" aria-atomic="true" tabindex="-1">
-      <div id="icon" class="weather-icon clear" aria-hidden="true"></div>
-      <div id="weather-content" class="info">
-        <h2 id="city-name">Carregando cidade...</h2>
-        <div id="temp" class="temp">-- °C</div>
-        <div id="desc" class="desc">Aguardando dados...</div>
-        <div id="details" class="details">--</div>
-      </div>
-      <div id="weather-error" class="error-message" role="alert" aria-live="assertive" aria-atomic="true" tabindex="0"></div>
-      <div id="spinner"></div>
-    </section>
+  <select id="selectMunicipio">
+    <option value="">Selecione um município</option>
+  </select>
 
-    <!-- Histórico de pesquisas -->
-    <section id="history-section" aria-label="Histórico das cidades pesquisadas">
-      <h2>Últimas cidades pesquisadas</h2>
-      <ul id="history-list" role="list"></ul>
-    </section>
-  </main>
+  <button id="btnConsultar">Consultar</button>
+</div>
 
-  <!-- Toast de notificações -->
-  <div id="toast" role="alert" aria-live="assertive" aria-atomic="true"></div>
+<div id="cards"></div>
 
-  <!-- Modal de confirmação -->
-  <div id="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-desc" hidden>
-    <div class="modal-overlay"></div>
-    <div class="modal-content" role="document" tabindex="0">
-      <h2 id="confirm-modal-title">Confirmação</h2>
-      <p id="confirm-modal-desc">Tem certeza que deseja remover esta cidade dos favoritos?</p>
-      <div class="modal-buttons">
-        <button id="confirm-yes" type="button">Sim</button>
-        <button id="confirm-no" type="button">Não</button>
-      </div>
-    </div>
-  </div>
+<script>
+const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+let estadosData = [];
 
-  <script src="js/app.js"></script>
+// Função para buscar estados e municípios via API IBGE
+async function carregarEstados() {
+  const resp = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+  estadosData = await resp.json();
+  const select = document.getElementById('selectEstado');
+  estadosData.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e.id;
+    opt.textContent = e.nome;
+    select.appendChild(opt);
+  });
+}
+
+document.getElementById('selectEstado').addEventListener('change', async function() {
+  const estadoId = this.value;
+  const selectMun = document.getElementById('selectMunicipio');
+  selectMun.innerHTML = '<option value="">Selecione um município</option>';
+  if (!estadoId) return;
+  const estado = estadosData.find(e => e.id == estadoId);
+  const resp = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
+  const municipios = await resp.json();
+  municipios.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.nome;
+    opt.textContent = m.nome;
+    selectMun.appendChild(opt);
+  });
+});
+
+// Mapeamento de cores por clima
+function getWeatherClass(main) {
+  switch(main.toLowerCase()){
+    case 'clear': return 'weather-clear';
+    case 'clouds': return 'weather-clouds';
+    case 'rain':
+    case 'drizzle':
+    case 'thunderstorm': return 'weather-rain';
+    case 'snow': return 'weather-snow';
+    case 'mist':
+    case 'smoke':
+    case 'haze':
+    case 'dust':
+    case 'fog':
+    case 'sand':
+    case 'ash':
+    case 'squall':
+    case 'tornado': return 'weather-atmosphere';
+    default: return 'weather-clouds';
+  }
+}
+
+// Função para renderizar cards
+function renderCards(cityName, data) {
+  document.getElementById('titulo').textContent = `Previsão do tempo para ${cityName}`;
+  const cardsDiv = document.getElementById('cards');
+  cardsDiv.innerHTML = '';
+
+  // Obter previsões filtradas para os horários 0h, 6h, 12h, 18h, 21h para os próximos 4 dias
+  const horariosAlvo = ['00:00:00', '06:00:00', '12:00:00', '18:00:00', '21:00:00'];
+  const diasMap = {};
+
+  data.list.forEach(item => {
+    const [date, time] = item.dt_txt.split(' ');
+    if (!diasMap[date]) diasMap[date] = [];
+    if (horariosAlvo.includes(time)) diasMap[date].push(item);
+  });
+
+  // Pegar apenas 4 dias
+  const dias = Object.keys(diasMap).slice(0,4);
+
+  dias.forEach(dia => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const dayTitle = document.createElement('div');
+    dayTitle.className = 'card-day';
+    dayTitle.textContent = dia;
+    card.appendChild(dayTitle);
+
+    diasMap[dia].forEach(hourData => {
+      const div = document.createElement('div');
+      div.className = `hour ${getWeatherClass(hourData.weather[0].main)}`;
+      div.title = `
+Temp: ${hourData.main.temp}°C
+Sensação: ${hourData.main.feels_like}°C
+Min/Max: ${hourData.main.temp_min}°C / ${hourData.main.temp_max}°C
+Umidade: ${hourData.main.humidity}%
+Pressão: ${hourData.main.pressure} hPa
+Vento: ${hourData.wind.speed} m/s
+Condição: ${hourData.weather[0].description}
+      `;
+      div.textContent = `${hourData.dt_txt.split(' ')[1].slice(0,5)} - ${hourData.weather[0].description} - ${hourData.main.temp}°C`;
+      card.appendChild(div);
+    });
+
+    cardsDiv.appendChild(card);
+  });
+}
+
+document.getElementById('btnConsultar').addEventListener('click', async () => {
+  const city = document.getElementById('selectMunicipio').value;
+  if (!city) return alert('Selecione um município');
+  try {
+    const resp = await fetch(`${backendUrl}?city=${encodeURIComponent(city)}`);
+    const data = await resp.json();
+    renderCards(city, data);
+  } catch(e) {
+    alert('Erro ao consultar previsão');
+    console.error(e);
+  }
+});
+
+// Inicializar
+carregarEstados();
+</script>
 </body>
 </html>
