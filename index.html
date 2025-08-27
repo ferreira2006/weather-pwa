@@ -59,6 +59,9 @@
     cursor: default;
     transition: transform 0.1s;
     width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
 
   .hour:hover {
@@ -67,10 +70,11 @@
   }
 
   /* cores suaves */
-  .hour.sun { background: #FFF8C2; }      /* amarelo pastel para sol */
-  .hour.clouds { background: #E0E0E0; }   /* cinza claro para nublado */
-  .hour.rain { background: #C7E2FF; }     /* azul pastel para chuva */
-  .hour.storm { background: #D9C7FF; }    /* lilás claro para tempestade */
+  .hour.sun { background: #FFF8C2; }
+  .hour.clouds { background: #E0E0E0; }
+  .hour.rain { background: #C7E2FF; }
+  .hour.storm { background: #D9C7FF; }
+  .hour.mist { background: #E5E5E5; }
 
   /* ===== TOOLTIP ESTILIZADO ===== */
   .tooltip {
@@ -166,7 +170,18 @@ function mapIconToClass(main) {
   if (main.includes("storm") || main.includes("thunder")) return "storm";
   if (main.includes("cloud")) return "clouds";
   if (main.includes("clear") || main.includes("sun")) return "sun";
+  if (main.includes("mist") || main.includes("fog")) return "mist";
   return "clouds";
+}
+
+function mapIconToEmoji(main) {
+  main = main.toLowerCase();
+  if (main.includes("rain")) return "🌧️";
+  if (main.includes("storm") || main.includes("thunder")) return "⛈️";
+  if (main.includes("cloud")) return "☁️";
+  if (main.includes("clear") || main.includes("sun")) return "☀️";
+  if (main.includes("mist") || main.includes("fog")) return "🌫️";
+  return "❓";
 }
 
 function gerarCards(previsao, cidade) {
@@ -194,8 +209,10 @@ function gerarCards(previsao, cidade) {
       const item = horarios.find(h => h.dt_txt.includes(horaStr));
       if(item){
         const hourDiv = document.createElement("div");
-        hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
-        hourDiv.textContent = `${item.dt_txt.split(" ")[1].slice(0,5)} - ${item.weather[0].description}`;
+        const climaClass = mapIconToClass(item.weather[0].main);
+        const climaEmoji = mapIconToEmoji(item.weather[0].main);
+        hourDiv.className = "hour " + climaClass;
+        hourDiv.innerHTML = `${climaEmoji} ${item.dt_txt.split(" ")[1].slice(0,5)} - ${item.weather[0].description}`;
 
         // tooltip customizado
         const tooltip = document.createElement("div");
