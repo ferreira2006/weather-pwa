@@ -99,7 +99,7 @@ button:hover { background: #1558b0; }
 .municipio-btn {
   white-space: nowrap;   /* não quebra linha */
   overflow: hidden;      /* evita estourar */
-  text-overflow: ellipsis; /* adiciona "..." se for muito grande */
+ /* text-overflow: ellipsis; /* adiciona "..." se for muito grande */*/
 }
 
 .button-container .favorito-btn {
