@@ -53,7 +53,7 @@ app.get('/weather', async (req, res) => {
     url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=pt_br`;
     key = `${lat},${lon}`;
   } else {
-    url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+    url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)},BR&appid=${API_KEY}&units=metric&lang=pt_br`;
     key = city.toLowerCase();
   }
 
@@ -74,7 +74,8 @@ app.get('/forecast', async (req, res) => {
     return res.status(400).json({ error: 'Parâmetros inválidos. Use city.' });
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)},BR&appid=${API_KEY}&units=metric&lang=pt_br`;
+
   const key = `forecast_${city.toLowerCase()}`;
 
   try {
