@@ -1,9 +1,10 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+// server.js (ES Modules)
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.API_KEY;
 
 console.log("API_KEY está definida?", API_KEY ? "Sim" : "Não");
@@ -29,7 +30,6 @@ async function fetchWithCache(key, url, ttl) {
   }
 
   console.log(`Cache miss: ${key}, buscando na API`);
-  
   const response = await fetch(url);
   const data = await response.json();
 
