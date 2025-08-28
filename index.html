@@ -1,359 +1,443 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Previsão do tempo</title>
-<style>
-  /* ================== Global ================== */
-  body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #f0f0f0;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <title>Previsão do tempo</title>
+    <style>
+      /* ================== Global ================== */
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 20px;
+        background: linear-gradient(180deg, #e9f1f7, #f0f0f0);
+        color: #333;
+      }
 
-  h1 {
-    margin-bottom: 16px;
-  }
+      h1 {
+        margin-bottom: 16px;
+        font-size: 22px;
+        color: #222;
+      }
 
-  select, button {
-    margin-right: 8px;
-    padding: 6px 10px;
-    font-size: 14px;
-  }
+      select,
+      button {
+        margin-right: 8px;
+        padding: 8px 12px;
+        font-size: 14px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background: white;
+        cursor: pointer;
+        transition: border 0.2s, box-shadow 0.2s;
+      }
 
-  #spinner {
-    display: none;
-    margin-top: 20px;
-  }
+      select:focus,
+      button:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 4px rgba(26, 115, 232, 0.4);
+        outline: none;
+      }
 
-  #cards-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
-  }
+      button {
+        background: #1a73e8;
+        color: white;
+        border: none;
+        font-weight: bold;
+      }
+      button:hover {
+        background: #1558b0;
+      }
 
-  /* ================== Card ================== */
-  .card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 12px;
-    background: #f5f5f5;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    min-width: 240px;
-    max-width: 100%;
-  }
+      #spinner {
+        display: none;
+        margin-top: 20px;
+        font-weight: bold;
+        color: #1a73e8;
+      }
 
-  .day-title {
-    font-weight: bold;
-  }
+      #cards-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-top: 20px;
+        justify-content: flex-start;
+      }
 
-  .hours {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
+      /* ================== Card ================== */
+      .card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 14px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        min-width: 240px;
+        flex: 1 1 260px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
 
-  /* ================== Hour ================== */
-  .hour {
-    padding: 6px 10px;
-    border-radius: 6px;
-    color: #333;
-    font-size: 14px;
-    cursor: default;
-    transition: transform 0.1s;
-    position: relative;
-  }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
 
-  .hour:hover {
-    transform: scale(1.05);
-    z-index: 1;
-  }
+      .day-title {
+        font-weight: bold;
+        font-size: 16px;
+        color: #444;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 6px;
+      }
 
-  /* Horas e temperatura destacadas */
-  .hour .hora {
-    font-weight: bold;
-    color: #1a73e8; /* azul para a hora */
-  }
+      .hours {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
 
-  .hour .temp {
-    font-weight: bold;
-    color: #e65100; /* laranja para a temperatura */
-  }
+      /* ================== Hour ================== */
+      .hour {
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: default;
+        transition: transform 0.1s;
+        position: relative;
 
-  /* ================== Cores conforme clima ================== */
-  .hour.sun { background: #FFF7C2; }      
-  .hour.clouds { background: #E0E0E0; }   
-  .hour.rain { background: #C8E4FF; }     
-  .hour.storm { background: #D8C8FF; }    
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-  /* ================== Tooltip ================== */
-  .tooltip {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    left: 105%;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.9);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    white-space: nowrap;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    z-index: 10;
-  }
+      .hour:hover {
+        transform: scale(1.03);
+        z-index: 1;
+      }
 
-  .hour:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-  }
+      /* Hora e temperatura com destaque */
+      .hora {
+        font-weight: bold;
+        color: #1a73e8; /* azul para a hora */
+      }
 
-  /* ================== Responsividade ================== */
-  @media (max-width: 600px) {
-    #cards-container {
-      gap: 16px;
-    }
+      .temp {
+        font-weight: bold;
+        color: #e65100; /* laranja para a temperatura */
+      }
 
-    .card {
-      width: 90%;
-      padding: 16px;
-    }
+      /* ================== Cores conforme clima ================== */
+      .hour.sun {
+        background: #fff7c2;
+      }
+      .hour.clouds {
+        background: #e0e0e0;
+      }
+      .hour.rain {
+        background: #c8e4ff;
+      }
+      .hour.storm {
+        background: #d8c8ff;
+      }
 
-    .hour {
-      font-size: 16px;
-      padding: 10px 14px;
-    }
-  }
-</style>
+      /* ================== Tooltip ================== */
+      .tooltip {
+        visibility: hidden;
+        opacity: 0;
+        position: absolute;
+        left: 105%;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.9);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        transition: opacity 0.2s;
+        pointer-events: none;
+        z-index: 10;
+      }
 
-</head>
-<body>
+      .hour:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+      }
 
-<h1 id="title">Previsão do tempo</h1>
+      /* ================== Responsividade ================== */
+      @media (max-width: 600px) {
+        #cards-container {
+          gap: 20px;
+        }
 
-<select id="estado-select">
-  <option value="">Selecione o estado</option>
-</select>
+        .card {
+          width: 100%;
+          padding: 16px;
+        }
 
-<select id="municipio-select">
-  <option value="">Selecione o município</option>
-</select>
+        .hour {
+          font-size: 16px;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title">Previsão do tempo</h1>
 
-<button id="consultar-btn">Consultar</button>
+    <select id="estado-select">
+      <option value="">Selecione o estado</option>
+    </select>
 
-<div id="spinner">Carregando previsão...</div>
-<div id="cards-container"></div>
+    <select id="municipio-select">
+      <option value="">Selecione o município</option>
+    </select>
 
-<script>
-const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+    <button id="consultar-btn">Consultar</button>
 
-// --- Cache para estados e municípios ---
-const CACHE_KEY = "ibge_cache";
-const CACHE_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 1 semana
+    <div id="spinner">Carregando previsão...</div>
+    <div id="cards-container"></div>
 
-async function carregarEstados() {
-  const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-  const now = Date.now();
-  if (cached.estados && now - cached.timestamp < CACHE_VALIDITY) {
-    console.log("Usando cache de estados");
-    popularEstados(cached.estados);
-    return;
-  }
-  const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
-  const estados = await res.json();
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ estados, timestamp: now }));
-  popularEstados(estados);
-}
+    <script>
+      const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 
-function popularEstados(estados) {
-  const select = document.getElementById("estado-select");
-  select.innerHTML = '<option value="">Selecione o estado</option>';
-  estados.forEach(e => {
-    const option = document.createElement("option");
-    option.value = e.id;
-    option.textContent = e.nome;
-    select.appendChild(option);
-  });
-}
+      // --- Cache para estados e municípios ---
+      const CACHE_KEY = "ibge_cache";
+      const CACHE_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 1 semana
 
-async function carregarMunicipios(estadoId) {
-  if (!estadoId) return;
-  const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-  const now = Date.now();
-  let municipios = [];
-  if (cached.municipios && cached.municipios[estadoId] && now - cached.timestamp < CACHE_VALIDITY) {
-    console.log("Usando cache de municípios");
-    municipios = cached.municipios[estadoId];
-  } else {
-    const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
-    municipios = await res.json();
-    cached.municipios = cached.municipios || {};
-    cached.municipios[estadoId] = municipios;
-    cached.timestamp = now;
-    localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
-  }
+      async function carregarEstados() {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+        const now = Date.now();
+        if (cached.estados && now - cached.timestamp < CACHE_VALIDITY) {
+          console.log("Usando cache de estados");
+          popularEstados(cached.estados);
+          return;
+        }
+        const res = await fetch(
+          "https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome"
+        );
+        const estados = await res.json();
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ estados, timestamp: now })
+        );
+        popularEstados(estados);
+      }
 
-  const select = document.getElementById("municipio-select");
-  select.innerHTML = '<option value="">Selecione o município</option>';
-  municipios.forEach(m => {
-    const option = document.createElement("option");
-    option.value = m.nome;
-    option.textContent = m.nome;
-    select.appendChild(option);
-  });
-}
+      function popularEstados(estados) {
+        const select = document.getElementById("estado-select");
+        select.innerHTML = '<option value="">Selecione o estado</option>';
+        estados.forEach((e) => {
+          const option = document.createElement("option");
+          option.value = e.id;
+          option.textContent = e.nome;
+          select.appendChild(option);
+        });
+      }
 
-// --- Utilitários ---
-function mapIconToClass(main) {
-  main = main.toLowerCase();
-  if (main.includes("rain")) return "rain";
-  if (main.includes("storm") || main.includes("thunder")) return "storm";
-  if (main.includes("cloud")) return "clouds";
-  if (main.includes("clear") || main.includes("sun")) return "sun";
-  return "clouds";
-}
+      async function carregarMunicipios(estadoId) {
+        if (!estadoId) return;
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+        const now = Date.now();
+        let municipios = [];
+        if (
+          cached.municipios &&
+          cached.municipios[estadoId] &&
+          now - cached.timestamp < CACHE_VALIDITY
+        ) {
+          console.log("Usando cache de municípios");
+          municipios = cached.municipios[estadoId];
+        } else {
+          const res = await fetch(
+            `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
+          );
+          municipios = await res.json();
+          cached.municipios = cached.municipios || {};
+          cached.municipios[estadoId] = municipios;
+          cached.timestamp = now;
+          localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+        }
 
-function mapIconToEmoji(main) {
-  main = main.toLowerCase();
-  if (main.includes("rain")) return "🌧️";
-  if (main.includes("storm") || main.includes("thunder")) return "⛈️";
-  if (main.includes("cloud")) return "☁️";
-  if (main.includes("clear") || main.includes("sun")) return "☀️";
-  return "🌤️";
-}
+        const select = document.getElementById("municipio-select");
+        select.innerHTML = '<option value="">Selecione o município</option>';
+        municipios.forEach((m) => {
+          const option = document.createElement("option");
+          option.value = m.nome;
+          option.textContent = m.nome;
+          select.appendChild(option);
+        });
+      }
 
-function formatarData(dia) {
-  const dateObj = new Date(dia);
-  const diasSemana = ["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
-  const diaSemana = diasSemana[dateObj.getDay()];
-  const diaNum = String(dateObj.getDate()).padStart(2,"0");
-  const mes = String(dateObj.getMonth()+1).padStart(2,"0");
-  return `${diaNum}/${mes} ${diaSemana}`;
-}
+      // --- Utilitários ---
+      function mapIconToClass(main) {
+        main = main.toLowerCase();
+        if (main.includes("rain")) return "rain";
+        if (main.includes("storm") || main.includes("thunder")) return "storm";
+        if (main.includes("cloud")) return "clouds";
+        if (main.includes("clear") || main.includes("sun")) return "sun";
+        return "clouds";
+      }
 
-function agruparPorDia(lista) {
-  if (!lista) return {};
-  const dias = {};
-  lista.forEach(item => {
-    const dia = item.dt_txt.split(" ")[0];
-    if (!dias[dia]) dias[dia] = [];
-    dias[dia].push(item);
-  });
-  return dias;
-}
+      function mapIconToEmoji(main) {
+        main = main.toLowerCase();
+        if (main.includes("rain")) return "🌧️";
+        if (main.includes("storm") || main.includes("thunder")) return "⛈️";
+        if (main.includes("cloud")) return "☁️";
+        if (main.includes("clear") || main.includes("sun")) return "☀️";
+        return "🌤️";
+      }
 
-// --- Cards ---
-function gerarCards(previsao, cidade) {
-  if(!previsao || !previsao.list) {
-    alert("Previsão inválida");
-    return;
-  }
+      function formatarData(dia) {
+        const dateObj = new Date(dia);
+        const diasSemana = [
+          "domingo",
+          "segunda-feira",
+          "terça-feira",
+          "quarta-feira",
+          "quinta-feira",
+          "sexta-feira",
+          "sábado",
+        ];
+        const diaSemana = diasSemana[dateObj.getDay()];
+        const diaNum = String(dateObj.getDate()).padStart(2, "0");
+        const mes = String(dateObj.getMonth() + 1).padStart(2, "0");
+        return `${diaNum}/${mes} ${diaSemana}`;
+      }
 
-  const container = document.getElementById("cards-container");
-  container.innerHTML = "";
-  document.getElementById("title").textContent = `Previsão do tempo para ${cidade}`;
+      function agruparPorDia(lista) {
+        if (!lista) return {};
+        const dias = {};
+        lista.forEach((item) => {
+          const dia = item.dt_txt.split(" ")[0];
+          if (!dias[dia]) dias[dia] = [];
+          dias[dia].push(item);
+        });
+        return dias;
+      }
 
-  const dias = Object.entries(agruparPorDia(previsao.list));
-  const diasParaMostrar = dias.slice(0,4); // hoje + 3 dias
+      // --- Cards ---
+      function gerarCards(previsao, cidade) {
+        if (!previsao || !previsao.list) {
+          alert("Previsão inválida");
+          return;
+        }
 
-  const now = new Date();
-  const hojeStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
+        const container = document.getElementById("cards-container");
+        container.innerHTML = "";
+        document.getElementById(
+          "title"
+        ).textContent = `Previsão do tempo para ${cidade}`;
 
-  diasParaMostrar.forEach(([dia, horarios], index) => {
-    const card = document.createElement("div");
-    card.className = "card";
+        const dias = Object.entries(agruparPorDia(previsao.list));
+        const diasParaMostrar = dias.slice(0, 4); // hoje + 3 dias
 
-    const diaTitle = document.createElement("div");
-    diaTitle.className = "day-title";
-    diaTitle.textContent = formatarData(dia);
-    card.appendChild(diaTitle);
+        const now = new Date();
+        const hojeStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
 
-    const horasContainer = document.createElement("div");
-    horasContainer.className = "hours";
+        diasParaMostrar.forEach(([dia, horarios], index) => {
+          const card = document.createElement("div");
+          card.className = "card";
 
-    let horariosParaMostrar = [];
+          const diaTitle = document.createElement("div");
+          diaTitle.className = "day-title";
+          diaTitle.textContent = formatarData(dia);
+          card.appendChild(diaTitle);
 
-    if(index === 0) {
-      // Card do dia atual → próximos 5 horários, pegando do próximo dia se necessário
-      const futuros = previsao.list.filter(h => new Date(h.dt_txt) >= now);
-      horariosParaMostrar = futuros.slice(0,5).map(h => ({
-        ...h,
-        flag: (h.dt_txt.split(" ")[0] !== hojeStr) ? "amanhã" : ""
-      }));
-    } else {
-      // Outros dias → horários fixos
-      const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
-      horariosDesejados.forEach(horaStr => {
-        const item = horarios.find(h => h.dt_txt.includes(horaStr));
-        if(item) horariosParaMostrar.push(item);
-      });
-    }
+          const horasContainer = document.createElement("div");
+          horasContainer.className = "hours";
 
-    horariosParaMostrar.forEach(item => {
-      const hourDiv = document.createElement("div");
-      hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
+          let horariosParaMostrar = [];
 
-      const emoji = mapIconToEmoji(item.weather[0].main);
-      const horaTxt = item.dt_txt.split(" ")[1].slice(0,2) + "h";
-      hourDiv.innerHTML = `<span class="hora">${horaTxt}</span> ${emoji} ${item.weather[0].description} <span class="temp">${item.main.temp.toFixed(0)}°C</span>`;
-      if(item.flag) hourDiv.innerHTML += ` (${item.flag})`;
+          if (index === 0) {
+            // Card do dia atual → próximos 5 horários, pegando do próximo dia se necessário
+            const futuros = previsao.list.filter(
+              (h) => new Date(h.dt_txt) >= now
+            );
+            horariosParaMostrar = futuros.slice(0, 5).map((h) => ({
+              ...h,
+              flag: h.dt_txt.split(" ")[0] !== hojeStr ? "amanhã" : "",
+            }));
+          } else {
+            // Outros dias → horários fixos
+            const horariosDesejados = [
+              "00:00:00",
+              "06:00:00",
+              "12:00:00",
+              "18:00:00",
+              "21:00:00",
+            ];
+            horariosDesejados.forEach((horaStr) => {
+              const item = horarios.find((h) => h.dt_txt.includes(horaStr));
+              if (item) horariosParaMostrar.push(item);
+            });
+          }
 
-      const tooltip = document.createElement("div");
-      tooltip.className = "tooltip";
-      tooltip.innerHTML = `
-        Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
-        Umidade: ${item.main.humidity}%<br>
-        Vento: ${item.wind.speed} m/s
-      `;
-      hourDiv.appendChild(tooltip);
+          horariosParaMostrar.forEach((item) => {
+            const hourDiv = document.createElement("div");
+            hourDiv.classList.add("hour", mapIconToClass(item.weather[0].main));
 
-      horasContainer.appendChild(hourDiv);
-    });
+            const emoji = mapIconToEmoji(item.weather[0].main);
+            const horaTxt = item.dt_txt.split(" ")[1].slice(0, 2) + "h";
 
-    card.appendChild(horasContainer);
-    container.appendChild(card);
-  });
-}
+            hourDiv.innerHTML = `
+    <div class="info">
+      <span class="hora">${horaTxt}</span> ${emoji} ${
+              item.weather[0].description
+            }
+      ${item.flag ? `<span class="flag">(${item.flag})</span>` : ""}
+    </div>
+    <div class="temp">${item.main.temp.toFixed(0)}°C</div>
+    <span class="tooltip">
+      Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
+      Umidade: ${item.main.humidity}%<br>
+      Vento: ${item.wind.speed} m/s
+    </span>
+  `;
 
+            horasContainer.appendChild(hourDiv);
+          });
 
-// --- Eventos ---
-document.getElementById("estado-select").addEventListener("change", (e)=>{
-  carregarMunicipios(e.target.value);
-});
+          card.appendChild(horasContainer);
+          container.appendChild(card);
+        });
+      }
 
-document.getElementById("consultar-btn").addEventListener("click", async ()=>{
-  const cidade = document.getElementById("municipio-select").value;
-  if(!cidade) return alert("Selecione um município!");
-  
-  const spinner = document.getElementById("spinner");
-  spinner.style.display = "block";
+      // --- Eventos ---
+      document
+        .getElementById("estado-select")
+        .addEventListener("change", (e) => {
+          carregarMunicipios(e.target.value);
+        });
 
-  try {
-    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidade)}`);
-    const data = await res.json();
+      document
+        .getElementById("consultar-btn")
+        .addEventListener("click", async () => {
+          const cidade = document.getElementById("municipio-select").value;
+          if (!cidade) return alert("Selecione um município!");
 
-    console.log("Resposta do backend:", data); // 🔍 inspeciona o JSON
+          const spinner = document.getElementById("spinner");
+          spinner.style.display = "block";
 
-    if(!data || !data.list) throw new Error("Previsão inválida");
+          try {
+            const res = await fetch(
+              `${backendUrl}?city=${encodeURIComponent(cidade)}`
+            );
+            const data = await res.json();
 
-    gerarCards(data, cidade);
-  } catch(e) {
-    alert("Erro ao buscar previsão.");
-    console.error(e);
-  } finally {
-    spinner.style.display = "none";
-  }
-});
+            console.log("Resposta do backend:", data); // 🔍 inspeciona o JSON
 
-// --- Inicialização ---
-carregarEstados();
-</script>
+            if (!data || !data.list) throw new Error("Previsão inválida");
 
+            gerarCards(data, cidade);
+          } catch (e) {
+            alert("Erro ao buscar previsão.");
+            console.error(e);
+          } finally {
+            spinner.style.display = "none";
+          }
+        });
 
-</body>
+      // --- Inicialização ---
+      carregarEstados();
+    </script>
+  </body>
 </html>
