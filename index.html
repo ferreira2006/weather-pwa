@@ -20,9 +20,14 @@
     font-size: 14px;
   }
 
+  #spinner {
+    display: none;
+    margin-top: 20px;
+  }
+
   #cards-container {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: 12px;
     margin-top: 16px;
   }
@@ -30,25 +35,23 @@
   .card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     padding: 12px;
     background: #f5f5f5;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    width: fit-content;
     min-width: 240px;
     max-width: 100%;
   }
 
   .day-title {
     font-weight: bold;
-    margin-bottom: 6px;
   }
 
   .hours {
     display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .hour {
@@ -59,7 +62,6 @@
     cursor: default;
     transition: transform 0.1s;
     position: relative;
-    min-width: 120px;
   }
 
   .hour:hover {
@@ -97,23 +99,21 @@
     opacity: 1;
   }
 
- /* Responsividade para telas menores */
-@media (max-width: 600px) {
-  #cards-container {
-    gap: 16px;
-  }
+  @media (max-width: 600px) {
+    #cards-container {
+      gap: 16px;
+    }
 
-  .card {
-    width: 90%;           /* ocupa quase toda a largura */
-    min-width: auto;      /* remove restrição mínima */
-    padding: 16px;        /* aumenta o padding */
-  }
+    .card {
+      width: 90%;
+      padding: 16px;
+    }
 
-  .hour {
-    font-size: 16px;      /* aumenta fonte dos horários */
-    padding: 10px 14px;   /* aumenta padding interno */
+    .hour {
+      font-size: 16px;
+      padding: 10px 14px;
+    }
   }
-}
 </style>
 </head>
 <body>
@@ -130,15 +130,33 @@
 
 <button id="consultar-btn">Consultar</button>
 
+<div id="spinner">Carregando previsão...</div>
 <div id="cards-container"></div>
 
 <script>
-const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
+const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+
+// --- Cache para estados e municípios ---
+const CACHE_KEY = "ibge_cache";
+const CACHE_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 1 semana
 
 async function carregarEstados() {
+  const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+  const now = Date.now();
+  if (cached.estados && now - cached.timestamp < CACHE_VALIDITY) {
+    console.log("Usando cache de estados");
+    popularEstados(cached.estados);
+    return;
+  }
   const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
   const estados = await res.json();
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ estados, timestamp: now }));
+  popularEstados(estados);
+}
+
+function popularEstados(estados) {
   const select = document.getElementById("estado-select");
+  select.innerHTML = '<option value="">Selecione o estado</option>';
   estados.forEach(e => {
     const option = document.createElement("option");
     option.value = e.id;
@@ -148,8 +166,22 @@ async function carregarEstados() {
 }
 
 async function carregarMunicipios(estadoId) {
-  const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
-  const municipios = await res.json();
+  if (!estadoId) return;
+  const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+  const now = Date.now();
+  let municipios = [];
+  if (cached.municipios && cached.municipios[estadoId] && now - cached.timestamp < CACHE_VALIDITY) {
+    console.log("Usando cache de municípios");
+    municipios = cached.municipios[estadoId];
+  } else {
+    const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
+    municipios = await res.json();
+    cached.municipios = cached.municipios || {};
+    cached.municipios[estadoId] = municipios;
+    cached.timestamp = now;
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+  }
+
   const select = document.getElementById("municipio-select");
   select.innerHTML = '<option value="">Selecione o município</option>';
   municipios.forEach(m => {
@@ -160,16 +192,7 @@ async function carregarMunicipios(estadoId) {
   });
 }
 
-function agruparPorDia(lista) {
-  const dias = {};
-  lista.forEach(item => {
-    const dia = item.dt_txt.split(" ")[0];
-    if (!dias[dia]) dias[dia] = [];
-    dias[dia].push(item);
-  });
-  return dias;
-}
-
+// --- Utilitários ---
 function mapIconToClass(main) {
   main = main.toLowerCase();
   if (main.includes("rain")) return "rain";
@@ -197,6 +220,19 @@ function formatarData(dia) {
   return `${diaNum}/${mes} ${diaSemana}`;
 }
 
+function agruparPorDia(lista) {
+  if (!lista) return {};
+  const dias = {};
+  lista.forEach(item => {
+    const dia = item.dt_txt.split(" ")[0];
+    if (!dias[dia]) dias[dia] = [];
+    dias[dia].push(item);
+  });
+  return dias;
+}
+
+
+// --- Cards ---
 function gerarCards(previsao, cidade) {
   const container = document.getElementById("cards-container");
   container.innerHTML = "";
@@ -205,7 +241,9 @@ function gerarCards(previsao, cidade) {
   const dias = Object.entries(agruparPorDia(previsao.list));
   const diasParaMostrar = dias.slice(0,4); // hoje + 3 dias
 
-  diasParaMostrar.forEach(([dia, horarios]) => {
+  const now = new Date();
+
+  diasParaMostrar.forEach(([dia, horarios], index) => {
     const card = document.createElement("div");
     card.className = "card";
 
@@ -217,31 +255,42 @@ function gerarCards(previsao, cidade) {
     const horasContainer = document.createElement("div");
     horasContainer.className = "hours";
 
-    const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
-    horariosDesejados.forEach(horaStr => {
-      const item = horarios.find(h => h.dt_txt.includes(horaStr));
-      if(item){
-        const hourDiv = document.createElement("div");
-        hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
+    let horariosParaMostrar = [];
+    if (index === 0) {
+      // Card do dia atual → próximos 5 horários
+      horariosParaMostrar = previsao.list
+        .filter(h => new Date(h.dt_txt) >= now)
+        .slice(0,5)
+        .map(h => ({...h, flag: (new Date(h.dt_txt).getDate() !== now.getDate()) ? "amanhã" : ""}));
+    } else {
+      // Outros dias → horários fixos
+      const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
+      horariosDesejados.forEach(horaStr => {
+        const item = horarios.find(h => h.dt_txt.includes(horaStr));
+        if(item) horariosParaMostrar.push(item);
+      });
+    }
 
-        const emoji = mapIconToEmoji(item.weather[0].main);
+    horariosParaMostrar.forEach(item => {
+      const hourDiv = document.createElement("div");
+      hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
-        // hora + temperatura + ícone + descrição
-        const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
-        hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
+      const emoji = mapIconToEmoji(item.weather[0].main);
 
-        // tooltip: sensação + umidade + vento
-        const tooltip = document.createElement("div");
-        tooltip.className = "tooltip";
-        tooltip.innerHTML = `
-          Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
-          Umidade: ${item.main.humidity}%<br>
-          Vento: ${item.wind.speed} m/s
-        `;
-        hourDiv.appendChild(tooltip);
+      const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
+      hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
+      if(item.flag) hourDiv.textContent += ` (${item.flag})`;
 
-        horasContainer.appendChild(hourDiv);
-      }
+      const tooltip = document.createElement("div");
+      tooltip.className = "tooltip";
+      tooltip.innerHTML = `
+        Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
+        Umidade: ${item.main.humidity}%<br>
+        Vento: ${item.wind.speed} m/s
+      `;
+      hourDiv.appendChild(tooltip);
+
+      horasContainer.appendChild(hourDiv);
     });
 
     card.appendChild(horasContainer);
@@ -249,6 +298,7 @@ function gerarCards(previsao, cidade) {
   });
 }
 
+// --- Eventos ---
 document.getElementById("estado-select").addEventListener("change", (e)=>{
   carregarMunicipios(e.target.value);
 });
@@ -256,11 +306,24 @@ document.getElementById("estado-select").addEventListener("change", (e)=>{
 document.getElementById("consultar-btn").addEventListener("click", async ()=>{
   const cidade = document.getElementById("municipio-select").value;
   if(!cidade) return alert("Selecione um município!");
-  const res = await fetch(`${backendUrl}?city=${cidade}`);
-  const data = await res.json();
-  gerarCards(data, cidade);
+  
+  const spinner = document.getElementById("spinner");
+  spinner.style.display = "block";
+
+  try {
+    const res = await fetch(`${backendUrl}?city=${cidade}`);
+    const data = await res.json();
+
+    gerarCards(data, cidade);
+  } catch(e) {
+    alert("Erro ao buscar previsão.");
+    console.error(e);
+  } finally {
+    spinner.style.display = "none";
+  }
 });
 
+// --- Inicialização ---
 carregarEstados();
 </script>
 
