@@ -96,6 +96,12 @@ button:hover { background: #1558b0; }
   transform: translateY(-1px);
 }
 
+.municipio-btn {
+  white-space: nowrap;   /* não quebra linha */
+  overflow: hidden;      /* evita estourar */
+  text-overflow: ellipsis; /* adiciona "..." se for muito grande */
+}
+
 .button-container .favorito-btn {
   flex: 0 0 auto;
   padding: 8px 12px;
