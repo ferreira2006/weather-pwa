@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Previsão do tempo</title>
 <style>
+  /* ================== Global ================== */
   body {
     font-family: Arial, sans-serif;
     margin: 20px;
@@ -32,6 +33,7 @@
     margin-top: 16px;
   }
 
+  /* ================== Card ================== */
   .card {
     display: flex;
     flex-direction: column;
@@ -54,6 +56,7 @@
     gap: 8px;
   }
 
+  /* ================== Hour ================== */
   .hour {
     padding: 6px 10px;
     border-radius: 6px;
@@ -69,13 +72,24 @@
     z-index: 1;
   }
 
-  /* cores suaves conforme clima */
+  /* Horas e temperatura destacadas */
+  .hour .hora {
+    font-weight: bold;
+    color: #1a73e8; /* azul para a hora */
+  }
+
+  .hour .temp {
+    font-weight: bold;
+    color: #e65100; /* laranja para a temperatura */
+  }
+
+  /* ================== Cores conforme clima ================== */
   .hour.sun { background: #FFF7C2; }      
   .hour.clouds { background: #E0E0E0; }   
   .hour.rain { background: #C8E4FF; }     
   .hour.storm { background: #D8C8FF; }    
 
-  /* tooltip estilizado */
+  /* ================== Tooltip ================== */
   .tooltip {
     visibility: hidden;
     opacity: 0;
@@ -99,6 +113,7 @@
     opacity: 1;
   }
 
+  /* ================== Responsividade ================== */
   @media (max-width: 600px) {
     #cards-container {
       gap: 16px;
@@ -115,6 +130,7 @@
     }
   }
 </style>
+
 </head>
 <body>
 
@@ -134,7 +150,7 @@
 <div id="cards-container"></div>
 
 <script>
-const backendUrl = "https://weather-backend-hh3w.onrender.com/weather";
+const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
 
 // --- Cache para estados e municípios ---
 const CACHE_KEY = "ibge_cache";
@@ -231,9 +247,13 @@ function agruparPorDia(lista) {
   return dias;
 }
 
-
 // --- Cards ---
 function gerarCards(previsao, cidade) {
+  if(!previsao || !previsao.list) {
+    alert("Previsão inválida");
+    return;
+  }
+
   const container = document.getElementById("cards-container");
   container.innerHTML = "";
   document.getElementById("title").textContent = `Previsão do tempo para ${cidade}`;
@@ -242,6 +262,7 @@ function gerarCards(previsao, cidade) {
   const diasParaMostrar = dias.slice(0,4); // hoje + 3 dias
 
   const now = new Date();
+  const hojeStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
 
   diasParaMostrar.forEach(([dia, horarios], index) => {
     const card = document.createElement("div");
@@ -256,12 +277,14 @@ function gerarCards(previsao, cidade) {
     horasContainer.className = "hours";
 
     let horariosParaMostrar = [];
-    if (index === 0) {
-      // Card do dia atual → próximos 5 horários
-      horariosParaMostrar = previsao.list
-        .filter(h => new Date(h.dt_txt) >= now)
-        .slice(0,5)
-        .map(h => ({...h, flag: (new Date(h.dt_txt).getDate() !== now.getDate()) ? "amanhã" : ""}));
+
+    if(index === 0) {
+      // Card do dia atual → próximos 5 horários, pegando do próximo dia se necessário
+      const futuros = previsao.list.filter(h => new Date(h.dt_txt) >= now);
+      horariosParaMostrar = futuros.slice(0,5).map(h => ({
+        ...h,
+        flag: (h.dt_txt.split(" ")[0] !== hojeStr) ? "amanhã" : ""
+      }));
     } else {
       // Outros dias → horários fixos
       const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
@@ -276,10 +299,9 @@ function gerarCards(previsao, cidade) {
       hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
       const emoji = mapIconToEmoji(item.weather[0].main);
-
-      const horaTxt = item.dt_txt.split(" ")[1].slice(0,5);
-      hourDiv.textContent = `${horaTxt} - ${item.main.temp.toFixed(0)}°C ${emoji} ${item.weather[0].description}`;
-      if(item.flag) hourDiv.textContent += ` (${item.flag})`;
+      const horaTxt = item.dt_txt.split(" ")[1].slice(0,2) + "h";
+      hourDiv.innerHTML = `<span class="hora">${horaTxt}</span> ${emoji} ${item.weather[0].description} <span class="temp">${item.main.temp.toFixed(0)}°C</span>`;
+      if(item.flag) hourDiv.innerHTML += ` (${item.flag})`;
 
       const tooltip = document.createElement("div");
       tooltip.className = "tooltip";
@@ -298,6 +320,7 @@ function gerarCards(previsao, cidade) {
   });
 }
 
+
 // --- Eventos ---
 document.getElementById("estado-select").addEventListener("change", (e)=>{
   carregarMunicipios(e.target.value);
@@ -311,8 +334,12 @@ document.getElementById("consultar-btn").addEventListener("click", async ()=>{
   spinner.style.display = "block";
 
   try {
-    const res = await fetch(`${backendUrl}?city=${cidade}`);
+    const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidade)}`);
     const data = await res.json();
+
+    console.log("Resposta do backend:", data); // 🔍 inspeciona o JSON
+
+    if(!data || !data.list) throw new Error("Previsão inválida");
 
     gerarCards(data, cidade);
   } catch(e) {
@@ -326,6 +353,7 @@ document.getElementById("consultar-btn").addEventListener("click", async ()=>{
 // --- Inicialização ---
 carregarEstados();
 </script>
+
 
 </body>
 </html>
