@@ -1,10 +1,9 @@
 require('dotenv').config();
 const express = require('express');
-const fetch = require('node-fetch');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 const API_KEY = process.env.API_KEY;
 
 console.log("API_KEY está definida?", API_KEY ? "Sim" : "Não");
@@ -30,10 +29,11 @@ async function fetchWithCache(key, url, ttl) {
   }
 
   console.log(`Cache miss: ${key}, buscando na API`);
+  
   const response = await fetch(url);
   const data = await response.json();
 
-  if (response.status !== 200) {
+  if (!response.ok) {
     throw new Error(data.message || 'Erro na API do OpenWeather');
   }
 
@@ -75,8 +75,7 @@ app.get('/forecast', async (req, res) => {
     return res.status(400).json({ error: 'Parâmetros inválidos. Use city.' });
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)},BR&appid=${API_KEY}&units=metric&lang=pt_br`;
-
+  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
   const key = `forecast_${city.toLowerCase()}`;
 
   try {
