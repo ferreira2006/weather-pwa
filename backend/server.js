@@ -75,7 +75,8 @@ app.get('/forecast', async (req, res) => {
     return res.status(400).json({ error: 'Parâmetros inválidos. Use city.' });
   }
 
-  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=pt_br`;
+  const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)},BR&appid=${API_KEY}&units=metric&lang=pt_br`;
+
   const key = `forecast_${city.toLowerCase()}`;
 
   try {
