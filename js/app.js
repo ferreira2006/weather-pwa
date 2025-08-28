@@ -38,32 +38,34 @@ function toggleFavorito(municipioObj) {
 }
 
 // ================== Render ==================
-function renderHistorico() {
+// ================== Render ==================
+async function renderHistorico() {
   const container = document.getElementById("historico-container");
   const data = carregarStorage();
   container.innerHTML = "";
 
-  data.historico.forEach(m => {
+  for (const m of data.historico) {
     const div = document.createElement("div");
     div.className = "button-container";
 
     // Botão do município
     const btn = document.createElement("button");
-    btn.textContent = m.nome;
+    btn.textContent = m.nome; // agora m é um objeto {nome, estadoId}
     btn.className = "municipio-btn";
-    btn.addEventListener("click", () => {
+    btn.style.width = `${m.nome.length + 2}ch`;
+    btn.addEventListener("click", async () => {
+      // Atualiza selects
       document.getElementById("estado-select").value = m.estadoId;
-      carregarMunicipios(m.estadoId).then(() => {
-        document.getElementById("municipio-select").value = m.nome;
-        consultarMunicipio(m.nome);
-      });
+      await carregarMunicipios(m.estadoId); // carrega municípios do estado
+      document.getElementById("municipio-select").value = m.nome;
+      consultarMunicipio(m.nome);
     });
 
-    // Botão de adicionar aos favoritos
+    // Botão de favorito
     const btnFav = document.createElement("button");
-    btnFav.textContent = "★";
-    btnFav.className = `favorito-btn ${carregarStorage().favoritos.some(f => f.nome === m.nome) ? "favorito" : "nao-favorito"}`;
-    btnFav.addEventListener("click", e => {
+    btnFav.textContent = data.favoritos.some(f => f.nome === m.nome) ? "★" : "☆";
+    btnFav.className = "favorito-btn " + (data.favoritos.some(f => f.nome === m.nome) ? "favorito" : "nao-favorito");
+    btnFav.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleFavorito(m);
     });
@@ -71,15 +73,15 @@ function renderHistorico() {
     div.appendChild(btn);
     div.appendChild(btnFav);
     container.appendChild(div);
-  });
+  }
 }
 
-function renderFavoritos() {
+async function renderFavoritos() {
   const container = document.getElementById("favoritos-container");
   const data = carregarStorage();
   container.innerHTML = "";
 
-  data.favoritos.forEach(m => {
+  for (const m of data.favoritos) {
     const div = document.createElement("div");
     div.className = "button-container";
 
@@ -87,19 +89,19 @@ function renderFavoritos() {
     const btn = document.createElement("button");
     btn.textContent = m.nome;
     btn.className = "municipio-btn";
-    btn.addEventListener("click", () => {
+    btn.style.width = `${m.nome.length + 2}ch`;
+    btn.addEventListener("click", async () => {
       document.getElementById("estado-select").value = m.estadoId;
-      carregarMunicipios(m.estadoId).then(() => {
-        document.getElementById("municipio-select").value = m.nome;
-        consultarMunicipio(m.nome);
-      });
+      await carregarMunicipios(m.estadoId);
+      document.getElementById("municipio-select").value = m.nome;
+      consultarMunicipio(m.nome);
     });
 
-    // Botão de remover dos favoritos
+    // Botão remover favorito
     const btnRemove = document.createElement("button");
     btnRemove.textContent = "☆";
     btnRemove.className = "favorito-btn favorito";
-    btnRemove.addEventListener("click", e => {
+    btnRemove.addEventListener("click", (e) => {
       e.stopPropagation();
       toggleFavorito(m);
     });
@@ -107,8 +109,9 @@ function renderFavoritos() {
     div.appendChild(btn);
     div.appendChild(btnRemove);
     container.appendChild(div);
-  });
+  }
 }
+
 
 // ================== IBGE ==================
 async function carregarEstados() {
