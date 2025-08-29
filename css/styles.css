@@ -6,8 +6,23 @@ body {
   color: #333;
 }
 
+
 h1 { font-size: 24px; margin-bottom: 16px; color: #1a1a1a; }
 h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
+
+/* ================== Selects e Botão de busca ================== */
+.card-busca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
 select, button {
   padding: 8px 14px;
@@ -47,11 +62,18 @@ button:hover { background: #1558b0; }
   gap: 24px; /* margem homogênea entre sessões */
   margin-top: 20px;
   flex-wrap: wrap;
+  gap: 20px; /* margem entre os cards de histórico e favoritos */
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
 .session {
   flex: 1;
   min-width: 220px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 16px;
 }
 
 /* ================== Botões histórico/favoritos ================== */

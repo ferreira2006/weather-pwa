@@ -28,13 +28,11 @@ function adicionarHistorico(municipio, estadoId) {
 function toggleFavorito(municipioObj) {
   const data = carregarStorage();
   const index = data.favoritos.findIndex(m => m.nome === municipioObj.nome);
-
   if (index >= 0) data.favoritos.splice(index, 1);
   else {
     if (data.favoritos.length >= 5) return alert("Máximo de 5 favoritos!");
     data.favoritos.push(municipioObj);
   }
-
   salvarStorage(data);
   renderHistorico();
   renderFavoritos();
@@ -61,6 +59,20 @@ function renderHistorico() {
       consultarMunicipio(mObj.nome);
     });
 
+    // Botão do município
+    const btn = document.createElement("button");
+    btn.textContent = m.nome; // agora m é um objeto {nome, estadoId}
+    btn.className = "municipio-btn";
+    btn.style.width = `${m.nome.length + 2}ch`;
+    btn.addEventListener("click", async () => {
+      // Atualiza selects
+      document.getElementById("estado-select").value = m.estadoId;
+      await carregarMunicipios(m.estadoId); // carrega municípios do estado
+      document.getElementById("municipio-select").value = m.nome;
+      consultarMunicipio(m.nome);
+    });
+
+    // Botão de favorito
     const btnFav = document.createElement("button");
     btnFav.textContent = data.favoritos.some(f => f.nome === mObj.nome) ? "★" : "☆";
     btnFav.title = data.favoritos.some(f => f.nome === mObj.nome) ? "Já é favorito" : "Adicionar aos favoritos";
@@ -70,15 +82,15 @@ function renderHistorico() {
     div.appendChild(btn);
     div.appendChild(btnFav);
     container.appendChild(div);
-  });
+  }
 }
 
-function renderFavoritos() {
+async function renderFavoritos() {
   const container = document.getElementById("favoritos-container");
   const data = carregarStorage();
   container.innerHTML = "";
 
-  data.favoritos.forEach(m => {
+  for (const m of data.favoritos) {
     const div = document.createElement("div");
     div.className = "button-container";
 
@@ -105,8 +117,9 @@ function renderFavoritos() {
     div.appendChild(btn);
     div.appendChild(btnRemove);
     container.appendChild(div);
-  });
+  }
 }
+
 
 // ================== IBGE ==================
 async function carregarEstados() {
@@ -118,7 +131,7 @@ async function carregarEstados() {
   }
   const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
   const estados = await res.json();
-  localStorage.setItem(CACHE_KEY, JSON.stringify({estados, timestamp: now}));
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ estados, timestamp: now }));
   popularEstados(estados);
 }
 
@@ -133,12 +146,12 @@ function popularEstados(estados) {
   });
 }
 
-async function carregarMunicipios(estadoId){
-  if(!estadoId) return;
+async function carregarMunicipios(estadoId) {
+  if (!estadoId) return;
   const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
   const now = Date.now();
   let municipios = [];
-  if(cached.municipios && cached.municipios[estadoId] && now - cached.timestamp < CACHE_VALIDITY){
+  if (cached.municipios && cached.municipios[estadoId] && now - cached.timestamp < CACHE_VALIDITY) {
     municipios = cached.municipios[estadoId];
   } else {
     const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
@@ -148,7 +161,6 @@ async function carregarMunicipios(estadoId){
     cached.timestamp = now;
     localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
   }
-
   const select = document.getElementById("municipio-select");
   select.innerHTML = '<option value="">Selecione o município</option>';
   municipios.forEach(m => {
@@ -160,25 +172,25 @@ async function carregarMunicipios(estadoId){
 }
 
 // ================== Utilitários ==================
-function mapIconToClass(main){
+function mapIconToClass(main) {
   main = main.toLowerCase();
-  if(main.includes("rain")) return "rain";
-  if(main.includes("storm") || main.includes("thunder")) return "storm";
-  if(main.includes("cloud")) return "clouds";
-  if(main.includes("clear") || main.includes("sun")) return "sun";
+  if (main.includes("rain")) return "rain";
+  if (main.includes("storm") || main.includes("thunder")) return "storm";
+  if (main.includes("cloud")) return "clouds";
+  if (main.includes("clear") || main.includes("sun")) return "sun";
   return "clouds";
 }
 
-function mapIconToEmoji(main){
+function mapIconToEmoji(main) {
   main = main.toLowerCase();
-  if(main.includes("rain")) return "🌧️";
-  if(main.includes("storm") || main.includes("thunder")) return "⛈️";
-  if(main.includes("cloud")) return "☁️";
-  if(main.includes("clear") || main.includes("sun")) return "☀️";
+  if (main.includes("rain")) return "🌧️";
+  if (main.includes("storm") || main.includes("thunder")) return "⛈️";
+  if (main.includes("cloud")) return "☁️";
+  if (main.includes("clear") || main.includes("sun")) return "☀️";
   return "🌤️";
 }
 
-function formatarData(dia){
+function formatarData(dia) {
   const dateObj = new Date(dia);
   const diasSemana = ["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
   const diaSemana = diasSemana[dateObj.getDay()];
@@ -187,23 +199,21 @@ function formatarData(dia){
   return `${diaNum}/${mes} ${diaSemana}`;
 }
 
-function agruparPorDia(lista){
-  if(!lista) return {};
+function agruparPorDia(lista) {
+  if (!lista) return {};
   const dias = {};
   lista.forEach(item => {
     const dia = item.dt_txt.split(" ")[0];
-    if(!dias[dia]) dias[dia] = [];
+    if (!dias[dia]) dias[dia] = [];
     dias[dia].push(item);
   });
   return dias;
 }
 
 // ================== Cards ==================
-function gerarCards(previsao, cidade){
-  if(!previsao || !previsao.list) { alert("Previsão inválida"); return; }
-
+function gerarCards(previsao, cidade) {
   const container = document.getElementById("cards-container");
-  container.innerHTML = "";
+  container.innerHTML = ""; // limpa antes de gerar novos cards
   document.getElementById("title").textContent = `Previsão do tempo para ${cidade}`;
 
   const dias = Object.entries(agruparPorDia(previsao.list));
@@ -227,7 +237,7 @@ function gerarCards(previsao, cidade){
     let horariosParaMostrar = [];
     if(index === 0){
       const futuros = previsao.list.filter(h => new Date(h.dt_txt) >= now);
-      horariosParaMostrar = futuros.slice(0,5).map(h => ({...h, flag:(h.dt_txt.split(" ")[0]!==hojeStr)?"amanhã":""}));
+      horariosParaMostrar = futuros.slice(0,5).map(h => ({ ...h, flag: (h.dt_txt.split(" ")[0] !== hojeStr) ? "amanhã" : "" }));
     } else {
       const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
       horariosDesejados.forEach(horaStr => {
@@ -236,7 +246,7 @@ function gerarCards(previsao, cidade){
       });
     }
 
-    horariosParaMostrar.forEach(item=>{
+    horariosParaMostrar.forEach(item => {
       const hourDiv = document.createElement("div");
       hourDiv.className = "hour " + mapIconToClass(item.weather[0].main);
 
@@ -256,6 +266,18 @@ function gerarCards(previsao, cidade){
 </span>
 `;
 
+      hourDiv.innerHTML = `
+<div class="info">
+  <span class="hora">${horaTxt}</span> ${emoji} ${item.weather[0].description}
+  ${item.flag ? `<span class="flag">(${item.flag})</span>` : ""}
+</div>
+<div class="temp">${item.main.temp.toFixed(0)}°C</div>
+<span class="tooltip">
+  Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
+  Umidade: ${item.main.humidity}%<br>
+  Vento: ${item.wind.speed} m/s
+</span>
+`;
       horasContainer.appendChild(hourDiv);
     });
 
@@ -276,14 +298,14 @@ async function consultarMunicipio(cidade){
   adicionarHistorico(cidade);
 
   const spinner = document.getElementById("spinner");
-  spinner.style.display = "block";
+  spinner.style.display = "inline";
 
   try{
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidade)}`);
     const data = await res.json();
-    if(!data || !data.list) throw new Error("Previsão inválida");
+    if (!data || !data.list) throw new Error("Previsão inválida");
     gerarCards(data, cidade);
-  } catch(e){
+  } catch(e) {
     alert("Erro ao buscar previsão.");
     console.error(e);
   } finally{
