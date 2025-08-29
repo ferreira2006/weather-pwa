@@ -38,10 +38,10 @@ const Toast = (() => {
 
 // ================== Histórico e Favoritos ==================
 const HistoricoFavoritos = {
-  adicionarHistorico(municipio, estadoId) {
+  adicionarHistorico(municipio, estadoId, estadoSigla) {
     const data = StorageManager.carregar();
     data.historico = data.historico.filter(m => m.nome !== municipio);
-    data.historico.unshift({ nome: municipio, estadoId });
+    data.historico.unshift({ nome: municipio, estadoId, estadoSigla });
     if (data.historico.length > maxHistoryItems) data.historico.pop();
     StorageManager.salvar(data);
     this.render();
@@ -49,7 +49,7 @@ const HistoricoFavoritos = {
 
   toggleFavorito(municipioObj) {
     const data = StorageManager.carregar();
-    const index = data.favoritos.findIndex(m => m.nome === municipioObj.nome);
+    const index = data.favoritos.findIndex(m => m.nome === municipioObj.nome && m.estadoId === municipioObj.estadoId);
     if (index >= 0) data.favoritos.splice(index, 1);
     else {
       if (data.favoritos.length >= 5) return Toast.show("Máximo de 5 favoritos!");
@@ -61,20 +61,20 @@ const HistoricoFavoritos = {
 
   criarBotaoMunicipio(m, containerId) {
     const btn = document.createElement("button");
-    btn.textContent = m.nome;
+    btn.textContent = `${m.nome} - ${m.estadoSigla}`;
     btn.className = "municipio-btn";
-    btn.setAttribute("aria-label", `Selecionar município ${m.nome}`);
+    btn.setAttribute("aria-label", `Selecionar município ${m.nome} - ${m.estadoSigla}`);
     btn.addEventListener("click", () => {
       document.getElementById("estado-select").value = m.estadoId;
       IBGE.carregarMunicipios(m.estadoId).then(() => {
         document.getElementById("municipio-select").value = m.nome;
-        Cards.consultarMunicipio(m.nome);
+        Cards.consultarMunicipio({ nome: m.nome, estadoSigla: m.estadoSigla });
       });
     });
 
     const btnFav = document.createElement("button");
     const storage = StorageManager.carregar();
-    const isFav = storage.favoritos.some(f => f.nome === m.nome);
+    const isFav = storage.favoritos.some(f => f.nome === m.nome && f.estadoId === m.estadoId);
     btnFav.textContent = containerId === "historico-container" ? "📌" : "❌";
     btnFav.className = `favorito-btn ${isFav ? "favorito" : "nao-favorito"}`;
     btnFav.setAttribute("aria-label", isFav ? `Remover ${m.nome} dos favoritos` : `Adicionar ${m.nome} aos favoritos`);
@@ -137,6 +137,7 @@ const IBGE = {
       const option = document.createElement("option");
       option.value = e.id;
       option.textContent = e.nome;
+      option.dataset.sigla = e.sigla;
       frag.appendChild(option);
     });
     select.appendChild(frag);
@@ -254,6 +255,102 @@ const Cards = {
     const now = Date.now();
     if (now - lastConsulta < 1000) return; // limitar consultas rápidas
     lastConsulta = now;
+
+    const container = document.getElementById("cards-container");
+    container.innerHTML = "";
+    document.getElementById("title").textContent = `Previsão do tempo para ${cidade.nome} - ${cidade.estadoSigla}`;
+
+    const diasMap = {};
+    previsao.list.forEach(item => {
+      if (!item.dt_txt) return;
+      const [diaStr] = item.dt_txt.split(" ");
+      const itemDate = new Date(item.dt_txt);
+
+      const isHorarioDesejado = horariosNumericos.some(([hH, hM, hS]) =>
+        itemDate.getHours() === hH && itemDate.getMinutes() === hM && itemDate.getSeconds() === hS
+      );
+      if (!isHorarioDesejado) return;
+
+      if (!diasMap[diaStr]) diasMap[diaStr] = [];
+      diasMap[diaStr].push(item);
+    });
+
+    const frag = document.createDocumentFragment();
+    Object.entries(diasMap)
+      .sort(([a], [b]) => new Date(a) - new Date(b))
+      .slice(0, 4)
+      .forEach(([dia, lista]) => {
+        if (lista.length) frag.appendChild(this.criarCardDia(dia, lista));
+      });
+
+    container.appendChild(frag);
+  },
+
+  mostrarSpinner() { document.getElementById("spinner").style.display = "inline-block"; },
+  esconderSpinner() { document.getElementById("spinner").style.display = "none"; },
+
+  async consultarMunicipio(cidadeObj) {
+    if (!cidadeObj || !cidadeObj.nome) return;
+    this.mostrarSpinner();
+    try {
+      const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`);
+      const data = await res.json();
+      this.gerarCards(data, cidadeObj);
+      HistoricoFavoritos.adicionarHistorico(
+        cidadeObj.nome,
+        document.getElementById("estado-select").value,
+        document.getElementById("estado-select").selectedOptions[0].dataset.sigla
+      );
+    } catch (err) {
+      Toast.show("Erro ao consultar a previsão.");
+      console.error(err);
+    } finally {
+      this.esconderSpinner();
+    }
+  }
+};
+
+// ================== Eventos ==================
+document.getElementById("estado-select").addEventListener("change", e => IBGE.carregarMunicipios(e.target.value));
+document.getElementById("consultar-btn").addEventListener("click", () => {
+  const municipio = document.getElementById("municipio-select").value;
+  const sigla = document.getElementById("estado-select").selectedOptions[0].dataset.sigla;
+  Cards.consultarMunicipio({ nome: municipio, estadoSigla: sigla });
+});
+
+// ================== Tema ==================
+const Theme = {
+  toggle() {
+    const body = document.body;
+    const btn = document.getElementById("theme-toggle");
+    const isDark = body.classList.contains("dark");
+
+    if (isDark) {
+      body.classList.replace("dark", "light");
+      localStorage.setItem("theme", "light");
+      btn.textContent = "🌙";
+    } else {
+      body.classList.replace("light", "dark");
+      localStorage.setItem("theme", "dark");
+      btn.textContent = "☀️";
+    }
+  },
+
+  load() {
+    const saved = localStorage.getItem("theme") || "light";
+    document.body.classList.add(saved);
+    const btn = document.getElementById("theme-toggle");
+    btn.textContent = saved === "dark" ? "☀️" : "🌙";
+  }
+};
+
+// Eventos
+document.getElementById("theme-toggle").addEventListener("click", () => Theme.toggle());
+
+// Inicialização
+Theme.load();
+IBGE.carregarEstados();
+HistoricoFavoritos.render();    lastConsulta = now;
 
     const container = document.getElementById("cards-container");
     container.innerHTML = "";
