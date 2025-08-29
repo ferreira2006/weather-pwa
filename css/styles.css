@@ -1,3 +1,4 @@
+/* ================== Global ================== */
 body {
   font-family: "Segoe UI", Arial, sans-serif;
   margin: 20px;
@@ -5,73 +6,170 @@ body {
   color: #333;
 }
 
-h1 {
-  margin-bottom: 16px;
-  font-size: 22px;
-  color: #222;
-}
+h1 { font-size: 24px; margin-bottom: 16px; color: #1a1a1a; }
+h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
 
 select, button {
-  margin-right: 8px;
-  padding: 8px 12px;
+  padding: 8px 14px;
   font-size: 14px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ccc;
   background: white;
   cursor: pointer;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition: all 0.25s ease;
+}
+
+select:focus, button:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 6px rgba(26,115,232,0.4);
 }
 
 button {
   background: #1a73e8;
   color: white;
+  font-weight: 600;
   border: none;
-  font-weight: bold;
 }
 
-button:hover {
-  background: #1558b0;
-}
+button:hover { background: #1558b0; }
 
 #spinner {
   display: none;
-  margin-top: 20px;
+  margin-left: 10px;
   font-weight: bold;
   color: #1a73e8;
 }
 
+/* ================== Sessions ================== */
+.sessions {
+  display: flex;
+  gap: 24px; /* margem homogênea entre sessões */
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.session {
+  flex: 1;
+  min-width: 220px;
+}
+
+/* ================== Botões histórico/favoritos ================== */
+.button-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0; /* botões colados internamente */
+  margin-bottom: 8px; /* espaço entre linhas */
+}
+
+.section-card {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+
+/* Botão de ação: adicionar ou remover favorito */
+.button-container .favorito-btn {
+  flex: 0 0 auto;
+  padding: 8px 12px; 
+  font-size: 16px;
+  border-radius: 50%;
+  border: none;
+  margin-left: -6px; /* cola no botão do município */
+  margin-right: 12px; /* espaço para o próximo município */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.button-container .municipio-btn:hover {
+  background: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+/* Botão de ação: adicionar ou remover favorito */
+.button-container .favorito-btn {
+  flex: 0 0 auto;
+  padding: 8px 12px; /* aumentei para igualar o tamanho do nome da cidade */
+  font-size: 16px;
+  border-radius: 50%;
+  border: none;
+  margin-left: -6px; /* cola o botão no município */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.button-container .favorito-btn:hover {
+  transform: scale(1.3);
+  background: rgba(26, 115, 232, 0.2);
+}
+
+.favorito-btn.favorito { color: #fbc02d; animation: pulse 0.3s ease; }
+.favorito-btn.nao-favorito { color: #aaa; }
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* ================== Cards ================== */
 #cards-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 18px;
   margin-top: 20px;
+  justify-content: flex-start;
 }
 
-/* ================== Card ================== */
 .card {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 14px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
   min-width: 240px;
   flex: 1 1 260px;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* Título do card centralizado */
 .day-title {
-  font-weight: bold;
+  font-weight: 600;
   font-size: 16px;
   color: #444;
   border-bottom: 1px solid #eee;
   padding-bottom: 6px;
+  text-align: center; /* centraliza data e dia da semana */
 }
 
 .hours {
@@ -80,16 +178,17 @@ button:hover {
   gap: 10px;
 }
 
+/* ================== Hour ================== */
 .hour {
-  padding: 8px 12px;
-  border-radius: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 14px;
   cursor: default;
-  transition: transform 0.1s;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: all 0.2s ease;
 }
 
 .hour:hover {
@@ -97,91 +196,65 @@ button:hover {
   z-index: 1;
 }
 
-.hora {
-  font-weight: bold;
-  color: #1a73e8;
-}
+.hora { font-weight: 600; color: #1a73e8; }
+.temp { font-weight: 600; color: #e65100; }
 
-.temp {
-  font-weight: bold;
-  color: #e65100;
-}
+/* ================== Cores por clima ================== */
+.hour.sun { background: #fff8c4; }
+.hour.clouds { background: #e6e6e6; }
+.hour.rain { background: #c8e4ff; }
+.hour.storm { background: #d8c8ff; }
 
-.hour.sun    { background: #fff7c2; }
-.hour.clouds { background: #e0e0e0; }
-.hour.rain   { background: #c8e4ff; }
-.hour.storm  { background: #d8c8ff; }
-
+/* ================== Tooltip ================== */
 .tooltip {
   visibility: hidden;
   opacity: 0;
   position: absolute;
-  bottom: -50px;
+  bottom: -52px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.85);
   color: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
   white-space: nowrap;
+  transition: opacity 0.25s ease;
   pointer-events: none;
   z-index: 9999;
 }
 
-.hour:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
+.hour:hover .tooltip { visibility: visible; opacity: 1; }
 
-.info {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.flag {
-  font-size: 12px;
-  color: #555;
-  font-style: italic;
-}
-
-/* ================== Histórico / Favoritos ================== */
-#historico-container div, #favoritos-container div {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f5f5f5;
-  margin-bottom: 6px;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-
-#historico-container button, #favoritos-container button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: gold;
-}
-
-#historico-container button:hover {
-  transform: scale(1.2);
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent rgba(0,0,0,0.85) transparent;
 }
 
 /* ================== Responsividade ================== */
 @media (max-width: 600px) {
-  #cards-container {
-    gap: 20px;
-  }
+  .sessions { flex-direction: column; gap: 20px; }
+  #cards-container { justify-content: center; }
 
-  .card {
+  .hour { font-size: 15px; padding: 10px; }
+  .button-container .municipio-btn { font-size: 14px; padding: 6px 10px; }
+  .button-container .favorito-btn { font-size: 14px; padding: 6px 10px; }
+
+  /* Espaçamento maior entre selects e botão ao empilhar */
+  #busca-card select,
+  #busca-card button {
+    display: block;
     width: 100%;
-    padding: 16px;
+    margin-bottom: 10px; /* aumenta o espaço vertical */
   }
 
-  .hour {
-    font-size: 16px;
-    padding: 12px;
+  #busca-card button {
+    margin-bottom: 0; /* último elemento não precisa de margin extra */
   }
 }
