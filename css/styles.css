@@ -2,13 +2,91 @@
 body {
   font-family: "Segoe UI", Arial, sans-serif;
   margin: 20px;
-  background: linear-gradient(180deg, #e9f1f7, #f0f0f0);
-  color: #333;
+  color: var(--text-color);
+  background-color: var(--bg-color);
 }
 
+h1 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #111827;
+}
 
-h1 { font-size: 24px; margin-bottom: 16px; color: #1a1a1a; }
-h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
+h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #374151;
+}
+
+/* ================== Tema claro ================== */
+body.light {
+  --bg-color: #f5f5f5;
+  --text-color: #222;
+  --card-bg: #fff;
+}
+
+/* ================== Tema escuro ================== */
+body.dark {
+  --bg-color: #121212;        /* fundo mais escuro e uniforme */
+  --text-color: #e0e0e0;      /* texto claro para alto contraste */
+  --card-bg: #1e1e1e;         /* cards levemente mais claros que fundo */
+}
+
+/* Ajuste de cores específicas para contraste no dark mode */
+body.dark h1,
+body.dark h2,
+body.dark .section-title,
+body.dark .day-title,
+body.dark .hora,
+body.dark .temp {
+  color: var(--text-color);
+}
+
+body.dark #historico-container .municipio-btn {
+  background-color: #3B82F6;
+  color: white;
+}
+
+body.dark #favoritos-container .municipio-btn {
+  background-color: #10B981;
+  color: white;
+}
+
+body.dark .button-container .favorito-btn {
+  background: #333;
+  color: #9CA3AF;
+}
+
+body.dark .button-container .favorito-btn.favorito {
+  color: #FBBF24;
+}
+
+body.dark .hour.sun { background: #FDE68A; }
+body.dark .hour.clouds { background: #9CA3AF; }
+body.dark .hour.rain { background: #60A5FA; }
+body.dark .hour.storm { background: #A78BFA; }
+
+body.dark #toast {
+  background-color: rgba(50, 50, 50, 0.95);
+  color: #fff;
+}
+
+/* ================== Títulos ================== */
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1F2937;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+#spinner {
+  font-size: 16px;
+  display: none;
+  margin-left: 10px;
+  font-weight: bold;
+  color: #4F46E5;
+}
 
 /* ================== Selects e Botão de busca ================== */
 .card-busca {
@@ -16,53 +94,52 @@ h2 { font-size: 20px; margin-bottom: 12px; color: #333; }
   flex-wrap: wrap;
   gap: 12px;
   padding: 16px;
-  background: #ffffff;
+  background: #FFFFFF;
   border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 20px;
 }
 
-select, button {
-  padding: 8px 14px;
-  font-size: 14px;
+select,
+button {
+  padding: 10px 16px;
+  font-size: 15px;
   border-radius: 8px;
-  border: 1px solid #ccc;
-  background: white;
+  border: 1px solid #D1D5DB;
+  background: #FFFFFF;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
-select:focus, button:focus {
+select:focus,
+button:focus {
   outline: none;
-  border-color: #1a73e8;
-  box-shadow: 0 0 6px rgba(26,115,232,0.4);
+  border-color: #4F46E5;
+  box-shadow: 0 0 6px rgba(79, 70, 229, 0.3);
 }
 
-button {
-  background: #1a73e8;
+/* Botão principal com gradiente */
+#busca-card button {
+  background: linear-gradient(135deg, #6366F1, #4F46E5);
   color: white;
   font-weight: 600;
   border: none;
+  transition: all 0.3s ease;
 }
 
-button:hover { background: #1558b0; }
-
-#spinner {
-  display: none;
-  margin-left: 10px;
-  font-weight: bold;
-  color: #1a73e8;
+#busca-card button:hover {
+  background: linear-gradient(135deg, #4F46E5, #4338CA);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 /* ================== Sessions ================== */
 .sessions {
   display: flex;
-  gap: 24px; /* margem homogênea entre sessões */
+  gap: 15px;
   margin-top: 20px;
-  flex-wrap: wrap;
-  gap: 20px; /* margem entre os cards de histórico e favoritos */
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
@@ -70,9 +147,9 @@ button:hover { background: #1558b0; }
 .session {
   flex: 1;
   min-width: 220px;
-  background: #ffffff;
+  background: #FFFFFF;
   border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   padding: 16px;
 }
 
@@ -81,75 +158,66 @@ button:hover { background: #1558b0; }
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0; /* botões colados internamente */
-  margin-bottom: 8px; /* espaço entre linhas */
+  gap: 0px; 
+  margin-bottom: 8px;
+  margin-right: 15px;
 }
 
-.section-card {
-  background: #ffffff;
-  padding: 16px 20px;
+#historico-container .municipio-btn {
+  background-color: #3B82F6;
+  color: white;
+  border: none;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  margin-bottom: 20px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s ease, transform 0.2s ease;
 }
 
-.section-card:hover {
+#historico-container .municipio-btn:hover {
+  background-color: #2563EB;
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #1a1a1a;
+#favoritos-container .municipio-btn {
+  background-color: #10B981;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  transition: background 0.25s ease, transform 0.2s ease;
 }
 
+#favoritos-container .municipio-btn:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+}
 
-/* Botão de ação: adicionar ou remover favorito */
 .button-container .favorito-btn {
   flex: 0 0 auto;
-  padding: 8px 12px; 
-  font-size: 16px;
+  padding: 6px 8px;
+  font-size: 14px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: none;
-  margin-left: -6px; /* cola no botão do município */
-  margin-right: 12px; /* espaço para o próximo município */
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, background 0.2s ease;
-}
-
-.button-container .municipio-btn:hover {
-  background: #e0e0e0;
-  transform: translateY(-1px);
-}
-
-/* Botão de ação: adicionar ou remover favorito */
-.button-container .favorito-btn {
-  flex: 0 0 auto;
-  padding: 8px 12px; /* aumentei para igualar o tamanho do nome da cidade */
-  font-size: 16px;
-  border-radius: 50%;
-  border: none;
-  margin-left: -6px; /* cola o botão no município */
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: transform 0.15s ease, background 0.2s ease;
+  background: #F3F4F6;
+  color: #9CA3AF;
 }
 
 .button-container .favorito-btn:hover {
   transform: scale(1.3);
-  background: rgba(26, 115, 232, 0.2);
+  background: #EDE9FE;
 }
 
-.favorito-btn.favorito { color: #fbc02d; animation: pulse 0.3s ease; }
-.favorito-btn.nao-favorito { color: #aaa; }
+.favorito-btn.favorito {
+  color: #FBBF24;
+  animation: pulse 0.3s ease;
+}
+
+.favorito-btn.nao-favorito {
+  color: #9CA3AF;
+}
 
 @keyframes pulse {
   0% { transform: scale(1); }
@@ -170,28 +238,29 @@ button:hover { background: #1558b0; }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px;
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  padding: 10px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   min-width: 240px;
   flex: 1 1 260px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 10px;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* Título do card centralizado */
 .day-title {
   font-weight: 600;
   font-size: 16px;
-  color: #444;
-  border-bottom: 1px solid #eee;
+  color: #374151;
+  border-bottom: 1px solid #E5E7EB;
   padding-bottom: 6px;
-  text-align: center; /* centraliza data e dia da semana */
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .hours {
@@ -200,7 +269,6 @@ button:hover { background: #1558b0; }
   gap: 10px;
 }
 
-/* ================== Hour ================== */
 .hour {
   padding: 10px 14px;
   border-radius: 10px;
@@ -218,16 +286,21 @@ button:hover { background: #1558b0; }
   z-index: 1;
 }
 
-.hora { font-weight: 600; color: #1a73e8; }
-.temp { font-weight: 600; color: #e65100; }
+.hora {
+  font-weight: 600;
+  color: #4F46E5;
+}
 
-/* ================== Cores por clima ================== */
-.hour.sun { background: #fff8c4; }
-.hour.clouds { background: #e6e6e6; }
-.hour.rain { background: #c8e4ff; }
-.hour.storm { background: #d8c8ff; }
+.temp {
+  font-weight: 600;
+  color: #F97316;
+}
 
-/* ================== Tooltip ================== */
+.hour.sun { background: #FEF3C7; }
+.hour.clouds { background: #E5E7EB; }
+.hour.rain { background: #DBEAFE; }
+.hour.storm { background: #EDE9FE; }
+
 .tooltip {
   visibility: hidden;
   opacity: 0;
@@ -235,7 +308,7 @@ button:hover { background: #1558b0; }
   bottom: -52px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.85);
+  background: rgba(31,41,55,0.85);
   color: #fff;
   padding: 8px 12px;
   border-radius: 8px;
@@ -246,37 +319,75 @@ button:hover { background: #1558b0; }
   z-index: 9999;
 }
 
-.hour:hover .tooltip { visibility: visible; opacity: 1; }
+.hour:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
 
-.tooltip::after {
-  content: "";
-  position: absolute;
-  top: -6px;
+#busca-card {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 15px;
+}
+
+#busca-card select,
+#busca-card button {
+  padding: 10px 14px;
+  font-size: 16px;
+}
+
+/* ================== Toast ================== */
+#toast {
+  position: fixed;
+  bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  border-width: 6px;
-  border-style: solid;
-  border-color: transparent transparent rgba(0,0,0,0.85) transparent;
+  background-color: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* ================== Botão de tema ================== */
+#theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: #4F46E5;
+  color: #fff;
+  font-size: 16px;
+  z-index: 1000;
+  transition: all 0.25s ease;
+}
+
+#theme-toggle:hover {
+  background: #6366F1;
+  transform: translateY(-2px);
 }
 
 /* ================== Responsividade ================== */
 @media (max-width: 600px) {
-  .sessions { flex-direction: column; gap: 20px; }
-  #cards-container { justify-content: center; }
-
-  .hour { font-size: 15px; padding: 10px; }
-  .button-container .municipio-btn { font-size: 14px; padding: 6px 10px; }
-  .button-container .favorito-btn { font-size: 14px; padding: 6px 10px; }
-
-  /* Espaçamento maior entre selects e botão ao empilhar */
+  #busca-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
   #busca-card select,
   #busca-card button {
-    display: block;
     width: 100%;
-    margin-bottom: 10px; /* aumenta o espaço vertical */
-  }
-
-  #busca-card button {
-    margin-bottom: 0; /* último elemento não precisa de margin extra */
   }
 }

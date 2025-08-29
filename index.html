@@ -1,44 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Previsão do Tempo</title>
-    <link rel="stylesheet" href="css/styles.css" />
-  </head>
-  <body>
-    <!-- Card de Busca -->
-    <div class="section-card" id="busca-card">
-      <div class="section-title">Buscar Previsão</div>
-      <select id="estado-select"></select>
-      <select id="municipio-select"></select>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Previsão do Tempo</title>
+  <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Botão de alternar tema -->
+  <button id="theme-toggle" aria-label="Alternar tema claro/escuro">🌓</button>
+
+  <!-- Card de Busca -->
+  <section class="section-card" id="card-busca">
+    <div class="section-title">Buscar Previsão
+      <span id="spinner" class="spinner">Carregando...</span>
+    </div>
+    <div id="busca-card">
+      <select id="estado-select" aria-label="Selecionar estado"></select>
+      <select id="municipio-select" aria-label="Selecionar município"></select>
       <button id="consultar-btn">Consultar</button>
     </div>
+  </section>
 
-    <div id="div-spinner">
-      <span id="spinner">Carregando...</span>
+  <section class="sessions">
+    <!-- Card de Favoritos -->
+    <div class="session">
+      <h2>Favoritos</h2>
+      <div id="favoritos-container" class="button-container"></div>
     </div>
 
-    <div class="sessions">
-      <!-- Card de Favoritos -->
-      <div class="session">
-        <h2>Favoritos</h2>
-        <div id="favoritos-container" class="button-container"></div>
-      </div>
-
-      <!-- Card de Histórico -->         
-        <div class="session">
-          <h2>Histórico</h2>
-          <div id="historico-container" class="button-container"></div>
-        </div>
-      
+    <!-- Card de Histórico -->
+    <div class="session">
+      <h2>Histórico</h2>
+      <div id="historico-container" class="button-container"></div>
     </div>
+  </section>
 
+  <main>
     <h1 id="title">Previsão do Tempo</h1>
-
-    <!-- Cards de previsão -->
     <div id="cards-container"></div>
+  </main>
 
-    <script src="js/app.js"></script>
-  </body>
+  <script src="js/app.js"></script>
+</body>
 </html>
