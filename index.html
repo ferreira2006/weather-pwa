@@ -1,67 +1,44 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Previsão do Tempo</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  
-  <!-- Card de Busca -->
-  <div class="section-card" id="busca-card">
-    <div class="section-title">Buscar Previsão</div>
-    <select id="estado-select"></select>
-    <select id="municipio-select"></select>
-    <button id="consultar-btn">Consultar</button>
-    <span id="spinner">Carregando...</span>
-  </div>
-
-  <div class="sessions">
-    <!-- Card de Favoritos -->
-    <div class="session section-card">
-      <div class="section-title">Favoritos</div>
- 
-  <!-- Card de busca -->
-  <div class="card-busca">
-    <select id="estado-select"></select>
-    <select id="municipio-select"></select>
-    <button id="consultar-btn">Consultar</button>
-    
-  </div>
-<span id="spinner">Carregando...</span>
-  
-  <!-- Cards de sessões -->
-  <div class="sessions">
-    <!-- Card de Favoritos -->
-    <div class="session">
-      <h2>Favoritos</h2>
-
-      <div id="favoritos-container" class="button-container"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Previsão do Tempo</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- Card de Busca -->
+    <div class="section-card" id="busca-card">
+      <div class="section-title">Buscar Previsão</div>
+      <select id="estado-select"></select>
+      <select id="municipio-select"></select>
+      <button id="consultar-btn">Consultar</button>
     </div>
 
-    <!-- Card de Histórico -->
-
-    <div class="session section-card">
-      <div class="section-title">Histórico</div>
-
-    <div class="session">
-      <h2>Histórico</h2>
-
-      <div id="historico-container" class="button-container"></div>
+    <div id="div-spinner">
+      <span id="spinner">Carregando...</span>
     </div>
-  </div>
 
-  <h1 id="title">Previsão do Tempo</h1>
+    <div class="sessions">
+      <!-- Card de Favoritos -->
+      <div class="session">
+        <h2>Favoritos</h2>
+        <div id="favoritos-container" class="button-container"></div>
+      </div>
 
-  <!-- Cards de Previsão -->
+      <!-- Card de Histórico -->         
+        <div class="session">
+          <h2>Histórico</h2>
+          <div id="historico-container" class="button-container"></div>
+        </div>
+      
+    </div>
 
-   <h1 id="title">Previsão do Tempo</h1>
+    <h1 id="title">Previsão do Tempo</h1>
 
+    <!-- Cards de previsão -->
+    <div id="cards-container"></div>
 
-  <!-- Cards de previsão -->
-  <div id="cards-container"></div>
-
-  <script src="js/app.js"></script>
-</body>
+    <script src="js/app.js"></script>
+  </body>
 </html>
