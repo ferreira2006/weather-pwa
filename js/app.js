@@ -12,12 +12,11 @@ function salvarStorage(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// ================== Storage ==================
+// ================== Histórico e Favoritos ==================
 function adicionarHistorico(municipio, estadoId) {
   const data = carregarStorage();
-  // remover duplicados
+  // remover se já existe
   data.historico = data.historico.filter(m => m.nome !== municipio);
-  // adicionar novo
   data.historico.unshift({ nome: municipio, estadoId });
   if (data.historico.length > 5) data.historico.pop();
   salvarStorage(data);
@@ -44,72 +43,63 @@ function renderHistorico() {
   const data = carregarStorage();
   container.innerHTML = "";
 
-  data.historico.forEach(mObj => {
+  data.historico.forEach(m => {
     const div = document.createElement("div");
     div.className = "button-container";
 
-    const btn = document.createElement("button");
-    btn.textContent = mObj.nome;
-    btn.className = "municipio-btn";
-    btn.addEventListener("click", async () => {
-      // Seleciona estado e município nos selects
-      document.getElementById("estado-select").value = mObj.estadoId;
-      await carregarMunicipios(mObj.estadoId); // carrega os municípios
-      document.getElementById("municipio-select").value = mObj.nome;
-      consultarMunicipio(mObj.nome);
-    });
-
     // Botão do município
     const btn = document.createElement("button");
-    btn.textContent = m.nome; // agora m é um objeto {nome, estadoId}
+    btn.textContent = m.nome;
     btn.className = "municipio-btn";
-    btn.style.width = `${m.nome.length + 2}ch`;
-    btn.addEventListener("click", async () => {
-      // Atualiza selects
+    btn.addEventListener("click", () => {
       document.getElementById("estado-select").value = m.estadoId;
-      await carregarMunicipios(m.estadoId); // carrega municípios do estado
-      document.getElementById("municipio-select").value = m.nome;
-      consultarMunicipio(m.nome);
+      carregarMunicipios(m.estadoId).then(() => {
+        document.getElementById("municipio-select").value = m.nome;
+        consultarMunicipio(m.nome);
+      });
     });
 
-    // Botão de favorito
+    // Botão de adicionar aos favoritos
     const btnFav = document.createElement("button");
-    btnFav.textContent = data.favoritos.some(f => f.nome === mObj.nome) ? "★" : "☆";
-    btnFav.title = data.favoritos.some(f => f.nome === mObj.nome) ? "Já é favorito" : "Adicionar aos favoritos";
-    btnFav.className = `favorito-btn ${btnFav.textContent === "★" ? "favorito" : "nao-favorito"}`;
-    btnFav.addEventListener("click", (e) => { e.stopPropagation(); toggleFavorito(mObj); });
+    btnFav.textContent = "★";
+    btnFav.className = `favorito-btn ${carregarStorage().favoritos.some(f => f.nome === m.nome) ? "favorito" : "nao-favorito"}`;
+    btnFav.addEventListener("click", e => {
+      e.stopPropagation();
+      toggleFavorito(m);
+    });
 
     div.appendChild(btn);
     div.appendChild(btnFav);
     container.appendChild(div);
-  }
+  });
 }
 
-async function renderFavoritos() {
+function renderFavoritos() {
   const container = document.getElementById("favoritos-container");
   const data = carregarStorage();
   container.innerHTML = "";
 
-  for (const m of data.favoritos) {
+  data.favoritos.forEach(m => {
     const div = document.createElement("div");
     div.className = "button-container";
 
     // Botão do município
     const btn = document.createElement("button");
+    btn.textContent = m.nome;
     btn.className = "municipio-btn";
-    btn.textContent = m;
-    btn.style.width = `${m.length + 3}ch`;
     btn.addEventListener("click", () => {
-      const current = document.getElementById("municipio-select").value;
-      if(current !== m) consultarMunicipio(m);
+      document.getElementById("estado-select").value = m.estadoId;
+      carregarMunicipios(m.estadoId).then(() => {
+        document.getElementById("municipio-select").value = m.nome;
+        consultarMunicipio(m.nome);
+      });
     });
 
     // Botão de remover dos favoritos
     const btnRemove = document.createElement("button");
-    btnRemove.className = "favorito-btn favorito"; // estrela cheia
-    btnRemove.textContent = "★";
-    btnRemove.title = "Remover dos favoritos";
-    btnRemove.addEventListener("click", (e) => {
+    btnRemove.textContent = "☆";
+    btnRemove.className = "favorito-btn favorito";
+    btnRemove.addEventListener("click", e => {
       e.stopPropagation();
       toggleFavorito(m);
     });
@@ -117,15 +107,14 @@ async function renderFavoritos() {
     div.appendChild(btn);
     div.appendChild(btnRemove);
     container.appendChild(div);
-  }
+  });
 }
-
 
 // ================== IBGE ==================
 async function carregarEstados() {
   const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
   const now = Date.now();
-  if (cached.estados && now - cached.timestamp < CACHE_VALIDITY){
+  if (cached.estados && now - cached.timestamp < CACHE_VALIDITY) {
     popularEstados(cached.estados);
     return;
   }
@@ -217,7 +206,7 @@ function gerarCards(previsao, cidade) {
   document.getElementById("title").textContent = `Previsão do tempo para ${cidade}`;
 
   const dias = Object.entries(agruparPorDia(previsao.list));
-  const diasParaMostrar = dias.slice(0,4);
+  const diasParaMostrar = dias.slice(0, 4);
 
   const now = new Date();
   const hojeStr = now.toISOString().split("T")[0];
@@ -235,7 +224,7 @@ function gerarCards(previsao, cidade) {
     horasContainer.className = "hours";
 
     let horariosParaMostrar = [];
-    if(index === 0){
+    if (index === 0) {
       const futuros = previsao.list.filter(h => new Date(h.dt_txt) >= now);
       horariosParaMostrar = futuros.slice(0,5).map(h => ({ ...h, flag: (h.dt_txt.split(" ")[0] !== hojeStr) ? "amanhã" : "" }));
     } else {
@@ -265,19 +254,6 @@ function gerarCards(previsao, cidade) {
   Vento: ${item.wind.speed} m/s
 </span>
 `;
-
-      hourDiv.innerHTML = `
-<div class="info">
-  <span class="hora">${horaTxt}</span> ${emoji} ${item.weather[0].description}
-  ${item.flag ? `<span class="flag">(${item.flag})</span>` : ""}
-</div>
-<div class="temp">${item.main.temp.toFixed(0)}°C</div>
-<span class="tooltip">
-  Sensação: ${item.main.feels_like.toFixed(0)}°C<br>
-  Umidade: ${item.main.humidity}%<br>
-  Vento: ${item.wind.speed} m/s
-</span>
-`;
       horasContainer.appendChild(hourDiv);
     });
 
@@ -287,20 +263,16 @@ function gerarCards(previsao, cidade) {
 }
 
 // ================== Consultar ==================
-async function consultarMunicipio(cidade){
-  if(!cidade) return alert("Selecione um município!");
+async function consultarMunicipio(cidade) {
+  if (!cidade) return alert("Selecione um município!");
 
-  // Limpa cards antigos antes de nova busca
-  const container = document.getElementById("cards-container");
-  container.innerHTML = "";
-  document.getElementById("title").textContent = `Carregando previsão para ${cidade}...`;
-
-  adicionarHistorico(cidade);
+  const estadoSelect = document.getElementById("estado-select");
+  adicionarHistorico(cidade, estadoSelect.value);
 
   const spinner = document.getElementById("spinner");
   spinner.style.display = "inline";
 
-  try{
+  try {
     const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidade)}`);
     const data = await res.json();
     if (!data || !data.list) throw new Error("Previsão inválida");
@@ -308,14 +280,14 @@ async function consultarMunicipio(cidade){
   } catch(e) {
     alert("Erro ao buscar previsão.");
     console.error(e);
-  } finally{
+  } finally {
     spinner.style.display = "none";
   }
 }
 
 // ================== Eventos ==================
-document.getElementById("estado-select").addEventListener("change",(e)=>{ carregarMunicipios(e.target.value); });
-document.getElementById("consultar-btn").addEventListener("click", async ()=>{
+document.getElementById("estado-select").addEventListener("change", (e) => carregarMunicipios(e.target.value));
+document.getElementById("consultar-btn").addEventListener("click", async () => {
   const cidade = document.getElementById("municipio-select").value;
   await consultarMunicipio(cidade);
 });
