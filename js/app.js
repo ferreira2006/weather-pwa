@@ -394,11 +394,21 @@ const Cards = {
     container.appendChild(frag);
   },
 
+  // ================== Spinner ==================
   mostrarSpinner() {
-    document.getElementById('spinner').style.display = 'inline-block';
+    const btn = document.getElementById('consultar-btn');
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'inline-block';
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
   },
+
   esconderSpinner() {
-    document.getElementById('spinner').style.display = 'none';
+    const btn = document.getElementById('consultar-btn');
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'none';
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
   },
 
   async consultarMunicipio(cidadeObj) {
@@ -407,7 +417,13 @@ const Cards = {
       return;
     }
 
-    this.mostrarSpinner();
+    // Mostrar spinner dentro do botão e desabilitar
+    const btn = document.getElementById('consultar-btn');
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'inline-block';
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+
     try {
       const res = await fetch(
         `${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`
@@ -426,7 +442,10 @@ const Cards = {
       console.error(err);
       Toast.show('Erro ao consultar a previsão. Tente novamente mais tarde.');
     } finally {
-      this.esconderSpinner();
+      // Esconder spinner e habilitar botão
+      spinner.style.display = 'none';
+      btn.disabled = false;
+      btn.removeAttribute('aria-busy');
     }
   },
 };
