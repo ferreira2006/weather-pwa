@@ -145,6 +145,8 @@ button:focus {
   padding: 8px 12px;
   cursor: pointer;
   transition: background 0.25s ease, transform 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .municipio-btn:hover {
