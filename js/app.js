@@ -105,9 +105,31 @@ const HistoricoFavoritos = {
         ? `Remover ${cidadeObj.nome} dos favoritos`
         : `Adicionar ${cidadeObj.nome} aos favoritos`
     );
+
+    // Criando o tooltip
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = isFav
+      ? 'Remover dos favoritos'
+      : 'Adicionar aos favoritos';
+    btnFav.appendChild(tooltip);
+
+    // Atualiza o tooltip ao clicar no botão
     btnFav.addEventListener('click', (e) => {
       e.stopPropagation();
       HistoricoFavoritos.toggleFavorito(cidadeObj);
+
+      // Atualiza o tooltip dinamicamente
+      const novoFav = btnFav.classList.contains('favorito');
+      tooltip.textContent = novoFav
+        ? 'Remover dos favoritos'
+        : 'Adicionar aos favoritos';
+      btnFav.setAttribute(
+        'aria-label',
+        novoFav
+          ? `Remover ${cidadeObj.nome} dos favoritos`
+          : `Adicionar ${cidadeObj.nome} aos favoritos`
+      );
     });
 
     const div = document.createElement('div');
@@ -123,6 +145,7 @@ const HistoricoFavoritos = {
     // Histórico
     const historicoContainer = document.getElementById('historico-container');
     historicoContainer.innerHTML = '';
+    historicoContainer.setAttribute('aria-live', 'polite');
     const histFrag = document.createDocumentFragment();
     data.historico.forEach((m) =>
       histFrag.appendChild(this.criarBotaoMunicipio(m, 'historico-container'))
@@ -132,6 +155,7 @@ const HistoricoFavoritos = {
     // Favoritos
     const favContainer = document.getElementById('favoritos-container');
     favContainer.innerHTML = '';
+    favContainer.setAttribute('aria-live', 'polite');
     const favFrag = document.createDocumentFragment();
     data.favoritos.forEach((m) =>
       favFrag.appendChild(this.criarBotaoMunicipio(m, 'favoritos-container'))

@@ -164,19 +164,24 @@ button:focus {
   color: #9ca3af;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.2s ease;
+  position: relative;
 }
 
 .favorito-btn:hover {
-  transform: scale(1.3);
+  transform: scale(1.2);
   background: #ede9fe;
 }
 
 .favorito-btn.favorito {
   color: var(--favorito-color);
+  transform: scale(1.05);
+  background: #fbbf24;
 }
 
 .favorito-btn.nao-favorito {
   color: #9ca3af;
+  transform: scale(1);
+  background: #f3f4f6;
 }
 /* Botões históricos/favoritos */
 .municipio-btn {
@@ -231,6 +236,30 @@ button:focus {
 
 .favorito-btn.nao-favorito {
   color: #9ca3af;
+}
+
+.btn-spinner-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* distância entre botão e spinner */
+}
+
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4f46e5;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ================== Cards de previsão ================== */
@@ -351,6 +380,29 @@ body.dark .hour.storm {
 }
 
 .hour:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.favorito-btn .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 110%; /* acima do botão */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-bg);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.favorito-btn:hover .tooltip {
   visibility: visible;
   opacity: 1;
 }
