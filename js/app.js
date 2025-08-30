@@ -1,21 +1,33 @@
 // ================== Configurações ==================
-const backendUrl = "https://weather-backend-hh3w.onrender.com/forecast";
-const CACHE_KEY = "ibge_cache";
-const STORAGE_KEY = "previsao_app";
+const backendUrl = 'https://weather-backend-hh3w.onrender.com/forecast';
+const CACHE_KEY = 'ibge_cache';
+const STORAGE_KEY = 'previsao_app';
 const CACHE_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 1 semana
 const maxHistoryItems = 5;
-const horariosDesejados = ["00:00:00","06:00:00","12:00:00","18:00:00","21:00:00"];
-const horariosNumericos = horariosDesejados.map(h => h.split(":").map(Number));
+const horariosDesejados = [
+  '00:00:00',
+  '06:00:00',
+  '12:00:00',
+  '18:00:00',
+  '21:00:00',
+];
+const horariosNumericos = horariosDesejados.map((h) =>
+  h.split(':').map(Number)
+);
 let lastConsulta = 0; // controle de consultas rápidas
 
 // ================== StorageManager ==================
 const StorageManager = {
-  cache: JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"historico":[],"favoritos":[]}'),
-  carregar() { return this.cache; },
+  cache: JSON.parse(
+    localStorage.getItem(STORAGE_KEY) || '{"historico":[],"favoritos":[]}'
+  ),
+  carregar() {
+    return this.cache;
+  },
   salvar(data) {
     this.cache = data;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
+  },
 };
 
 // ================== Toast ==================
@@ -24,15 +36,15 @@ const Toast = (() => {
   return {
     show(msg) {
       if (!toastEl) {
-        toastEl = document.createElement("div");
-        toastEl.id = "toast";
-        toastEl.className = "toast";
+        toastEl = document.createElement('div');
+        toastEl.id = 'toast';
+        toastEl.className = 'toast';
         document.body.appendChild(toastEl);
       }
       toastEl.textContent = msg;
       toastEl.style.opacity = 1;
-      setTimeout(() => toastEl.style.opacity = 0, 3000);
-    }
+      setTimeout(() => (toastEl.style.opacity = 0), 3000);
+    },
   };
 })();
 
@@ -40,7 +52,9 @@ const Toast = (() => {
 const HistoricoFavoritos = {
   adicionarHistorico(cidadeObj) {
     const data = StorageManager.carregar();
-    data.historico = data.historico.filter(m => m.nome !== cidadeObj.nome || m.estadoId !== cidadeObj.estadoId);
+    data.historico = data.historico.filter(
+      (m) => m.nome !== cidadeObj.nome || m.estadoId !== cidadeObj.estadoId
+    );
     data.historico.unshift(cidadeObj);
     if (data.historico.length > maxHistoryItems) data.historico.pop();
     StorageManager.salvar(data);
@@ -49,10 +63,13 @@ const HistoricoFavoritos = {
 
   toggleFavorito(cidadeObj) {
     const data = StorageManager.carregar();
-    const index = data.favoritos.findIndex(m => m.nome === cidadeObj.nome && m.estadoId === cidadeObj.estadoId);
+    const index = data.favoritos.findIndex(
+      (m) => m.nome === cidadeObj.nome && m.estadoId === cidadeObj.estadoId
+    );
     if (index >= 0) data.favoritos.splice(index, 1);
     else {
-      if (data.favoritos.length >= 5) return Toast.show("Máximo de 5 favoritos!");
+      if (data.favoritos.length >= 5)
+        return Toast.show('Máximo de 5 favoritos!');
       data.favoritos.push(cidadeObj);
     }
     StorageManager.salvar(data);
@@ -60,31 +77,41 @@ const HistoricoFavoritos = {
   },
 
   criarBotaoMunicipio(cidadeObj, containerId) {
-    const btn = document.createElement("button");
+    const btn = document.createElement('button');
     btn.textContent = `${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
-    btn.className = "municipio-btn";
-    btn.setAttribute("aria-label", `Selecionar município ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`);
-    btn.addEventListener("click", () => {
-      document.getElementById("estado-select").value = cidadeObj.estadoId;
+    btn.className = 'municipio-btn';
+    btn.setAttribute(
+      'aria-label',
+      `Selecionar município ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`
+    );
+    btn.addEventListener('click', () => {
+      document.getElementById('estado-select').value = cidadeObj.estadoId;
       IBGE.carregarMunicipios(cidadeObj.estadoId).then(() => {
-        document.getElementById("municipio-select").value = cidadeObj.nome;
+        document.getElementById('municipio-select').value = cidadeObj.nome;
         Cards.consultarMunicipio(cidadeObj);
       });
     });
 
-    const btnFav = document.createElement("button");
+    const btnFav = document.createElement('button');
     const storage = StorageManager.carregar();
-    const isFav = storage.favoritos.some(f => f.nome === cidadeObj.nome && f.estadoId === cidadeObj.estadoId);
-    btnFav.textContent = containerId === "historico-container" ? "📌" : "❌";
-    btnFav.className = `favorito-btn ${isFav ? "favorito" : "nao-favorito"}`;
-    btnFav.setAttribute("aria-label", isFav ? `Remover ${cidadeObj.nome} dos favoritos` : `Adicionar ${cidadeObj.nome} aos favoritos`);
-    btnFav.addEventListener("click", e => {
+    const isFav = storage.favoritos.some(
+      (f) => f.nome === cidadeObj.nome && f.estadoId === cidadeObj.estadoId
+    );
+    btnFav.textContent = containerId === 'historico-container' ? '📌' : '❌';
+    btnFav.className = `favorito-btn ${isFav ? 'favorito' : 'nao-favorito'}`;
+    btnFav.setAttribute(
+      'aria-label',
+      isFav
+        ? `Remover ${cidadeObj.nome} dos favoritos`
+        : `Adicionar ${cidadeObj.nome} aos favoritos`
+    );
+    btnFav.addEventListener('click', (e) => {
       e.stopPropagation();
       HistoricoFavoritos.toggleFavorito(cidadeObj);
     });
 
-    const div = document.createElement("div");
-    div.className = "button-container";
+    const div = document.createElement('div');
+    div.className = 'button-container';
     div.appendChild(btn);
     div.appendChild(btnFav);
     return div;
@@ -94,47 +121,56 @@ const HistoricoFavoritos = {
     const data = StorageManager.carregar();
 
     // Histórico
-    const historicoContainer = document.getElementById("historico-container");
-    historicoContainer.innerHTML = "";
+    const historicoContainer = document.getElementById('historico-container');
+    historicoContainer.innerHTML = '';
     const histFrag = document.createDocumentFragment();
-    data.historico.forEach(m => histFrag.appendChild(this.criarBotaoMunicipio(m, "historico-container")));
+    data.historico.forEach((m) =>
+      histFrag.appendChild(this.criarBotaoMunicipio(m, 'historico-container'))
+    );
     historicoContainer.appendChild(histFrag);
 
     // Favoritos
-    const favContainer = document.getElementById("favoritos-container");
-    favContainer.innerHTML = "";
+    const favContainer = document.getElementById('favoritos-container');
+    favContainer.innerHTML = '';
     const favFrag = document.createDocumentFragment();
-    data.favoritos.forEach(m => favFrag.appendChild(this.criarBotaoMunicipio(m, "favoritos-container")));
+    data.favoritos.forEach((m) =>
+      favFrag.appendChild(this.criarBotaoMunicipio(m, 'favoritos-container'))
+    );
     favContainer.appendChild(favFrag);
-  }
+  },
 };
 
 // ================== IBGE ==================
 const IBGE = {
   async carregarEstados() {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
     const now = Date.now();
     if (cached.estados && now - cached.estadosTimestamp < CACHE_VALIDITY) {
       this.popularEstados(cached.estados);
       return;
     }
     try {
-      const res = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome");
+      const res = await fetch(
+        'https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome'
+      );
       const estados = await res.json();
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ ...cached, estados, estadosTimestamp: now }));
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ ...cached, estados, estadosTimestamp: now })
+      );
       this.popularEstados(estados);
     } catch (err) {
-      Toast.show("Erro ao carregar estados do IBGE");
+      Toast.show('Erro ao carregar estados do IBGE');
       console.error(err);
     }
   },
 
   popularEstados(estados) {
-    const select = document.getElementById("estado-select");
+    const select = document.getElementById('estado-select');
     select.innerHTML = '<option value="">Selecione o estado</option>';
     const frag = document.createDocumentFragment();
-    estados.forEach(e => {
-      const option = document.createElement("option");
+    estados.forEach((e) => {
+      const option = document.createElement('option');
       option.value = e.id;
       option.textContent = e.nome;
       option.dataset.sigla = e.sigla;
@@ -144,105 +180,132 @@ const IBGE = {
   },
 
   async carregarMunicipios(estadoId) {
-    const select = document.getElementById("municipio-select");
+    const select = document.getElementById('municipio-select');
     select.innerHTML = '<option value="">Selecione o município</option>';
     if (!estadoId) return;
 
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
     const now = Date.now();
     let municipios = [];
 
-    if (cached.municipios && cached.municipios[estadoId] && now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY) {
+    if (
+      cached.municipios &&
+      cached.municipios[estadoId] &&
+      now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY
+    ) {
       municipios = cached.municipios[estadoId].data;
     } else {
       try {
-        const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
+        const res = await fetch(
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
+        );
         municipios = await res.json();
         cached.municipios = cached.municipios || {};
         cached.municipios[estadoId] = { data: municipios, timestamp: now };
         localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
       } catch (err) {
-        Toast.show("Erro ao carregar municípios do IBGE");
+        Toast.show('Erro ao carregar municípios do IBGE');
         console.error(err);
         return;
       }
     }
 
     const frag = document.createDocumentFragment();
-    municipios.forEach(m => {
-      const option = document.createElement("option");
+    municipios.forEach((m) => {
+      const option = document.createElement('option');
       option.value = m.nome;
       option.textContent = m.nome;
       frag.appendChild(option);
     });
     select.appendChild(frag);
-  }
+  },
 };
 
 // ================== Cards ==================
 const Cards = {
   mapIconToClass(main) {
-    if (!main) return "clouds";
+    if (!main) return 'clouds';
     main = main.toLowerCase();
-    if (main.includes("rain")) return "rain";
-    if (main.includes("storm") || main.includes("thunder")) return "storm";
-    if (main.includes("cloud")) return "clouds";
-    if (main.includes("clear") || main.includes("sun")) return "sun";
-    return "clouds";
+    if (main.includes('rain')) return 'rain';
+    if (main.includes('storm') || main.includes('thunder')) return 'storm';
+    if (main.includes('cloud')) return 'clouds';
+    if (main.includes('clear') || main.includes('sun')) return 'sun';
+    return 'clouds';
   },
 
   mapIconToEmoji(main) {
-    if (!main) return "🌤️";
+    if (!main) return '🌤️';
     main = main.toLowerCase();
-    if (main.includes("rain")) return "🌧️";
-    if (main.includes("storm") || main.includes("thunder")) return "⛈️";
-    if (main.includes("cloud")) return "☁️";
-    if (main.includes("clear") || main.includes("sun")) return "☀️";
-    return "🌤️";
+    if (main.includes('rain')) return '🌧️';
+    if (main.includes('storm') || main.includes('thunder')) return '⛈️';
+    if (main.includes('cloud')) return '☁️';
+    if (main.includes('clear') || main.includes('sun')) return '☀️';
+    return '🌤️';
   },
 
   formatarData(dt_txt) {
-    const [ano, mes, dia] = dt_txt.split(" ")[0].split("-");
-    const diasSemana = ["domingo","segunda-feira","terça-feira","quarta-feira","quinta-feira","sexta-feira","sábado"];
-    const dateObj = new Date(Number(ano), Number(mes)-1, Number(dia));
+    const [ano, mes, dia] = dt_txt.split(' ')[0].split('-');
+    const diasSemana = [
+      'domingo',
+      'segunda-feira',
+      'terça-feira',
+      'quarta-feira',
+      'quinta-feira',
+      'sexta-feira',
+      'sábado',
+    ];
+    const dateObj = new Date(Number(ano), Number(mes) - 1, Number(dia));
     return `${dia}/${mes} ${diasSemana[dateObj.getDay()]}`;
   },
 
   criarHourDiv(item) {
-    const hourDiv = document.createElement("div");
-    hourDiv.className = "hour " + this.mapIconToClass(item.weather[0]?.main);
-    hourDiv.setAttribute("aria-label", `Hora ${item.dt_txt.split(" ")[1].slice(0,5)}, ${item.weather[0]?.description || ""}, temperatura ${item.main.temp?.toFixed(0) || "--"}°C`);
+    const hourDiv = document.createElement('div');
+    hourDiv.className = 'hour ' + this.mapIconToClass(item.weather[0]?.main);
+    hourDiv.setAttribute(
+      'aria-label',
+      `Hora ${item.dt_txt.split(' ')[1].slice(0, 5)}, ${
+        item.weather[0]?.description || ''
+      }, temperatura ${item.main.temp?.toFixed(0) || '--'}°C`
+    );
 
-    const infoDiv = document.createElement("div");
-    infoDiv.className = "info";
-    infoDiv.textContent = `${item.dt_txt.split(" ")[1].slice(0,5)} ${this.mapIconToEmoji(item.weather[0]?.main)} ${item.weather[0]?.description || ""}`;
+    const infoDiv = document.createElement('div');
+    infoDiv.className = 'info';
+    infoDiv.textContent = `${item.dt_txt
+      .split(' ')[1]
+      .slice(0, 5)} ${this.mapIconToEmoji(item.weather[0]?.main)} ${
+      item.weather[0]?.description || ''
+    }`;
 
-    const tempDiv = document.createElement("div");
-    tempDiv.className = "temp";
-    tempDiv.textContent = `🌡️ ${item.main.temp?.toFixed(0) || "--"}°C`;
+    const tempDiv = document.createElement('div');
+    tempDiv.className = 'temp';
+    tempDiv.textContent = `🌡️ ${item.main.temp?.toFixed(0) || '--'}°C`;
 
-    const tooltip = document.createElement("span");
-    tooltip.className = "tooltip";
-    tooltip.setAttribute("role", "tooltip");
-    tooltip.innerHTML = `Sensação: ${item.main.feels_like?.toFixed(0) || "--"}°C<br>Umidade: ${item.main.humidity || "--"}%<br>Vento: ${item.wind.speed || "--"} m/s`;
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.setAttribute('role', 'tooltip');
+    tooltip.innerHTML = `Sensação: ${
+      item.main.feels_like?.toFixed(0) || '--'
+    }°C<br>Umidade: ${item.main.humidity || '--'}%<br>Vento: ${
+      item.wind.speed || '--'
+    } m/s`;
 
     hourDiv.append(infoDiv, tempDiv, tooltip);
     return hourDiv;
   },
 
   criarCardDia(dia, lista) {
-    const card = document.createElement("div");
-    card.className = "card";
+    const card = document.createElement('div');
+    card.className = 'card';
 
-    const diaTitle = document.createElement("div");
-    diaTitle.className = "day-title";
+    const diaTitle = document.createElement('div');
+    diaTitle.className = 'day-title';
     diaTitle.textContent = this.formatarData(dia);
     card.appendChild(diaTitle);
 
-    const horasContainer = document.createElement("div");
-    horasContainer.className = "hours";
+    const horasContainer = document.createElement('div');
+    horasContainer.className = 'hours';
 
-    lista.forEach(item => {
+    lista.forEach((item) => {
       if (!item || !item.weather || !item.main || !item.wind) return;
       horasContainer.appendChild(this.criarHourDiv(item));
     });
@@ -253,7 +316,7 @@ const Cards = {
 
   gerarCards(previsao, cidadeObj) {
     if (!previsao || !previsao.list || !Array.isArray(previsao.list)) {
-      Toast.show("Previsão indisponível no momento.");
+      Toast.show('Previsão indisponível no momento.');
       return;
     }
 
@@ -261,33 +324,40 @@ const Cards = {
     if (now - lastConsulta < 1000) return;
     lastConsulta = now;
 
-    const container = document.getElementById("cards-container");
-    container.innerHTML = "";
-    document.getElementById("title").textContent = `Previsão do tempo para ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
+    const container = document.getElementById('cards-container');
+    container.innerHTML = '';
+    document.getElementById(
+      'title'
+    ).textContent = `Previsão do tempo para ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
 
     const diasMap = {};
-    previsao.list.forEach(item => {
+    previsao.list.forEach((item) => {
       if (!item.dt_txt) return;
-      const [diaStr] = item.dt_txt.split(" ");
+      const [diaStr] = item.dt_txt.split(' ');
       const itemDate = new Date(item.dt_txt);
 
-      const isHorarioDesejado = horariosNumericos.some(([hH, hM, hS]) =>
-        itemDate.getHours() === hH && itemDate.getMinutes() === hM && itemDate.getSeconds() === hS
+      const isHorarioDesejado = horariosNumericos.some(
+        ([hH, hM, hS]) =>
+          itemDate.getHours() === hH &&
+          itemDate.getMinutes() === hM &&
+          itemDate.getSeconds() === hS
       );
 
-if (!isHorarioDesejado) return;
+      if (!isHorarioDesejado) return;
 
       if (!diasMap[diaStr]) diasMap[diaStr] = [];
       diasMap[diaStr].push(item);
     });
 
     if (Object.keys(diasMap).length === 0) {
-      Toast.show("Horários desejados não disponíveis para esta cidade.");
+      Toast.show('Horários desejados não disponíveis para esta cidade.');
       return;
     }
 
     // Ordenar horários de cada dia
-    Object.values(diasMap).forEach(lista => lista.sort((a,b) => new Date(a.dt_txt) - new Date(b.dt_txt)));
+    Object.values(diasMap).forEach((lista) =>
+      lista.sort((a, b) => new Date(a.dt_txt) - new Date(b.dt_txt))
+    );
 
     const frag = document.createDocumentFragment();
     Object.entries(diasMap)
@@ -300,23 +370,29 @@ if (!isHorarioDesejado) return;
     container.appendChild(frag);
   },
 
-  mostrarSpinner() { document.getElementById("spinner").style.display = "inline-block"; },
-  esconderSpinner() { document.getElementById("spinner").style.display = "none"; },
+  mostrarSpinner() {
+    document.getElementById('spinner').style.display = 'inline-block';
+  },
+  esconderSpinner() {
+    document.getElementById('spinner').style.display = 'none';
+  },
 
   async consultarMunicipio(cidadeObj) {
     if (!cidadeObj || !cidadeObj.nome) {
-      Toast.show("Selecione uma cidade antes de consultar.");
+      Toast.show('Selecione uma cidade antes de consultar.');
       return;
     }
 
     this.mostrarSpinner();
     try {
-      const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`);
+      const res = await fetch(
+        `${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`
+      );
       if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
       const data = await res.json();
 
       if (!data || !data.list || data.list.length === 0) {
-        Toast.show("Previsão não encontrada para esta cidade.");
+        Toast.show('Previsão não encontrada para esta cidade.');
         return;
       }
 
@@ -324,25 +400,27 @@ if (!isHorarioDesejado) return;
       HistoricoFavoritos.adicionarHistorico(cidadeObj);
     } catch (err) {
       console.error(err);
-      Toast.show("Erro ao consultar a previsão. Tente novamente mais tarde.");
+      Toast.show('Erro ao consultar a previsão. Tente novamente mais tarde.');
     } finally {
       this.esconderSpinner();
     }
-  }
+  },
 };
 
 // ================== Eventos ==================
-document.getElementById("estado-select").addEventListener("change", async e => {
-  const estadoId = e.target.value;
-  await IBGE.carregarMunicipios(estadoId);
-});
+document
+  .getElementById('estado-select')
+  .addEventListener('change', async (e) => {
+    const estadoId = e.target.value;
+    await IBGE.carregarMunicipios(estadoId);
+  });
 
-document.getElementById("consultar-btn").addEventListener("click", () => {
-  const municipioSelect = document.getElementById("municipio-select");
-  const estadoSelect = document.getElementById("estado-select");
+document.getElementById('consultar-btn').addEventListener('click', () => {
+  const municipioSelect = document.getElementById('municipio-select');
+  const estadoSelect = document.getElementById('estado-select');
 
   if (!municipioSelect.value || !estadoSelect.value) {
-    Toast.show("Selecione estado e município antes de consultar.");
+    Toast.show('Selecione estado e município antes de consultar.');
     return;
   }
 
@@ -350,7 +428,7 @@ document.getElementById("consultar-btn").addEventListener("click", () => {
   const cidadeObj = {
     nome: municipioSelect.value,
     estadoId: estadoSelect.value,
-    estadoSigla: estadoOption.dataset.sigla || ""
+    estadoSigla: estadoOption.dataset.sigla || '',
   };
 
   Cards.consultarMunicipio(cidadeObj);
@@ -360,32 +438,33 @@ document.getElementById("consultar-btn").addEventListener("click", () => {
 const Theme = {
   toggle() {
     const body = document.body;
-    const btn = document.getElementById("theme-toggle");
-    const isDark = body.classList.contains("dark");
+    const btn = document.getElementById('theme-toggle');
+    const isDark = body.classList.contains('dark');
 
     if (isDark) {
-      body.classList.replace("dark", "light");
-      localStorage.setItem("theme", "light");
-      btn.textContent = "🌙";
+      body.classList.replace('dark', 'light');
+      localStorage.setItem('theme', 'light');
+      btn.textContent = '🌙';
     } else {
-      body.classList.replace("light", "dark");
-      localStorage.setItem("theme", "dark");
-      btn.textContent = "☀️";
+      body.classList.replace('light', 'dark');
+      localStorage.setItem('theme', 'dark');
+      btn.textContent = '☀️';
     }
   },
 
   load() {
-    const saved = localStorage.getItem("theme") || "light";
+    const saved = localStorage.getItem('theme') || 'light';
     document.body.classList.add(saved);
-    const btn = document.getElementById("theme-toggle");
-    btn.textContent = saved === "dark" ? "☀️" : "🌙";
-  }
+    const btn = document.getElementById('theme-toggle');
+    btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+  },
 };
 
-document.getElementById("theme-toggle").addEventListener("click", () => Theme.toggle());
+document
+  .getElementById('theme-toggle')
+  .addEventListener('click', () => Theme.toggle());
 
 // ================== Inicialização ==================
 Theme.load();
 IBGE.carregarEstados();
 HistoricoFavoritos.render();
-                          

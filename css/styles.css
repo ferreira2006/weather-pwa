@@ -1,118 +1,72 @@
+/* ================== Variáveis globais ================== */
+:root {
+  --bg-color: #f5f5f5;
+  --text-color: #222;
+  --card-bg: #fff;
+  --btn-historico-bg: #3b82f6;
+  --btn-historico-hover: #2563eb;
+  --btn-favorito-bg: #10b981;
+  --btn-favorito-hover: #059669;
+  --favorito-color: #fbbf24;
+  --hora-color: #4f46e5;
+  --temp-color: #f97316;
+  --tooltip-bg: rgba(31, 41, 55, 0.85);
+  --toast-bg: rgba(50, 50, 50, 0.9);
+  --select-bg: #fff;
+}
+
+/* ================== Tema Escuro ================== */
+body.dark {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --btn-historico-bg: #2563eb;
+  --btn-historico-hover: #1e40af;
+  --btn-favorito-bg: #059669;
+  --btn-favorito-hover: #047857;
+  --favorito-color: #fbbf24;
+  --hora-color: #ffd700;
+  --temp-color: #ff8c00;
+  --tooltip-bg: rgba(0, 0, 0, 0.85);
+  --toast-bg: rgba(40, 40, 40, 0.95);
+  --select-bg: #3a3a3a;
+}
+
 /* ================== Global ================== */
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   margin: 20px;
-  color: var(--text-color);
   background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 h1 {
   font-size: 24px;
   margin-bottom: 16px;
-  color: #111827;
+  color: var(--text-color);
 }
 
 h2 {
   font-size: 20px;
   margin-bottom: 12px;
-  color: #374151;
-}
-
-/* ================== Tema claro ================== */
-body.light {
-  --bg-color: #f5f5f5;
-  --text-color: #222;
-  --card-bg: #fff;
-}
-
-/* ================== Tema escuro ================== */
-body.dark {
-  --bg-color: #121212;
-  --text-color: #e0e0e0;
-  --card-bg: #1e1e1e;
-}
-
-/* ================== Ajustes Dark Mode ================== */
-body.dark h1,
-body.dark h2,
-body.dark .section-title,
-body.dark .day-title,
-body.dark .hora,
-body.dark .temp {
   color: var(--text-color);
 }
 
-body.dark .hora {
-  color: #FBBF24;
-  text-shadow: 0 0 3px rgba(0,0,0,0.7);
-}
-
-body.dark .temp {
-  color: #F97316;
-}
-
-/* Cards de horário escuro */
-body.dark .hour.sun { background: #854d0e; color: #facc15; }
-body.dark .hour.clouds { background: #374151; color: #e5e7eb; }
-body.dark .hour.rain { background: #1e3a8a; color: #bfdbfe; }
-body.dark .hour.storm { background: #312e81; color: #ddd6fe; }
-
-/* Botões histórico/favoritos escuro */
-body.dark #historico-container .municipio-btn {
-  background-color: #2563EB;
-  color: white;
-}
-
-body.dark #favoritos-container .municipio-btn {
-  background-color: #059669;
-  color: white;
-}
-
-body.dark .button-container .favorito-btn {
-  background: #333;
-  color: #9CA3AF;
-}
-
-body.dark .button-container .favorito-btn.favorito {
-  color: #FBBF24;
-}
-
-/* Tooltip escuro */
-body.dark .tooltip {
-  background: rgba(0,0,0,0.85);
-  color: #f9fafb;
-}
-
-/* Toast escuro */
-body.dark #toast {
-  background-color: rgba(40, 40, 40, 0.95);
-  color: #fff;
-}
-
-/* ================== Títulos ================== */
 .section-title {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 12px;
-  color: #1F2937;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  color: var(--text-color);
 }
 
-#spinner {
-  font-size: 16px;
-  display: none;
-  margin-left: 10px;
-  font-weight: bold;
-  color: #4F46E5;
-}
-
-/* ================== Selects e Botão de busca ================== */
-.card-busca {
+/* ================== Card de busca ================== */
+.card-busca,
+#busca-card {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   padding: 16px;
-  background: #FFFFFF;
+  background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   justify-content: flex-start;
@@ -125,8 +79,9 @@ button {
   padding: 10px 16px;
   font-size: 15px;
   border-radius: 8px;
-  border: 1px solid #D1D5DB;
-  background: #FFFFFF;
+  border: 1px solid #d1d5db;
+  background: var(--select-bg);
+  color: var(--text-color);
   cursor: pointer;
   transition: all 0.25s ease;
 }
@@ -134,13 +89,12 @@ button {
 select:focus,
 button:focus {
   outline: none;
-  border-color: #4F46E5;
+  border-color: #4f46e5;
   box-shadow: 0 0 6px rgba(79, 70, 229, 0.3);
 }
 
-/* Botão principal com gradiente */
 #busca-card button {
-  background: linear-gradient(135deg, #6366F1, #4F46E5);
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: white;
   font-weight: 600;
   border: none;
@@ -148,102 +102,138 @@ button:focus {
 }
 
 #busca-card button:hover {
-  background: linear-gradient(135deg, #4F46E5, #4338CA);
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
-/* ================== Sessions ================== */
+/* ================== Sessões Favoritos e Histórico ================== */
 .sessions {
   display: flex;
   gap: 15px;
-  margin-top: 20px;
   flex-wrap: wrap;
+  margin-top: 20px;
   margin-bottom: 20px;
 }
 
 .session {
-  flex: 1;
-  min-width: 220px;
-  background: #FFFFFF;
+  flex: 1 1 250px;
+  background: var(--card-bg);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* ================== Botões histórico/favoritos ================== */
+.session h2 {
+  margin-bottom: 12px;
+}
+
+/* Contêiner de botões */
 .button-container {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0px;
-  margin-bottom: 8px;
+  gap: 4px; /* Menos espaçamento entre os botões */
+  align-items: center; /* Alinha os botões verticalmente */
   margin-right: 15px;
 }
 
-#historico-container .municipio-btn {
-  background-color: #3B82F6;
+/* Botão de histórico/favorito */
+.municipio-btn {
+  background-color: var(--btn-historico-bg);
   color: white;
   border: none;
   border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
   transition: background 0.25s ease, transform 0.2s ease;
 }
 
-#historico-container .municipio-btn:hover {
-  background-color: #2563EB;
+.municipio-btn:hover {
+  background-color: var(--btn-historico-hover);
   transform: translateY(-2px);
 }
 
-#favoritos-container .municipio-btn {
-  background-color: #10B981;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  transition: background 0.25s ease, transform 0.2s ease;
-}
-
-#favoritos-container .municipio-btn:hover {
-  background-color: #059669;
-  transform: translateY(-2px);
-}
-
-.button-container .favorito-btn {
-  flex: 0 0 auto;
-  padding: 6px 8px;
-  font-size: 14px;
+.favorito-btn {
+  margin-left: 0; /* Remove qualquer margem à esquerda */
   width: 32px;
   height: 32px;
-  border-radius: 50%;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #9ca3af;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.2s ease;
-  background: #F3F4F6;
-  color: #9CA3AF;
 }
 
-.button-container .favorito-btn:hover {
+.favorito-btn:hover {
   transform: scale(1.3);
-  background: #EDE9FE;
+  background: #ede9fe;
 }
 
 .favorito-btn.favorito {
-  color: #FBBF24;
-  animation: pulse 0.3s ease;
+  color: var(--favorito-color);
 }
 
 .favorito-btn.nao-favorito {
-  color: #9CA3AF;
+  color: #9ca3af;
+}
+/* Botões históricos/favoritos */
+.municipio-btn {
+  background-color: var(--btn-historico-bg);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
+.municipio-btn:hover {
+  background-color: var(--btn-historico-hover);
+  transform: translateY(-2px);
 }
 
-/* ================== Cards ================== */
+/* Contêiner dos botões: botões à esquerda, favoritos próximos, afastados da direita */
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px; /* distância entre o botão principal e os favoritos */
+  margin-right: 0;
+  margin-right: 15px;
+}
+
+/* Botão favorito dentro de histórico/favoritos */
+.favorito-btn {
+  margin-left: 0; /* Remove qualquer margem à esquerda */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.favorito-btn:hover {
+  transform: scale(1.3);
+  background: #ede9fe;
+}
+
+.favorito-btn.favorito {
+  color: var(--favorito-color);
+}
+
+.favorito-btn.nao-favorito {
+  color: #9ca3af;
+}
+
+/* ================== Cards de previsão ================== */
 #cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -261,9 +251,8 @@ button:focus {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   min-width: 240px;
-  flex: 1 1 260px;
+  flex: 1 1 240px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: 10px;
 }
 
 .card:hover {
@@ -274,11 +263,10 @@ button:focus {
 .day-title {
   font-weight: 600;
   font-size: 16px;
-  color: #374151;
-  border-bottom: 1px solid #E5E7EB;
+  color: var(--text-color);
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 6px;
   text-align: center;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .hours {
@@ -291,12 +279,13 @@ button:focus {
   padding: 10px 14px;
   border-radius: 10px;
   font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   cursor: default;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   transition: all 0.2s ease;
+  text-shadow: none;
 }
 
 .hour:hover {
@@ -306,19 +295,43 @@ button:focus {
 
 .hora {
   font-weight: 600;
-  color: #4F46E5;
+  color: var(--hora-color);
 }
 
 .temp {
   font-weight: 600;
-  color: #F97316;
+  color: var(--temp-color);
 }
 
-.hour.sun { background: #FEF3C7; }
-.hour.clouds { background: #E5E7EB; }
-.hour.rain { background: #DBEAFE; }
-.hour.storm { background: #EDE9FE; }
+/* Fundo dos tipos de clima */
+.hour.sun {
+  background: #fef3c7;
+}
+.hour.clouds {
+  background: #e5e7eb;
+}
+.hour.rain {
+  background: #dbeafe;
+}
+.hour.storm {
+  background: #ede9fe;
+}
 
+/* Modo escuro */
+body.dark .hour.sun {
+  background: rgba(245, 158, 11, 0.1);
+}
+body.dark .hour.clouds {
+  background: rgba(107, 114, 128, 0.1);
+}
+body.dark .hour.rain {
+  background: rgba(59, 130, 246, 0.1);
+}
+body.dark .hour.storm {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* Tooltip */
 .tooltip {
   visibility: hidden;
   opacity: 0;
@@ -326,7 +339,7 @@ button:focus {
   bottom: -52px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(31,41,55,0.85);
+  background: var(--tooltip-bg);
   color: #fff;
   padding: 8px 12px;
   border-radius: 8px;
@@ -342,28 +355,13 @@ button:focus {
   opacity: 1;
 }
 
-/* ================== Busca ================== */
-#busca-card {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 15px;
-}
-
-#busca-card select,
-#busca-card button {
-  padding: 10px 14px;
-  font-size: 16px;
-}
-
 /* ================== Toast ================== */
 #toast {
   position: fixed;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(50, 50, 50, 0.9);
+  background-color: var(--toast-bg);
   color: #fff;
   padding: 12px 24px;
   border-radius: 8px;
@@ -373,7 +371,7 @@ button:focus {
   transition: opacity 0.5s ease-in-out;
   z-index: 9999;
   pointer-events: none;
-  box-shadow: 0 4px 8px rgba(0,0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* ================== Botão de tema ================== */
@@ -385,7 +383,7 @@ button:focus {
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  background: #4F46E5;
+  background: #4f46e5;
   color: #fff;
   font-size: 16px;
   z-index: 1000;
@@ -393,7 +391,7 @@ button:focus {
 }
 
 #theme-toggle:hover {
-  background: #6366F1;
+  background: #6366f1;
   transform: translateY(-2px);
 }
 
@@ -403,10 +401,19 @@ button:focus {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
-    margin-bottom: 15px;
   }
   #busca-card select,
   #busca-card button {
     width: 100%;
   }
-    }
+  .sessions {
+    flex-direction: column;
+  }
+  .session {
+    width: 100%;
+    padding-bottom: 12px;
+  }
+  .button-container {
+    margin-bottom: 0; /* remove margem extra embaixo dos botões */
+  }
+}
