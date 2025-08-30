@@ -16,7 +16,7 @@
 }
 
 /* ================== Tema Escuro ================== */
-body.dark {
+html.dark {
   --bg-color: #121212;
   --text-color: #e0e0e0;
   --card-bg: #1e1e1e;
@@ -266,6 +266,12 @@ button:focus {
   to {
     transform: rotate(360deg);
   }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* ================== Cards de previsão ================== */
@@ -353,16 +359,16 @@ button:focus {
 }
 
 /* Modo escuro */
-body.dark .hour.sun {
+html.dark .hour.sun {
   background: rgba(245, 158, 11, 0.1);
 }
-body.dark .hour.clouds {
+html.dark .hour.clouds {
   background: rgba(107, 114, 128, 0.1);
 }
-body.dark .hour.rain {
+html.dark .hour.rain {
   background: rgba(59, 130, 246, 0.1);
 }
-body.dark .hour.storm {
+html.dark .hour.storm {
   background: rgba(124, 58, 237, 0.1);
 }
 
@@ -479,25 +485,32 @@ body.dark .hour.storm {
 }
 
 /* Tema claro */
-body.light #back-to-top {
+html.light #back-to-top {
   background-color: #333;
   color: #fff;
 }
 
-body.light #back-to-top:hover {
+html.light #back-to-top:hover {
   background-color: #555;
   transform: translateY(-2px);
 }
 
 /* Tema escuro */
-body.dark #back-to-top {
+html.dark #back-to-top {
   background-color: #1e90ff; /* azul mais claro para contraste */
   color: #fff;
 }
 
-body.dark #back-to-top:hover {
+html.dark #back-to-top:hover {
   background-color: #ccc;
   transform: translateY(-2px);
+}
+
+#municipio-spinner {
+  display: none;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #999;
 }
 
 /* ================== Responsividade ================== */
