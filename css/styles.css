@@ -412,22 +412,34 @@ body.dark .hour.storm {
 }
 
 /* ================== Toast ================== */
-#toast {
+/* CSS do toast */
+.toast {
   position: fixed;
-  bottom: 30px;
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: var(--toast-bg);
+  background-color: rgba(60, 60, 60, 0.9);
   color: #fff;
-  padding: 12px 24px;
+  padding: 10px 20px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
   z-index: 9999;
-  pointer-events: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.add {
+  background-color: #28a745; /* verde para adição */
+}
+
+.toast.remove {
+  background-color: #dc3545; /* vermelho para remoção */
 }
 
 /* ================== Botão de tema ================== */

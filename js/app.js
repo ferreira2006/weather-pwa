@@ -31,19 +31,26 @@ const StorageManager = {
 };
 
 // ================== Toast ==================
+// Toast atualizado
 const Toast = (() => {
   let toastEl;
   return {
-    show(msg) {
+    show(msg, type = 'default') {
       if (!toastEl) {
         toastEl = document.createElement('div');
-        toastEl.id = 'toast';
         toastEl.className = 'toast';
         document.body.appendChild(toastEl);
       }
+
       toastEl.textContent = msg;
-      toastEl.style.opacity = 1;
-      setTimeout(() => (toastEl.style.opacity = 0), 3000);
+      toastEl.className = 'toast show'; // reset
+      if (type === 'add') toastEl.classList.add('add');
+      else if (type === 'remove') toastEl.classList.add('remove');
+
+      clearTimeout(toastEl._timeout);
+      toastEl._timeout = setTimeout(() => {
+        toastEl.classList.remove('show', 'add', 'remove');
+      }, 3000);
     },
   };
 })();
@@ -66,16 +73,18 @@ const HistoricoFavoritos = {
     const index = data.favoritos.findIndex(
       (m) => m.nome === cidadeObj.nome && m.estadoId === cidadeObj.estadoId
     );
-    if (index >= 0) data.favoritos.splice(index, 1);
-    else {
+    if (index >= 0) {
+      data.favoritos.splice(index, 1);
+      Toast.show(`${cidadeObj.nome} removido dos favoritos!`, 'remove');
+    } else {
       if (data.favoritos.length >= 5)
-        return Toast.show('Máximo de 5 favoritos!');
+        return Toast.show('Máximo de 5 favoritos!', 'default');
       data.favoritos.push(cidadeObj);
+      Toast.show(`${cidadeObj.nome} adicionado aos favoritos!`, 'add');
     }
     StorageManager.salvar(data);
     this.render();
   },
-
   criarBotaoMunicipio(cidadeObj, containerId) {
     const btn = document.createElement('button');
     btn.textContent = `${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
