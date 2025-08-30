@@ -9,7 +9,11 @@
   </head>
   <body>
     <!-- Botão de alternar tema -->
-    <button id="theme-toggle" aria-label="Alternar tema claro/escuro">
+    <button
+      id="theme-toggle"
+      class="floating-btn"
+      aria-label="Alternar tema claro/escuro"
+    >
       🌓
     </button>
 
@@ -53,7 +57,22 @@
       <h1 id="title">Previsão do Tempo</h1>
       <div id="cards-container"></div>
     </main>
-
+    <!-- Botão voltar ao topo -->
+    <div id="back-to-top" class="floating-btn" aria-label="Voltar ao topo">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="white"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="6 15 12 9 18 15"></polyline>
+      </svg>
+    </div>
     <script src="js/app.js"></script>
   </body>
 </html>

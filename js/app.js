@@ -55,6 +55,22 @@ const Toast = (() => {
   };
 })();
 
+// JS para mostrar/esconder e rolar
+// Mostrar/ocultar botão ao rolar
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 200) backToTop.style.display = 'flex';
+  else backToTop.style.display = 'none';
+});
+
+// Scroll suave ao clicar
+backToTop.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Inicialmente escondido
+backToTop.style.display = 'none';
+
 // ================== Histórico e Favoritos ==================
 const HistoricoFavoritos = {
   adicionarHistorico(cidadeObj) {

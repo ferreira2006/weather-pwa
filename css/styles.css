@@ -442,24 +442,59 @@ body.dark .hour.storm {
   background-color: #dc3545; /* vermelho para remoção */
 }
 
-/* ================== Botão de tema ================== */
-#theme-toggle {
+/* Botões flutuantes redondos */
+.floating-btn {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  background: #4f46e5;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff; /* mesma cor do botão do tema */
   color: #fff;
-  font-size: 16px;
+  font-size: 18px; /* um pouquinho menor para ficar proporcional */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
   z-index: 1000;
-  transition: all 0.25s ease;
 }
 
-#theme-toggle:hover {
-  background: #6366f1;
+.floating-btn:hover {
+  background-color: #0056b3; /* hover levemente mais escuro */
+}
+
+/* Posições individuais */
+#theme-toggle {
+  top: 20px;
+  right: 20px;
+}
+
+#back-to-top {
+  bottom: 20px;
+  right: 20px;
+  font-size: 18px; /* garante que a seta fique proporcional */
+}
+
+/* Tema claro */
+body.light #back-to-top {
+  background-color: #333;
+  color: #fff;
+}
+
+body.light #back-to-top:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+}
+
+/* Tema escuro */
+body.dark #back-to-top {
+  background-color: #1e90ff; /* azul mais claro para contraste */
+  color: #fff;
+}
+
+body.dark #back-to-top:hover {
+  background-color: #ccc;
   transform: translateY(-2px);
 }
 
