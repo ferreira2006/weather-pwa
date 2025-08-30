@@ -1,8 +1,13 @@
 // ================== Histórico e Favoritos ==================
-import { StorageManager } from './storageManager.js';
-import { Toast } from './toast.js';
 
-export const HistoricoFavoritos = {
+import { StorageManager } from './storageManager.js';
+import { IBGE } from './ibge.js';
+import { Cards } from './cards.js';
+import { Toast } from './toasts.js';
+
+const maxHistoryItems = 5;
+
+const HistoricoFavoritos = {
   adicionarHistorico(cidadeObj) {
     const data = StorageManager.carregar();
     data.historico = data.historico.filter(
@@ -32,9 +37,73 @@ export const HistoricoFavoritos = {
     this.render();
   },
 
+  criarBotaoMunicipio(cidadeObj, containerId) {
+    const btn = document.createElement('button');
+    btn.textContent = `${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
+    btn.className = 'municipio-btn';
+    btn.setAttribute(
+      'aria-label',
+      `Selecionar município ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`
+    );
+    btn.addEventListener('click', () => {
+      document.getElementById('estado-select').value = cidadeObj.estadoId;
+      IBGE.carregarMunicipios(cidadeObj.estadoId).then(() => {
+        document.getElementById('municipio-select').value = cidadeObj.nome;
+        Cards.consultarMunicipio(cidadeObj);
+      });
+    });
+
+    const btnFav = document.createElement('button');
+    const storage = StorageManager.carregar();
+    const isFav = storage.favoritos.some(
+      (f) => f.nome === cidadeObj.nome && f.estadoId === cidadeObj.estadoId
+    );
+    btnFav.textContent = containerId === 'historico-container' ? '📌' : '❌';
+    btnFav.className = `favorito-btn ${isFav ? 'favorito' : 'nao-favorito'}`;
+    btnFav.setAttribute(
+      'aria-label',
+      isFav
+        ? `Remover ${cidadeObj.nome} dos favoritos`
+        : `Adicionar ${cidadeObj.nome} aos favoritos`
+    );
+
+    // Criando o tooltip
+    const tooltip = document.createElement('span');
+    tooltip.className = 'tooltip';
+    tooltip.textContent = isFav
+      ? 'Remover dos favoritos'
+      : 'Adicionar aos favoritos';
+    btnFav.appendChild(tooltip);
+
+    // Atualiza o tooltip ao clicar no botão
+    btnFav.addEventListener('click', (e) => {
+      e.stopPropagation();
+      HistoricoFavoritos.toggleFavorito(cidadeObj);
+
+      // Atualiza o tooltip dinamicamente
+      const novoFav = btnFav.classList.contains('favorito');
+      tooltip.textContent = novoFav
+        ? 'Remover dos favoritos'
+        : 'Adicionar aos favoritos';
+      btnFav.setAttribute(
+        'aria-label',
+        novoFav
+          ? `Remover ${cidadeObj.nome} dos favoritos`
+          : `Adicionar ${cidadeObj.nome} aos favoritos`
+      );
+    });
+
+    const div = document.createElement('div');
+    div.className = 'button-container';
+    div.appendChild(btn);
+    div.appendChild(btnFav);
+    return div;
+  },
+
   render() {
     const data = StorageManager.carregar();
-    // Renderizar histórico
+
+    // Histórico
     const historicoContainer = document.getElementById('historico-container');
     historicoContainer.innerHTML = '';
     historicoContainer.setAttribute('aria-live', 'polite');
@@ -44,7 +113,7 @@ export const HistoricoFavoritos = {
     );
     historicoContainer.appendChild(histFrag);
 
-    // Renderizar favoritos
+    // Favoritos
     const favContainer = document.getElementById('favoritos-container');
     favContainer.innerHTML = '';
     favContainer.setAttribute('aria-live', 'polite');
@@ -54,8 +123,7 @@ export const HistoricoFavoritos = {
     );
     favContainer.appendChild(favFrag);
   },
-
-  criarBotaoMunicipio(cidadeObj, containerId) {
-    // Criação do botão para o município (similar ao seu código atual)
-  },
 };
+
+// Exportando o módulo HistoricoFavoritos
+export { HistoricoFavoritos, maxHistoryItems };

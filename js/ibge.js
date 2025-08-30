@@ -1,5 +1,8 @@
 // ================== IBGE ==================
-export const IBGE = {
+
+import { CACHE_KEY, CACHE_VALIDITY } from './config.js';
+
+const IBGE = {
   async carregarEstados() {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
     const now = Date.now();
@@ -31,12 +34,53 @@ export const IBGE = {
       const option = document.createElement('option');
       option.value = e.id;
       option.textContent = e.nome;
+      option.dataset.sigla = e.sigla;
       frag.appendChild(option);
     });
     select.appendChild(frag);
   },
 
   async carregarMunicipios(estadoId) {
-    // Similar ao código atual para carregar municípios
+    const select = document.getElementById('municipio-select');
+    select.innerHTML = '<option value="">Selecione o município</option>';
+    if (!estadoId) return;
+
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+    const now = Date.now();
+    let municipios = [];
+
+    if (
+      cached.municipios &&
+      cached.municipios[estadoId] &&
+      now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY
+    ) {
+      municipios = cached.municipios[estadoId].data;
+    } else {
+      try {
+        const res = await fetch(
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
+        );
+        municipios = await res.json();
+        cached.municipios = cached.municipios || {};
+        cached.municipios[estadoId] = { data: municipios, timestamp: now };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+      } catch (err) {
+        Toast.show('Erro ao carregar municípios do IBGE');
+        console.error(err);
+        return;
+      }
+    }
+
+    const frag = document.createDocumentFragment();
+    municipios.forEach((m) => {
+      const option = document.createElement('option');
+      option.value = m.nome;
+      option.textContent = m.nome;
+      frag.appendChild(option);
+    });
+    select.appendChild(frag);
   },
 };
+
+// Exportando o módulo IBGE
+export { IBGE };

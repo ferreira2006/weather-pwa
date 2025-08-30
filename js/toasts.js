@@ -1,5 +1,6 @@
 // ================== Toast ==================
-export const Toast = (() => {
+// Toast atualizado
+const Toast = (() => {
   let toastEl;
   return {
     show(msg, type = 'default') {
@@ -21,3 +22,5 @@ export const Toast = (() => {
     },
   };
 })();
+
+export { Toast };
