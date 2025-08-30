@@ -417,6 +417,14 @@ const Cards = {
       });
 
     container.appendChild(frag);
+
+    // ================== Foco e scroll ==================
+    const titleEl = document.getElementById('title');
+    if (titleEl) {
+      titleEl.setAttribute('tabindex', '-1'); // permite foco
+      titleEl.focus({ preventScroll: true });
+      titleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   },
 
   // ================== Spinner ==================
