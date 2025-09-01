@@ -1,3 +1,7 @@
+
+// No inciio o app de clima era composto pelos arquivos: index.html, styles.css e app.js
+// posrtiormente foi modularizado nos demais .js
+//
 // ================== Configurações ==================
 const backendUrl = 'https://weather-backend-hh3w.onrender.com/forecast';
 const CACHE_KEY = 'ibge_cache';
