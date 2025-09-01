@@ -1,15 +1,18 @@
 // ================== IBGE ==================
 
 import { CACHE_KEY, CACHE_VALIDITY } from './config.js';
+import { Toast } from './toasts.js';
 
 const IBGE = {
   async carregarEstados() {
     const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
     const now = Date.now();
-    if (cached.estados && now - cached.estadosTimestamp < CACHE_VALIDITY) {
+
+    if (cached.estados?.length && now - cached.estadosTimestamp < CACHE_VALIDITY) {
       this.popularEstados(cached.estados);
       return;
     }
+
     try {
       const res = await fetch(
         'https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome'
@@ -49,11 +52,7 @@ const IBGE = {
     const now = Date.now();
     let municipios = [];
 
-    if (
-      cached.municipios &&
-      cached.municipios[estadoId] &&
-      now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY
-    ) {
+    if (cached.municipios?.[estadoId]?.timestamp && now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY) {
       municipios = cached.municipios[estadoId].data;
     } else {
       try {
@@ -82,5 +81,4 @@ const IBGE = {
   },
 };
 
-// Exportando o módulo IBGE
 export { IBGE };

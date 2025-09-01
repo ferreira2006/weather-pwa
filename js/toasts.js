@@ -1,7 +1,11 @@
 // ================== Toast ==================
-// Toast atualizado
 const Toast = (() => {
   let toastEl;
+
+  const _resetClasses = () => {
+    toastEl?.classList.remove('show', 'add', 'remove');
+  };
+
   return {
     show(msg, type = 'default') {
       if (!toastEl) {
@@ -10,15 +14,15 @@ const Toast = (() => {
         document.body.appendChild(toastEl);
       }
 
+      _resetClasses();
       toastEl.textContent = msg;
-      toastEl.className = 'toast show'; // reset
+      toastEl.classList.add('show');
+
       if (type === 'add') toastEl.classList.add('add');
       else if (type === 'remove') toastEl.classList.add('remove');
 
-      clearTimeout(toastEl._timeout);
-      toastEl._timeout = setTimeout(() => {
-        toastEl.classList.remove('show', 'add', 'remove');
-      }, 3000);
+      clearTimeout(toastEl?._timeout);
+      toastEl._timeout = setTimeout(_resetClasses, 3000);
     },
   };
 })();

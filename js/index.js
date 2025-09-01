@@ -4,6 +4,7 @@ import { Theme } from './theme.js';
 import { HistoricoFavoritos } from './historicoFavoritos.js';
 import { IBGE } from './ibge.js';
 import { Cards } from './cards.js';
+import { StorageManager } from './storageManager.js';
 
 // ================== Configurações ==================
 const horariosDesejados = [
@@ -14,65 +15,79 @@ const horariosDesejados = [
   '21:00:00',
 ];
 
+// ================== Elementos do DOM ==================
+const estadoSelect = document.getElementById('estado-select');
+const municipioSelect = document.getElementById('municipio-select');
+const consultarBtn = document.getElementById('consultar-btn');
+const scrollTopButton = document.getElementById('back-to-top');
+const themeToggleBtn = document.getElementById('theme-toggle');
+
 // ================== Inicialização ==================
+
 // Carregar o tema salvo
 Theme.load();
 
 // Carregar estados do IBGE
 IBGE.carregarEstados();
 
+// Inicialização segura do Storage
+const storageInicial = StorageManager.carregar() || {};
+StorageManager.salvar({
+  historico: Array.isArray(storageInicial.historico) ? storageInicial.historico : [],
+  favoritos: Array.isArray(storageInicial.favoritos) ? storageInicial.favoritos : [],
+});
+
 // Renderizar histórico e favoritos
 HistoricoFavoritos.render();
 
 // ================== Eventos ==================
 
-// Evento de mudança no select de estado
-document
-  .getElementById('estado-select')
-  .addEventListener('change', async (e) => {
-    const estadoId = e.target.value;
-    await IBGE.carregarMunicipios(estadoId);
+if (estadoSelect) {
+  estadoSelect.addEventListener('change', async (e) => {
+    try {
+      const estadoId = e.target.value;
+      await IBGE.carregarMunicipios(estadoId);
+    } catch (err) {
+      console.error(err);
+      Toast.show('Erro ao carregar municípios.');
+    }
   });
+}
 
-// Evento de clique no botão "Consultar"
-document.getElementById('consultar-btn').addEventListener('click', () => {
-  const municipioSelect = document.getElementById('municipio-select');
-  const estadoSelect = document.getElementById('estado-select');
+if (consultarBtn && municipioSelect && estadoSelect) {
+  consultarBtn.addEventListener('click', () => {
+    if (!municipioSelect.value || !estadoSelect.value) {
+      Toast.show('Selecione estado e município antes de consultar.');
+      return;
+    }
 
-  if (!municipioSelect.value || !estadoSelect.value) {
-    Toast.show('Selecione estado e município antes de consultar.');
-    return;
-  }
+    const estadoOption = estadoSelect.options[estadoSelect.selectedIndex];
+    const cidadeObj = {
+      nome: municipioSelect.value,
+      estadoId: estadoSelect.value,
+      estadoSigla: estadoOption?.dataset?.sigla || '',
+    };
 
-  const estadoOption = estadoSelect.options[estadoSelect.selectedIndex];
-  const cidadeObj = {
-    nome: municipioSelect.value,
-    estadoId: estadoSelect.value,
-    estadoSigla: estadoOption.dataset.sigla || '',
-  };
-
-  Cards.consultarMunicipio(cidadeObj);
-});
+    Cards.consultarMunicipio(cidadeObj);
+  });
+}
 
 // ================== Botão Voltar ao Topo ==================
-const scrollTopButton = document.getElementById('back-to-top');
-scrollTopButton.style.display = 'none'; // Inicialmente escondido
+if (scrollTopButton) {
+  scrollTopButton.style.display = 'none'; // Inicialmente escondido
 
-// Mostrar o botão quando o usuário rolar para baixo
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 200) {
-    scrollTopButton.style.display = 'flex';
-  } else {
-    scrollTopButton.style.display = 'none';
-  }
-});
+  window.addEventListener('scroll', () => {
+    scrollTopButton.style.display = window.scrollY > 200 ? 'flex' : 'none';
+  });
 
-// Evento de clique no botão "Voltar ao topo"
-scrollTopButton.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
+  scrollTopButton.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
 
-// Evento de alternar tema
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  Theme.toggle(); // Alterna o tema
-});
+// ================== Alternar tema ==================
+if (themeToggleBtn) {
+  themeToggleBtn.addEventListener('click', () => {
+    Theme.toggle();
+  });
+}

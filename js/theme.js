@@ -3,15 +3,17 @@ const Theme = (() => {
   // Método privado para definir o tema
   const _setTheme = (theme) => {
     const html = document.documentElement;
-    html.classList.remove('light', 'dark'); // Remover as classes antigas
-    html.classList.add(theme); // Adicionar a nova classe
+    html.classList.remove('light', 'dark'); // Remover classes antigas
+    html.classList.add(theme); // Adicionar nova classe
     localStorage.setItem('theme', theme); // Salvar no localStorage
   };
 
   // Método privado para atualizar o ícone do botão
-  const _setButtonIcon = (theme) => {
+  const _updateButtonIcon = (theme) => {
     const btn = document.getElementById('theme-toggle');
-    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    if (btn) {
+      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
   };
 
   return {
@@ -21,15 +23,15 @@ const Theme = (() => {
         ? 'dark'
         : 'light';
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      _setTheme(newTheme); // Definir o novo tema
-      _setButtonIcon(newTheme); // Atualizar o ícone do botão
+      _setTheme(newTheme);
+      _updateButtonIcon(newTheme);
     },
 
     // Carrega o tema salvo no localStorage
     load() {
-      const savedTheme = localStorage.getItem('theme') || 'light'; // Carregar tema salvo ou 'light' por padrão
-      _setTheme(savedTheme); // Aplicar o tema salvo
-      _setButtonIcon(savedTheme); // Atualizar o ícone do botão
+      const savedTheme = localStorage.getItem('theme') ?? 'light';
+      _setTheme(savedTheme);
+      _updateButtonIcon(savedTheme);
     },
   };
 })();
