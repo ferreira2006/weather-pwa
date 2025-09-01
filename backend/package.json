@@ -1,15 +1,20 @@
 {
-  "name": "weather-backend",
+   "name": "weather-backend",
   "version": "1.0.0",
   "description": "Backend para app de clima",
+  "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "node-fetch": "^2.6.7"
-  }
+    "express": "^4.18.2"
+  },
+  "author": "Marcos Ferreira.",
+  "license": "MIT"
 }

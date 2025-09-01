@@ -1,329 +1,537 @@
+/* ================== Variáveis globais ================== */
 :root {
-  /* -------- CORES E BOTÕES -------- */
-  --button-bg: #ff9800;
-  --button-bg-hover: #e68a00;
-  --button-bg-disabled: #ffa733;
-  --button-shadow-hover: #ffb74d;
-
-  --text-color-light: #000;
-  --text-color-dark: #ddd;
-
-  --input-text-light: #000;
-  --input-text-dark: #cfd8dc;
-  --input-bg-light: rgba(255, 255, 255, 0.9);
-  --input-bg-dark: rgba(255, 255, 255, 0.1);
-
-  --toast-bg-light: rgba(0, 0, 0, 0.85);
-  --toast-text-light: #fff;
-  --toast-bg-dark: rgba(255, 255, 255, 0.9);
-  --toast-text-dark: #000;
-
-  --loading-bg-light: rgba(255, 255, 255, 0.35);
-  --loading-bg-dark: rgba(255, 255, 255, 0.15);
+  --bg-color: #f5f5f5;
+  --text-color: #222;
+  --card-bg: #fff;
+  --btn-historico-bg: #3b82f6;
+  --btn-historico-hover: #2563eb;
+  --btn-favorito-bg: #10b981;
+  --btn-favorito-hover: #059669;
+  --favorito-color: #fbbf24;
+  --hora-color: #4f46e5;
+  --temp-color: #f97316;
+  --tooltip-bg: rgba(31, 41, 55, 0.85);
+  --toast-bg: rgba(50, 50, 50, 0.9);
+  --select-bg: #fff;
 }
 
-/* ===== Global ===== */
+/* ================== Tema Escuro ================== */
+html.dark {
+  --bg-color: #121212;
+  --text-color: #e0e0e0;
+  --card-bg: #1e1e1e;
+  --btn-historico-bg: #2563eb;
+  --btn-historico-hover: #1e40af;
+  --btn-favorito-bg: #059669;
+  --btn-favorito-hover: #047857;
+  --favorito-color: #fbbf24;
+  --hora-color: #ffd700;
+  --temp-color: #ff8c00;
+  --tooltip-bg: rgba(0, 0, 0, 0.85);
+  --toast-bg: rgba(40, 40, 40, 0.95);
+  --select-bg: #3a3a3a;
+}
+
+/* ================== Global ================== */
 body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #6ec1e4, #a8d5e2);
-  color: #0d3b66;
-  text-align: center;
-  padding: 20px;
-  font-size: 18px;
-}
-
-body.light {
-  color: var(--text-color-light);
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-}
-
-body.dark {
-  color: var(--text-color-dark);
-  background: linear-gradient(135deg, #1c1c1c, #3a3a3a);
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 20px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 h1 {
-  font-size: 36px;
-  margin-bottom: 20px;
-  color: #0d3b66;
-  text-shadow: 1px 1px 2px rgba(255,255,255,0.6);
-  margin: 0;
-  font-weight: 700;
-  font-size: 2rem;
-}
-
-/* ===== Container de Cards ===== */
-.cards {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-/* ===== Card ===== */
-.card {
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(0,0,0,0.05);
-  border-radius: 16px;
-  padding: 15px;
-  width: 90%;
-  max-width: 350px;
-  min-height: 120px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  backdrop-filter: blur(6px);
-  transition: transform 0.2s, box-shadow 0.3s;
-  color: #0d3b66;
-  display: flex;
-  flex-direction: column;
-  word-wrap: break-word;
-}
-
-.card.today {
-  border: 2px solid #0d3b66;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-  transform: scale(1.02);
-  align-self: flex-start;
-}
-
-.card h2 {
-  margin: 5px 0 12px 0;
-  font-size: 26px;
-  border-bottom: 1px solid rgba(0,0,0,0.1);
-  padding-bottom: 5px;
-}
-
-.card h3 {
-  font-size: 1.4rem;
+  font-size: 24px;
   margin-bottom: 16px;
-  font-weight: 700;
-  color: #333;
-  text-transform: capitalize;
+  color: var(--text-color);
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-color);
+}
+
+/* ================== Card de busca ================== */
+.card-busca,
+#busca-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+select,
+button {
+  padding: 10px 16px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: var(--select-bg);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+select:focus,
+button:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 6px rgba(79, 70, 229, 0.3);
+}
+
+#busca-card button {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+#busca-card button:hover {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+/* ================== Sessões Favoritos e Histórico ================== */
+.sessions {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.session {
+  flex: 1 1 250px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.session h2 {
+  margin-bottom: 12px;
+}
+
+/* Contêiner de botões */
+.button-container {
+  display: flex;
+  gap: 4px; /* Menos espaçamento entre os botões */
+  align-items: center; /* Alinha os botões verticalmente */
+  margin-right: 15px;
+}
+
+/* Botão de histórico/favorito */
+.municipio-btn {
+  background-color: var(--btn-historico-bg);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.municipio-btn:hover {
+  background-color: var(--btn-historico-hover);
+  transform: translateY(-2px);
+}
+
+.favorito-btn {
+  margin-left: 0; /* Remove qualquer margem à esquerda */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+  position: relative;
+}
+
+.favorito-btn:hover {
+  transform: scale(1.2);
+  background: #ede9fe;
+}
+
+.favorito-btn.favorito {
+  color: var(--favorito-color);
+  transform: scale(1.05);
+  background: #fbbf24;
+}
+
+.favorito-btn.nao-favorito {
+  color: #9ca3af;
+  transform: scale(1);
+  background: #f3f4f6;
+}
+/* Botões históricos/favoritos */
+.municipio-btn {
+  background-color: var(--btn-historico-bg);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+
+.municipio-btn:hover {
+  background-color: var(--btn-historico-hover);
+  transform: translateY(-2px);
+}
+
+/* Contêiner dos botões: botões à esquerda, favoritos próximos, afastados da direita */
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px; /* distância entre o botão principal e os favoritos */
+  margin-right: 0;
+  margin-right: 15px;
+}
+
+/* Botão favorito dentro de histórico/favoritos */
+.favorito-btn {
+  margin-left: 0; /* Remove qualquer margem à esquerda */
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.favorito-btn:hover {
+  transform: scale(1.3);
+  background: #ede9fe;
+}
+
+.favorito-btn.favorito {
+  color: var(--favorito-color);
+}
+
+.favorito-btn.nao-favorito {
+  color: #9ca3af;
+}
+
+.btn-spinner-container {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* distância entre botão e spinner */
+}
+
+#consultar-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-top-color: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ================== Cards de previsão ================== */
+#cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 20px;
+  justify-content: flex-start;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  min-width: 240px;
+  flex: 1 1 240px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-6px) scale(1.03);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(145deg, #fff7e6, #ffd699);
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== Horários ===== */
-.horarios {
-  display: flex;
-  overflow-x: auto;
-  gap: 12px;
-  padding-bottom: 8px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,152,0,0.5) transparent;
+.day-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-color);
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 6px;
+  text-align: center;
 }
 
-.horarios::-webkit-scrollbar {
-  height: 8px;
-}
-.horarios::-webkit-scrollbar-thumb {
-  background: rgba(255,152,0,0.5);
-  border-radius: 4px;
-}
-.horarios::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.horario {
-  min-width: 100px;
-  flex: 0 0 auto;
+.hours {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  color: #0d3b66;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  white-space: normal;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0));
-  box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 2px 6px rgba(0,0,0,0.1);
-  padding: 12px;
-  border-radius: 16px;
-  text-align: center;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  gap: 10px;
 }
 
-.horario::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(120deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0) 100%);
-  transform: skewX(-20deg);
-  transition: all 0.3s ease;
-}
-
-.horario:hover::after {
-  animation: shine 1s forwards;
-}
-
-@keyframes shine {
-  0% { left: -75%; }
-  100% { left: 125%; }
-}
-
-.horario:hover { transform: translateX(3px); }
-
-.horario strong { width: 60px; flex-shrink: 0; }
-.horario img { width: 32px; height: 32px; flex-shrink: 0; }
-.horario span.temp { margin-right: 12px; flex-shrink: 0; }
-.horario span.desc { flex: 1; }
-
-/* ===== Inputs ===== */
-body.light input[type="text"]:focus {
-  background-color: #fff;
-  color: #000;
-}
-body.light input[type="text"]::placeholder {
-  color: #666;
-  opacity: 1;
-}
-
-body.dark input[type="text"]:focus {
-  background-color: var(--input-bg-dark);
-  color: var(--input-text-dark);
-}
-body.dark input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* -------- FOCO VISÍVEL ACESSÍVEL -------- */
-:focus-visible {
-  outline: 3px solid var(--button-bg);
-  outline-offset: 3px;
-}
-
-/* ===== Tooltip ===== */
-.tooltip {
-  position: fixed;
-  z-index: 9999;
-  background-color: rgba(0,0,0,0.85);
-  color: #fff;
-  padding: 6px 12px;
+.hour {
+  padding: 10px 14px;
   border-radius: 10px;
-  font-size: 12px;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-.tooltip.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ===== Botões e Seções ===== */
-#theme-toggle {
-  background: transparent;
-  border: 2px solid currentColor;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-  color: inherit;
-  user-select: none;
-  min-width: 110px;
-  min-height: 40px;
-}
-#theme-toggle:hover,
-#theme-toggle:focus {
-  background-color: var(--button-bg);
-  color: white;
-  border-color: var(--button-bg);
-  outline: none;
-}
-
-button#buscarClimaBtn,
-#history-list li,
-#favorites-list li {
-  background-color: var(--button-bg);
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
-  flex: 0 0 auto;
-}
-button#buscarClimaBtn:hover:not(:disabled),
-#history-list li:hover,
-#favorites-list li:hover {
-  background-color: var(--button-bg-hover);
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.5);
-  transform: scale(1.05);
-}
-button#buscarClimaBtn:disabled {
-  background-color: var(--button-bg-disabled);
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-#history-section,
-#favorites-section {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 30px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-#history-section h2,
-#favorites-section h2 {
-  margin-top: 0;
-  font-size: 1.2rem;
-}
-
-#history-list,
-#favorites-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* -------- Selects -------- */
-select {
-  flex: 1;
-  padding: 8px 12px;
   font-size: 14px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-select:focus {
-  border-color: var(--button-bg);
-  box-shadow: 0 0 6px rgba(255, 152, 0, 0.5);
-  outline: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: default;
+  position: relative;
+  transition: all 0.2s ease;
+  text-shadow: none;
 }
 
-/* ===== Responsividade ===== */
-@media (max-width: 550px) {
-  .card { flex: 1 1 100%; max-width: 100%; font-size: 20px; }
-  body { font-size: 18px; }
-  h1 { font-size: 30px; }
-  .card h2 { font-size: 22px; }
-  .horario { font-size: 20px; gap: 10px; }
-  .horario strong { width: 70px; }
-  .horario img { width: 36px; height: 36px; }
-  .horario span.temp { margin-right: 14px; }
+.hour:hover {
+  transform: scale(1.03);
+  z-index: 1;
+}
+
+.hora {
+  font-weight: 600;
+  color: var(--hora-color);
+}
+
+.temp {
+  font-weight: 600;
+  color: var(--temp-color);
+}
+
+/* Fundo dos tipos de clima */
+.hour.sun {
+  background: #fef3c7;
+}
+.hour.clouds {
+  background: #e5e7eb;
+}
+.hour.rain {
+  background: #dbeafe;
+}
+.hour.storm {
+  background: #ede9fe;
+}
+
+/* Modo escuro */
+html.dark .hour.sun {
+  background: rgba(245, 158, 11, 0.1);
+}
+html.dark .hour.clouds {
+  background: rgba(107, 114, 128, 0.1);
+}
+html.dark .hour.rain {
+  background: rgba(59, 130, 246, 0.1);
+}
+html.dark .hour.storm {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* Tooltip */
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: -52px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-bg);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.hour:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+.favorito-btn .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: 110%; /* acima do botão */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-bg);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.favorito-btn:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ================== Toast ================== */
+/* CSS do toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(60, 60, 60, 0.9);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast.add {
+  background-color: #28a745; /* verde para adição */
+}
+
+.toast.remove {
+  background-color: #dc3545; /* vermelho para remoção */
+}
+
+/* Botões flutuantes redondos */
+.floating-btn {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #007bff; /* mesma cor do botão do tema */
+  color: #fff;
+  font-size: 18px; /* um pouquinho menor para ficar proporcional */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
+  z-index: 1000;
+}
+
+.floating-btn:hover {
+  background-color: #0056b3; /* hover levemente mais escuro */
+}
+
+/* Posições individuais */
+#theme-toggle {
+  top: 20px;
+  right: 20px;
+}
+
+#back-to-top {
+  bottom: 20px;
+  right: 20px;
+  font-size: 18px; /* garante que a seta fique proporcional */
+}
+
+/* Tema claro */
+html.light #back-to-top {
+  background-color: #333;
+  color: #fff;
+}
+
+html.light #back-to-top:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+}
+
+/* Tema escuro */
+html.dark #back-to-top {
+  background-color: #1e90ff; /* azul mais claro para contraste */
+  color: #fff;
+}
+
+html.dark #back-to-top:hover {
+  background-color: #ccc;
+  transform: translateY(-2px);
+}
+
+#municipio-spinner {
+  display: none;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #999;
+}
+
+/* ================== Responsividade ================== */
+@media (max-width: 600px) {
+  #busca-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  #busca-card select,
+  #busca-card button {
+    width: 100%;
+  }
+  .sessions {
+    flex-direction: column;
+  }
+  .session {
+    width: 100%;
+    padding-bottom: 12px;
+  }
+  .button-container {
+    margin-bottom: 0; /* remove margem extra embaixo dos botões */
+  }
 }
