@@ -1,6 +1,15 @@
-import { backendUrl, getLastConsulta, setLastConsulta, horariosNumericos } from './config.js';
+import {
+  backendUrl,
+  getLastConsulta,
+  setLastConsulta,
+  CACHE_KEY,
+  CACHE_VALIDITY,
+  horariosNumericos,
+} from './config.js';
+
 import { Toast } from './toasts.js';
-import { HistoricoFavoritos } from './historicoFavoritos.js';
+
+import { HistoricoFavoritos, maxHistoryItems } from './historicoFavoritos.js';
 
 const Cards = {
   mapIconToClass(main) {
@@ -24,30 +33,52 @@ const Cards = {
   },
 
   formatarData(dt_txt) {
-    const [ano, mes, dia] = dt_txt?.split(' ')[0]?.split('-') || ['----', '--', '--'];
-    const diasSemana = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+    const [ano, mes, dia] = dt_txt.split(' ')[0].split('-');
+    const diasSemana = [
+      'domingo',
+      'segunda-feira',
+      'terça-feira',
+      'quarta-feira',
+      'quinta-feira',
+      'sexta-feira',
+      'sábado',
+    ];
     const dateObj = new Date(Number(ano), Number(mes) - 1, Number(dia));
     return `${dia}/${mes} ${diasSemana[dateObj.getDay()]}`;
   },
 
   criarHourDiv(item) {
     const hourDiv = document.createElement('div');
-    hourDiv.className = 'hour ' + this.mapIconToClass(item?.weather?.[0]?.main);
+    hourDiv.className = 'hour ' + this.mapIconToClass(item.weather[0]?.main);
+    hourDiv.setAttribute(
+      'aria-label',
+      `Hora ${item.dt_txt.split(' ')[1].slice(0, 5)}, ${
+        item.weather[0]?.description || ''
+      }, temperatura ${item.main.temp?.toFixed(0) || '--'}°C`
+    );
 
     const infoDiv = document.createElement('div');
     infoDiv.className = 'info';
-    infoDiv.textContent = `${item?.dt_txt?.split(' ')[1]?.slice(0,5) || '--:--'} ${this.mapIconToEmoji(item?.weather?.[0]?.main)} ${item?.weather?.[0]?.description || ''}`;
+    infoDiv.textContent = `${item.dt_txt
+      .split(' ')[1]
+      .slice(0, 5)} ${this.mapIconToEmoji(item.weather[0]?.main)} ${
+      item.weather[0]?.description || ''
+    }`;
 
     const tempDiv = document.createElement('div');
     tempDiv.className = 'temp';
-    tempDiv.textContent = `🌡️ ${item?.main?.temp?.toFixed(0) || '--'}°C`;
+    tempDiv.textContent = `🌡️ ${item.main.temp?.toFixed(0) || '--'}°C`;
 
     const tooltip = document.createElement('span');
     tooltip.className = 'tooltip';
-    tooltip.setAttribute('role','tooltip');
-    tooltip.innerHTML = `Sensação: ${item?.main?.feels_like?.toFixed(0) || '--'}°C<br>Umidade: ${item?.main?.humidity || '--'}%<br>Vento: ${item?.wind?.speed || '--'} m/s`;
+    tooltip.setAttribute('role', 'tooltip');
+    tooltip.innerHTML = `Sensação: ${
+      item.main.feels_like?.toFixed(0) || '--'
+    }°C<br>Umidade: ${item.main.humidity || '--'}%<br>Vento: ${
+      item.wind.speed || '--'
+    } m/s`;
 
-    hourDiv.append(infoDiv,tempDiv,tooltip);
+    hourDiv.append(infoDiv, tempDiv, tooltip);
     return hourDiv;
   },
 
@@ -63,8 +94,8 @@ const Cards = {
     const horasContainer = document.createElement('div');
     horasContainer.className = 'hours';
 
-    lista?.forEach(item => {
-      if (!item?.weather || !item?.main || !item?.wind) return;
+    lista.forEach((item) => {
+      if (!item || !item.weather || !item.main || !item.wind) return;
       horasContainer.appendChild(this.criarHourDiv(item));
     });
 
@@ -73,27 +104,34 @@ const Cards = {
   },
 
   gerarCards(previsao, cidadeObj) {
-    if (!previsao?.list || !Array.isArray(previsao.list)) {
+    if (!previsao || !previsao.list || !Array.isArray(previsao.list)) {
       Toast.show('Previsão indisponível no momento.');
       return;
     }
 
     const now = Date.now();
     if (now - getLastConsulta() < 1000) return;
-    setLastConsulta(now);
+    setLastConsulta(now); // Usando o setter
 
     const container = document.getElementById('cards-container');
     container.innerHTML = '';
-    document.getElementById('title').textContent = `Previsão do tempo para ${cidadeObj?.nome || ''} - ${cidadeObj?.estadoSigla || ''}`;
+    document.getElementById(
+      'title'
+    ).textContent = `Previsão do tempo para ${cidadeObj.nome} - ${cidadeObj.estadoSigla}`;
 
     const diasMap = {};
-    previsao.list.forEach(item => {
-      if (!item?.dt_txt) return;
+    previsao.list.forEach((item) => {
+      if (!item.dt_txt) return;
       const [diaStr] = item.dt_txt.split(' ');
       const itemDate = new Date(item.dt_txt);
-      const isHorarioDesejado = horariosNumericos?.some(([hH,hM,hS]) => 
-        itemDate.getHours() === hH && itemDate.getMinutes() === hM && itemDate.getSeconds() === hS
+
+      const isHorarioDesejado = horariosNumericos.some(
+        ([hH, hM, hS]) =>
+          itemDate.getHours() === hH &&
+          itemDate.getMinutes() === hM &&
+          itemDate.getSeconds() === hS
       );
+
       if (!isHorarioDesejado) return;
 
       if (!diasMap[diaStr]) diasMap[diaStr] = [];
@@ -105,54 +143,84 @@ const Cards = {
       return;
     }
 
-    Object.values(diasMap).forEach(lista => lista?.sort((a,b) => new Date(a?.dt_txt) - new Date(b?.dt_txt)));
+    // Ordenar horários de cada dia
+    Object.values(diasMap).forEach((lista) =>
+      lista.sort((a, b) => new Date(a.dt_txt) - new Date(b.dt_txt))
+    );
 
     const frag = document.createDocumentFragment();
-    Object.entries(diasMap)?.sort(([a],[b]) => new Date(a) - new Date(b))?.slice(0,4)
-      .forEach(([dia,lista]) => frag.appendChild(this.criarCardDia(dia,lista)));
+    Object.entries(diasMap)
+      .sort(([a], [b]) => new Date(a) - new Date(b))
+      .slice(0, 4)
+      .forEach(([dia, lista]) => {
+        frag.appendChild(this.criarCardDia(dia, lista));
+      });
 
     container.appendChild(frag);
 
+    // ================== Foco e scroll ==================
     const titleEl = document.getElementById('title');
-    if(titleEl) {
-      titleEl.setAttribute('tabindex','-1');
-      titleEl.focus({preventScroll:true});
-      titleEl.scrollIntoView({behavior:'smooth', block:'start'});
+    if (titleEl) {
+      titleEl.setAttribute('tabindex', '-1'); // permite foco
+      titleEl.focus({ preventScroll: true });
+      titleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   },
 
-  async consultarMunicipio(cidadeObj) {
-    if (!cidadeObj?.nome) {
-      Toast.show('Selecione uma cidade antes de consultar.');
-      return;
-    }
-
+  // ================== Spinner ==================
+  mostrarSpinner() {
     const btn = document.getElementById('consultar-btn');
     const spinner = document.getElementById('spinner');
     spinner.style.display = 'inline-block';
     btn.disabled = true;
-    btn.setAttribute('aria-busy','true');
+    btn.setAttribute('aria-busy', 'true');
+  },
+
+  esconderSpinner() {
+    const btn = document.getElementById('consultar-btn');
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'none';
+    btn.disabled = false;
+    btn.removeAttribute('aria-busy');
+  },
+
+  async consultarMunicipio(cidadeObj) {
+    if (!cidadeObj || !cidadeObj.nome) {
+      Toast.show('Selecione uma cidade antes de consultar.');
+      return;
+    }
+
+    // Mostrar spinner dentro do botão e desabilitar
+    const btn = document.getElementById('consultar-btn');
+    const spinner = document.getElementById('spinner');
+    spinner.style.display = 'inline-block';
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
 
     try {
-      const res = await fetch(`${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`);
-      if(!res?.ok) throw new Error(`Erro HTTP ${res?.status}`);
-      const data = await res?.json();
-      if(!data?.list?.length) {
+      const res = await fetch(
+        `${backendUrl}?city=${encodeURIComponent(cidadeObj.nome)}`
+      );
+      if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (!data || !data.list || data.list.length === 0) {
         Toast.show('Previsão não encontrada para esta cidade.');
         return;
       }
 
       this.gerarCards(data, cidadeObj);
-      HistoricoFavoritos?.adicionarHistorico(cidadeObj);
-    } catch(err) {
+      HistoricoFavoritos.adicionarHistorico(cidadeObj);
+    } catch (err) {
       console.error(err);
       Toast.show('Erro ao consultar a previsão. Tente novamente mais tarde.');
     } finally {
+      // Esconder spinner e habilitar botão
       spinner.style.display = 'none';
       btn.disabled = false;
       btn.removeAttribute('aria-busy');
     }
-  }
+  },
 };
 
 export { Cards };

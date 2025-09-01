@@ -1,82 +1,86 @@
+// ================== IBGE ==================
+
 import { CACHE_KEY, CACHE_VALIDITY } from './config.js';
-import { Toast } from './toasts.js';
 
 const IBGE = {
   async carregarEstados() {
-    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-    const agora = Date.now();
-
-    if (cache.estados && cache.timestamp && (agora - cache.timestamp < CACHE_VALIDITY)) {
-      this.renderEstados(cache.estados);
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+    const now = Date.now();
+    if (cached.estados && now - cached.estadosTimestamp < CACHE_VALIDITY) {
+      this.popularEstados(cached.estados);
       return;
     }
-
     try {
-      const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados');
-      if (!res.ok) throw new Error('Erro ao buscar estados do IBGE');
-      const data = await res.json();
-
-      const estados = data.map(e => ({
-        id: e.id,
-        sigla: e.sigla,
-        nome: e.nome,
-        municipios: []
-      }));
-
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ estados, timestamp: agora }));
-      this.renderEstados(estados);
-
+      const res = await fetch(
+        'https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome'
+      );
+      const estados = await res.json();
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({ ...cached, estados, estadosTimestamp: now })
+      );
+      this.popularEstados(estados);
     } catch (err) {
+      Toast.show('Erro ao carregar estados do IBGE');
       console.error(err);
-      Toast.show('Não foi possível carregar os estados.');
     }
   },
 
-  renderEstados(estados) {
+  popularEstados(estados) {
     const select = document.getElementById('estado-select');
-    select.innerHTML = `<option value="">Selecione um estado</option>`;
-    estados.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.nome;
-      opt.dataset.sigla = e.sigla;
-      select.appendChild(opt);
+    select.innerHTML = '<option value="">Selecione o estado</option>';
+    const frag = document.createDocumentFragment();
+    estados.forEach((e) => {
+      const option = document.createElement('option');
+      option.value = e.id;
+      option.textContent = e.nome;
+      option.dataset.sigla = e.sigla;
+      frag.appendChild(option);
     });
+    select.appendChild(frag);
   },
 
   async carregarMunicipios(estadoId) {
-    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || "{}");
-    const estados = cache.estados || [];
-    const estado = estados.find(e => e.id == estadoId);
-    if (!estado) return;
+    const select = document.getElementById('municipio-select');
+    select.innerHTML = '<option value="">Selecione o município</option>';
+    if (!estadoId) return;
 
-    if (!estado.municipios || estado.municipios.length === 0) {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
+    const now = Date.now();
+    let municipios = [];
+
+    if (
+      cached.municipios &&
+      cached.municipios[estadoId] &&
+      now - cached.municipios[estadoId].timestamp < CACHE_VALIDITY
+    ) {
+      municipios = cached.municipios[estadoId].data;
+    } else {
       try {
-        const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`);
-        if(!res.ok) throw new Error('Erro ao buscar municípios');
-        const data = await res.json();
-        estado.municipios = data.map(m=>({id:m.id, nome:m.nome}));
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-      } catch(err) {
+        const res = await fetch(
+          `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estadoId}/municipios`
+        );
+        municipios = await res.json();
+        cached.municipios = cached.municipios || {};
+        cached.municipios[estadoId] = { data: municipios, timestamp: now };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+      } catch (err) {
+        Toast.show('Erro ao carregar municípios do IBGE');
         console.error(err);
-        Toast.show('Não foi possível carregar os municípios.');
         return;
       }
     }
 
-    this.renderMunicipios(estado.municipios);
-  },
-
-  renderMunicipios(municipios) {
-    const select = document.getElementById('municipio-select');
-    select.innerHTML = `<option value="">Selecione um município</option>`;
-    municipios.sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(m=>{
-      const opt = document.createElement('option');
-      opt.value = m.nome;
-      opt.textContent = m.nome;
-      select.appendChild(opt);
+    const frag = document.createDocumentFragment();
+    municipios.forEach((m) => {
+      const option = document.createElement('option');
+      option.value = m.nome;
+      option.textContent = m.nome;
+      frag.appendChild(option);
     });
-  }
+    select.appendChild(frag);
+  },
 };
 
+// Exportando o módulo IBGE
 export { IBGE };
