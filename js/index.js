@@ -1,46 +1,42 @@
-// ================== Importando os módulos ==================
-import { Toast } from './toasts.js';
-import { Theme } from './theme.js';
-import { HistoricoFavoritos } from './historicoFavoritos.js';
-import { IBGE } from './ibge.js';
-import { Cards } from './cards.js';
+import { Toast } from "./toasts.js";
+import { Theme } from "./theme.js";
+import { HistoricoFavoritos } from "./historicoFavoritos.js";
+import { IBGE } from "./ibge.js";
+import { Cards } from "./cards.js";
+import { Geo } from "./geo.js";
 
-// ================== Configurações ==================
-const horariosDesejados = [
-  '00:00:00',
-  '06:00:00',
-  '12:00:00',
-  '18:00:00',
-  '21:00:00',
-];
-
-// ================== Inicialização ==================
-// Carregar o tema salvo
+// Carrega tema
 Theme.load();
 
-// Carregar estados do IBGE
+// Carrega estados do IBGE
 IBGE.carregarEstados();
 
-// Renderizar histórico e favoritos
+// Renderiza histórico/favoritos
 HistoricoFavoritos.render();
 
-// ================== Eventos ==================
+// Inicializa geolocalização
+async function inicializarPrevisao(){
+  try {
+    const resultado = await Geo.detectarLocalizacao();
+    if(!resultado) console.log("Fallback: usuário escolhe manualmente.");
+  } catch(err){
+    console.warn("Erro geolocalização, fallback manual.",err);
+  }
+}
+inicializarPrevisao();
 
-// Evento de mudança no select de estado
-document
-  .getElementById('estado-select')
-  .addEventListener('change', async (e) => {
-    const estadoId = e.target.value;
-    await IBGE.carregarMunicipios(estadoId);
-  });
+// Eventos fallback
+document.getElementById("estado-select").addEventListener("change", async (e)=>{
+  const estadoId = e.target.value;
+  await IBGE.carregarMunicipios(estadoId);
+});
 
-// Evento de clique no botão "Consultar"
-document.getElementById('consultar-btn').addEventListener('click', () => {
-  const municipioSelect = document.getElementById('municipio-select');
-  const estadoSelect = document.getElementById('estado-select');
+document.getElementById("consultar-btn").addEventListener("click", ()=>{
+  const municipioSelect = document.getElementById("municipio-select");
+  const estadoSelect = document.getElementById("estado-select");
 
-  if (!municipioSelect.value || !estadoSelect.value) {
-    Toast.show('Selecione estado e município antes de consultar.');
+  if(!municipioSelect.value || !estadoSelect.value){
+    Toast.show("Selecione estado e município antes de consultar.");
     return;
   }
 
@@ -48,31 +44,49 @@ document.getElementById('consultar-btn').addEventListener('click', () => {
   const cidadeObj = {
     nome: municipioSelect.value,
     estadoId: estadoSelect.value,
-    estadoSigla: estadoOption.dataset.sigla || '',
+    estadoSigla: estadoOption.dataset.sigla || "",
   };
 
   Cards.consultarMunicipio(cidadeObj);
 });
 
-// ================== Botão Voltar ao Topo ==================
-const scrollTopButton = document.getElementById('back-to-top');
-scrollTopButton.style.display = 'none'; // Inicialmente escondido
+// Botão voltar ao topo
+const scrollTopButton = document.getElementById("back-to-top");
+scrollTopButton.style.display = "none";
 
-// Mostrar o botão quando o usuário rolar para baixo
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 200) {
-    scrollTopButton.style.display = 'flex';
-  } else {
-    scrollTopButton.style.display = 'none';
+window.addEventListener("scroll",()=>{
+  scrollTopButton.style.display = window.scrollY>200 ? "flex":"none";
+});
+
+scrollTopButton.addEventListener("click",()=>{
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+window.testarGeoForcado = async function() {
+  try {
+    let resultado = null;
+    if(navigator.geolocation) {
+      try {
+        resultado = await Geo.detectarLocalizacao();
+      } catch(e) {
+        console.warn("Geolocalização real falhou, usando fallback...");
+      }
+    }
+
+    if(!resultado) {
+      resultado = {
+        nome: 'São Miguel do Oeste',
+        estadoSigla: 'SC',
+        id: null
+      };
+      console.log("Usando fallback forçado:", resultado);
+      Cards.consultarMunicipio(resultado);
+    }
+  } catch(err) {
+    console.error("Erro no teste de geolocalização:", err);
   }
-});
+};
 
-// Evento de clique no botão "Voltar ao topo"
-scrollTopButton.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
 
-// Evento de alternar tema
-document.getElementById('theme-toggle').addEventListener('click', () => {
-  Theme.toggle(); // Alterna o tema
-});
+// Alternar tema
+document.getElementById("theme-toggle").addEventListener("click",()=>{ Theme.toggle(); });
