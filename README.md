@@ -3,6 +3,7 @@
 Clima Novo é um aplicativo de previsão do tempo moderno e leve, que permite consultar o clima de qualquer cidade do Brasil com facilidade.  
 Inclui histórico, favoritos, cards interativos e suporte a tema claro/escuro.
 
+https://ferreira2006.github.io/weather-pwa/
 ---
 
 ## ✨ Funcionalidades
